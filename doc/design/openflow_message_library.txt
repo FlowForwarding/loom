@@ -1,0 +1,22 @@
+OpenFlow Message library is a high level library for generating OpenFlow messages without having to know the data structures used by linc.
+
+Requirements
+
+The API shall
+1, the function names shall reflect the logical operation to perform, and not the exact OpenFlow message used.
+2, accept logical names, atoms, instead of numeric values where appropriate, e.g.  ipv4 and ipv6 instead of 0x0800 or 0x86dd.
+3, automatically insert prerequisite match fields when they can be unambigously determined.
+4, provide message validation.
+5, transform received OpenFlow messages to a format similar to that used in the requests.
+6, support multiple OpenFlow versions
+
+The most complex data structure used in OpenFlow is the matches used in flow definitions and as filters in several other operations.
+The proposed format for this is
+Matches = [Match]
+Match = {FieldName, Value} | {FieldName, Value, Mask}
+
+A large part of this already exists in various modules in of_protocol, link and the Infoblox Loom codebase.
+- Consolidate message existing message generation code from various existing modules
+- Parameterize some generators that currently only hardcode parameters
+- Add "parser" that converts linc, (or rather of_protocol), data structures to the message library format.
+- Add validation, especially of matches and operations in flow definitions.

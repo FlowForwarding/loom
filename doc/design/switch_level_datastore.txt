@@ -1,0 +1,19 @@
+The switch level datastore is an authoritative store of all configuration of an OpenFlow switch. It is used by the ofs_handler
+
+Requirements
+-----------
+
+1, store flows, groups, meters, et.c.
+2, support the OpenFlow semantics for modifying and deleting flows with normal or strict matching
+3, support the OpenFlow semantic for deleting flows when deleting groups or meters
+4, support multiple OpenFlow versions
+5, provide lookup with with filters using OpenFlow normal or strict matching semantics
+6, provide test functions to check how many, or which, flows will be affected by an operation on the switch
+7, maintain two versions of the data,
+   1) the currently confirmed state, this is the authorative view of the switch
+   2) the planned state, this is the future state when all requests issued to the switch has been successfully executed
+8, provide multigenerational locking, i.e. when checking if it is possible to submit a request to the switch check if the requests overlaps with any issued requests both in the confirmed state and the planned state
+9, provide a commit function, this moves the changes planned by a request from the planned state to the confirmed state, and removes the lock on the flows
+10, provide rollback function, remove the changes from the planned state and remove the lock from the confirmed state
+11, the design shall separate as much as possible the logic from the actual data storage to make it possible to change the storage backend
+12, the initial storage backend will be ets
