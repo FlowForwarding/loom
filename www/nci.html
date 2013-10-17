@@ -1,0 +1,149 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title> Tapestry </title>
+  	    <link rel="stylesheet" href="../../../deps/libs/foundation/normalize.css" />
+  	    <link rel="stylesheet" href="../../../deps/libs/foundation/foundation.min.css"> 
+        <link rel="stylesheet" href="static/foundation.overrides.css"> 
+		<link rel="stylesheet" href="../../../deps/libs/jquery/jquery-ui-1.10.3.custom.min.css">
+		
+		<script src='../../../deps/libs/google/google.jsapi.js'></script>
+		<script src='static/chart.js'></script>
+		<script src='../../../deps/libs/google/google.corechart.min.js'></script>
+		<script src='../../../deps/libs/jquery/jquery-1.9.1.js'></script>
+		<script src="../../../deps/libs/jquery/jquery-ui-1.10.3.custom.min.js"></script>
+		<script type="text/javascript">
+	    	$(function() {
+				var timeRanges = {
+					ranges: [59, 
+					59 + 23, 
+					59 + 23 + 31, 
+					59 + 23 + 31 + 11, 
+					59 + 23 + 31 + 11 + 10],
+					rangeNames : ['mins', 'hours', 'days', 'months', 'years']
+				};
+				var getValueByRange = function(intValue){
+					var date;
+					$.each(timeRanges.ranges, function(index, range){
+						if (intValue < range){
+							var periodData = intValue + 1;
+							if ( index !== 0 ){
+								periodData -= timeRanges.ranges[index - 1];
+							};
+						    date = periodData + " " + timeRanges.rangeNames[index];
+							return false;
+					    };
+					});
+					return date;
+			    };
+	    		$( "#slider" ).slider({
+					max: 133,
+					change: function( event, ui ) {
+					   console.log(ui.value);
+				   },
+				   slide: function( event, ui ) {
+					   console.log(getValueByRange(ui.value));
+	      	 	   },
+	      	 	});
+	    	});
+	       google.setOnLoadCallback(initChart);
+	    </script>
+	</head>
+	<body>
+		<nav class="top-bar">
+			<ul class="title-area">
+				<li class="name">
+					<h4>Tapestry for Infoblox Network</h4>
+				</li>
+			</ul>
+		</nav>
+		<div class="row">
+  		  <div class="large-9 small-10 columns">
+  			  <div id="visualization" class="nci-chart"></div>
+  		  </div>
+		  <div class="large-3 small-2 columns">
+			  <br><br><br><br>
+		  	  <div class="row">
+				  <h2>453 <small> NCI </small></h2>
+		  	  </div>
+			  <div class="row">
+			  	  <h3>53.233 <small> endpoints </small></h3>
+			  </div>
+			  <div class="row">
+				  <h3>11.2M <small> queries </small></h3>
+			  </div>
+			  <div class="row">
+				  <h3>11.456 <small> qps </small></h3>
+			  </div>
+		  </div>
+		</div>
+		<div class="row">
+			<div class="small-4 columns">
+				<h3> <small> changes for last </small> 10 days</h3>
+			</div>
+			<div class="small-8 columns">
+				<br>
+			<div id="slider"></div>
+			</div>
+		</div>
+		
+		<div id="nciSettingsPanel"  class="panel settings-panel">
+		    <form class="custom" style="padding-top:30px;">	
+		    	<div class="row">
+					<div class="small-12 columns">
+						<input type="text" placeholder="nci.infoblox.com">
+					</div>
+				</div>
+				<div class="row">
+					<div class="small-12 columns">
+						<label for="checkbox1">
+							<input type="checkbox" id="checkbox1" style="display: none;">
+							<span class="custom checkbox"></span> authenticate
+						</label>
+					</div>
+				</div>
+				<div class="row">
+					<div class="small-12 columns">
+						<input type="text" placeholder="name">
+					</div>
+				</div>
+				<div class="row">
+					<div class="small-12 columns">
+						<input type="text" placeholder="password">
+					</div>
+				</div>
+				<div class="row">
+					<div class="small-12 columns">
+						<label for="checkbox1">
+							<input type="checkbox" id="checkbox1" style="display: none;">
+							<span class="custom checkbox"></span> save as default
+						</label>
+					</div>
+				</div> 
+				<div class="row">
+					<div class="small-8 columns"></div> 
+					<div class="small-4 columns">
+						<a class="small button">Apply</a>
+					</div> 
+				</div> 
+			</form>
+		</div>
+		<div id="nciInfoPanel"  class="panel settings-panel">
+			<h4> Helpful Information</h4>
+			<span>
+				Here we have a lot of significant information about fantastic NCI
+			</span>
+	    </div>
+		<div class="left-menu">
+			<ul class="side-nav">
+			  <li id="nciSettingsBtn"><img src="static/images/settings.png"></img></li>
+			  <li id="nciInfoBtn"><img src="static/images/info.png"></img></li>
+			  <li id="nciPlayBtn"><img src="static/images/pause.png"></img></li>
+			</ul>
+		</div>
+
+		<script src='static/nci.js'></script>
+		<script src='../../../deps/libs/foundation/foundation.min.js'></script>  
+	</body>
+</html>
