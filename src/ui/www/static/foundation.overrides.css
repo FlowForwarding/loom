@@ -1,0 +1,10 @@
+.top-bar .title-area {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+	width: 100%;
+}
+
+.top-bar {
+	background: #005950;
+}
