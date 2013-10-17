@@ -6,16 +6,47 @@
   	    <link rel="stylesheet" href="../../../deps/libs/foundation/normalize.css" />
   	    <link rel="stylesheet" href="../../../deps/libs/foundation/foundation.min.css"> 
         <link rel="stylesheet" href="static/foundation.overrides.css"> 
+		
+		<script src='../../../deps/libs/google/google.jsapi.js'></script>
+		<script src='../../../deps/libs/google/google.corechart.min.js'></script>
+		<script type="text/javascript">
+	       google.setOnLoadCallback(initChart);
+		   
+		   function initChart (){
+			   var options = {
+				   width: 500,
+				   height: 300,
+				   vAxis: {minValue:0, maxValue:100},
+				   animation: {
+					   duration: 1000,
+					   easing: 'in'
+				   }
+			   };
+			   
+			   var chart = new google.visualization.LineChart(document.getElementById('visualization'));
+			   var data = new google.visualization.DataTable();
+			   data.addColumn('string', 'x');
+			   data.addColumn('number', 'y');
+			   data.addRow(['100', 123]);
+			   data.addRow(['700', 17]);
+			   var button = document.getElementById('b1');
+			   function drawChart() {
+				   chart.draw(data, options);
+			   }
+			   drawChart();
+	   }
+	    </script>
 	</head>
 	<body>
-  	  <nav class="top-bar">
-  		  <ul class="title-area">
-		      <li class="name">
-		         <h4>Tapestry</h4>
-		       </li>
-  		  </ul>
-  	  </nav>
-		
+		<nav class="top-bar">
+			<ul class="title-area">
+				<li class="name">
+					<h4>Tapestry</h4>
+				</li>
+			</ul>
+		</nav>
+		 <div id="visualization" style="width:500; height:300"></div>	
+	
 		<script src='../../../deps/libs/zepto.js'></script>
 		<script src='../../../deps/libs/foundation/foundation.min.js'></script>  
 	</body>
