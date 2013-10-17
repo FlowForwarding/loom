@@ -45,9 +45,64 @@
 				</li>
 			</ul>
 		</nav>
-		 <div id="visualization" style="width:500; height:300"></div>	
-	
+		<div id="visualization" class="nci-chart"></div>
+		<div id="nciSettingsPanel"  class="panel settings-panel">
+		    <form class="custom" style="padding-top:30px;">	
+		    	<div class="row">
+					<div class="small-12 columns">
+						<input type="text" placeholder="nci.infoblox.com">
+					</div>
+				</div>
+				<div class="row">
+					<div class="small-12 columns">
+						<label for="checkbox1">
+							<input type="checkbox" id="checkbox1" style="display: none;">
+							<span class="custom checkbox"></span> authenticate
+						</label>
+					</div>
+				</div>
+				<div class="row">
+					<div class="small-12 columns">
+						<input type="text" placeholder="name">
+					</div>
+				</div>
+				<div class="row">
+					<div class="small-12 columns">
+						<input type="text" placeholder="password">
+					</div>
+				</div>
+				<div class="row">
+					<div class="small-12 columns">
+						<label for="checkbox1">
+							<input type="checkbox" id="checkbox1" style="display: none;">
+							<span class="custom checkbox"></span> save as default
+						</label>
+					</div>
+				</div> 
+				<div class="row">
+					<div class="small-8 columns"></div> 
+					<div class="small-4 columns">
+						<a class="small button">Apply</a>
+					</div> 
+				</div> 
+			</form>
+		</div>
+		<div id="nciInfoPanel"  class="panel settings-panel">
+			<h4> Helpful Information</h4>
+			<span>
+				Here we have a lot of valueble information about fantastic NCI
+			</span>
+	    </div>
+		<div class="left-menu">
+			<ul class="side-nav">
+			  <li id="nciSettingsBtn"><img src="static/images/settings.png"></img></li>
+			  <li id="nciInfoBtn"><img src="static/images/info.png"></img></li>
+			  <li id="nciPlayBtn"><img src="static/images/pause.png"></img></li>
+			</ul>
+		</div>
+
 		<script src='../../../deps/libs/zepto.js'></script>
+		<script src='static/nci.js'></script>
 		<script src='../../../deps/libs/foundation/foundation.min.js'></script>  
 	</body>
 </html>
