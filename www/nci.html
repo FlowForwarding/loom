@@ -3,16 +3,16 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<title> Tapestry </title>
-  	    <link rel="stylesheet" href="../../../deps/libs/foundation/normalize.css" />
-  	    <link rel="stylesheet" href="../../../deps/libs/foundation/foundation.min.css"> 
+  	    <link rel="stylesheet" href="../deps/libs/foundation/normalize.css" />
+  	    <link rel="stylesheet" href="../deps/libs/foundation/foundation.min.css"> 
         <link rel="stylesheet" href="static/foundation.overrides.css"> 
-		<link rel="stylesheet" href="../../../deps/libs/jquery/jquery-ui-1.10.3.custom.min.css">
+		<link rel="stylesheet" href="../deps/libs/jquery/jquery-ui-1.10.3.custom.min.css">
 		
-		<script src='../../../deps/libs/google/google.jsapi.js'></script>
+		<script src='../deps/libs/google/google.jsapi.js'></script>
 		<script src='static/chart.js'></script>
-		<script src='../../../deps/libs/google/google.corechart.min.js'></script>
-		<script src='../../../deps/libs/jquery/jquery-1.9.1.js'></script>
-		<script src="../../../deps/libs/jquery/jquery-ui-1.10.3.custom.min.js"></script>
+		<script src='../deps/libs/google/google.corechart.min.js'></script>
+		<script src='../deps/libs/jquery/jquery-1.9.1.js'></script>
+		<script src="../deps/libs/jquery/jquery-ui-1.10.3.custom.min.js"></script>
 		<script type="text/javascript">
 	    	$(function() {
 				var timeRanges = {
@@ -21,30 +21,32 @@
 					59 + 23 + 31, 
 					59 + 23 + 31 + 11, 
 					59 + 23 + 31 + 11 + 10],
-					rangeNames : ['mins', 'hours', 'days', 'months', 'years']
+					rangeNames : ['mins', 'hours', 'days', 'mnths', 'years']
 				};
 				var getValueByRange = function(intValue){
-					var date;
+					var date, friquent;
 					$.each(timeRanges.ranges, function(index, range){
 						if (intValue < range){
 							var periodData = intValue + 1;
 							if ( index !== 0 ){
 								periodData -= timeRanges.ranges[index - 1];
 							};
+							friquent = index === 0;
 						    date = periodData + " " + timeRanges.rangeNames[index];
 							return false;
 					    };
 					});
-					return date;
+					return {date : date, friquent: friquent};
 			    };
 	    		$( "#slider" ).slider({
 					max: 133,
 					change: function( event, ui ) {
-					   console.log(ui.value);
-				   },
-				   slide: function( event, ui ) {
-					   console.log(getValueByRange(ui.value));
-	      	 	   },
+					    var range = getValueByRange(ui.value);
+						range.friquent ? NCI.frequencyDropdown.show() : NCI.frequencyDropdown.hide();
+				    },
+				    slide: function( event, ui ) {
+						NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(ui.value).date)
+	      	 	    },
 	      	 	});
 	    	});
 	       google.setOnLoadCallback(initChart);
@@ -79,10 +81,22 @@
 		  </div>
 		</div>
 		<div class="row">
-			<div class="small-4 columns">
-				<h3> <small> changes for last </small> 10 days</h3>
+			<div class="large-1 small-1 columns">&nbsp;</div>
+			<div class="large-3 small-3 columns">
+				<h3 id="periodLabel"> <small> data for last </small> 1 mins</h3>
 			</div>
-			<div class="small-8 columns">
+			<div class="large-2 small-4 columns">				
+				<form id="frequencyDropdown" class="custom">
+				  <label for="customDropdown">Update every</label>
+				  <select id="customDropdown">
+				    <option>2 sec</option>
+				    <option>3 sec</option>
+				    <option>5 sec</option>
+					<option>8 sec</option>
+					<option>13 sec</option>
+				  </select>
+				</form></div>
+			<div class="large-6  small-3 columns">
 				<br>
 			<div id="slider"></div>
 			</div>
@@ -144,6 +158,11 @@
 		</div>
 
 		<script src='static/nci.js'></script>
-		<script src='../../../deps/libs/foundation/foundation.min.js'></script>  
+		<script src='../deps/libs/foundation/foundation.min.js'></script>  
+		<script type="text/javascript">
+			$(function(){
+		    	$(document).foundation();
+			});
+		</script> 
 	</body>
 </html>
