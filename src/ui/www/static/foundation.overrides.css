@@ -26,6 +26,7 @@ h3 small, h2 small{
 	background: #005950;
 	position: absolute;
 	top: 45px;
+	z-index: 100;
 }
 
 .settings-panel {
@@ -33,7 +34,7 @@ h3 small, h2 small{
 	height:100%;
 	position: absolute;
 	top: 45px;
-/*	display:none;*/
+	z-index: 100;
 	left: -230px;
     -moz-transition: all 0.5s;
 	-webkit-transition: all 0.5s;

@@ -6,11 +6,24 @@
   	    <link rel="stylesheet" href="../../../deps/libs/foundation/normalize.css" />
   	    <link rel="stylesheet" href="../../../deps/libs/foundation/foundation.min.css"> 
         <link rel="stylesheet" href="static/foundation.overrides.css"> 
+		<link rel="stylesheet" href="../../../deps/libs/jquery/jquery-ui-1.10.3.custom.min.css">
 		
 		<script src='../../../deps/libs/google/google.jsapi.js'></script>
 		<script src='static/chart.js'></script>
 		<script src='../../../deps/libs/google/google.corechart.min.js'></script>
+		<script src='../../../deps/libs/jquery/jquery-1.9.1.js'></script>
+		<script src="../../../deps/libs/jquery/jquery-ui-1.10.3.custom.min.js"></script>
 		<script type="text/javascript">
+	    	$(function() {
+	    		$( "#slider" ).slider({
+	      	 	   change: function( event, ui ) {
+					   console.log('changed');
+	      	 	   },
+				   slide: function( event, ui ) {
+					   console.log('slide');
+	      	 	   },
+	      	 	});
+	    	});
 	       google.setOnLoadCallback(initChart);
 	    </script>
 	</head>
@@ -18,7 +31,7 @@
 		<nav class="top-bar">
 			<ul class="title-area">
 				<li class="name">
-					<h4>Tapestry for _________ Network, Jun 23</h4>
+					<h4>Tapestry for Network, Jun 23</h4>
 				</li>
 			</ul>
 		</nav>
@@ -41,6 +54,16 @@
 				  <h3>11.456 <small> qps </small></h3>
 			  </div>
 		  </div>
+		</div>
+		<div class="row">
+			<div class="small-2 columns">
+				&nbsp;
+			</div>
+			<div class="small-8 columns">
+			<div id="slider"></div>
+			</div>
+			<div class="small-2 columns">
+			</div>
 		</div>
 		
 		<div id="nciSettingsPanel"  class="panel settings-panel">
@@ -98,7 +121,6 @@
 			</ul>
 		</div>
 
-		<script src='../../../deps/libs/zepto.js'></script>
 		<script src='static/nci.js'></script>
 		<script src='../../../deps/libs/foundation/foundation.min.js'></script>  
 	</body>
