@@ -56,3 +56,6 @@ $.each(NCI.sideMenuBtns, function(index, btn){
 		};
 	});
 });	
+
+NCI.periodLabel = $('#periodLabel');
+NCI.frequencyDropdown = $('#frequencyDropdown');
