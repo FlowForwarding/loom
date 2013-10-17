@@ -9,25 +9,30 @@
 	background: #005950;
 }
 
-.nci-chart {
-	margin-left: auto;
-	margin-right: auto;
-	/*left: -200px;*/
-	width:400px; height:0;
+h3 small, h2 small{
+	color: #005950;
 }
 
+.nci-chart {
+/*	margin-left: auto;
+	margin-right: auto;*/
+	/*left: -200px;*/
+	/*width:400px; height:0;*/
+}
 
 .left-menu {
 	width:50px;
 	height:100%;
 	background: #005950;
 	position: absolute;
+	top: 45px;
 }
 
 .settings-panel {
 	width:280px;
 	height:100%;
-	position:absolute;
+	position: absolute;
+	top: 45px;
 /*	display:none;*/
 	left: -230px;
     -moz-transition: all 0.5s;
@@ -46,7 +51,7 @@
 }
 
 .side-nav li.active {
-	background: gray;	
+	background: #50b487;	
 }
 
 .show-menupanel {

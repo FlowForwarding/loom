@@ -2,50 +2,47 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
-		<title>Tapestry</title>
+		<title> Tapestry </title>
   	    <link rel="stylesheet" href="../../../deps/libs/foundation/normalize.css" />
   	    <link rel="stylesheet" href="../../../deps/libs/foundation/foundation.min.css"> 
         <link rel="stylesheet" href="static/foundation.overrides.css"> 
 		
 		<script src='../../../deps/libs/google/google.jsapi.js'></script>
+		<script src='static/chart.js'></script>
 		<script src='../../../deps/libs/google/google.corechart.min.js'></script>
 		<script type="text/javascript">
 	       google.setOnLoadCallback(initChart);
-		   
-		   function initChart (){
-			   var options = {
-				   width: 500,
-				   height: 300,
-				   vAxis: {minValue:0, maxValue:100},
-				   animation: {
-					   duration: 1000,
-					   easing: 'in'
-				   }
-			   };
-			   
-			   var chart = new google.visualization.LineChart(document.getElementById('visualization'));
-			   var data = new google.visualization.DataTable();
-			   data.addColumn('string', 'x');
-			   data.addColumn('number', 'y');
-			   data.addRow(['100', 123]);
-			   data.addRow(['700', 17]);
-			   var button = document.getElementById('b1');
-			   function drawChart() {
-				   chart.draw(data, options);
-			   }
-			   drawChart();
-	   }
 	    </script>
 	</head>
 	<body>
 		<nav class="top-bar">
 			<ul class="title-area">
 				<li class="name">
-					<h4>Tapestry</h4>
+					<h4>Tapestry for _________ Network, Jun 23</h4>
 				</li>
 			</ul>
 		</nav>
-		<div id="visualization" class="nci-chart"></div>
+		<div class="row">
+  		  <div class="large-9 small-10 columns">
+  			  <div id="visualization" class="nci-chart"></div>
+  		  </div>
+		  <div class="large-3 small-2 columns">
+			  <br><br><br><br>
+		  	  <div class="row">
+				  <h2>453 <small> NCI </small></h2>
+		  	  </div>
+			  <div class="row">
+			  	  <h3>53.233 <small> endpoints </small></h3>
+			  </div>
+			  <div class="row">
+				  <h3>11.2M <small> queries </small></h3>
+			  </div>
+			  <div class="row">
+				  <h3>11.456 <small> qps </small></h3>
+			  </div>
+		  </div>
+		</div>
+		
 		<div id="nciSettingsPanel"  class="panel settings-panel">
 		    <form class="custom" style="padding-top:30px;">	
 		    	<div class="row">
@@ -90,7 +87,7 @@
 		<div id="nciInfoPanel"  class="panel settings-panel">
 			<h4> Helpful Information</h4>
 			<span>
-				Here we have a lot of valueble information about fantastic NCI
+				Here we have a lot of significant information about fantastic NCI
 			</span>
 	    </div>
 		<div class="left-menu">
