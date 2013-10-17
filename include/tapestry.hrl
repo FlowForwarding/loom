@@ -6,6 +6,6 @@
 -define(YAWS_DOC_ROOT,"./www").
 -define(YAWS_LOG_DIR,"./log").
 -define(YAWS_ID,"tapestry").
--define(YAWS_LOCAL_PORT,{0,0,0,0}).
+-define(YAWS_DEFAULT_ADDRESS,"0.0.0.0").
 
 -define(BERT_VERSION,194).
