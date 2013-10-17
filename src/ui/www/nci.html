@@ -15,12 +15,35 @@
 		<script src="../../../deps/libs/jquery/jquery-ui-1.10.3.custom.min.js"></script>
 		<script type="text/javascript">
 	    	$(function() {
+				var timeRanges = {
+					ranges: [59, 
+					59 + 23, 
+					59 + 23 + 31, 
+					59 + 23 + 31 + 11, 
+					59 + 23 + 31 + 11 + 10],
+					rangeNames : ['mins', 'hours', 'days', 'months', 'years']
+				};
+				var getValueByRange = function(intValue){
+					var date;
+					$.each(timeRanges.ranges, function(index, range){
+						if (intValue < range){
+							var periodData = intValue + 1;
+							if ( index !== 0 ){
+								periodData -= timeRanges.ranges[index - 1];
+							};
+						    date = periodData + " " + timeRanges.rangeNames[index];
+							return false;
+					    };
+					});
+					return date;
+			    };
 	    		$( "#slider" ).slider({
-	      	 	   change: function( event, ui ) {
-					   console.log('changed');
-	      	 	   },
+					max: 133,
+					change: function( event, ui ) {
+					   console.log(ui.value);
+				   },
 				   slide: function( event, ui ) {
-					   console.log('slide');
+					   console.log(getValueByRange(ui.value));
 	      	 	   },
 	      	 	});
 	    	});
@@ -31,7 +54,7 @@
 		<nav class="top-bar">
 			<ul class="title-area">
 				<li class="name">
-					<h4>Tapestry for Network, Jun 23</h4>
+					<h4>Tapestry for Infoblox Network</h4>
 				</li>
 			</ul>
 		</nav>
@@ -56,13 +79,12 @@
 		  </div>
 		</div>
 		<div class="row">
-			<div class="small-2 columns">
-				&nbsp;
+			<div class="small-4 columns">
+				<h3> <small> changes for last </small> 10 days</h3>
 			</div>
 			<div class="small-8 columns">
+				<br>
 			<div id="slider"></div>
-			</div>
-			<div class="small-2 columns">
 			</div>
 		</div>
 		
