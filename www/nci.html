@@ -135,12 +135,12 @@
 		    };
 		 
 		    connection.onmessage  = function (e) {
-				var data = eval("var tmp = '" + e.data + "'");
-				var params = {};
-				params.time = new Date(data.time);
-				params.nci = data.NCI;
+				var data = eval("tmp = " + e.data );
 				console.log(data);
-				NCI.drawChart(params);
+				var params = {};
+				params.time = new Date(data.Time);
+				params.NCI = data.NCI;
+				NCI.addValueToChart(params);
 		    };
 		</script> 
 	</body>
