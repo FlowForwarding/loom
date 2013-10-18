@@ -161,7 +161,6 @@ NCI.initSlider = function(){
 		max: 133,
 		change: function( event, ui ) {
 		    var range = getValueByRange(ui.value);
-			range.friquent ? NCI.frequencyDropdown.show() : NCI.frequencyDropdown.hide();
 	    },
 	    slide: function( event, ui ) {
 			NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(ui.value).date)
