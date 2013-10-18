@@ -1,7 +1,80 @@
 NCI = {};
 
+NCI.updateInterval = localStorage.updateInterval || 2;
+NCI.timePeriod = localStorage.timePeriod;
+
+NCI.getChartData = function(){
+    $.ajax({
+        type: 'GET',
+        url: '/chart',
+        dataType: 'json',
+		data: {
+			timePeriod: NCI.timePeriod,
+			updateInterval: NCI.updateInterval
+		},
+        success: function(data){
+			//update ui
+        },
+        error: function(xhr, type){
+			console.log('server log');
+        }
+    });
+};
+
 NCI.settingsPanel = (function(){
 	var me =  $('#nciSettingsPanel');
+	var saveBtn = me.find('#saveSettings');
+	var collector = me.find('#collectorInput');
+	var username = me.find('#usernameInput');
+	var password = me.find('#passwordInput');
+	var auth = me.find('#authOption');
+	var makeDefault = me.find('#makeDefault');
+	var alertBox = me.find('.alert-box');
+	alertBox.css('visibility', 'hidden');
+	
+	collector.val(localStorage.collector);
+	username.val(localStorage.username);
+	password.val(localStorage.password);
+	auth[0].checked = localStorage.auth;
+	
+	alertBox.on('click', '.close', function(){
+		alertBox.css('visibility', 'hidden');
+	});
+	
+	auth.on('change', function(){
+		username.prop('disabled', auth[0].checked);
+		password.prop('disabled', auth[0].checked);
+	});
+	
+	var params = {};
+	params.collector = collector.val();
+	if (auth[0].checked){
+		params.username = username.val();
+		params.password = password.val();
+	};
+	
+	saveBtn.on('click', function(){
+		if (makeDefault[0].checked){
+			localStorage.auth = auth[0].checked;
+			localStorage.collector = collector.val();
+			localStorage.username = username.val();
+			localStorage.password = password.val();
+		};
+		alertBox.css('visibility', 'hidden');
+        $.ajax({
+            type: 'POST',
+            url: '/auth',
+            dataType: 'json',
+			data: params,
+            success: function(data){
+				//update ui
+            },
+            error: function(xhr, type){
+				alertBox.css('visibility', 'visible');
+                alertBox.html('Server Error<a class="close">&times;</a>');
+            }
+        });
+	});
 	
 	return me;
 }());

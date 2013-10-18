@@ -20,22 +20,31 @@ h3 small, h3 small, h2 small{
 	/*width:400px; height:0;*/
 }
 
+.side-nav li{
+	text-align: center;
+}
+
+.side-nav li i{
+	font-size: 3em;
+	color: #f90;
+}
+
 .left-menu {
 	width:50px;
 	height:100%;
 	background: #005950;
-	position: absolute;
+	position: fixed;
 	top: 45px;
 	z-index: 100;
 }
 
 .settings-panel {
-	width:280px;
-	height:100%;
-	position: absolute;
+	width: 250px;
+	height: 100%;
+	position: fixed;
 	top: 45px;
 	z-index: 100;
-	left: -230px;
+	left: -200px;
     -moz-transition: all 0.5s;
 	-webkit-transition: all 0.5s;
 	transition: all 0.5s;

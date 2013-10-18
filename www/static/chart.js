@@ -1,7 +1,12 @@
 function initChart (){
+	var chartWidth = 3 *$( window ).width()/4;
+	if (chartWidth > 700)
+		chartWidth = 700;
+    if ($( window ).width() < 400) 	
+	  chartWidth = 3*$( window ).width()/5; 
    var options = {
-	   width: 700,
-	   height: 400,
+	   width: chartWidth,
+	   height: $( window ).height()/2,
 	   legend: "none",
        title: '',
       // vAxis: {title: 'Year',  titleTextStyle: {color: 'red'}},

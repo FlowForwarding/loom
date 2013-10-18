@@ -3,16 +3,17 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<title> Tapestry </title>
-  	    <link rel="stylesheet" href="../deps/libs/foundation/normalize.css" />
-  	    <link rel="stylesheet" href="../deps/libs/foundation/foundation.min.css"> 
+  	    <link rel="stylesheet" href="static/libs/foundation/normalize.css" />
+  	    <link rel="stylesheet" href="static/libs/foundation/foundation.min.css"> 
         <link rel="stylesheet" href="static/foundation.overrides.css"> 
-		<link rel="stylesheet" href="../deps/libs/jquery/jquery-ui-1.10.3.custom.min.css">
+		<link rel="stylesheet" href="static/libs/jquery/jquery-ui-1.10.3.custom.min.css">
+		<link rel="stylesheet" href="static/libs/font-awesome/css/font-awesome.min.css" >
 		
-		<script src='../deps/libs/google/google.jsapi.js'></script>
+		<script src='static/libs/google/google.jsapi.js'></script>
 		<script src='static/chart.js'></script>
-		<script src='../deps/libs/google/google.corechart.min.js'></script>
-		<script src='../deps/libs/jquery/jquery-1.9.1.js'></script>
-		<script src="../deps/libs/jquery/jquery-ui-1.10.3.custom.min.js"></script>
+		<script src='static/libs/google/google.corechart.min.js'></script>
+		<script src='static/libs/jquery/jquery-1.9.1.js'></script>
+		<script src="static/libs/jquery/jquery-ui-1.10.3.custom.min.js"></script>
 		<script type="text/javascript">
 	    	$(function() {
 				var timeRanges = {
@@ -61,33 +62,27 @@
 			</ul>
 		</nav>
 		<div class="row">
-  		  <div class="large-9 small-10 columns">
-  			  <div id="visualization" class="nci-chart"></div>
-  		  </div>
-		  <div class="large-3 small-2 columns">
-			  <br><br><br><br>
-		  	  <div class="row">
-				  <h2>453 <small> NCI </small></h2>
-		  	  </div>
-			  <div class="row">
-			  	  <h3>53.233 <small> endpoints </small></h3>
+			<div class="large-1 small-1 columns">&nbsp;</div>
+	  		  <div class="large-8 small-7 columns">&nbsp;
+	  			  <div id="visualization" class="nci-chart"></div>
+	  		  </div>
+			  <div class="large-2 small-3 columns">
+				  <br><br>
+					  <h2>453 <small> NCI </small></h2>
+				  	  <h3>53.233 <small> endpoints </small></h3>
+					  <h3>11.2M <small> queries </small></h3>
+					  <h3>11.456 <small> qps </small></h3>
 			  </div>
-			  <div class="row">
-				  <h3>11.2M <small> queries </small></h3>
-			  </div>
-			  <div class="row">
-				  <h3>11.456 <small> qps </small></h3>
-			  </div>
-		  </div>
+			  <div class="large-1 small-1 columns"></div>
 		</div>
 		<div class="row">
-			<div class="large-1 small-1 columns">&nbsp;</div>
-			<div class="large-3 small-3 columns">
+			<div class="large-1 small-2 columns">&nbsp;</div>
+			<div class="large-3 small-5 columns">
 				<h3 id="periodLabel"> <small> data for last </small> 1 mins</h3>
 			</div>
-			<div class="large-2 small-4 columns">				
+			<div class="large-2 small-5 columns">				
 				<form id="frequencyDropdown" class="custom">
-				  <label for="customDropdown">Update every</label>
+				  <label for="customDropdown">Updates every</label>
 				  <select id="customDropdown">
 				    <option>2 sec</option>
 				    <option>3 sec</option>
@@ -96,50 +91,58 @@
 					<option>13 sec</option>
 				  </select>
 				</form></div>
-			<div class="large-6  small-3 columns">
+			<div class="large-6  small-10 columns">
 				<br>
 			<div id="slider"></div>
 			</div>
 		</div>
 		
-		<div id="nciSettingsPanel"  class="panel settings-panel">
-		    <form class="custom" style="padding-top:30px;">	
+		<div id="nciSettingsPanel"  class="settings-panel">
+		    <form class="custom" style="padding-top:10px;">	
+				<div class="row">
+					<div class="alert-box alert" style="margin:10;">
+						Error happened
+				  	  	<a class="close">&times;</a>
+					</div>
+				</div>
 		    	<div class="row">
 					<div class="small-12 columns">
-						<input type="text" placeholder="nci.infoblox.com">
+						<label>collector</label>
+						<input id="collectorInput" type="text" placeholder="nci.infoblox.com">
 					</div>
 				</div>
 				<div class="row">
 					<div class="small-12 columns">
-						<label for="checkbox1">
-							<input type="checkbox" id="checkbox1" style="display: none;">
+						<label for="authOption">
+							<input type="checkbox" id="authOption" style="display: none;">
 							<span class="custom checkbox"></span> authenticate
 						</label>
 					</div>
 				</div>
 				<div class="row">
 					<div class="small-12 columns">
-						<input type="text" placeholder="name">
+						<input type="text" id="usernameInput" placeholder="name">
 					</div>
 				</div>
 				<div class="row">
 					<div class="small-12 columns">
-						<input type="text" placeholder="password">
+						<input type="password" id="passwordInput" placeholder="password">
 					</div>
 				</div>
 				<div class="row">
 					<div class="small-12 columns">
-						<label for="checkbox1">
-							<input type="checkbox" id="checkbox1" style="display: none;">
+						<label for="makeDefault">
+							<input type="checkbox" id="makeDefault" style="display: none;">
 							<span class="custom checkbox"></span> save as default
 						</label>
 					</div>
 				</div> 
 				<div class="row">
-					<div class="small-8 columns"></div> 
-					<div class="small-4 columns">
-						<a class="small button">Apply</a>
-					</div> 
+					<div class="small-7 columns">&nbsp;</div> 
+					<div class="small-3 columns">
+						<a class="small button" id="saveSettings">Apply</a>
+					</div>
+					<div class="small-2 columns">&nbsp;</div> 
 				</div> 
 			</form>
 		</div>
@@ -151,14 +154,13 @@
 	    </div>
 		<div class="left-menu">
 			<ul class="side-nav">
-			  <li id="nciSettingsBtn"><img src="static/images/settings.png"></img></li>
-			  <li id="nciInfoBtn"><img src="static/images/info.png"></img></li>
-			  <li id="nciPlayBtn"><img src="static/images/pause.png"></img></li>
+			  <li id="nciSettingsBtn"><i class="icon-cog"></i></li>
+			  <li id="nciInfoBtn"><i class="icon-info"></i></img></li>
 			</ul>
 		</div>
 
 		<script src='static/nci.js'></script>
-		<script src='../deps/libs/foundation/foundation.min.js'></script>  
+		<script src='static/libs/foundation/foundation.min.js'></script>  
 		<script type="text/javascript">
 			$(function(){
 		    	$(document).foundation();
