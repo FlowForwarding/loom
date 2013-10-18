@@ -2,6 +2,35 @@ NCI = {};
 
 NCI.settingsPanel = (function(){
 	var me =  $('#nciSettingsPanel');
+	var saveBtn = me.find('#saveSettings');
+	var collector = me.find('#collectorInput');
+	var username = me.find('#usernameInput');
+	var password = me.find('#passwordInput');
+	var auth = me.find('#authOption');
+	var makeDefault = me.find('#makeDefault');
+	var alertBox = me.find('alert-box');
+	
+	auth.on('change', function(){
+		username.prop('disabled', auth[0].checked);
+		password.prop('disabled', auth[0].checked);
+	});
+	
+	saveBtn.on('click', function(){
+        $.ajax({
+            type: 'POST',
+            url: 'http://tut.by/auth',
+            dataType: 'json',
+			data: {},
+            success: function(data){
+				//update ui
+            },
+            error: function(xhr, type){
+                alertBox.html('Error happened<a href="#" class="close">&times;</a>');
+            }
+        });
+		
+		console.log(collector.val());
+	});
 	
 	return me;
 }());

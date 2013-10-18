@@ -63,10 +63,10 @@
 		</nav>
 		<div class="row">
 		<div class="large-1 small-1 columns">&nbsp;</div>
-  		  <div class="large-10 small-9 columns">
+  		  <div class="large-9 small-9 columns">
   			  <div id="visualization" class="nci-chart"></div>
   		  </div>
-		  <div class="large-1 small-2 columns">
+		  <div class="large-2 small-2 columns">
 			  <br><br>
 		  	  <div class="row">
 				  <h2>453 <small> NCI </small></h2>
@@ -104,44 +104,52 @@
 			</div>
 		</div>
 		
-		<div id="nciSettingsPanel"  class="panel settings-panel">
-		    <form class="custom" style="padding-top:30px;">	
+		<div id="nciSettingsPanel"  class="settings-panel">
+		    <form class="custom" style="padding-top:10px;">	
+				<div class="row">
+					<div class="alert-box alert" style="margin:10;">
+						Error happened
+				  	  	<a href="#" class="close">&times;</a>
+					</div>
+				</div>
 		    	<div class="row">
 					<div class="small-12 columns">
-						<input type="text" placeholder="nci.infoblox.com">
+						<label>collector</label>
+						<input id="collectorInput" type="text" placeholder="nci.infoblox.com">
 					</div>
 				</div>
 				<div class="row">
 					<div class="small-12 columns">
-						<label for="checkbox1">
-							<input type="checkbox" id="checkbox1" style="display: none;">
+						<label for="authOption">
+							<input type="checkbox" id="authOption" style="display: none;">
 							<span class="custom checkbox"></span> authenticate
 						</label>
 					</div>
 				</div>
 				<div class="row">
 					<div class="small-12 columns">
-						<input type="text" placeholder="name">
+						<input type="text" id="usernameInput" placeholder="name">
 					</div>
 				</div>
 				<div class="row">
 					<div class="small-12 columns">
-						<input type="text" placeholder="password">
+						<input type="text" id="passwordInput" placeholder="password">
 					</div>
 				</div>
 				<div class="row">
 					<div class="small-12 columns">
-						<label for="checkbox1">
-							<input type="checkbox" id="checkbox1" style="display: none;">
+						<label for="makeDefault">
+							<input type="checkbox" id="makeDefault" style="display: none;">
 							<span class="custom checkbox"></span> save as default
 						</label>
 					</div>
 				</div> 
 				<div class="row">
-					<div class="small-8 columns"></div> 
-					<div class="small-4 columns">
-						<a class="small button">Apply</a>
-					</div> 
+					<div class="small-7 columns">&nbsp;</div> 
+					<div class="small-3 columns">
+						<a class="small button" id="saveSettings">Apply</a>
+					</div>
+					<div class="small-2 columns">&nbsp;</div> 
 				</div> 
 			</form>
 		</div>

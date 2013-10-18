@@ -1,6 +1,9 @@
 function initChart (){
+	var chartWidth = 3*$( window ).width()/4;
+	if (chartWidth > 700)
+		chartWidth = 700;
    var options = {
-	   width: 3*$( window ).width()/4,
+	   width: chartWidth,
 	   height: $( window ).height()/2,
 	   legend: "none",
        title: '',
