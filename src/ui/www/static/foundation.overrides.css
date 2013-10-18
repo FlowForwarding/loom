@@ -13,6 +13,10 @@ h3 small, h3 small, h2 small{
 	color: #005950;
 }
 
+.side-nav li i{
+	width: 50px;
+}
+
 .nci-chart {
 /*	margin-left: auto;
 	margin-right: auto;*/
