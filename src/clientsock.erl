@@ -13,7 +13,9 @@ handle_message({text, <<"PING">>}) ->
 handle_message({text, <<"START_DATA">>}) ->
     Pid = self(),
     error_logger:info_msg("Received START_DATA:~n"),
-    spawn(tap_client_data,fake_feed,[Pid]),
+    spawn(tap_client_data,fake_nci_feed,[Pid]),
+    spawn(tap_client_data,fake_qps_feed,[Pid]),
+    spawn(tap_client_data,fake_nep_feed,[Pid]),
     noreply;
 handle_message(A)->
     error_logger:info_msg("Received:~n~p~n",[A]),
