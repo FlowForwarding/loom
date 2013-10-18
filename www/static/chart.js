@@ -13,7 +13,7 @@ NCI.drawChart = function() {
 };
 //
 NCI.addValueToChart = function(params) {
-	if (NCI.chartData.J.lenght > 10)
+	if (NCI.chartData.J.length > 10)
 	    NCI.chartData.removeRow(0);
 	NCI.chartData.insertRows(NCI.chartData.J.length, [[params.time.toString(), params.NCI]]);
 	NCI.drawChart();
