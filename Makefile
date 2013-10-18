@@ -16,6 +16,9 @@ lib:
 compile: lib get-deps update-deps
 	@./rebar compile
 
+beams:
+	@./rebar compile
+
 get-deps:
 	@./rebar get-deps
 
