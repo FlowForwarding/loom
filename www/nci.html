@@ -10,48 +10,9 @@
 		<link rel="stylesheet" href="static/libs/font-awesome/css/font-awesome.min.css" >
 		
 		<script src='static/libs/google/google.jsapi.js'></script>
-		<script src='static/chart.js'></script>
 		<script src='static/libs/google/google.corechart.min.js'></script>
 		<script src='static/libs/jquery/jquery-1.9.1.js'></script>
 		<script src="static/libs/jquery/jquery-ui-1.10.3.custom.min.js"></script>
-		<script type="text/javascript">
-	    	$(function() {
-				var timeRanges = {
-					ranges: [59, 
-					59 + 23, 
-					59 + 23 + 31, 
-					59 + 23 + 31 + 11, 
-					59 + 23 + 31 + 11 + 10],
-					rangeNames : ['mins', 'hours', 'days', 'mnths', 'years']
-				};
-				var getValueByRange = function(intValue){
-					var date, friquent;
-					$.each(timeRanges.ranges, function(index, range){
-						if (intValue < range){
-							var periodData = intValue + 1;
-							if ( index !== 0 ){
-								periodData -= timeRanges.ranges[index - 1];
-							};
-							friquent = index === 0;
-						    date = periodData + " " + timeRanges.rangeNames[index];
-							return false;
-					    };
-					});
-					return {date : date, friquent: friquent};
-			    };
-	    		$( "#slider" ).slider({
-					max: 133,
-					change: function( event, ui ) {
-					    var range = getValueByRange(ui.value);
-						range.friquent ? NCI.frequencyDropdown.show() : NCI.frequencyDropdown.hide();
-				    },
-				    slide: function( event, ui ) {
-						NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(ui.value).date)
-	      	 	    },
-	      	 	});
-	    	});
-	       google.setOnLoadCallback(initChart);
-	    </script>
 	</head>
 	<body>
 		<nav class="top-bar">
@@ -161,10 +122,22 @@
 
 		<script src='static/nci.js'></script>
 		<script src='static/libs/foundation/foundation.min.js'></script>  
+		<script src='static/chart.js'></script>
 		<script type="text/javascript">
+		    google.setOnLoadCallback(initChart);
+			NCI.initSlider();
 			$(function(){
 		    	$(document).foundation();
 			});
+            var connection = new WebSocket("ws://" + location.host + "/clientsock.yaws");
+		        connection.onopen = function () {
+			    connection.send('PING');
+		    };
+		 
+		    connection.onmessage  = function (e) {
+			     console.log(e.data);
+				 NCI.drawChart();
+		    };
 		</script> 
 	</body>
 </html>
