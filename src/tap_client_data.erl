@@ -6,8 +6,8 @@
 
 
 fake_feed(Pid)->
-    Wait = uniform:random(4) * 500,
-    NCI = uniform:random(100),
+    Wait = random:uniform(4) * 500,
+    NCI = random:uniform(100),
     Time = list_to_binary(tap_utils:rfc3339(erlang:universaltime())),
     JSON = jiffy:encode({[{<<"Time">>,Time},{<<"NCI">>,NCI}]}),
     clientsock:send(Pid,JSON),

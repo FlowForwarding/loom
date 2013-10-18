@@ -21,6 +21,5 @@ handle_message(A)->
     noreply.
 
 send(Pid,Message) when is_pid(Pid) ->
-    Text = list_to_binary(Message),
-    yaws_api:websocket_send(Pid, {text, Text}).
+    yaws_api:websocket_send(Pid, {text, Message}).
 
