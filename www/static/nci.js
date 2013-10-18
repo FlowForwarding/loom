@@ -1,4 +1,5 @@
-NCI = {};
+if (typeof NCI === 'undefined')
+   NCI = {};
 
 NCI.updateInterval = localStorage.updateInterval || 2;
 NCI.timePeriod = localStorage.timePeriod;
@@ -131,4 +132,39 @@ $.each(NCI.sideMenuBtns, function(index, btn){
 });	
 
 NCI.periodLabel = $('#periodLabel');
-NCI.frequencyDropdown = $('#frequencyDropdown');
+
+NCI.initSlider = function(){
+	var timeRanges = {
+		ranges: [59, 
+		59 + 23, 
+		59 + 23 + 31, 
+		59 + 23 + 31 + 11, 
+		59 + 23 + 31 + 11 + 10],
+		rangeNames : ['mins', 'hours', 'days', 'mnths', 'years']
+	};
+	var getValueByRange = function(intValue){
+		var date, friquent;
+		$.each(timeRanges.ranges, function(index, range){
+			if (intValue < range){
+				var periodData = intValue + 1;
+				if ( index !== 0 ){
+					periodData -= timeRanges.ranges[index - 1];
+				};
+				friquent = index === 0;
+			    date = periodData + " " + timeRanges.rangeNames[index];
+				return false;
+		    };
+		});
+		return {date : date, friquent: friquent};
+    };
+	$( "#slider" ).slider({
+		max: 133,
+		change: function( event, ui ) {
+		    var range = getValueByRange(ui.value);
+			range.friquent ? NCI.frequencyDropdown.show() : NCI.frequencyDropdown.hide();
+	    },
+	    slide: function( event, ui ) {
+			NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(ui.value).date)
+ 	    },
+ 	});	
+};
