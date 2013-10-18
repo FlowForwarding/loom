@@ -13,6 +13,7 @@
 -compile([all]).
 
 -export([nci_from_log_lines/1, nci_from_benchmark_data/1]).
+
 %%%
 % Reads DNS response log lines and processes them
 %%%

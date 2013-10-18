@@ -8,4 +8,4 @@
 -define(YAWS_ID,"tapestry").
 -define(YAWS_DEFAULT_ADDRESS,"0.0.0.0").
 
--define(BERT_VERSION,194).
+-define(JIFFY_EBIN_DIR,"./deps/jiffy/ebin").

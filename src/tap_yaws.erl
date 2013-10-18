@@ -14,6 +14,7 @@ start(_Servername,IPAddress,Port,ConfOptions) when is_list(ConfOptions) ->
     crypto:start(),
     {ok,ParsedAddress} = inet_parse:ipv4_address(IPAddress),
     code:add_pathz(?YAWS_EBIN_DIR),
+    code:add_pathz(?JIFFY_EBIN_DIR),
     file:make_dir(?YAWS_LOG_DIR),
     error_logger:info_msg("Starting Embedded Yaws!~n"),
     GL = [

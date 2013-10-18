@@ -20,6 +20,5 @@ send(ID,Message) when is_atom(ID) ->
     send(Pid,Message);
 send(Pid,Message) when is_pid(Pid) ->
     Term = term_to_binary(Message),
-    Payload = <<?BERT_VERSION,Term/binary>>,
     yaws_api:websocket_send(Pid, {binary, Term}).
 
