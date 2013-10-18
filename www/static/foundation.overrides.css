@@ -33,7 +33,7 @@ h3 small, h3 small, h2 small{
 	width:50px;
 	height:100%;
 	background: #005950;
-	position: absolute;
+	position: fixed;
 	top: 45px;
 	z-index: 100;
 }
@@ -41,7 +41,7 @@ h3 small, h3 small, h2 small{
 .settings-panel {
 	width: 250px;
 	height: 100%;
-	position: absolute;
+	position: fixed;
 	top: 45px;
 	z-index: 100;
 	left: -200px;
