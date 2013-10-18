@@ -131,11 +131,11 @@
 			});
             var connection = new WebSocket("ws://" + location.host + "/clientsock.yaws");
 		        connection.onopen = function () {
-			    connection.send('PING');
+			    connection.send('START_DATA');
 		    };
 		 
 		    connection.onmessage  = function (e) {
-				var data = eval("var tmp = " + e.data);
+				var data = eval("var tmp = '" + e.data + "'");
 				var params = {};
 				params.time = new Date(data.time);
 				params.nci = data.NCI;
