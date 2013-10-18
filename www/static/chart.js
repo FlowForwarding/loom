@@ -1,6 +1,6 @@
 function initChart (){
    var options = {
-	   width: 700,
+	   width: 2*$( window ).width()/3,
 	   height: 400,
 	   legend: "none",
        title: '',
