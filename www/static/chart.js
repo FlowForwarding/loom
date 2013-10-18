@@ -1,7 +1,7 @@
 function initChart (){
    var options = {
-	   width: 2*$( window ).width()/3,
-	   height: 400,
+	   width: 3*$( window ).width()/4,
+	   height: $( window ).height()/2,
 	   legend: "none",
        title: '',
       // vAxis: {title: 'Year',  titleTextStyle: {color: 'red'}},
