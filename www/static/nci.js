@@ -1,8 +1,8 @@
 if (typeof NCI === 'undefined')
    NCI = {};
 
-NCI.nciLatestValue = $('#qpsLatestValue');
-NCI.nepLatestValue = $('#qpsLatestValue');
+NCI.nciLatestValue = $('#nciLatestValue');
+NCI.nepLatestValue = $('#nepLatestValue');
 NCI.qpsLatestValue = $('#qpsLatestValue');
 
 NCI.setNciLatestValue = function (newVal) {
