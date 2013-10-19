@@ -1,6 +1,22 @@
 if (typeof NCI === 'undefined')
    NCI = {};
 
+NCI.nciLatestValue = $('#qpsLatestValue');
+NCI.nepLatestValue = $('#qpsLatestValue');
+NCI.qpsLatestValue = $('#qpsLatestValue');
+
+NCI.setNciLatestValue = function (newVal) {
+	NCI.nciLatestValue.html(newVal + ' <small> NCI </small>');
+};
+
+NCI.setNepLatestValue = function (newVal) {
+	NCI.nepLatestValue.html(newVal + ' <small> endpoints </small>');
+};
+
+NCI.qpsNciLatestValue = function (newVal) {
+	NCI.qpsLatestValue.html(newVal + ' <small> qps </small>');
+};
+
 NCI.updateInterval = localStorage.updateInterval || 2;
 NCI.timePeriod = localStorage.timePeriod;
 

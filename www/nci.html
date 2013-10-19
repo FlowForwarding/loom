@@ -29,10 +29,10 @@
 	  		  </div>
 			  <div class="large-2 small-3 columns">
 				  <br><br>
-					  <h2>453 <small> NCI </small></h2>
-				  	  <h3>53.233 <small> endpoints </small></h3>
-					  <h3>11.2M <small> queries </small></h3>
-					  <h3>11.456 <small> qps </small></h3>
+					  <h2 id="nciLatestValue"></h2>
+				  	  <h3 d="nepLatestValue"></h3>
+					  <!-- <h3>11.2M <small> queries </small></h3> -->
+					  <h3 id="qpsLatestValue"></h3>
 			  </div>
 			  <div class="large-1 small-1 columns"></div>
 		</div>
@@ -128,10 +128,17 @@
 				console.log(data);
 				var params = {};
 				params.time = new Date(data.Time).getMinutes() + "m" + new Date(data.Time).getSeconds() + "s";
-				params.NCI = data.NCI; //NEP QPS
-				params.QPS = data.QPS;
-				params.NEP = data.NEP;
-				NCI.addValueToChart(params);
+				if (data.NCI){
+					NCI.setNciLatestValue(data.NCI);
+					params.NCI = data.NCI;
+					NCI.addValueToChart(params);
+				};
+				if (data.QPS)
+					NCI.qpsNciLatestValue(data.QPS);
+				if (data.NEP)
+					NCI.nepNciLatestValue(data.NEP);
+				// params.QPS = data.QPS;
+				// params.NEP = data.NEP;
 		    };
 		</script> 
 	</body>

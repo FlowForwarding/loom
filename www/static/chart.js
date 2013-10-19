@@ -11,34 +11,41 @@ NCI.drawChart = function() {
 NCI.addValueToChart = function(params) {
 	if (!NCI.chartData)
 		NCI.chartData = google.visualization.arrayToDataTable([
-			['Time', 'NCI', 'QPS', 'NEP'],
-			[params.time, 0, 0, 0]
+			['Time', 'NCI'],
+			[params.time, 0]
+			//For multiple
+			// ['Time', 'NCI', 'QPS', 'NEP'],
+			// [params.time, 0, 0, 0]
 		]);
 	
 	if (NCI.chartData.J.length > 10)
 	    NCI.chartData.removeRow(0);
+		
+	NCI.chartData.insertRows(NCI.chartData.J.length,
+		[[params.time.toString(), params.NCI]]);	
 	
-	var isNew = true;
-	var insertInd;
-	$.each(NCI.chartData.J, function(ind, el){
-		if (el.c[0].v == params.time.toString()){
-			isNew = false;
-			insertInd = ind;
-			return false;
-		};
-	});
-	
-	if (!isNew){ 
-		if (params.NCI)
-			NCI.chartData.setValue(insertInd, 1, params.NCI);
-		if (params.QPS)
-			NCI.chartData.setValue(insertInd, 2, params.QPS);
-		if (params.NEP)
-			NCI.chartData.setValue(insertInd, 3, params.NEP);
-	} else {
-		NCI.chartData.insertRows(NCI.chartData.J.length,
-			[[params.time.toString(), params.NCI, params.QPS, params.NEP]]);
-	};
+	//For multiple
+	// var isNew = true;
+	// var insertInd;
+	// $.each(NCI.chartData.J, function(ind, el){
+	// 	if (el.c[0].v == params.time.toString()){
+	// 		isNew = false;
+	// 		insertInd = ind;
+	// 		return false;
+	// 	};
+	// });
+	// 
+	// if (!isNew){ 
+	// 	if (params.NCI)
+	// 		NCI.chartData.setValue(insertInd, 1, params.NCI);
+	// 	if (params.QPS)
+	// 		NCI.chartData.setValue(insertInd, 2, params.QPS);
+	// 	if (params.NEP)
+	// 		NCI.chartData.setValue(insertInd, 3, params.NEP);
+	// } else {
+	// 	NCI.chartData.insertRows(NCI.chartData.J.length,
+	// 		[[params.time.toString(), params.NCI, params.QPS, params.NEP]]);
+	// };
 	NCI.drawChart();
 };
 
