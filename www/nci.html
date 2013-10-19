@@ -127,8 +127,10 @@
 				var data = eval("tmp = " + e.data );
 				console.log(data);
 				var params = {};
-				params.time = new Date(data.Time).getMinutes() + ":" + new Date(data.Time).getSeconds();
-				params.NCI = data.NCI;
+				params.time = new Date(data.Time).getMinutes() + "m" + new Date(data.Time).getSeconds() + "s";
+				params.NCI = data.NCI; //NEP QPS
+				params.QPS = data.QPS;
+				params.NEP = data.NEP;
 				NCI.addValueToChart(params);
 		    };
 		</script> 

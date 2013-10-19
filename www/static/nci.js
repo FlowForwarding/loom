@@ -92,11 +92,6 @@ NCI.settingsBtn = (function(){
 	return me;
 }());
 
-NCI.playBtn = (function(){
-	var me =  $('#nciPlayBtn');
-	return me;
-}());
-
 NCI.sideMenuBtns = [NCI.infoBtn, NCI.settingsBtn];
 NCI.selectedItem;
 
