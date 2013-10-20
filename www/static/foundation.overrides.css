@@ -7,6 +7,7 @@
 
 .top-bar {
 	background: #005950;
+	z-index: 200;
 }
 
 h3 small, h3 small, h2 small{
@@ -20,6 +21,12 @@ h3 small, h3 small, h2 small{
 	/*width:400px; height:0;*/
 }
 
+.indexValue {
+/*	border:2px solid;
+	border-radius:25px;
+	background-color: #50b487;*/
+}
+
 .side-nav li{
 	text-align: center;
 }
@@ -30,11 +37,11 @@ h3 small, h3 small, h2 small{
 }
 
 .left-menu {
-	width:50px;
+	width:45px;
 	height:100%;
 	background: #005950;
 	position: fixed;
-	top: 45px;
+	top: 0px;
 	z-index: 100;
 }
 
@@ -44,7 +51,7 @@ h3 small, h3 small, h2 small{
 	position: fixed;
 	top: 45px;
 	z-index: 100;
-	left: -200px;
+	left: -205px;
     -moz-transition: all 0.5s;
 	-webkit-transition: all 0.5s;
 	transition: all 0.5s;
@@ -65,5 +72,5 @@ h3 small, h3 small, h2 small{
 }
 
 .show-menupanel {
-	left: 50px;
+	left: 45px;
 }

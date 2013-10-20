@@ -9,20 +9,21 @@ NCI.drawChart = function() {
 };
 //
 NCI.addValueToChart = function(params) {
-	if (!NCI.chartData)
+	if (!NCI.chartData) {
 		NCI.chartData = google.visualization.arrayToDataTable([
 			['Time', 'NCI'],
-			[params.time, 0]
+			[params.time, params.NCI]
 			//For multiple
 			// ['Time', 'NCI', 'QPS', 'NEP'],
 			// [params.time, 0, 0, 0]
 		]);
+	} else {
+		NCI.chartData.insertRows(NCI.chartData.J.length,
+			[[params.time.toString(), params.NCI]]);
+	};
 	
-	if (NCI.chartData.J.length > 10)
-	    NCI.chartData.removeRow(0);
-		
-	NCI.chartData.insertRows(NCI.chartData.J.length,
-		[[params.time.toString(), params.NCI]]);	
+	if (NCI.chartData.J.length > 11)
+	    NCI.chartData.removeRow(0);	
 	
 	//For multiple
 	// var isNew = true;
@@ -49,17 +50,27 @@ NCI.addValueToChart = function(params) {
 	NCI.drawChart();
 };
 
-function initChart (){
+NCI.getChartHeight = function(){
+	var chartHeight = 	$( window ).height()/2;
+    if ($( window ).width() < 400) 	{
+	  chartWidth = 4*$( window ).width()/5; 
+	  chartHeight = $( window ).height()/3;
+    };
+	return chartHeight;
+};
+
+NCI.initChart = function(){
 	var chartWidth = 3 *$( window ).width()/4;
 	if (chartWidth > 700)
 		chartWidth = 700;
-    if ($( window ).width() < 400) 	
-	  chartWidth = 3*$( window ).width()/5; 
-	
+		
+    if ($( window ).width() < 400) 	{
+	  chartWidth = 4*$( window ).width()/5; 
+    };
 	
 	NCI.chartOptions = {
 	  	width: chartWidth,
-	  	height: $( window ).height()/2,
+	  	height: NCI.getChartHeight(),
 	  	legend: "none",
 	  	title: ''//,
 		// vAxis: {title: 'Year',  titleTextStyle: {color: 'red'}},

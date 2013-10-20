@@ -23,18 +23,27 @@
 			</ul>
 		</nav>
 		<div class="row">
-			<div class="large-1 small-1 columns">&nbsp;</div>
-	  		  <div class="large-8 small-7 columns">&nbsp;
+			  <div class="large-1 small-1 columns">&nbsp;</div>
+	  		  <div class="large-8 small-10 columns">&nbsp;
 	  			  <div id="visualization" class="nci-chart"></div>
 	  		  </div>
-			  <div class="large-2 small-3 columns">
+			  <div class="large-3 small-12 columns indexValue">
 				  <br><br>
-					  <h2 id="nciLatestValue"></h2>
-				  	  <h3 d="nepLatestValue"></h3>
+				  <div class="row">
+					<div class="small-2 columns">&nbsp;</div>
+				   <div id="nciLatestValue" class="large-12 small-3 columns">
+					  <h2 >&nbsp;<small>  </small></h2>
+				   </div>	  
+				   <div id="nepLatestValue" class="large-12 small-3 columns">
+				  	  <h3 >&nbsp;<small> </small></h3>
+				   </div>	  
 					  <!-- <h3>11.2M <small> queries </small></h3> -->
-					  <h3 id="qpsLatestValue"></h3>
+				   <div id="qpsLatestValue" class="large-12 small-3 columns">	  
+					  <h3 >&nbsp;<small> </small></h3>
+				   </div>	  
+				   <div class="small-1 columns">&nbsp;</div>
+				   </div> 
 			  </div>
-			  <div class="large-1 small-1 columns"></div>
 		</div>
 		<div class="row">
 			<div class="large-1 small-2 columns">&nbsp;</div>
@@ -103,6 +112,7 @@
 			</span>
 	    </div>
 		<div class="left-menu">
+			<br><br><br>
 			<ul class="side-nav">
 			  <li id="nciSettingsBtn"><i class="icon-cog"></i></li>
 			  <li id="nciInfoBtn"><i class="icon-info"></i></img></li>
@@ -113,12 +123,13 @@
 		<script src='static/libs/foundation/foundation.min.js'></script>  
 		<script src='static/chart.js'></script>
 		<script type="text/javascript">
-		    google.setOnLoadCallback(initChart);
+		    $('#visualization').height(NCI.getChartHeight());
+		    google.setOnLoadCallback(NCI.initChart);
 			NCI.initSlider();
 			$(function(){
 		    	$(document).foundation();
 			});
-            var connection = new WebSocket("ws://" + location.host + "/clientsock.yaws");
+            var connection = new WebSocket("ws://" + 'nci.ilabs.inca.infoblox.com:28080' + "/clientsock.yaws");
 		        connection.onopen = function () {
 			    connection.send('START_DATA');
 		    };
@@ -134,7 +145,7 @@
 					NCI.addValueToChart(params);
 				};
 				if (data.QPS)
-					NCI.qpsNciLatestValue(data.QPS);
+					NCI.setQpsLatestValue(data.QPS);
 				if (data.NEP)
 					NCI.setNepLatestValue(data.NEP);
 				// params.QPS = data.QPS;

@@ -5,19 +5,34 @@ NCI.nciLatestValue = $('#nciLatestValue');
 NCI.nepLatestValue = $('#nepLatestValue');
 NCI.qpsLatestValue = $('#qpsLatestValue');
 
+NCI.ifMobile = function(){
+	return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
+}
+
 NCI.setNciLatestValue = function (newVal) {
-	NCI.nciLatestValue.html(newVal + ' <small> NCI </small>');
+	if (NCI.ifMobile ()) {
+		NCI.nciLatestValue.html('<h4>' + newVal + ' <small> NCI </small></h4>');
+	} else {
+		NCI.nciLatestValue.html('<h2>' + newVal + ' <small> NCI </small></h2>');
+	};
 };
 
 NCI.setNepLatestValue = function (newVal) {
-	NCI.nepLatestValue.html(newVal + ' <small> endpoints </small>');
+	if (NCI.ifMobile ()) {
+		NCI.nepLatestValue.html('<h5>' + newVal + ' <small>endpoints </small></h5>');
+	} else {
+		NCI.nepLatestValue.html('<h3>' + newVal + ' <small> endpoints </small></h3>');
+	};
 };
 
-NCI.qpsNciLatestValue = function (newVal) {
-	NCI.qpsLatestValue.html(newVal + ' <small> qps </small>');
+NCI.setQpsLatestValue = function (newVal) {
+	if (NCI.ifMobile ()) {
+		NCI.qpsLatestValue.html('<h5>' + newVal + ' <small> qps</small></h5>');
+	} else {
+		NCI.qpsLatestValue.html('<h3>' + newVal + ' <small>  qps</small></h3>');
+	};
 };
 
-NCI.updateInterval = localStorage.updateInterval || 2;
 NCI.timePeriod = localStorage.timePeriod;
 
 NCI.getChartData = function(){
