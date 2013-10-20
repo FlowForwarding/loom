@@ -3,14 +3,17 @@
 	margin-right: auto;
 	text-align: center;
 	width: 100%;
+	text-shadow: 2px 2px #443016;
 }
 
 .top-bar {
 	background: #005950;
 	z-index: 200;
+	position: fixed;
+	width: 100%;
 }
 
-h3 small, h3 small, h2 small{
+h6 small, h5 small, h4 small, h3 small, h2 small{
 	color: #005950;
 }
 
@@ -21,10 +24,37 @@ h3 small, h3 small, h2 small{
 	/*width:400px; height:0;*/
 }
 
+.date-slider {
+    -webkit-appearance: none !important;
+    background: darkcyan;
+    border-radius: 5px;
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.6);
+	border-width: 0px;
+    height:7px;
+	width:100%;
+}
+
+.date-slider:focus{
+    outline: 0;
+}
+
+.date-slider::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    background:#50b487;
+	border-radius: 5px;
+    height:20px;
+    width:20px;
+}
+
 .indexValue {
-/*	border:2px solid;
-	border-radius:25px;
-	background-color: #50b487;*/
+	background-color: #FFF5E3;
+	border-radius: 20px;
+	height: 60px;
+	border-width: 1px;
+	border-color: 697C7A;
+	border-style: solid;
+	box-shadow: 5px 5px 5px #888888;
+	margin: 2px;
 }
 
 .side-nav li{
@@ -43,6 +73,7 @@ h3 small, h3 small, h2 small{
 	position: fixed;
 	top: 0px;
 	z-index: 100;
+	box-shadow: 5px 5px 5px #888888;
 }
 
 .settings-panel {
@@ -51,10 +82,11 @@ h3 small, h3 small, h2 small{
 	position: fixed;
 	top: 45px;
 	z-index: 100;
-	left: -205px;
+	left: -210px;
     -moz-transition: all 0.5s;
 	-webkit-transition: all 0.5s;
 	transition: all 0.5s;
+	box-shadow: 5px 0px 5px #888888;
 	background: rgb(238,238,238); /* Old browsers */
 	/* IE9 SVG, needs conditional override of 'filter' to 'none' */
 	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2VlZWVlZSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNjY2NjY2MiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
@@ -65,6 +97,11 @@ h3 small, h3 small, h2 small{
 	background: -ms-linear-gradient(left, rgba(238,238,238,1) 0%,rgba(204,204,204,1) 100%); /* IE10+ */
 	background: linear-gradient(to right, rgba(238,238,238,1) 0%,rgba(204,204,204,1) 100%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#cccccc',GradientType=1 ); /* IE6-8 */
+}
+
+
+.side-nav li {
+	text-shadow: 2px 2px #443016;
 }
 
 .side-nav li.active {

@@ -6,13 +6,12 @@
   	    <link rel="stylesheet" href="static/libs/foundation/normalize.css" />
   	    <link rel="stylesheet" href="static/libs/foundation/foundation.min.css"> 
         <link rel="stylesheet" href="static/foundation.overrides.css"> 
-		<link rel="stylesheet" href="static/libs/jquery/jquery-ui-1.10.3.custom.min.css">
 		<link rel="stylesheet" href="static/libs/font-awesome/css/font-awesome.min.css" >
 		
 		<script src='static/libs/google/google.jsapi.js'></script>
 		<script src='static/libs/google/google.corechart.min.js'></script>
-		<script src='static/libs/jquery/jquery-1.9.1.js'></script>
-		<script src="static/libs/jquery/jquery-ui-1.10.3.custom.min.js"></script>
+		<script src='static/libs/jquery/jquery-1.9.1.js'></script>	
+	
 	</head>
 	<body>
 		<nav class="top-bar">
@@ -21,24 +20,24 @@
 					<h4>Tapestry for Infoblox Network</h4>
 				</li>
 			</ul>
-		</nav>
+		</nav> <br><br>
 		<div class="row">
 			  <div class="large-1 small-1 columns">&nbsp;</div>
 	  		  <div class="large-8 small-10 columns">&nbsp;
 	  			  <div id="visualization" class="nci-chart"></div>
 	  		  </div>
-			  <div class="large-3 small-12 columns indexValue">
+			  <div class="large-3 small-12 columns">
 				  <br><br>
 				  <div class="row">
 					<div class="small-2 columns">&nbsp;</div>
-				   <div id="nciLatestValue" class="large-12 small-3 columns">
+				   <div id="nciLatestValue" class="large-12 small-3 columns indexValue">
 					  <h2 >&nbsp;<small>  </small></h2>
 				   </div>	  
-				   <div id="nepLatestValue" class="large-12 small-3 columns">
+				   <div id="nepLatestValue" class="large-12 small-3 columns indexValue">
 				  	  <h3 >&nbsp;<small> </small></h3>
 				   </div>	  
 					  <!-- <h3>11.2M <small> queries </small></h3> -->
-				   <div id="qpsLatestValue" class="large-12 small-3 columns">	  
+				   <div id="qpsLatestValue" class="large-12 small-3 columns indexValue">	  
 					  <h3 >&nbsp;<small> </small></h3>
 				   </div>	  
 				   <div class="small-1 columns">&nbsp;</div>
@@ -52,7 +51,8 @@
 			</div>
 			<div class="large-8  small-10 columns">
 				<br>
-			<div id="slider"></div>
+				<input id="slider" type="range"
+				   class="date-slider" value="0" min="0" max="133" data-highlight="true" />
 			</div>
 		</div>
 		
@@ -125,7 +125,6 @@
 		<script type="text/javascript">
 		    $('#visualization').height(NCI.getChartHeight());
 		    google.setOnLoadCallback(NCI.initChart);
-			NCI.initSlider();
 			$(function(){
 		    	$(document).foundation();
 			});
@@ -136,7 +135,6 @@
 		 
 		    connection.onmessage  = function (e) {
 				var data = eval("tmp = " + e.data );
-				console.log(data);
 				var params = {};
 				params.time = new Date(data.Time).getMinutes() + "m" + new Date(data.Time).getSeconds() + "s";
 				if (data.NCI){
@@ -148,8 +146,6 @@
 					NCI.setQpsLatestValue(data.QPS);
 				if (data.NEP)
 					NCI.setNepLatestValue(data.NEP);
-				// params.QPS = data.QPS;
-				// params.NEP = data.NEP;
 		    };
 		</script> 
 	</body>

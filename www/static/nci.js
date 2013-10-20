@@ -19,7 +19,7 @@ NCI.setNciLatestValue = function (newVal) {
 
 NCI.setNepLatestValue = function (newVal) {
 	if (NCI.ifMobile ()) {
-		NCI.nepLatestValue.html('<h5>' + newVal + ' <small>endpoints </small></h5>');
+		NCI.nepLatestValue.html('<h6>' + newVal + ' <small>endpoints </small></h6>');
 	} else {
 		NCI.nepLatestValue.html('<h3>' + newVal + ' <small> endpoints </small></h3>');
 	};
@@ -27,7 +27,7 @@ NCI.setNepLatestValue = function (newVal) {
 
 NCI.setQpsLatestValue = function (newVal) {
 	if (NCI.ifMobile ()) {
-		NCI.qpsLatestValue.html('<h5>' + newVal + ' <small> qps</small></h5>');
+		NCI.qpsLatestValue.html('<h6>' + newVal + ' <small> qps</small></h6>');
 	} else {
 		NCI.qpsLatestValue.html('<h3>' + newVal + ' <small>  qps</small></h3>');
 	};
@@ -159,14 +159,16 @@ $.each(NCI.sideMenuBtns, function(index, btn){
 
 NCI.periodLabel = $('#periodLabel');
 
-NCI.initSlider = function(){
+NCI.slider = (function(){
+	var me =  $('#slider');
+	
 	var timeRanges = {
 		ranges: [59, 
 		59 + 23, 
 		59 + 23 + 31, 
 		59 + 23 + 31 + 11, 
 		59 + 23 + 31 + 11 + 10],
-		rangeNames : ['mins', 'hours', 'days', 'mnths', 'years']
+		rangeNames : ['min', 'hours', 'days', 'mnths', 'years']
 	};
 	var getValueByRange = function(intValue){
 		var date, friquent;
@@ -183,13 +185,15 @@ NCI.initSlider = function(){
 		});
 		return {date : date, friquent: friquent};
     };
-	$( "#slider" ).slider({
-		max: 133,
-		change: function( event, ui ) {
-		    var range = getValueByRange(ui.value);
-	    },
-	    slide: function( event, ui ) {
-			NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(ui.value).date)
- 	    },
- 	});	
-};
+	
+	me.on('change', function(){
+		NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(parseInt(me[0].value)).date)
+	});
+	
+	me.on('mouseup', function(){
+		NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(parseInt(me[0].value)).date)
+	});
+
+	return me;
+}());	
+
