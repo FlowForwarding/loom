@@ -11,25 +11,25 @@ NCI.ifMobile = function(){
 
 NCI.setNciLatestValue = function (newVal) {
 	if (NCI.ifMobile ()) {
-		NCI.nciLatestValue.html('<h4>' + newVal + ' <small> NCI </small></h4>');
+		NCI.nciLatestValue.html('<h3 class="main-label secondary-label">' + newVal + ' <small> NCI </small></h3>');
 	} else {
-		NCI.nciLatestValue.html('<h2>' + newVal + ' <small> NCI </small></h2>');
+		NCI.nciLatestValue.html('<h3 class="main-label">' + newVal + ' <small> NCI </small></h3>');
 	};
 };
 
 NCI.setNepLatestValue = function (newVal) {
 	if (NCI.ifMobile ()) {
-		NCI.nepLatestValue.html('<h6>' + newVal + ' <small>endpoints </small></h6>');
+		NCI.nepLatestValue.html('<label class="secondary-label">' + newVal + ' <small>endpoints </small></label>');
 	} else {
-		NCI.nepLatestValue.html('<h3>' + newVal + ' <small> endpoints </small></h3>');
+		NCI.nepLatestValue.html('<h4>' + newVal + ' <small> endpoints </small></h4>');
 	};
 };
 
 NCI.setQpsLatestValue = function (newVal) {
 	if (NCI.ifMobile ()) {
-		NCI.qpsLatestValue.html('<h6>' + newVal + ' <small> qps</small></h6>');
+		NCI.qpsLatestValue.html('<label class="secondary-label">' + newVal + ' <small> qps</small></label>');
 	} else {
-		NCI.qpsLatestValue.html('<h3>' + newVal + ' <small>  qps</small></h3>');
+		NCI.qpsLatestValue.html('<h4>' + newVal + ' <small>  qps</small></h4>');
 	};
 };
 

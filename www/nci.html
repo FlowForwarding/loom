@@ -47,7 +47,7 @@
 		<div class="row">
 			<div class="large-1 small-2 columns">&nbsp;</div>
 			<div class="large-3 small-10 columns">
-				<h3 id="periodLabel"> <small> data for last </small> 1 mins</h3>
+				<h3 id="periodLabel"> <small> data for last </small> 1 min</h3>
 			</div>
 			<div class="large-8  small-10 columns">
 				<br>
@@ -112,7 +112,7 @@
 			</span>
 	    </div>
 		<div class="left-menu">
-			<br><br><br>
+			<br>
 			<ul class="side-nav">
 			  <li id="nciSettingsBtn"><i class="icon-cog"></i></li>
 			  <li id="nciInfoBtn"><i class="icon-info"></i></img></li>
@@ -136,7 +136,7 @@
 		    connection.onmessage  = function (e) {
 				var data = eval("tmp = " + e.data );
 				var params = {};
-				params.time = new Date(data.Time).getMinutes() + "m" + new Date(data.Time).getSeconds() + "s";
+				params.time = new Date(data.Time).getMinutes() + ":" + new Date(data.Time).getSeconds();
 				if (data.NCI){
 					NCI.setNciLatestValue(data.NCI);
 					params.NCI = data.NCI;

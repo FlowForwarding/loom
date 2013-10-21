@@ -11,9 +11,19 @@
 	z-index: 200;
 	position: fixed;
 	width: 100%;
+	box-shadow: 5px 5px 5px #888888;
 }
 
-h6 small, h5 small, h4 small, h3 small, h2 small{
+.main-label {
+	color: #EF259B;
+}
+
+.secondary-label{
+	font-size:16px;
+	padding-top:15px;
+}
+
+h6 small, h5 small, h4 small, h3 small, h2 small, label small{
 	color: #005950;
 }
 
@@ -47,11 +57,11 @@ h6 small, h5 small, h4 small, h3 small, h2 small{
 }
 
 .indexValue {
-	background-color: #FFF5E3;
+	background-color: #FFF8DC;
 	border-radius: 20px;
 	height: 60px;
 	border-width: 1px;
-	border-color: 697C7A;
+	border-color: #BDB76B;
 	border-style: solid;
 	box-shadow: 5px 5px 5px #888888;
 	margin: 2px;
@@ -71,8 +81,8 @@ h6 small, h5 small, h4 small, h3 small, h2 small{
 	height:100%;
 	background: #005950;
 	position: fixed;
-	top: 0px;
-	z-index: 100;
+	top: 45px;
+	z-index: 300;
 	box-shadow: 5px 5px 5px #888888;
 }
 
