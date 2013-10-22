@@ -19,7 +19,7 @@ start()->
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/deps/*/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/apps/*/ebin")],
     loom_app:start(),
-    loom_sup:launch_controller(dns_tap,6664),
+    loom_sup:launch_controller(dns_tap,6634),
     ok.
 
 %%%
