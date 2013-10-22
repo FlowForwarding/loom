@@ -12,7 +12,15 @@
 
 -compile([all]).
 
--export([nci_from_log_lines/1, nci_from_benchmark_data/1]).
+-export([start/0, nci_from_log_lines/1, nci_from_benchmark_data/1]).
+
+start()->
+    [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/ebin")],
+    [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/deps/*/ebin")],
+    [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/apps/*/ebin")],
+    loom_app:start(),
+    loom_sup:launch_controller(dns_tap,6664),
+    ok.
 
 %%%
 % Reads DNS response log lines and processes them
