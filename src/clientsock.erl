@@ -12,6 +12,7 @@ handle_message({text, <<"PING">>}) ->
     {reply, {text, <<"PONG">>}};
 handle_message({text, <<"START_DATA">>}) ->
     Pid = self(),
+    random:seed(),
     error_logger:info_msg("Received START_DATA:~n"),
     spawn(tap_client_data,fake_nci_feed,[Pid]),
     spawn(tap_client_data,fake_qps_feed,[Pid]),
