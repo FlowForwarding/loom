@@ -15,110 +15,42 @@
 	</head>
 	<body>
 		<nav class="top-bar">
-			<ul class="title-area">
-				<li class="name">
-					<h4>Tapestry for Infoblox Network</h4>
-				</li>
-			</ul>
-		</nav> <br><br>
+			Tapestry for Infoblox Network		
+		</nav> 
+		
+		<div class="row info-row">
+			<div class="large-10 small-10 columns">
+			<div class="large-6 small-12 columns nci-label">
+				<div id="nciLatestValue" class="indexValue"></div><br>
+			</div>	
+			<div class="large-6 small-12 columns ">  
+				<div id="nepLatestValue" class="indexValue"></div>	<br>
+				<div id="qpsLatestValue" class="indexValue"></div>
+			</div>	
+			</div>	
+			<div class="large-2 small-2 columns">
+				<i class="icon-cog"></i>
+				<i class="icon-info"></i>
+			</div>	  
+		</div>  
+		  
 		<div class="row">
-			  <div class="large-1 small-1 columns">&nbsp;</div>
-	  		  <div class="large-8 small-10 columns">&nbsp;
+	  		  <div class="large-12 columns">&nbsp;
 	  			  <div id="visualization" class="nci-chart"></div>
 	  		  </div>
-			  <div class="large-3 small-12 columns">
-				  <br><br>
-				  <div class="row">
-					<div class="small-2 columns">&nbsp;</div>
-				   <div id="nciLatestValue" class="large-12 small-3 columns indexValue">
-					  <h2 >&nbsp;<small>  </small></h2>
-				   </div>	  
-				   <div id="nepLatestValue" class="large-12 small-3 columns indexValue">
-				  	  <h3 >&nbsp;<small> </small></h3>
-				   </div>	  
-					  <!-- <h3>11.2M <small> queries </small></h3> -->
-				   <div id="qpsLatestValue" class="large-12 small-3 columns indexValue">	  
-					  <h3 >&nbsp;<small> </small></h3>
-				   </div>	  
-				   <div class="small-1 columns">&nbsp;</div>
-				   </div> 
-			  </div>
 		</div>
+		
 		<div class="row">
-			<div class="large-1 small-2 columns">&nbsp;</div>
-			<div class="large-3 small-10 columns">
-				<h3 id="periodLabel"> <small> data for last </small> 1 min</h3>
+			<div class="large-12 small-12 columns">
+				<h3 id="periodLabel" class="timePeriod"> <small> data for last </small> 1 min</h3>
 			</div>
-			<div class="large-8  small-10 columns">
+			<div class="large-8  small-12 columns">
 				<br>
 				<input id="slider" type="range"
 				   class="date-slider" value="0" min="0" max="133" data-highlight="true" />
 			</div>
 		</div>
 		
-		<div id="nciSettingsPanel"  class="settings-panel">
-		    <form class="custom" style="padding-top:10px;">	
-				<div class="row">
-					<div class="alert-box alert" style="margin:10;">
-						Error happened
-				  	  	<a class="close">&times;</a>
-					</div>
-				</div>
-		    	<div class="row">
-					<div class="small-12 columns">
-						<label>collector</label>
-						<input id="collectorInput" type="text" placeholder="nci.infoblox.com">
-					</div>
-				</div>
-				<div class="row">
-					<div class="small-12 columns">
-						<label for="authOption">
-							<input type="checkbox" id="authOption" style="display: none;">
-							<span class="custom checkbox"></span> authenticate
-						</label>
-					</div>
-				</div>
-				<div class="row">
-					<div class="small-12 columns">
-						<input type="text" id="usernameInput" placeholder="name">
-					</div>
-				</div>
-				<div class="row">
-					<div class="small-12 columns">
-						<input type="password" id="passwordInput" placeholder="password">
-					</div>
-				</div>
-				<div class="row">
-					<div class="small-12 columns">
-						<label for="makeDefault">
-							<input type="checkbox" id="makeDefault" style="display: none;">
-							<span class="custom checkbox"></span> save as default
-						</label>
-					</div>
-				</div> 
-				<div class="row">
-					<div class="small-7 columns">&nbsp;</div> 
-					<div class="small-3 columns">
-						<a class="small button" id="saveSettings">Apply</a>
-					</div>
-					<div class="small-2 columns">&nbsp;</div> 
-				</div> 
-			</form>
-		</div>
-		<div id="nciInfoPanel"  class="panel settings-panel">
-			<h4> Helpful Information</h4>
-			<span>
-				Here we have a lot of significant information about fantastic NCI
-			</span>
-	    </div>
-		<div class="left-menu">
-			<br>
-			<ul class="side-nav">
-			  <li id="nciSettingsBtn"><i class="icon-cog"></i></li>
-			  <li id="nciInfoBtn"><i class="icon-info"></i></img></li>
-			</ul>
-		</div>
-
 		<script src='static/nci.js'></script>
 		<script src='static/libs/foundation/foundation.min.js'></script>  
 		<script src='static/chart.js'></script>
@@ -138,14 +70,14 @@
 				var params = {};
 				params.time = new Date(data.Time).getMinutes() + ":" + new Date(data.Time).getSeconds();
 				if (data.NCI){
-					NCI.setNciLatestValue(data.NCI);
+					NCI.setNciLatestValue(NCI.parceNumberForView(data.NCI), NCI.parceDataForLastUpdate(data.Time));
 					params.NCI = data.NCI;
 					NCI.addValueToChart(params);
 				};
 				if (data.QPS)
-					NCI.setQpsLatestValue(data.QPS);
+					NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS), NCI.parceDataForLastUpdate(data.Time));
 				if (data.NEP)
-					NCI.setNepLatestValue(data.NEP);
+					NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDataForLastUpdate(data.Time));
 		    };
 		</script> 
 	</body>

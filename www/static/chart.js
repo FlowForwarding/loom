@@ -13,9 +13,6 @@ NCI.addValueToChart = function(params) {
 		NCI.chartData = google.visualization.arrayToDataTable([
 			['Time', 'NCI'],
 			[params.time, params.NCI]
-			//For multiple
-			// ['Time', 'NCI', 'QPS', 'NEP'],
-			// [params.time, 0, 0, 0]
 		]);
 	} else {
 		NCI.chartData.insertRows(NCI.chartData.J.length,
@@ -25,28 +22,6 @@ NCI.addValueToChart = function(params) {
 	if (NCI.chartData.J.length > 11)
 	    NCI.chartData.removeRow(0);	
 	
-	//For multiple
-	// var isNew = true;
-	// var insertInd;
-	// $.each(NCI.chartData.J, function(ind, el){
-	// 	if (el.c[0].v == params.time.toString()){
-	// 		isNew = false;
-	// 		insertInd = ind;
-	// 		return false;
-	// 	};
-	// });
-	// 
-	// if (!isNew){ 
-	// 	if (params.NCI)
-	// 		NCI.chartData.setValue(insertInd, 1, params.NCI);
-	// 	if (params.QPS)
-	// 		NCI.chartData.setValue(insertInd, 2, params.QPS);
-	// 	if (params.NEP)
-	// 		NCI.chartData.setValue(insertInd, 3, params.NEP);
-	// } else {
-	// 	NCI.chartData.insertRows(NCI.chartData.J.length,
-	// 		[[params.time.toString(), params.NCI, params.QPS, params.NEP]]);
-	// };
 	NCI.drawChart();
 };
 
@@ -60,13 +35,9 @@ NCI.getChartHeight = function(){
 };
 
 NCI.initChart = function(){
-	var chartWidth = 3 *$( window ).width()/4;
-	if (chartWidth > 700)
-		chartWidth = 700;
-		
-    if ($( window ).width() < 400) 	{
-	  chartWidth = 4*$( window ).width()/5; 
-    };
+	var chartWidth = $( window ).width();
+	if (chartWidth > 1000)
+		chartWidth = 1000;
 	
 	NCI.chartOptions = {
 	  	width: chartWidth,
