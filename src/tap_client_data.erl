@@ -37,6 +37,22 @@ listen(State)->
 			   end,[],Clients),
 	    NewState = State#state{clients=NewClients,last_nep=JSON},
 	    listen(NewState);
+	{nci,Data}->
+	    {NCI,UT} = Data,
+	    Time = list_to_binary(tap_utils:rfc3339(UT)),
+	    JSON = jiffy:encode({[{<<"Time">>,Time},{<<"NEP">>,NCI}]}),
+	    NewClients = lists:foldl(
+			   fun(Pid,AccIn)->
+				   case is_pid(Pid) of 
+				       true ->
+					   clientsock:send(Pid,JSON),
+					   [Pid|AccIn];
+				       false ->
+					   AccIn
+				   end
+			   end,[],Clients),
+	    NewState = State#state{clients=NewClients,last_nci=JSON},
+	    listen(NewState);
 	{new_client,Pid} ->
 	    NewClients = [Pid|Clients],
 	    io:format("tap_client_data: added client Pid =  ~p~n",[Pid]),
@@ -49,7 +65,8 @@ listen(State)->
 	    io:format("Msg: ~p~n",[Msg]),
 	    listen(State)
     end.
-					  
+			       
+    
 				 
 
 
