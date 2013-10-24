@@ -10,7 +10,7 @@ start()->
 	      io:format("tap_aggr: waiting for data recievers...~n"),
 	      start();
 	_ -> io:format("tap_aggr: starting...~n"),
-	     Pid = spawn(?MODULE,listen,[]),
+	     Pid = spawn(?MODULE,listen,[[]]),
 	     [ Recv ! {subscribe, {Pid, packet_in_dns_reply}} || Recv <- Receivers ],
 	     Pid
     end.
