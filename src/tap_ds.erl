@@ -24,6 +24,7 @@ listen(State)->
 	    TapClientData ! {num_endpoints,{dict:size(NewEndpoints2),calendar:universal_time()}},
 	    EdgeList = dict:to_list(NewEdges),
 	    NCIinput = [ Edge || {Edge,_Time} <- EdgeList ],
+	    io:format("NCIinput = ~p~n",[NCIinput]),
 	    spawn(?MODULE,get_nci,[TapClientData,NCIinput]),
 	    NewState = State#state{edge_dict=NewEdges,endpoint_dict=NewEndpoints2},
 	    listen(NewState);

@@ -110,7 +110,7 @@ compute(EdgeList)->
     [ clean_vertex(G2,Vertex) || Vertex <- V ],
 
     V2 = digraph:vertices(G2),
-    io:format("V2 = ~p~n",[V2]),
+%    io:format("V2 = ~p~n",[V2]),
     
 
     
@@ -133,6 +133,7 @@ compute(EdgeList)->
     NCI = calc_nci(G3),
 
     %% Return the NCI number.
+    io:format("NCI = ~p~n",[NCI]),
     NCI.
 
 
