@@ -30,5 +30,6 @@ handle_message(A)->
     noreply.
 
 send(Pid,Message) when is_pid(Pid) ->
+    error_logger:info_msg("Sending ~p to ~p~n",[Message,Pid]),
     yaws_api:websocket_send(Pid, {text, Message}).
 
