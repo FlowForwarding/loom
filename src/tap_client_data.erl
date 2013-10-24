@@ -4,15 +4,22 @@
 
 -include("../include/tapestry.hrl").
 
--record(state,{clients}).
+-record(state,{clients,last_nci,last_nep,last_qps}).
 
 start()->
-    Pid = spawn(?MODULE,listen,[#state{clients=[]}]),
+    Time = list_to_binary(tap_utils:rfc3339(erlang:universaltime())),
+    LNCI = jiffy:encode({[{<<"Time">>,Time},{<<"NCI">>,0}]}),
+    LNEP = jiffy:encode({[{<<"Time">>,Time},{<<"QPS">>,0}]}),
+    LQPS = jiffy:encode({[{<<"Time">>,Time},{<<"NEP">>,0}]}),
+    Pid = spawn(?MODULE,listen,[#state{clients=[],last_nci=LNCI,last_nep=LNEP,last_qps=LQPS}]),
     register(tap_client_data,Pid),
     Pid.
 
 listen(State)->
     Clients = State#state.clients,
+    LNCI = State#state.last_nci,
+    LNEP = State#state.last_nep,
+    LQPS = State#state.last_qps,
     receive
 	{num_endpoints,Data}->
 	    {NEP,UT} = Data,
@@ -28,11 +35,14 @@ listen(State)->
 					   AccIn
 				   end
 			   end,[],Clients),
-	    NewState = State#state{clients=NewClients},
+	    NewState = State#state{clients=NewClients,last_nep=JSON},
 	    listen(NewState);
 	{new_client,Pid} ->
 	    NewClients = [Pid|Clients],
 	    io:format("tap_client_data: added client Pid =  ~p~n",[Pid]),
+	    clientsock:send(Pid,LNCI),
+	    clientsock:send(Pid,LNEP),
+	    clientsock:send(Pid,LQPS),
 	    NewState = State#state{clients=NewClients},
 	    listen(NewState);
 	Msg ->
