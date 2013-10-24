@@ -14,9 +14,15 @@ handle_message({text, <<"START_DATA">>}) ->
     Pid = self(),
     random:seed(),
     error_logger:info_msg("Received START_DATA:~n"),
-    spawn(tap_client_data,fake_nci_feed,[Pid]),
-    spawn(tap_client_data,fake_qps_feed,[Pid]),
-    spawn(tap_client_data,fake_nep_feed,[Pid]),
+    DataPid = whereis(tap_client_data),
+    case DataPid of
+	undefined ->
+	    spawn(tap_client_data,fake_nci_feed,[Pid]),
+	    spawn(tap_client_data,fake_qps_feed,[Pid]),
+	    spawn(tap_client_data,fake_nep_feed,[Pid]);
+	_ when is_pid(DataPid) ->
+	    DataPid ! {new_client,Pid}
+    end,
     noreply;
 handle_message(A)->
     error_logger:info_msg("Received:~n~p~n",[A]),

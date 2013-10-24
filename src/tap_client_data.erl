@@ -4,6 +4,45 @@
 
 -include("../include/tapestry.hrl").
 
+-record(state,{clients}).
+
+start()->
+    Pid = spawn(?MODULE,listen,[#state{clients=[]}]),
+    register(tap_client_data,Pid),
+    Pid.
+
+listen(State)->
+    Clients = State#state.clients,
+    receive
+	{num_endpoints,Data}->
+	    {NEP,UT} = Data,
+	    Time = list_to_binary(tap_utils:rfc3339(UT)),
+	    JSON = jiffy:encode({[{<<"Time">>,Time},{<<"NEP">>,NEP}]}),
+	    NewClients = lists:foldl(
+			   fun(Pid,AccIn)->
+				   case is_pid(Pid) of 
+				       true ->
+					   clientsock:send(Pid,JSON),
+					   [Pid|AccIn];
+				       false ->
+					   AccIn
+				   end
+			   end,[],Clients),
+	    NewState = State#state{clients=NewClients},
+	    listen(NewState);
+	{new_client,Pid} ->
+	    NewClients = [Pid|Clients],
+	    io:format("tap_client_data: added client Pid =  ~p~n",[Pid]),
+	    NewState = State#state{clients=NewClients},
+	    listen(NewState);
+	Msg ->
+	    io:format("Msg: ~p~n",[Msg]),
+	    listen(State)
+    end.
+					  
+				 
+
+
 
 fake_nci_feed(Pid)->
     Wait = random:uniform(4) * 500,
