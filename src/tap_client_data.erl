@@ -40,7 +40,7 @@ listen(State)->
 	{nci,Data}->
 	    {NCI,UT} = Data,
 	    Time = list_to_binary(tap_utils:rfc3339(UT)),
-	    JSON = jiffy:encode({[{<<"Time">>,Time},{<<"NEP">>,NCI}]}),
+	    JSON = jiffy:encode({[{<<"Time">>,Time},{<<"NCI">>,NCI}]}),
 	    NewClients = lists:foldl(
 			   fun(Pid,AccIn)->
 				   case is_pid(Pid) of 

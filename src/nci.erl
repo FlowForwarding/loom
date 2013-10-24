@@ -133,7 +133,6 @@ compute(EdgeList)->
     NCI = calc_nci(G3),
 
     %% Return the NCI number.
-    io:format("NCI = ~p~n",[NCI]),
     NCI.
 
 
