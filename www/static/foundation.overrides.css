@@ -9,20 +9,10 @@
 	
 }
 
-.info-row{
-	padding-top:10px;
-}
-
 .nci-label .indexValue name{
-	font-size:28;
-	font-weight:700;
-	color:black;
-}
-
-.nci-label .indexValue val{
 	font-size:24;
 	font-weight:700;
-	padding-left: 20px;;
+	color:black;
 }
 
 .indexValue i{
@@ -31,14 +21,33 @@
 
 .indexValue name{
 	font-size:14;
-	color: gray;
+	font-weight:500;
+	color: #565656;
 }
 
-.indexValue val{
+.qps-value  val{
+	position: absolute;
+	left: 180px;
 	font-size:16;
 }
 
+.nci-label val{
+	font-size:28;
+	font-weight:700;
+	padding-left: 20px;;
+}
 
+.nci-label .icon-question-sign{
+    font-size: 20px;
+	position:relative;
+	top: -13px;
+}
+
+.qps-value .icon-question-sign{
+    font-size: 15px;
+	position:relative;
+	top: -7px;
+}
 
 .timePeriod small{
 	color: black;
@@ -73,17 +82,14 @@
     width:20px;
 }
 
-.icon-cog{
-	right:30px;
+
+.round-info{
+	right: 20px;
 	position:absolute;
-	font-size: 30px;
-	top:-10px;
+	font-size: 35px;
+	top:0px;
 }
 
-.icon-info{
-	right:0px;
-	position:absolute;
-	font-size: 30px;
-	top:-10px;
-}
+
+
 

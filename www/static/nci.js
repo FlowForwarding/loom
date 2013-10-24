@@ -10,17 +10,15 @@ NCI.ifMobile = function(){
 }
 
 NCI.setNciLatestValue = function (newVal, time) {
-
-		NCI.nciLatestValue.html('<name> NCI</name> <val> ' + newVal + ' </val> <br><i>updated &nbsp;' + time +'</i> ');
+	NCI.nciLatestValue.html('<val> ' + newVal + ' </val> <br><i>updated &nbsp;' + time +'</i> ');
 };
 
 NCI.setNepLatestValue = function (newVal, time) {
-
-		NCI.nepLatestValue.html('<name>Endpoints</name> <val>' + newVal + '</val> <br> <i>updated &nbsp;' + time +'</i>');
+	NCI.nepLatestValue.html('<val>' + newVal + '</val> <br> <i>updated &nbsp;' + time +'</i>');
 };
 
 NCI.setQpsLatestValue = function (newVal, time) {
-		NCI.qpsLatestValue.html('<name>Queries per Second </name><val>' + newVal + '</val> <br> <i> updated &nbsp;' + time +'</i>');
+	NCI.qpsLatestValue.html('<val>' + newVal + '</val> <br> <i> updated &nbsp;' + time +'</i>');
 };
 
 NCI.parceDataForLastUpdate = function(stringDate){
@@ -33,16 +31,13 @@ NCI.parceDataForLastUpdate = function(stringDate){
 NCI.parceNumberForView = function(labelValue){
     return Math.abs(Number(labelValue)) >= 1.0e+9
 
-         ? Math.abs(Number(labelValue)) / 1.0e+9.toFixed(1) + "B"
-         // Six Zeroes for Millions 
+         ? Math.abs(Number(labelValue)) / 1.0e+9.toFixed(1) + " B"
          : Math.abs(Number(labelValue)) >= 1.0e+6
 
-         ? (labelValue/ 1.0e+6).toFixed(1)  + "M"
-         // Three Zeroes for Thousands
+         ? (labelValue/ 1.0e+6).toFixed(1)  + " M"
          : Math.abs(Number(labelValue)) >= 1.0e+3
 
-         ? (labelValue / 1.0e+3).toFixed(1) + "K"
-
+         ? (labelValue / 1.0e+3).toFixed(1) + " K"
          : Math.abs(Number(labelValue));
 };
 

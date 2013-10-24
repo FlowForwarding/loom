@@ -43,11 +43,11 @@ NCI.initChart = function(){
 	  	width: chartWidth,
 	  	height: NCI.getChartHeight(),
 	  	legend: "none",
-	  	title: ''//,
+	  	title: '',
 		// vAxis: {title: 'Year',  titleTextStyle: {color: 'red'}},
-		// animation: {
-		// 	  		duration: 1000,
-		// 	  		easing: 'linear'
-		// 	  	}
+		animation: {
+			duration: 1000,
+			easing: 'linear'
+		}
 	};
 };

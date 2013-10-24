@@ -7,6 +7,7 @@
   	    <link rel="stylesheet" href="static/libs/foundation/foundation.min.css"> 
         <link rel="stylesheet" href="static/foundation.overrides.css"> 
 		<link rel="stylesheet" href="static/libs/font-awesome/css/font-awesome.min.css" >
+		<link rel="stylesheet" href="static/libs/google/google.tooltip.css" >
 		
 		<script src='static/libs/google/google.jsapi.js'></script>
 		<script src='static/libs/google/google.corechart.min.js'></script>
@@ -18,19 +19,26 @@
 			Tapestry for Infoblox Network		
 		</nav> 
 		
-		<div class="row info-row">
+		<div class="row">
 			<div class="large-10 small-10 columns">
 			<div class="large-6 small-12 columns nci-label">
-				<div id="nciLatestValue" class="indexValue"></div><br>
+				<div class="indexValue" style="padding-top:10px">
+					<name> NCI</name>
+					<span data-tooltip class="has-tip" title="Network Complexity Index"><i class="icon-question-sign"></i></span>
+					<span id="nciLatestValue"> <val> &nbsp; </val> <br><i>&nbsp;</i></span>
+				</div><br>
 			</div>	
-			<div class="large-6 small-12 columns ">  
-				<div id="nepLatestValue" class="indexValue"></div>	<br>
-				<div id="qpsLatestValue" class="indexValue"></div>
+			<div class="large-6 small-12 columns qps-value indexValue" style="padding-top:10px">  	
+				<name>Endpoints</name>
+				<span data-tooltip class="has-tip" title="Successful DNS Query Responses per Second"> <i class="icon-question-sign"></i></span>	
+				<span id="nepLatestValue"><val> &nbsp; </val> <br><i>&nbsp;</i></span>	<br> <br>
+				<name>Queries per Second </name>
+					<span data-tooltip class="has-tip" title="Number of Connected Network Elements"><i class="icon-question-sign"></i></span>
+				<span id="qpsLatestValue"><val> &nbsp; </val> <br><i>&nbsp;</i></span>
 			</div>	
 			</div>	
 			<div class="large-2 small-2 columns">
-				<i class="icon-cog"></i>
-				<i class="icon-info"></i>
+				<i class="round-info icon-info-sign"></i>
 			</div>	  
 		</div>  
 		  
@@ -51,9 +59,10 @@
 			</div>
 		</div>
 		
-		<script src='static/nci.js'></script>
-		<script src='static/libs/foundation/foundation.min.js'></script>  
+		<script src='static/libs/foundation/custom.modernizr.js'></script> 
+		<script src='static/libs/foundation/foundation.min.js'></script>   
 		<script src='static/chart.js'></script>
+		<script src='static/nci.js'></script>
 		<script type="text/javascript">
 		    $('#visualization').height(NCI.getChartHeight());
 		    google.setOnLoadCallback(NCI.initChart);
