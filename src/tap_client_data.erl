@@ -8,9 +8,9 @@
 
 start()->
     Time = list_to_binary(tap_utils:rfc3339(erlang:universaltime())),
-    LNCI = jiffy:encode({[{<<"Time">>,Time},{<<"NCI">>,0}]}),
-    LNEP = jiffy:encode({[{<<"Time">>,Time},{<<"QPS">>,0}]}),
-    LQPS = jiffy:encode({[{<<"Time">>,Time},{<<"NEP">>,0}]}),
+    LNCI = jiffy:encode({[{<<"Time">>,Time},{<<"NCI">>,1}]}),
+    LNEP = jiffy:encode({[{<<"Time">>,Time},{<<"NEP">>,1}]}),
+    LQPS = jiffy:encode({[{<<"Time">>,Time},{<<"QPS">>,1}]}),
     Pid = spawn(?MODULE,listen,[#state{clients=[],last_nci=LNCI,last_nep=LNEP,last_qps=LQPS}]),
     register(tap_client_data,Pid),
     Pid.
@@ -40,7 +40,6 @@ listen(State)->
 	{new_client,Pid} ->
 	    NewClients = [Pid|Clients],
 	    io:format("tap_client_data: added client Pid =  ~p~n",[Pid]),
-	    clientsock:send(Pid,LNCI),
 	    clientsock:send(Pid,LNCI),
 	    clientsock:send(Pid,LNEP),
 	    clientsock:send(Pid,LQPS),
