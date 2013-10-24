@@ -41,6 +41,7 @@ listen(State)->
 	    NewClients = [Pid|Clients],
 	    io:format("tap_client_data: added client Pid =  ~p~n",[Pid]),
 	    clientsock:send(Pid,LNCI),
+	    clientsock:send(Pid,LNCI),
 	    clientsock:send(Pid,LNEP),
 	    clientsock:send(Pid,LQPS),
 	    NewState = State#state{clients=NewClients},
