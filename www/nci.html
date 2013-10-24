@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title> Tapestry </title>
   	    <link rel="stylesheet" href="static/libs/foundation/normalize.css" />
   	    <link rel="stylesheet" href="static/libs/foundation/foundation.min.css"> 
@@ -38,25 +38,38 @@
 			</div>	
 			</div>	
 			<div class="large-2 small-2 columns">
-				<i class="round-info icon-info-sign"></i>
+				<i data-reveal-id="infoModal" class="round-info icon-info-sign"></i>
 			</div>	  
 		</div>  
 		  
 		<div class="row">
-	  		  <div class="large-12 columns">&nbsp;
+	  		  <div class="large-12 columns">
 	  			  <div id="visualization" class="nci-chart"></div>
 	  		  </div>
 		</div>
 		
-		<div class="row">
-			<div class="large-12 small-12 columns">
+		<div class="row slider">
+			<div class="large-3 small-12 columns">
 				<h3 id="periodLabel" class="timePeriod"> <small> data for last </small> 1 min</h3>
 			</div>
-			<div class="large-8  small-12 columns">
+			<div class="large-1  small-2 columns">
+				<i class="icon-minus-sign"></i>
+			</div>
+			<div class="large-7  small-8 columns">
 				<br>
 				<input id="slider" type="range"
 				   class="date-slider" value="0" min="0" max="133" data-highlight="true" />
 			</div>
+			<div class="large-1  small-2 columns">
+				<i class="icon-plus-sign"></i>
+			</div>
+		</div>
+		
+		<div id="infoModal" class="reveal-modal">
+			<a href='http://infoblox.com' target='blank'>About NCI</a> <br><br>
+			<a href='http://www.flowforwarding.org/nci' target='blank'>NCI – Technical paper</a>  <br><br>
+			<a href='http://www.flowforwarding.org/about-us' target='blank'>About FlowForwarding.Org</a>
+			<a class="close-reveal-modal">&#215;</a>
 		</div>
 		
 		<script src='static/libs/foundation/custom.modernizr.js'></script> 

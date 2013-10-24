@@ -95,13 +95,36 @@ NCI.slider = (function(){
     };
 	
 	me.on('change', function(){
-		NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(parseInt(me[0].value)).date)
+		me.updateValueLabel();
 	});
 	
 	me.on('mouseup', function(){
-		NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(parseInt(me[0].value)).date)
+		me.updateValueLabel();
 	});
 
+	me.updateValueLabel = function(){
+		NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(parseInt(me[0].value)).date)
+	};
 	return me;
 }());	
+
+$('.slider .icon-plus-sign').on('click', function(){
+	var curVal = NCI.slider[0].value;
+	if (curVal < parseInt(NCI.slider[0].max)){
+		NCI.slider[0].value = 1 + parseInt(NCI.slider[0].value);
+		NCI.slider.updateValueLabel();
+	};
+});
+
+$('.slider .icon-minus-sign').on('click', function(){
+	var curVal = NCI.slider[0].value;
+	if (curVal > 0){
+	   NCI.slider[0].value = NCI.slider[0].value - 1;
+	   NCI.slider.updateValueLabel();
+    };
+});
+
+$('.round-info').on('touchend', function(){
+	$('.round-info').trigger('click');
+})
 

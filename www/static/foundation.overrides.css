@@ -28,6 +28,7 @@
 .qps-value  val{
 	position: absolute;
 	left: 180px;
+	font-weight:500;
 	font-size:16;
 }
 
@@ -62,7 +63,7 @@
 
 .date-slider {
     -webkit-appearance: none !important;
-    background: darkcyan;
+    background: #565656;
     border-radius: 5px;
     box-shadow: inset 1px 1px 3px rgba(0,0,0,0.6);
 	border-width: 0px;
@@ -76,7 +77,7 @@
 
 .date-slider::-webkit-slider-thumb {
     -webkit-appearance: none !important;
-    background:#50b487;
+    background: #205BBB;
 	border-radius: 5px;
     height:20px;
     width:20px;
@@ -90,6 +91,8 @@
 	top:0px;
 }
 
-
+.slider .icon-plus-sign, .slider .icon-minus-sign{
+	font-size: 35px;
+}
 
 
