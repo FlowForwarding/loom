@@ -20,7 +20,8 @@ start()->
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/apps/*/ebin")],
     loom_app:start(),
     loom_sup:launch_controller(dns_tap,6634),
-    ok.
+    Pid = tap_aggr:start(),
+    {Pid,ok}.
 
 %%%
 % Reads DNS response log lines and processes them
