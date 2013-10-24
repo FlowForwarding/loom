@@ -21,7 +21,7 @@ listen(State)->
 	    NewEdges = dict:store(OE,Time,Edges),
 	    NewEndpoints1 = dict:store(A,Time,Endpoints),
 	    NewEndpoints2 = dict:store(B,Time,NewEndpoints1),
-	    TapClientData ! {num_endpoints,{dict:size(NewEndpoints2),caledar:universal_time()}},
+	    TapClientData ! {num_endpoints,{dict:size(NewEndpoints2),calendar:universal_time()}},
 	    NewState = State#state{edge_dict=NewEdges,endpoint_dict=NewEndpoints2},
 	    listen(NewState);
 	Msg ->
