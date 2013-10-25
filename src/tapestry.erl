@@ -21,7 +21,8 @@ start()->
     tap_yaws:start(),
     loom_app:start(),
     loom_sup:launch_controller(dns_tap,6634),
-    Pid = tap_aggr:start(),
+    Pid = tap_ds:start(),
+%    Pid = tap_aggr:start(),
     {Pid,ok}.
 
 
