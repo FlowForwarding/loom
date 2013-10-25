@@ -3,6 +3,22 @@
 -compile([export_all]).
 
 
+dns_tap([],Port1,Port2,IPTupleList)->
+    ok;
+dns_tap(OFDPL,Port1,Port2,IPTupleList)->
+    [OFDP|Rest] = OFDPL,
+    IPList = [ list_to_binary(tuple_to_list(IPTuple)) || IPTuple <- IPTupleList ],
+    loom_ofdp_lib:clear(OFDP),
+    [ send_dns_tap_msg(Port1,Port2,controller, IPv4Src, OFDP) || IPv4Src <- IPList ],
+    loom_ofdp_lib:forward(OFDP,Port2,[Port1]), 
+    loom_ofdp_lib:forward(OFDP, Port1,[Port2]),
+    dns_tap(Rest,Port1,Port2,IPTupleList).
+
+send_dns_tap_msg(Port1, Port2, Port3, IPv4Src, OFDP) ->    
+    M1 = loom_flow_lib:tap_dns_response(Port1, Port2, Port3, IPv4Src),
+    loom_ofdp:send_ofp_msg(OFDP, M1).
+
+
 
 get_ofdp_recv_list()->
     LoomSupTree = loom:get_sup_tree(),
