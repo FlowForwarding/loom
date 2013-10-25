@@ -19,7 +19,7 @@ NCI.addValueToChart = function(params) {
 			[[params.time.toString(), params.NCI]]);
 	};
 	
-	if (NCI.chartData.J.length > 11)
+	if (NCI.chartData.J.length > 59)
 	    NCI.chartData.removeRow(0);	
 	
 	NCI.drawChart();

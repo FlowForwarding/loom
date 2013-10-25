@@ -46,7 +46,8 @@
 		<div class="row">
 	  		  <div class="large-12 columns">
 	  			  <div id="visualization" class="nci-chart"></div>
-				  <h3 style="position:absolute;top:40%; left:0px;">NCI</h3>
+				   <br>
+				  <h3 class="yAxisLabel">NCI</h3>
 	  		  </div>
 		</div>
 		
@@ -87,7 +88,7 @@
 			});
             var connection = new WebSocket("ws://" + 'nci.ilabs.inca.infoblox.com:28080' + "/clientsock.yaws");
 		    connection.onopen = function () {
-			    connection.send('START_DATA');
+			   // connection.send('START_DATA');
 		    };
 		
 		    connection.onmessage  = function (e) {
@@ -105,7 +106,8 @@
 					NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDataForLastUpdate(data.Time));
 		    };
 			
-		    connection.onerror= function () {
+		    connection.onerror= function (e) {
+				console.log('error ' + e.data);
 		    };
 			
 		    connection.oneclose = function () {

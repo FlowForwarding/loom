@@ -65,36 +65,83 @@ NCI.getChartData = function(){
     });
 };
 
-
-NCI.sideMenuBtns = [NCI.infoBtn, NCI.settingsBtn];
-NCI.selectedItem;
-
 NCI.periodLabel = $('#periodLabel');
 
 NCI.slider = (function(){
 	var me =  $('#slider');
 	
-	var timeRanges = {
-		ranges: [59, 
-		59 + 23, 
-		59 + 23 + 31, 
-		59 + 23 + 31 + 11, 
-		59 + 23 + 31 + 11 + 10],
-		rangeNames : ['min', 'hours', 'days', 'mnths', 'years']
+	function genMinXScale(val){
+		return {val : val, dim: 'min', pointsNum: 11, indexMaxVal: 66* val, indexDim: 'sec'}
 	};
+	
+	function genDecMinXScale(val){
+		return {val : val*10, dim: 'min', pointsNum: 11, indexMaxVal: 11* val, indexDim: 'min'}
+	};
+	
+	function genHourXScale(val){
+		return {val : val, dim: 'hour', pointsNum: 11, indexMaxVal: 66* val, indexDim: 'min'}
+	};
+	
+	function genDecHourXScale(val){
+		return {val : val*10, dim: 'hour', pointsNum: 11, indexMaxVal: 11* val, indexDim: 'hours'}
+	};
+	
+	function genDayXScale(val){
+		return {val : val, dim: 'day', pointsNum: 13, indexMaxVal: 13* val, indexDim: 'hours'}
+	};
+	
+	function genDecDayXScale(val){
+		return {val : val*10, dim: 'day', pointsNum: 11, indexMaxVal: 11* val, indexDim: 'days'}
+	};
+	
+	function genMonthXScale(val){
+		return {val : val, dim: 'month', pointsNum: 11, indexMaxVal: 33* val, indexDim: 'day'}
+	};
+	
+	function genYearXScale(val){
+		return {val : val, dim: 'year', pointsNum: 13, indexMaxVal: 13* val, indexDim: 'month'}
+	};
+
+	var xAxesScale = [];
+	
+	for (var i = 1; i< 10; i++){
+		xAxesScale.push(genMinXScale(i));
+	};
+	
+	for (var i = 1; i< 6; i++){
+		xAxesScale.push(genDecMinXScale(i));
+	};
+	
+	for (var i = 1; i< 10; i++){
+		xAxesScale.push(genHourXScale(i));
+	};
+	
+	for (var i = 1; i< 3; i++){
+		xAxesScale.push(genDecHourXScale(i));
+	};
+	
+	for (var i = 1; i< 10; i++){
+		xAxesScale.push(genDayXScale(i));
+	};
+	
+	for (var i = 1; i< 4; i++){
+		xAxesScale.push(genDecDayXScale(i));
+	};
+	
+	for (var i = 1; i< 12; i++){
+		xAxesScale.push(genMonthXScale(i));
+	};
+	
+	for (var i = 1; i< 11; i++){
+		xAxesScale.push(genYearXScale(i));
+	};
+	
+	me[0].max = xAxesScale.length-1;
+	
 	var getValueByRange = function(intValue){
 		var date, friquent;
-		$.each(timeRanges.ranges, function(index, range){
-			if (intValue < range){
-				var periodData = intValue + 1;
-				if ( index !== 0 ){
-					periodData -= timeRanges.ranges[index - 1];
-				};
-				friquent = index === 0;
-			    date = periodData + " " + timeRanges.rangeNames[index];
-				return false;
-		    };
-		});
+		var xScaleVal = xAxesScale[intValue];
+		date = xScaleVal.val + " " + xScaleVal.dim;
 		return {date : date, friquent: friquent};
     };
 	
@@ -107,6 +154,24 @@ NCI.slider = (function(){
 	});
 
 	me.updateValueLabel = function(){
+		if (!NCI.chartData) {
+			NCI.chartData = google.visualization.arrayToDataTable([
+				['Time', 'NCI'],
+				['sec', 0]
+			]);
+		};
+		
+		if (NCI.chartData.J.length > 0)
+		    NCI.chartData.removeRows(0, NCI.chartData.J.length);	
+			
+	    var xScaleVal = xAxesScale[me[0].value];
+	    var valIndex = xScaleVal.indexDim;
+		var valDim = xScaleVal.indexDim;
+		for (var i=0; i< xScaleVal.pointsNum; i++){
+			NCI.chartData.insertRows(0, [[ xScaleVal.indexMaxVal*i/xScaleVal.pointsNum + " " + valDim, Math.floor((Math.random()*100)+1) ]]);
+		};
+		
+		NCI.drawChart();
 		NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(parseInt(me[0].value)).date)
 	};
 	return me;

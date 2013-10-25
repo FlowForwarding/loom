@@ -97,4 +97,10 @@
 	font-size: 35px;
 }
 
+.yAxisLabel {
+	position:absolute;
+	top:40%; 
+	left:1px;
+}
+
 
