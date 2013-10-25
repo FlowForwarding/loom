@@ -4,21 +4,25 @@ if (typeof NCI === 'undefined')
 NCI.nciLatestValue = $('#nciLatestValue');
 NCI.nepLatestValue = $('#nepLatestValue');
 NCI.qpsLatestValue = $('#qpsLatestValue');
+NCI.lastUpdateTime = $('#lastUpdateTime');
 
 NCI.ifMobile = function(){
 	return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
 }
 
 NCI.setNciLatestValue = function (newVal, time) {
-	NCI.nciLatestValue.html('<val> ' + newVal + ' </val> <br><i>updated &nbsp;' + time +'</i> ');
+	NCI.nciLatestValue.html('<val> ' + newVal + ' </val> ');
+	NCI.lastUpdateTime.html('updated &nbsp;' + time);
 };
 
 NCI.setNepLatestValue = function (newVal, time) {
-	NCI.nepLatestValue.html('<val>' + newVal + '</val> <br> <i>updated &nbsp;' + time +'</i>');
+	NCI.nepLatestValue.html('<val>' + newVal + '</val>');
+	NCI.lastUpdateTime.html('updated &nbsp;' + time);
 };
 
 NCI.setQpsLatestValue = function (newVal, time) {
-	NCI.qpsLatestValue.html('<val>' + newVal + '</val> <br> <i> updated &nbsp;' + time +'</i>');
+	NCI.qpsLatestValue.html('<val>' + newVal + '</val> <br>');
+	NCI.lastUpdateTime.html('updated &nbsp;' + time);
 };
 
 NCI.parceDataForLastUpdate = function(stringDate){

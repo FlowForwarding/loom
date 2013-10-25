@@ -25,16 +25,17 @@
 				<div class="indexValue" style="padding-top:10px">
 					<name> NCI</name>
 					<span data-tooltip class="has-tip" title="Network Complexity Index"><i class="icon-question-sign"></i></span>
-					<span id="nciLatestValue"> <val> &nbsp; </val> <br><i>&nbsp;</i></span>
+					<span id="nciLatestValue"> <val> &nbsp; </val> </span>
 				</div><br>
 			</div>	
 			<div class="large-6 small-12 columns qps-value indexValue" style="padding-top:10px">  	
 				<name>Endpoints</name>
-				<span data-tooltip class="has-tip" title="Successful DNS Query Responses per Second"> <i class="icon-question-sign"></i></span>	
-				<span id="nepLatestValue"><val> &nbsp; </val> <br><i>&nbsp;</i></span>	<br> <br>
+				<span data-tooltip class="has-tip" title="Successful DNS Query Responses per Second"> 
+					<i class="icon-question-sign"></i></span>	
+				<span id="nepLatestValue"><val> &nbsp; </val> </span>	<br> <br>
 				<name>Queries per Second </name>
 					<span data-tooltip class="has-tip" title="Number of Connected Network Elements"><i class="icon-question-sign"></i></span>
-				<span id="qpsLatestValue"><val> &nbsp; </val> <br><i>&nbsp;</i></span>
+				<span id="qpsLatestValue"><val> &nbsp; </val> </span>
 			</div>	
 			</div>	
 			<div class="large-2 small-2 columns">
@@ -45,12 +46,14 @@
 		<div class="row">
 	  		  <div class="large-12 columns">
 	  			  <div id="visualization" class="nci-chart"></div>
+				  <h3 style="position:absolute;top:40%; left:0px;">NCI</h3>
 	  		  </div>
 		</div>
 		
 		<div class="row slider">
 			<div class="large-3 small-12 columns">
-				<h3 id="periodLabel" class="timePeriod"> <small> data for last </small> 1 min</h3>
+				<span id="periodLabel" class="timePeriod"> <small> data for last </small> 1 min</span> <br>
+				<i id="lastUpdateTime">&nbsp;</i><br><br>
 			</div>
 			<div class="large-1  small-2 columns">
 				<i class="icon-minus-sign"></i>
@@ -83,10 +86,10 @@
 		    	$(document).foundation();
 			});
             var connection = new WebSocket("ws://" + 'nci.ilabs.inca.infoblox.com:28080' + "/clientsock.yaws");
-		        connection.onopen = function () {
+		    connection.onopen = function () {
 			    connection.send('START_DATA');
 		    };
-		 
+		
 		    connection.onmessage  = function (e) {
 				var data = eval("tmp = " + e.data );
 				var params = {};
@@ -101,6 +104,13 @@
 				if (data.NEP)
 					NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDataForLastUpdate(data.Time));
 		    };
+			
+		    connection.onerror= function () {
+		    };
+			
+		    connection.oneclose = function () {
+		    };
+		 
 		</script> 
 	</body>
 </html>

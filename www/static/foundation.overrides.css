@@ -15,10 +15,6 @@
 	color:black;
 }
 
-.indexValue i{
-	font-size:12;
-}
-
 .indexValue name{
 	font-size:14;
 	font-weight:500;
@@ -51,7 +47,13 @@
 }
 
 .timePeriod small{
-	color: black;
+	color: #565656;
+	font-size: 18px;
+}
+
+.timePeriod{
+	font-size: 28px;
+	font-weight:500;
 }
 
 .nci-chart {
