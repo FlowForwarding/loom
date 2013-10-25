@@ -21,9 +21,15 @@ handle_message({text, <<"START_DATA">>}) ->
 	    spawn(tap_client_data,fake_qps_feed,[Pid]),
 	    spawn(tap_client_data,fake_nep_feed,[Pid]);
 	_ when is_pid(DataPid) ->
-	    DataPid ! {new_client,Pid}
+	    DataPid ! {new_client,Pid},
+	    spawn(tap_client_data,fake_nci_feed2,[DataPid])
     end,
     noreply;
+handle_message({text, <<"{\"request\":\"start_data\"}">>})->
+    handle_message({text, <<"START_DATA">>});
+handle_message({text, MessageBits }) when is_bitstring(MessageBits ) ->
+    error_logger:info_msg("Received:~p~n",[MessageBits]),
+    decode(MessageBits);
 handle_message({close,_,_})->
     DataPid = whereis(tap_client_data),
     Pid = self(),
@@ -44,3 +50,20 @@ send(Pid,Message) when is_pid(Pid) ->
     error_logger:info_msg("Sending ~p to ~p~n",[Message,Pid]),
     yaws_api:websocket_send(Pid, {text, Message}).
 
+
+
+decode(MessageBits)->
+    try 
+	Message = jiffy:decode(MessageBits),
+	case Message of
+	    {[{<<"request">>,<<"more_data">>},
+	      {<<"start">>,Start},
+	      {<<"end">>,End},
+	      {<<"max_items">>,MaxData}]} ->
+		tap_client_data:send({more_nci_data,self(),tap_utils:rfc3339_to_epoch(binary_to_list(Start)),tap_utils:rfc3339_to_epoch(binary_to_list(End)),MaxData});
+	    _ ->  error_logger:info_msg("Unexpected Message:~p~n",[Message])
+	end
+    catch 
+	Error ->
+	    error_logger:info_msg("Parse Error: ~p  on~p~n",[Error,MessageBits])
+    end.
