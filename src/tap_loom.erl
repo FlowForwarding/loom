@@ -28,7 +28,7 @@ process_ofdps([OFDP|Rest]) ->
 	    {dns_port,Port1} = DNSPort,
 	    {client_port,Port2} = ClientPort,
 	    {dns_ips,IPs} = DNSIps,
-	    OFDPList = loom:get_all(default),
+	    OFDPList = loom_ofdp:get_all(default),
 	    lists:foreach(fun(X)->
 				  {OFDPIP,_} = loom_ofdp:get_address(X),
 				  case OFDPIP == IPAddr of
