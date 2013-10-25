@@ -14,8 +14,8 @@ process_config([])->
     ok;
 process_config([Config|Rest]) ->
     case Config of
-	{ofdps,_}->
-	    process_ofdps(Config);
+	{ofdps,OFDPSConfig}->
+	    process_ofdps(OFDPSConfig);
 	_ -> process_config(Rest)
     end.
 
