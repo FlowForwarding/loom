@@ -28,7 +28,7 @@ listen(State)->
 	    NewState = State#state{edge_dict=NewEdges,endpoint_dict=NewEndpoints2},
 	    listen(NewState);
 	Msg ->
-	    io:format("Msg: ~p~n",[Msg]),
+	    io:format("Msg: ~p, ~p~n",[Msg,State]),
 	    listen(State)
     end.
 	  
