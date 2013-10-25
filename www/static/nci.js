@@ -45,26 +45,6 @@ NCI.parceNumberForView = function(labelValue){
          : Math.abs(Number(labelValue));
 };
 
-NCI.timePeriod = localStorage.timePeriod;
-
-NCI.getChartData = function(){
-    $.ajax({
-        type: 'GET',
-        url: '/chart',
-        dataType: 'json',
-		data: {
-			timePeriod: NCI.timePeriod,
-			updateInterval: NCI.updateInterval
-		},
-        success: function(data){
-			//update ui
-        },
-        error: function(xhr, type){
-			console.log('server log');
-        }
-    });
-};
-
 NCI.periodLabel = $('#periodLabel');
 
 NCI.slider = (function(){
@@ -83,11 +63,11 @@ NCI.slider = (function(){
 	};
 	
 	function genDecHourXScale(val){
-		return {val : val*10, dim: 'hour', pointsNum: 11, indexMaxVal: 11* val, indexDim: 'hours'}
+		return {val : val*10, dim: 'hour', pointsNum: 11, indexMaxVal: 11* val, indexDim: 'hrs'}
 	};
 	
 	function genDayXScale(val){
-		return {val : val, dim: 'day', pointsNum: 13, indexMaxVal: 13* val, indexDim: 'hours'}
+		return {val : val, dim: 'day', pointsNum: 13, indexMaxVal: 13* val, indexDim: 'hrs'}
 	};
 	
 	function genDecDayXScale(val){
@@ -95,11 +75,11 @@ NCI.slider = (function(){
 	};
 	
 	function genMonthXScale(val){
-		return {val : val, dim: 'month', pointsNum: 11, indexMaxVal: 33* val, indexDim: 'day'}
+		return {val : val, dim: 'month', pointsNum: 11, indexMaxVal: 33* val, indexDim: 'days'}
 	};
 	
 	function genYearXScale(val){
-		return {val : val, dim: 'year', pointsNum: 13, indexMaxVal: 13* val, indexDim: 'month'}
+		return {val : val, dim: 'year', pointsNum: 13, indexMaxVal: 13* val, indexDim: 'mth'}
 	};
 
 	var xAxesScale = [];
@@ -154,24 +134,17 @@ NCI.slider = (function(){
 	});
 
 	me.updateValueLabel = function(){
-		if (!NCI.chartData) {
-			NCI.chartData = google.visualization.arrayToDataTable([
-				['Time', 'NCI'],
-				['sec', 0]
-			]);
-		};
 		
-		if (NCI.chartData.J.length > 0)
-		    NCI.chartData.removeRows(0, NCI.chartData.J.length);	
+		var dataValues = [];
 			
 	    var xScaleVal = xAxesScale[me[0].value];
 	    var valIndex = xScaleVal.indexDim;
 		var valDim = xScaleVal.indexDim;
 		for (var i=0; i< xScaleVal.pointsNum; i++){
-			NCI.chartData.insertRows(0, [[ xScaleVal.indexMaxVal*i/xScaleVal.pointsNum + " " + valDim, Math.floor((Math.random()*100)+1) ]]);
+			dataValues.push ([ xScaleVal.indexMaxVal*i/xScaleVal.pointsNum + " " + valDim, Math.floor((Math.random()*100)+1) ]);
 		};
-		
-		NCI.drawChart();
+
+		NCI.chart.replot({data: [dataValues]}); 
 		NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(parseInt(me[0].value)).date)
 	};
 	return me;

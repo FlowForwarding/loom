@@ -1,53 +1,51 @@
 if (typeof NCI === 'undefined')
-   NCI = {};
-   
-NCI.chart = new google.visualization.LineChart(document.getElementById('visualization')); 
-NCI.chartData; 
-
-NCI.drawChart = function() {
-	NCI.chart.draw(NCI.chartData, NCI.chartOptions);
-};
-//
-NCI.addValueToChart = function(params) {
-	if (!NCI.chartData) {
-		NCI.chartData = google.visualization.arrayToDataTable([
-			['Time', 'NCI'],
-			[params.time, params.NCI]
-		]);
-	} else {
-		NCI.chartData.insertRows(NCI.chartData.J.length,
-			[[params.time.toString(), params.NCI]]);
-	};
-	
-	if (NCI.chartData.J.length > 59)
-	    NCI.chartData.removeRow(0);	
-	
-	NCI.drawChart();
-};
+   NCI = {};   
 
 NCI.getChartHeight = function(){
-	var chartHeight = 	$( window ).height()/2;
-    if ($( window ).width() < 400) 	{
-	  chartWidth = 4*$( window ).width()/5; 
-	  chartHeight = $( window ).height()/3;
-    };
-	return chartHeight;
+   	var chartHeight = 	$( window ).height()/2;
+       if ($( window ).width() < 400) 	{
+   	  chartWidth = 4*$( window ).width()/5; 
+   	  chartHeight = $( window ).height()/3;
+       };
+   	return chartHeight;
 };
 
-NCI.initChart = function(){
-	var chartWidth = $( window ).width();
-	if (chartWidth > 1000)
-		chartWidth = 1000;
-	
-	NCI.chartOptions = {
-	  	width: chartWidth,
-	  	height: NCI.getChartHeight(),
-	  	legend: "none",
-	  	title: '',
-		// vAxis: {title: 'Year',  titleTextStyle: {color: 'red'}},
-		animation: {
-			duration: 1000,
-			easing: 'linear'
-		}
-	};
+$('#visualization').height(NCI.getChartHeight());
+
+NCI.chart = $.jqplot ('visualization', [[[0,0]]], {
+    axesDefaults: {
+       tickRenderer: $.jqplot.CanvasAxisTickRenderer ,
+       tickOptions: {
+          angle: -30,
+          fontSize: '10pt',
+		  showGridline: true
+	   }
+    },
+	axes: {
+	      xaxis: {
+	        renderer: $.jqplot.CategoryAxisRenderer//,
+	      }
+	 },
+	 seriesDefaults: {
+	 	showMarker: false,
+		color: "#205BBB",
+		shadow: false
+	 },
+	 grid :{
+	 	 drawGridLines: false,
+	 		background: '#ffffff',  
+	 		drawBorder: false,
+	 		shadow: false
+	 }
+});
+
+
+NCI.addValueToChart = function(params) {
+	var newData = NCI.chart.series[0].data;
+	newData.push([params.time.toString(), params.NCI]);
+    NCI.chart.series[0].data = newData;
+	if (newData.length > 30)
+		newData.shift();
+	NCI.chart.resetAxesScale();
+    NCI.chart.replot( {data: [newData]});
 };
