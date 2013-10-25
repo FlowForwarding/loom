@@ -4,15 +4,18 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title> Tapestry </title>
   	    <link rel="stylesheet" href="static/libs/foundation/normalize.css" />
-  	    <link rel="stylesheet" href="static/libs/foundation/foundation.min.css"> 
-        <link rel="stylesheet" href="static/foundation.overrides.css"> 
-		<link rel="stylesheet" href="static/libs/font-awesome/css/font-awesome.min.css" >
-		<link rel="stylesheet" href="static/libs/google/google.tooltip.css" >
+  	    <link rel="stylesheet" href="static/libs/foundation/foundation.min.css"/> 
+        <link rel="stylesheet" href="static/foundation.overrides.css"/> 
+		<link rel="stylesheet" href="static/libs/font-awesome/css/font-awesome.min.css" />
 		
-		<script src='static/libs/google/google.jsapi.js'></script>
-		<script src='static/libs/google/google.corechart.min.js'></script>
-		<script src='static/libs/jquery/jquery-1.9.1.js'></script>	
-	
+	    <link rel="stylesheet" href="static/libs/jquery/jquery.jqplot.min.css" />
+		<!-- jquery.flot is ligter  and does the same, take it mind -->
+		<script src='static/libs/jquery/jquery.min.js'></script>	
+		<script src='static/libs/jquery/jquery.jqplot.min.js'></script>
+		<script src='static/libs/jquery/jqplot.canvasTextRenderer.min.js'></script>	
+		<script src='static/libs/jquery/jqplot.canvasAxisTickRenderer.min.js'></script>	
+		<script src='static/libs/jquery/jqplot.categoryAxisRenderer.min.js'></script>	
+		
 	</head>
 	<body>
 		<nav class="top-bar">
@@ -25,16 +28,17 @@
 				<div class="indexValue" style="padding-top:10px">
 					<name> NCI</name>
 					<span data-tooltip class="has-tip" title="Network Complexity Index"><i class="icon-question-sign"></i></span>
-					<span id="nciLatestValue"> <val> &nbsp; </val> <br><i>&nbsp;</i></span>
+					<span id="nciLatestValue"> <val> &nbsp; </val> </span>
 				</div><br>
 			</div>	
 			<div class="large-6 small-12 columns qps-value indexValue" style="padding-top:10px">  	
 				<name>Endpoints</name>
-				<span data-tooltip class="has-tip" title="Successful DNS Query Responses per Second"> <i class="icon-question-sign"></i></span>	
-				<span id="nepLatestValue"><val> &nbsp; </val> <br><i>&nbsp;</i></span>	<br> <br>
+				<span data-tooltip class="has-tip" title="Successful DNS Query Responses per Second"> 
+					<i class="icon-question-sign"></i></span>	
+				<span id="nepLatestValue"><val> &nbsp; </val> </span>	<br> <br>
 				<name>Queries per Second </name>
 					<span data-tooltip class="has-tip" title="Number of Connected Network Elements"><i class="icon-question-sign"></i></span>
-				<span id="qpsLatestValue"><val> &nbsp; </val> <br><i>&nbsp;</i></span>
+				<span id="qpsLatestValue"><val> &nbsp; </val> </span>
 			</div>	
 			</div>	
 			<div class="large-2 small-2 columns">
@@ -44,13 +48,17 @@
 		  
 		<div class="row">
 	  		  <div class="large-12 columns">
+				  <br>
 	  			  <div id="visualization" class="nci-chart"></div>
+				   <br><br>
+				  <h3 class="yAxisLabel">NCI</h3>
 	  		  </div>
 		</div>
 		
 		<div class="row slider">
 			<div class="large-3 small-12 columns">
-				<h3 id="periodLabel" class="timePeriod"> <small> data for last </small> 1 min</h3>
+				<span id="periodLabel" class="timePeriod"> <small> data for last </small> 1 min</span> <br>
+				<i id="lastUpdateTime">&nbsp;</i><br>
 			</div>
 			<div class="large-1  small-2 columns">
 				<i class="icon-minus-sign"></i>
@@ -77,16 +85,15 @@
 		<script src='static/chart.js'></script>
 		<script src='static/nci.js'></script>
 		<script type="text/javascript">
-		    $('#visualization').height(NCI.getChartHeight());
-		    google.setOnLoadCallback(NCI.initChart);
 			$(function(){
 		    	$(document).foundation();
+				NCI.slider.trigger('change');
 			});
             var connection = new WebSocket("ws://" + 'nci.ilabs.inca.infoblox.com:28080' + "/clientsock.yaws");
-		        connection.onopen = function () {
-			    connection.send('START_DATA');
+		    connection.onopen = function () {
+			 //   connection.send('START_DATA');
 		    };
-		 
+		
 		    connection.onmessage  = function (e) {
 				var data = eval("tmp = " + e.data );
 				var params = {};
@@ -101,6 +108,14 @@
 				if (data.NEP)
 					NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDataForLastUpdate(data.Time));
 		    };
+			
+		    connection.onerror= function (e) {
+				console.log('error ' + e.data);
+		    };
+			
+		    connection.oneclose = function () {
+		    };
+		 
 		</script> 
 	</body>
 </html>
