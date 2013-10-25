@@ -21,8 +21,7 @@ handle_message({text, <<"START_DATA">>}) ->
 	    spawn(tap_client_data,fake_qps_feed,[Pid]),
 	    spawn(tap_client_data,fake_nep_feed,[Pid]);
 	_ when is_pid(DataPid) ->
-	    DataPid ! {new_client,Pid},
-	    spawn(tap_client_data,fake_nci_feed2,[DataPid])
+	    DataPid ! {new_client,Pid}
     end,
     noreply;
 handle_message({text, <<"{\"request\":\"start_data\"}">>})->
