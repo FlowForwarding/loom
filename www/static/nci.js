@@ -143,7 +143,7 @@ NCI.slider = (function(){
 		for (var i=0; i< xScaleVal.pointsNum; i++){
 			dataValues.push ([ xScaleVal.indexMaxVal*i/xScaleVal.pointsNum + " " + valDim, Math.floor((Math.random()*100)+1) ]);
 		};
-
+		NCI.lastUpdateTime.html('updated&nbsp;' + NCI.parceDataForLastUpdate(new Date));
 		NCI.chart.replot({data: [dataValues]}); 
 		NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(parseInt(me[0].value)).date)
 	};
