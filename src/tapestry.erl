@@ -24,36 +24,6 @@ start()->
     Pid = tap_aggr:start(),
     {Pid,ok}.
 
-config()->
-    Config = file:consult("tapestry.config"),
-    case Config of
-	{ok,Config}->
-	    process_config(Config);
-	_ -> {error,no_config}
-    end.
-
-process_config([])->
-    ok;
-process_config([Config|Rest]) ->
-    case Config of
-	{ofdps,_}->
-	    process_ofdps(Config);
-	_ -> process_config(Rest)
-    end.
-
-process_ofdps([])->
-    ok;
-process_ofdps([OFDP|Rest]) ->
-    case OFDP of
-	{ofdp,DNSPort,ClientPort,DNSIps}->
-	    {dns_port,Port1} = DNSPort,
-	    {client_port,Port2} = ClientPort,
-	    {dns_ips,IPs} = DNSIps;
-	_ -> ok
-    end.
-	    
-
-	
 
 
 

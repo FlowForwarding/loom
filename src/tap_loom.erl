@@ -2,8 +2,49 @@
 
 -compile([export_all]).
 
+config()->
+    ConfigFile = file:consult("tapestry.config"),
+    case ConfigFile of
+	{ok,Config}->
+	    process_config(Config);
+	_ -> {error,no_config}
+    end.
 
-dns_tap([],Port1,Port2,IPTupleList)->
+process_config([])->
+    ok;
+process_config([Config|Rest]) ->
+    case Config of
+	{ofdps,_}->
+	    process_ofdps(Config);
+	_ -> process_config(Rest)
+    end.
+
+process_ofdps([])->
+    ok;
+process_ofdps([OFDP|Rest]) ->
+    case OFDP of
+	{ofdp,IP,DNSPort,ClientPort,DNSIps}->
+	    {ip_addr,IPAddr} = IP,
+	    {dns_port,Port1} = DNSPort,
+	    {client_port,Port2} = ClientPort,
+	    {dns_ips,IPs} = DNSIps,
+	    OFDPList = loom:get_all(default),
+	    lists:foreach(fun(X)->
+				  {OFDPIP,_} = loom_ofdp:get_address(X),
+				  case OFDPIP == IPAddr of
+				      true ->
+					  dns_tap([X],Port1,Port2,IPs);
+				      false -> ok
+				  end
+			  end, OFDPList),
+	    process_ofdps(Rest);
+	_ -> process_ofdps(Rest)
+    end.
+
+    
+
+
+dns_tap([],_Port1,_Port2,_IPTupleList)->
     ok;
 dns_tap(OFDPL,Port1,Port2,IPTupleList)->
     [OFDP|Rest] = OFDPL,
@@ -35,8 +76,8 @@ get_ofdp_recv_list(LoomSupTree)->
 		tapestry_not_running ->
 		    false;
 		[] -> false;
-		_ -> {OFDP,Rest} = lists:partition(fun(X)->
-							   [Name | Rest] = tuple_to_list(X),
+		_ -> {OFDP,_Rest} = lists:partition(fun(X)->
+							   [Name | _Rest] = tuple_to_list(X),
 							   Name == loom_ofdp_recv_sup end,TapChildren),
 		     OFDP
 	    end,
