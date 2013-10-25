@@ -24,6 +24,17 @@ handle_message({text, <<"START_DATA">>}) ->
 	    DataPid ! {new_client,Pid}
     end,
     noreply;
+handle_message({close,_,_})->
+    DataPid = whereis(tap_client_data),
+    Pid = self(),
+    error_logger:info_msg("Closing client:~p~n",[Pid]),
+    case DataPid of
+	undefined ->
+	    ok;
+	_ when is_pid(DataPid) ->
+	    DataPid ! {remove_client,Pid}
+    end,
+    noreply;
 handle_message(A)->
     error_logger:info_msg("Received:~n~p~n",[A]),
     error_logger:info_msg("My Pid = ~p~n",[self()]),

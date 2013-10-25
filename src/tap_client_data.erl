@@ -61,6 +61,10 @@ listen(State)->
 	    clientsock:send(Pid,LQPS),
 	    NewState = State#state{clients=NewClients},
 	    listen(NewState);
+	{remove_client,Pid} ->
+	    NewClients = lists:delete(Pid,Clients),
+	    NewState = State#state{clients=NewClients},
+	    listen(NewState);
 	Msg ->
 	    io:format("Msg: ~p~n",[Msg]),
 	    listen(State)
