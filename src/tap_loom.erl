@@ -50,7 +50,7 @@ dns_tap(OFDPL,Port1,Port2,IPTupleList)->
     [OFDP|Rest] = OFDPL,
     IPList = [ list_to_binary(tuple_to_list(IPTuple)) || IPTuple <- IPTupleList ],
     loom_ofdp_lib:clear(OFDP),
-    [ send_dns_tap_msg(Port1,Port2,controller, IPv4Src, OFDP) || IPv4Src <- IPList ],
+    lists:foreach(fun(X)->send_dns_tap_msg(Port1,Port2, controller, X, OFDP) end,IPList),
     loom_ofdp_lib:forward(OFDP,Port2,[Port1]), 
     loom_ofdp_lib:forward(OFDP, Port1,[Port2]),
     dns_tap(Rest,Port1,Port2,IPTupleList).
