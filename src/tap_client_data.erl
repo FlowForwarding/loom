@@ -37,16 +37,7 @@ listen(State)->
 	    {NEP,UT} = Data,
 	    Time = list_to_binary(tap_utils:rfc3339(UT)),
 	    JSON = jiffy:encode({[{<<"Time">>,Time},{<<"NEP">>,NEP}]}),
-	    NewClients = lists:foldl(
-			   fun(Pid,AccIn)->
-				   case is_pid(Pid) of 
-				       true ->
-					   clientsock:send(Pid,JSON),
-					   [Pid|AccIn];
-				       false ->
-					   AccIn
-				   end
-			   end,[],Clients),
+	    NewClients = broadcast_msg(Clients,JSON),
 	    NewState = State#state{clients=NewClients,last_nep=JSON},
 	    listen(NewState);
 	{nci,Data}->
@@ -54,17 +45,15 @@ listen(State)->
 	    NewNCILog = [{UT,NCI}|NCILog],
 	    Time = list_to_binary(tap_utils:rfc3339(UT)),
 	    JSON = jiffy:encode({[{<<"Time">>,Time},{<<"NCI">>,NCI}]}),
-	    NewClients = lists:foldl(
-			   fun(Pid,AccIn)->
-				   case is_pid(Pid) of 
-				       true ->
-					   clientsock:send(Pid,JSON),
-					   [Pid|AccIn];
-				       false ->
-					   AccIn
-				   end
-			   end,[],Clients),
+	    NewClients = broadcast_msg(Clients,JSON),
 	    NewState = State#state{clients=NewClients,last_nci=JSON,nci_log=NewNCILog},
+	    listen(NewState);
+	{qps,Data}->
+	    {QPS,UT} = Data,
+	    Time = list_to_binary(tap_utils:rfc3339(UT)),
+	    JSON = jiffy:encode({[{<<"Time">>,Time},{<<"QPS">>,QPS}]}),
+	    NewClients = broadcast_msg(Clients,JSON),
+	    NewState = State#state{clients=NewClients,last_qps=JSON},
 	    listen(NewState);
 	{new_client,Pid} ->
 	    NewClients = [Pid|Clients],
@@ -81,21 +70,26 @@ listen(State)->
 	    NewState = State#state{clients=NewClients},
 	    listen(NewState);
 	{more_nci_data,Pid,Start,End,MaxData} ->
+	    error_logger:info_msg("tap_client_data: {more_nci_data,~p,~p,~p,~p}~n",[Pid,Start,End,MaxData]),
 	    spawn(fun()->
 			  Target = lists:filter(fun({Time,_Value})->(Time >= Start) and (Time =< End) end,NCILog),
 			  Length = length(Target),
-			  case (Length div MaxData) of
-			      Step when Step =< 1 ->
-				  send_more_data(Pid,Target);
-			      Step when Step > 1 ->
-				  {Subset,_} = lists:mapfoldl(fun(X,AccIn)->
-								      case (AccIn rem Step) of
-									  0 -> {X,AccIn+1};
-									  _ -> {false,AccIn+1}
-								      end 
-							      end,0,Target),
-				  NewTarget = lists:filter(fun(X)->X /= false end,Subset),
-				  send_more_data(Pid,NewTarget)
+			  case Length > 0 of
+			      true ->
+				  case (Length div MaxData) of
+				      Step when Step =< 1 ->
+					  send_more_data(Pid,Target);
+				      Step when Step > 1 ->
+					  {Subset,_} = lists:mapfoldl(fun(X,AccIn)->
+									      case (AccIn rem Step) of
+										  0 -> {X,AccIn+1};
+										  _ -> {false,AccIn+1}
+									      end 
+								      end,0,Target),
+					  NewTarget = lists:filter(fun(X)->X /= false end,Subset),
+					  send_more_data(Pid,NewTarget)
+				  end;
+			      false -> ok
 			  end
 		  end);
 	Msg ->
@@ -103,8 +97,21 @@ listen(State)->
 	    listen(State)
     end.
 
+broadcast_msg(Clients,Msg)->
+    lists:foldl(
+      fun(Pid,AccIn)->
+	      case is_pid(Pid) of 
+		  true ->
+		      clientsock:send(Pid,Msg),
+		      [Pid|AccIn];
+		  false ->
+		      AccIn
+	      end
+      end,[],Clients).
+
 
 send_more_data(Pid,Data) when is_pid(Pid), is_list(Data)->
+    error_logger:info_msg("tap_client_data: sending more data ~p to ~p~n",[Data,Pid]),
     JSONData = lists:foldl(fun({Time,Value},AccIn)->[{<<"Time">>,list_to_binary(tap_utils:rfc3339(Time))},{<<"NCI">>,Value}|AccIn] end,Data),
     JSON = jiffy:encode({JSONData}),
     clientsock:send(Pid,JSON).
