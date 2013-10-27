@@ -20,7 +20,7 @@ NCI.Connection.onmessage  = function (e) {
 	if (NCI.slider[0].value == 0){
 		console.log(data);
 		var params = {};
-		params.time = new Date(data.Time).getMinutes() + ":" + new Date(data.Time).getSeconds();
+		params.time = new Date(data.Time).getMinutes() + "m" + new Date(data.Time).getSeconds() + "s";
 		if (data.NCI){
 			NCI.setNciLatestValue(NCI.parceNumberForView(data.NCI), NCI.parceDateForLastUpdate(data.Time));
 			params.NCI = data.NCI;
