@@ -35,12 +35,8 @@ NCI.setQpsLatestValue = function (newVal, time) {
 
 NCI.convertDateForServer = function(date){
 	//we need to get such format in UTC 2013-10-27T13:11:39Z for server
-	var returnDate = date.getUTCFullYear() +  "-" + NCI.numToTwoCharStr(date.getUTCMonth() + 1) + '-' + 
-	NCI.numToTwoCharStr(date.getUTCDate()) +
-	"T" + NCI.numToTwoCharStr(date.getUTCHours()) + ":" + 
-	NCI.numToTwoCharStr(date.getUTCMinutes())  + ":" + 
-	NCI.numToTwoCharStr(date.getUTCSeconds()) + "Z";
-	console.log(returnDate);
+	var returnDate = new Date(date - NCI.time_adjustment).toISOString();
+	returnDate = returnDate.substring(0, returnDate.length - 5) + "Z";
 	return returnDate;
 };
 
@@ -65,14 +61,7 @@ NCI.convertNCITimePeriodToDate = function(num, dimention){
 		break;
 	}; 
 	return new Date(new Date - millisecondsBefore * 1000);
-}
-
-//We need this function to convert numbers less then 10 to 2 charecters string e.g 9 -> '09'
-NCI.numToTwoCharStr = function(num){
-	if (num < 10)
-	   return  "0" + num;
-	return num;
-}
+};
 
 NCI.parceDateForLastUpdate = function(stringDate){
 	var date = new Date(stringDate)
@@ -82,7 +71,7 @@ NCI.parceDateForLastUpdate = function(stringDate){
 };
 
 NCI.parceDateWithDimention = function(stringDate, dimention){
-	var curDate = new Date();
+	var curDate = new Date(new Date() - NCI.time_adjustment);
 	var date = new Date(stringDate);
 	var uiDate;
 	switch (dimention)
@@ -103,7 +92,7 @@ NCI.parceDateWithDimention = function(stringDate, dimention){
 		uiDate =  Math.round((curDate - date)/30/24/60/60/1000);
 		break;
 	};
-	return uiDate + " " + dimention;
+	return uiDate - + " " + dimention;
 };
 
 NCI.parceNumberForView = function(labelValue){

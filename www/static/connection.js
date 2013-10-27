@@ -1,15 +1,24 @@
 if (typeof NCI === 'undefined')
    NCI = {};
    
+NCI.start_time; // no data exists on the server before
+NCI.time_adjustment = 0; //difference between client and server time in milliseconds
+   
 NCI.Connection = new WebSocket("ws://" + 'nci.ilabs.inca.infoblox.com:28080' + "/clientsock.yaws");
 NCI.Connection.onopen = function () {
 	console.log('opened');
-	//NCI.Connection.send('START_DATA');
+	NCI.Connection.send('START_DATA');
 };
 
 NCI.Connection.onmessage  = function (e) {
+	var data = eval("tmp = " + e.data );
+	if (data.start_time){
+	    NCI.time_adjustment = new Date() - new Date(data.current_time);
+		return;
+	};
+	
 	if (NCI.slider[0].value == 0){
-		var data = eval("tmp = " + e.data );
+		console.log(data);
 		var params = {};
 		params.time = new Date(data.Time).getMinutes() + ":" + new Date(data.Time).getSeconds();
 		if (data.NCI){
@@ -21,7 +30,8 @@ NCI.Connection.onmessage  = function (e) {
 			NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS), NCI.parceDateForLastUpdate(data.Time));
 		if (data.NEP)
 			NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDateForLastUpdate(data.Time));
-	} else {
+	} else if (e.data.length > 60){
+		NCI.chartData = [];
 		//we recieve such format:
 		// {"Time":"2013-10-27T13:01:09Z","NCI":99,
 		// "Time":"2013-10-27T13:11:39Z","NCI":8,
@@ -41,8 +51,6 @@ NCI.Connection.onmessage  = function (e) {
 	    NCI.chart.series[0].data = chartDataArray;
 		NCI.chart.resetAxesScale();
 	    NCI.chart.replot( {data: [ chartDataArray]});
-		
-		console.log(chartDataArray);
 	};
 	
 };
