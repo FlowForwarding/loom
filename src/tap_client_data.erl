@@ -91,7 +91,8 @@ listen(State)->
 				  end;
 			      false -> ok
 			  end
-		  end);
+		  end),
+	    listen(State);
 	Msg ->
 	    io:format("Msg: ~p~n",[Msg]),
 	    listen(State)
