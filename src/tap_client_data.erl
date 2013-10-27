@@ -116,7 +116,7 @@ broadcast_msg(Clients,Msg)->
 
 send_more_data(Pid,Data) when is_pid(Pid), is_list(Data)->
     error_logger:info_msg("tap_client_data: sending more data ~p to ~p~n",[Data,Pid]),
-    JSONData = lists:foldl(fun({Time,Value},AccIn)->[{<<"Time">>,list_to_binary(tap_utils:rfc3339(Time))},{<<"NCI">>,Value}|AccIn] end,Data),
+    JSONData = lists:foldl(fun({Time,Value},AccIn)->[{<<"Time">>,list_to_binary(tap_utils:rfc3339(Time))},{<<"NCI">>,Value}|AccIn] end,[],Data),
     JSON = jiffy:encode({JSONData}),
     clientsock:send(Pid,JSON).
     
