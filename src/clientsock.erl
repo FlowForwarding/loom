@@ -28,7 +28,8 @@ handle_message({text, <<"{\"request\":\"start_data\"}">>})->
     handle_message({text, <<"START_DATA">>});
 handle_message({text, MessageBits }) when is_bitstring(MessageBits ) ->
     error_logger:info_msg("Received:~p~n",[MessageBits]),
-    decode(MessageBits);
+    decode(MessageBits),
+    noreply;
 handle_message({close,_,_})->
     DataPid = whereis(tap_client_data),
     Pid = self(),
@@ -52,6 +53,7 @@ send(Pid,Message) when is_pid(Pid) ->
 
 
 decode(MessageBits)->
+    error_logger:info_msg("decoding..."),	
     try 
 	Message = jiffy:decode(MessageBits),
 	case Message of
@@ -60,7 +62,7 @@ decode(MessageBits)->
 	      {<<"end">>,End},
 	      {<<"max_items">>,MaxData}]} ->
 		Request = {more_nci_data,self(),tap_utils:rfc3339_to_epoch(binary_to_list(Start)),tap_utils:rfc3339_to_epoch(binary_to_list(End)),list_to_integer(binary_to_list(MaxData))},
-		error_logger:info_msg("Sending Request: ~n",[Request]),
+		error_logger:info_msg("Sending Request: ~p~n",[Request]),
 		tap_client_data:send(Request);
 	    _ ->  error_logger:info_msg("Unexpected Message:~p~n",[Message])
 	end
