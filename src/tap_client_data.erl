@@ -72,7 +72,11 @@ listen(State)->
 	{more_nci_data,Pid,Start,End,MaxData} ->
 	    error_logger:info_msg("tap_client_data: {more_nci_data,~p,~p,~p,~p}~n",[Pid,Start,End,MaxData]),
 	    spawn(fun()->
-			  Target = lists:filter(fun({Time,_Value})->(Time >= Start) and (Time =< End) end,NCILog),
+			  error_logger:info_msg("nci_log: ~p~n",[NCILog]),
+			  Target = lists:filter(fun({Time,Value})->
+							error_logger:info_msg("{Time,Value}: {~p,~p}~n",[Time,Value]),
+							(Time >= Start) and (Time =< End) end,NCILog),
+			  error_logger:info_msg("Target: ~p~n",[Target]),
 			  Length = length(Target),
 			  case Length > 0 of
 			      true ->
