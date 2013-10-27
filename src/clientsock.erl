@@ -41,7 +41,7 @@ handle_message({close,_,_})->
     end,
     noreply;
 handle_message(A)->
-    error_logger:info_msg("Received:~n~p~n",[A]),
+    error_logger:info_msg("UNKNOWN MESSAGE RECEIVED:~n~p~n",[A]),
     error_logger:info_msg("My Pid = ~p~n",[self()]),
     noreply.
 
@@ -59,7 +59,9 @@ decode(MessageBits)->
 	      {<<"start">>,Start},
 	      {<<"end">>,End},
 	      {<<"max_items">>,MaxData}]} ->
-		tap_client_data:send({more_nci_data,self(),tap_utils:rfc3339_to_epoch(binary_to_list(Start)),tap_utils:rfc3339_to_epoch(binary_to_list(End)),list_to_integer(binary_to_list(MaxData))});
+		Request = {more_nci_data,self(),tap_utils:rfc3339_to_epoch(binary_to_list(Start)),tap_utils:rfc3339_to_epoch(binary_to_list(End)),list_to_integer(binary_to_list(MaxData))},
+		error_logger:info_msg("Sending Request: ~n",[Request]),
+		tap_client_data:send(Request);
 	    _ ->  error_logger:info_msg("Unexpected Message:~p~n",[Message])
 	end
     catch 
