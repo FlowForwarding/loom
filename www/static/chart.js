@@ -39,9 +39,10 @@ NCI.chart = $.jqplot ('visualization', [[[0,0]]], {
 	 }
 });
 
+NCI.chartData = [];
 
 NCI.addValueToChart = function(params) {
-	var newData = NCI.chart.series[0].data;
+	var newData = NCI.chartData;
 	newData.push([params.time.toString(), params.NCI]);
     NCI.chart.series[0].data = newData;
 	if (newData.length > 30)

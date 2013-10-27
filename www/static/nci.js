@@ -1,5 +1,13 @@
 if (typeof NCI === 'undefined')
    NCI = {};
+ 
+NCI.label = {}; 
+NCI.label.sec = 'sec';   
+NCI.label.min = 'min'; 
+NCI.label.hours = 'hrs'; 
+NCI.label.days = 'day'; 
+NCI.label.months = 'mth'; 
+NCI.label.year = 'years';
 
 NCI.nciLatestValue = $('#nciLatestValue');
 NCI.nepLatestValue = $('#nepLatestValue');
@@ -25,11 +33,77 @@ NCI.setQpsLatestValue = function (newVal, time) {
 	NCI.lastUpdateTime.html('updated &nbsp;' + time);
 };
 
-NCI.parceDataForLastUpdate = function(stringDate){
+NCI.convertDateForServer = function(date){
+	//we need to get such format in UTC 2013-10-27T13:11:39Z for server
+	var returnDate = date.getUTCFullYear() +  "-" + NCI.numToTwoCharStr(date.getUTCMonth() + 1) + '-' + 
+	NCI.numToTwoCharStr(date.getUTCDate()) +
+	"T" + NCI.numToTwoCharStr(date.getUTCHours()) + ":" + 
+	NCI.numToTwoCharStr(date.getUTCMinutes())  + ":" + 
+	NCI.numToTwoCharStr(date.getUTCSeconds()) + "Z";
+	console.log(returnDate);
+	return returnDate;
+};
+
+NCI.convertNCITimePeriodToDate = function(num, dimention){
+	var millisecondsBefore = 0;
+	switch (dimention)
+	{
+	case NCI.label.min:
+		millisecondsBefore =  num * 60;
+		break;
+	case NCI.label.hours:
+		millisecondsBefore =  num * 60 * 60;
+		break;
+	case NCI.label.days:
+		millisecondsBefore =  num * 60 * 60 * 24;
+		break;
+	case NCI.label.months:
+		millisecondsBefore =  num * 60 * 60 * 24 * 30;
+		break;
+	case NCI.label.year:
+		millisecondsBefore =  num * 60 * 60 * 24 * 30 * 12;
+		break;
+	}; 
+	return new Date(new Date - millisecondsBefore * 1000);
+}
+
+//We need this function to convert numbers less then 10 to 2 charecters string e.g 9 -> '09'
+NCI.numToTwoCharStr = function(num){
+	if (num < 10)
+	   return  "0" + num;
+	return num;
+}
+
+NCI.parceDateForLastUpdate = function(stringDate){
 	var date = new Date(stringDate)
 	var showDate = date.getMonth() + '.' + date.getDate() + '.' + date.getFullYear() % 100
-		+ '  ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() ;
+		+ '  ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
 	return showDate;
+};
+
+NCI.parceDateWithDimention = function(stringDate, dimention){
+	var curDate = new Date();
+	var date = new Date(stringDate);
+	var uiDate;
+	switch (dimention)
+	{
+	case NCI.label.sec:
+		uiDate = Math.round((curDate - date)/1000);
+		break;
+	case NCI.label.min:
+		uiDate =  Math.round((curDate - date)/60/1000);
+		break;
+	case NCI.label.hours:
+		uiDate =  Math.round((curDate - date)/60/60/1000);
+		break;
+	case NCI.label.days:
+		uiDate =  Math.round((curDate - date)/24/60/60/1000);
+		break;
+	case NCI.label.months:
+		uiDate =  Math.round((curDate - date)/30/24/60/60/1000);
+		break;
+	};
+	return uiDate + " " + dimention;
 };
 
 NCI.parceNumberForView = function(labelValue){
@@ -51,76 +125,76 @@ NCI.slider = (function(){
 	var me =  $('#slider');
 	
 	function genMinXScale(val){
-		return {val : val, dim: 'min', pointsNum: 11, indexMaxVal: 66* val, indexDim: 'sec'}
+		return {val : val, dim: NCI.label.min, pointsNum: 11, indexDim: NCI.label.sec}
 	};
 	
 	function genDecMinXScale(val){
-		return {val : val*10, dim: 'min', pointsNum: 11, indexMaxVal: 11* val, indexDim: 'min'}
+		return {val : val*10, dim: NCI.label.min, pointsNum: 11, indexDim: NCI.label.min}
 	};
 	
 	function genHourXScale(val){
-		return {val : val, dim: 'hour', pointsNum: 11, indexMaxVal: 66* val, indexDim: 'min'}
+		return {val : val, dim: NCI.label.hours, pointsNum: 11, indexDim: NCI.label.min}
 	};
 	
 	function genDecHourXScale(val){
-		return {val : val*10, dim: 'hour', pointsNum: 11, indexMaxVal: 11* val, indexDim: 'hrs'}
+		return {val : val*10, dim: NCI.label.hours, pointsNum: 11, indexDim: NCI.label.hours}
 	};
 	
 	function genDayXScale(val){
-		return {val : val, dim: 'day', pointsNum: 13, indexMaxVal: 13* val, indexDim: 'hrs'}
+		return {val : val, dim: NCI.label.days, pointsNum: 13, indexDim: NCI.label.hours}
 	};
 	
 	function genDecDayXScale(val){
-		return {val : val*10, dim: 'day', pointsNum: 11, indexMaxVal: 11* val, indexDim: 'days'}
+		return {val : val*10, dim: NCI.label.days, pointsNum: 11, indexDim: NCI.label.days}
 	};
 	
 	function genMonthXScale(val){
-		return {val : val, dim: 'month', pointsNum: 11, indexMaxVal: 33* val, indexDim: 'days'}
+		return {val : val, dim: NCI.label.months, pointsNum: 11, indexDim: NCI.label.days}
 	};
 	
 	function genYearXScale(val){
-		return {val : val, dim: 'year', pointsNum: 13, indexMaxVal: 13* val, indexDim: 'mth'}
+		return {val : val, dim: NCI.label.year, pointsNum: 13, indexDim: NCI.label.months}
 	};
 
-	var xAxesScale = [];
+	me.xAxesScale = [];
 	
 	for (var i = 1; i< 10; i++){
-		xAxesScale.push(genMinXScale(i));
+		me.xAxesScale.push(genMinXScale(i));
 	};
 	
 	for (var i = 1; i< 6; i++){
-		xAxesScale.push(genDecMinXScale(i));
+		me.xAxesScale.push(genDecMinXScale(i));
 	};
 	
 	for (var i = 1; i< 10; i++){
-		xAxesScale.push(genHourXScale(i));
+		me.xAxesScale.push(genHourXScale(i));
 	};
 	
 	for (var i = 1; i< 3; i++){
-		xAxesScale.push(genDecHourXScale(i));
+		me.xAxesScale.push(genDecHourXScale(i));
 	};
 	
 	for (var i = 1; i< 10; i++){
-		xAxesScale.push(genDayXScale(i));
+		me.xAxesScale.push(genDayXScale(i));
 	};
 	
 	for (var i = 1; i< 4; i++){
-		xAxesScale.push(genDecDayXScale(i));
+		me.xAxesScale.push(genDecDayXScale(i));
 	};
 	
 	for (var i = 1; i< 12; i++){
-		xAxesScale.push(genMonthXScale(i));
+		me.xAxesScale.push(genMonthXScale(i));
 	};
 	
 	for (var i = 1; i< 11; i++){
-		xAxesScale.push(genYearXScale(i));
+		me.xAxesScale.push(genYearXScale(i));
 	};
 	
-	me[0].max = xAxesScale.length-1;
+	me[0].max = me.xAxesScale.length-1;
 	
 	var getValueByRange = function(intValue){
 		var date, friquent;
-		var xScaleVal = xAxesScale[intValue];
+		var xScaleVal = me.xAxesScale[intValue];
 		date = xScaleVal.val + " " + xScaleVal.dim;
 		return {date : date, friquent: friquent};
     };
@@ -130,21 +204,18 @@ NCI.slider = (function(){
 	});
 	
 	me.on('mouseup', function(){
-		me.updateValueLabel();
+		me.updateChart();
 	});
+	
+	me.updateChart = function (){
+		var xScaleVal = me.xAxesScale[me[0].value];
+		var endDate = NCI.convertNCITimePeriodToDate(xScaleVal.val, xScaleVal.dim)
+	    NCI.Connection.send('{"request":"more_data","start": "' + NCI.convertDateForServer(endDate) + '",' +
+		     '"end": "' + NCI.convertDateForServer(new Date()) + '","max_items": "' + xScaleVal.pointsNum + '"}');
+		me.updateValueLabel();
+	}
 
 	me.updateValueLabel = function(){
-		
-		var dataValues = [];
-			
-	    var xScaleVal = xAxesScale[me[0].value];
-	    var valIndex = xScaleVal.indexDim;
-		var valDim = xScaleVal.indexDim;
-		for (var i=0; i< xScaleVal.pointsNum; i++){
-			dataValues.push ([ xScaleVal.indexMaxVal*i/xScaleVal.pointsNum + " " + valDim, Math.floor((Math.random()*100)+1) ]);
-		};
-		NCI.lastUpdateTime.html('updated&nbsp;' + NCI.parceDataForLastUpdate(new Date));
-		NCI.chart.replot({data: [dataValues]}); 
 		NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(parseInt(me[0].value)).date)
 	};
 	return me;
@@ -154,7 +225,7 @@ $('.slider .icon-plus-sign').on('click', function(){
 	var curVal = NCI.slider[0].value;
 	if (curVal < parseInt(NCI.slider[0].max)){
 		NCI.slider[0].value = 1 + parseInt(NCI.slider[0].value);
-		NCI.slider.updateValueLabel();
+		NCI.slider.updateChart();
 	};
 });
 
@@ -162,7 +233,7 @@ $('.slider .icon-minus-sign').on('click', function(){
 	var curVal = NCI.slider[0].value;
 	if (curVal > 0){
 	   NCI.slider[0].value = NCI.slider[0].value - 1;
-	   NCI.slider.updateValueLabel();
+	   NCI.slider.updateChart();
     };
 });
 

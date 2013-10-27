@@ -82,40 +82,14 @@
 		
 		<script src='static/libs/foundation/custom.modernizr.js'></script> 
 		<script src='static/libs/foundation/foundation.min.js'></script>   
+		<script src='static/connection.js'></script>
 		<script src='static/chart.js'></script>
 		<script src='static/nci.js'></script>
 		<script type="text/javascript">
 			$(function(){
 		    	$(document).foundation();
-				NCI.slider.trigger('change');
+				//NCI.slider.trigger('change');
 			});
-            var connection = new WebSocket("ws://" + 'nci.ilabs.inca.infoblox.com:28080' + "/clientsock.yaws");
-		    connection.onopen = function () {
-			 //   connection.send('START_DATA');
-		    };
-		
-		    connection.onmessage  = function (e) {
-				var data = eval("tmp = " + e.data );
-				var params = {};
-				params.time = new Date(data.Time).getMinutes() + ":" + new Date(data.Time).getSeconds();
-				if (data.NCI){
-					NCI.setNciLatestValue(NCI.parceNumberForView(data.NCI), NCI.parceDataForLastUpdate(data.Time));
-					params.NCI = data.NCI;
-					NCI.addValueToChart(params);
-				};
-				if (data.QPS)
-					NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS), NCI.parceDataForLastUpdate(data.Time));
-				if (data.NEP)
-					NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDataForLastUpdate(data.Time));
-		    };
-			
-		    connection.onerror= function (e) {
-				console.log('error ' + e.data);
-		    };
-			
-		    connection.oneclose = function () {
-		    };
-		 
 		</script> 
 	</body>
 </html>
