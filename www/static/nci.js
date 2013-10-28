@@ -83,76 +83,27 @@ NCI.parceDateForLastUpdate = function(stringDate){
 
 NCI.parceDateWithDimention = function(stringDate, dimention){
 	var date = new Date(stringDate);
-	var uiDate;
-	switch (dimention)
-	{
-	case NCI.label.sec:
-		uiDate = date.getMinutes() + "m" + date.getSeconds() + "s";
-		break;
-	case NCI.label.min:
-		uiDate =  date.getHours() + "h" + date.getMinutes() + "m" ;
-		break;
-	case NCI.label.hours:
-		uiDate =  NCI.getWeekDay(date.getDay()) + " " + date.getMinutes() + "h" ;
-		break;
-	case NCI.label.days:
-		uiDate =  NCI.getMonthName(date.getMonth()) + " " + date.getDate();
-		break;
-	case NCI.label.months:
-		uiDate =  NCI.getMonthName(date.getMonth()) + "'" + date.getYear();
-		break;
-	};
-	return uiDate;
-};
-
-NCI.getMonthName = function(mnth){
-	switch(mnth)
-	{
-	case 0:
-		return "Jan";
-	case 1:
-		return "Feb";
-	case 2:
-		return "Mar";
-	case 3:
-		return "Apr";
-	case 4:
-		return "May";
-	case 5:
-		return "Jun";
-	case 6:
-		return "Jul";				
-	case 7:
-		return "Aug";
-	case 8:
-		return "Sep";
-	case 9:
-		return "Oct";
-	case 10:
-		return "Nov";
-	case 11:
-		return "Dec";						
-	}
-};	
-
-NCI.getWeekDay = function(day){
-	switch(day)
-	{
-	case 0:
-		return "Sun";
-	case 1:
-		return "Mon";
-	case 2:
-		return "Tue";
-	case 3:
-		return "Wed";
-	case 4:
-		return "Thu";
-	case 5:
-		return "Fri";
-	case 6:
-		return "Sat";					
-	}
+	// var uiDate;
+	// switch (dimention)
+	// {
+	// case NCI.label.sec:
+	// 	uiDate = date.getMinutes() + "m" + date.getSeconds() + "s";
+	// 	break;
+	// case NCI.label.min:
+	// 	uiDate =  date.getHours() + "h" + date.getMinutes() + "m" ;
+	// 	break;
+	// case NCI.label.hours:
+	// 	uiDate =  NCI.getWeekDay(date.getDay()) + " " + date.getMinutes() + "h" ;
+	// 	break;
+	// case NCI.label.days:
+	// 	uiDate =  NCI.getMonthName(date.getMonth()) + " " + date.getDate();
+	// 	break;
+	// case NCI.label.months:
+	// 	uiDate =  NCI.getMonthName(date.getMonth()) + "'" + date.getYear();
+	// 	break;
+	// };
+	// return uiDate;
+	return  date.toDateString()
 };
 
 NCI.parceNumberForView = function(labelValue){
