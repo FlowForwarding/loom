@@ -2,11 +2,14 @@
 
 -compile([export_all]).
 
-config()->
+start()->
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/deps/*/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/apps/*/ebin")],
-    loom_app:start(),
+    loom_app:start().
+    
+
+config()->
     ConfigFile = file:consult("tapestry.config"),
     case ConfigFile of
 	{ok,Config}->
