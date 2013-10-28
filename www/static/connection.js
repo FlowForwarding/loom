@@ -13,6 +13,7 @@ NCI.Connection.onopen = function () {
 
 NCI.Connection.onmessage  = function (e) {
 	var data = eval("tmp = " + e.data );
+	console.log(e.data);
 	if (data.start_time){
 	    NCI.time_adjustment = new Date() - new Date(data.current_time);
 		return;
@@ -34,9 +35,10 @@ NCI.Connection.onmessage  = function (e) {
 				NCI.addValueToChart(params);
 			};
 		};
-		if (data.QPS)
+		data.QPS = 0;
+		if (data.QPS !== undefined)
 			NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS), NCI.parceDateForLastUpdate(data.Time));
-		if (data.NEP)
+		if (data.NEP !== undefined)
 			NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDateForLastUpdate(data.Time));
 	} else {
 		NCI.chartData = [];
