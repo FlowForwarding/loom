@@ -40,6 +40,14 @@
 	top: -13px;
 }
 
+.nci-label .green {
+	color: green;
+}
+
+.nci-label .red {
+	color: red;
+}
+
 .qps-value .icon-question-sign{
     font-size: 15px;
 	position:relative;

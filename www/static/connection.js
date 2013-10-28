@@ -13,24 +13,27 @@ NCI.Connection.onopen = function () {
 NCI.Connection.onmessage  = function (e) {
 	var data = eval("tmp = " + e.data );
 	if (data.start_time){
+		console.log(data);
 	    NCI.time_adjustment = new Date() - new Date(data.current_time);
 		return;
 	};
 	
-	if (NCI.slider[0].value == 0){
+	if (e.data.length < 60){
 		//console.log(data);
 		var params = {};
 		params.time = new Date(data.Time).getMinutes() + "m" + new Date(data.Time).getSeconds() + "s";
 		if (data.NCI){
-			NCI.setNciLatestValue(NCI.parceNumberForView(data.NCI), NCI.parceDateForLastUpdate(data.Time));
+			NCI.setNciLatestValue(data.NCI, NCI.parceDateForLastUpdate(data.Time));
 			params.NCI = data.NCI;
-			NCI.addValueToChart(params);
+			if (NCI.slider[0].value == 0){
+				NCI.addValueToChart(params);
+			};
 		};
 		if (data.QPS)
 			NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS), NCI.parceDateForLastUpdate(data.Time));
 		if (data.NEP)
 			NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDateForLastUpdate(data.Time));
-	} else if (e.data.length > 60){
+	} else {
 		NCI.chartData = [];
 		//we recieve such format:
 		// {"Time":"2013-10-27T13:01:09Z","NCI":99,

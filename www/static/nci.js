@@ -16,10 +16,16 @@ NCI.lastUpdateTime = $('#lastUpdateTime');
 
 NCI.ifMobile = function(){
 	return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
-}
+};
 
-NCI.setNciLatestValue = function (newVal, time) {
-	NCI.nciLatestValue.html('<val> ' + newVal + ' </val> ');
+NCI.currentNCI = 0;
+
+NCI.setNciLatestValue = function (val, time) {
+	
+	var colorClass = val > NCI.currentNCI ? 'green' : 'red';
+	NCI.currentNCI = val;
+	var newVal = NCI.parceNumberForView(val);
+	NCI.nciLatestValue.html('<val class="' + colorClass + '"> ' + newVal + ' </val> ');
 	NCI.lastUpdateTime.html('updated &nbsp;' + time);
 };
 
@@ -94,6 +100,7 @@ NCI.parceDateWithDimention = function(stringDate, dimention){
 	};
 	return uiDate - + " " + dimention;
 };
+
 
 NCI.parceNumberForView = function(labelValue){
     return Math.abs(Number(labelValue)) >= 1.0e+9
