@@ -3,6 +3,8 @@ if (typeof NCI === 'undefined')
    
 NCI.start_time; // no data exists on the server before
 NCI.time_adjustment = 0; //difference between client and server time in milliseconds
+NCI.lastChartDate = 0;   
+NCI.gapForChartUpdate = 0;   //10 sec
    
 NCI.Connection = new WebSocket("ws://" + 'nci.ilabs.inca.infoblox.com:28080' + "/clientsock.yaws");
 NCI.Connection.onopen = function () {
@@ -13,19 +15,23 @@ NCI.Connection.onopen = function () {
 NCI.Connection.onmessage  = function (e) {
 	var data = eval("tmp = " + e.data );
 	if (data.start_time){
-		console.log(data);
 	    NCI.time_adjustment = new Date() - new Date(data.current_time);
 		return;
 	};
+	if (!NCI.lastChartDate){
+		var xScaleVal = NCI.slider.xAxesScale[NCI.slider [0].value];
+		NCI.gapForChartUpdate = NCI.getMillisecondsBefore(xScaleVal.val, xScaleVal.dim)/ (xScaleVal.pointsNum);
+	};
 	
 	if (e.data.length < 60){
-		//console.log(data);
-		var params = {};
-		params.time = new Date(data.Time).getMinutes() + "m" + new Date(data.Time).getSeconds() + "s";
+		var dateVal = new Date(data.Time);
 		if (data.NCI){
 			NCI.setNciLatestValue(data.NCI, NCI.parceDateForLastUpdate(data.Time));
-			params.NCI = data.NCI;
-			if (NCI.slider[0].value == 0){
+			if (dateVal - NCI.lastChartDate > NCI.gapForChartUpdate){ 
+				var params = {};
+				params.time = dateVal;
+				params.NCI = data.NCI;
+				NCI.lastChartDate = dateVal;
 				NCI.addValueToChart(params);
 			};
 		};
@@ -40,20 +46,23 @@ NCI.Connection.onmessage  = function (e) {
 		// "Time":"2013-10-27T13:11:39Z","NCI":8,
 		// "Time":"2013-10-27T13:22:15Z","NCI":18,
 		// "Time":"2013-10-27T13:33:01Z","NCI":87} 
-		var dimention = NCI.slider.xAxesScale[NCI.slider[0].value].indexDim;
 		var recievedDataArray = e.data.substring(1, e.data.length - 1).split(',');
-		var chartDataArray = [];
 		for (var i = 0; i < recievedDataArray.length/2; i++){
 			var curIndex = 2 * i;
 			var timeValue = recievedDataArray[curIndex].substring(7);
 			timeValue = timeValue.substring(1, timeValue.length - 1);
 			var nciValue = recievedDataArray[curIndex + 1];
 			nciValue = parseInt(nciValue.split(":")[1]);
-			chartDataArray.push([NCI.parceDateWithDimention(timeValue, dimention), nciValue]);
+			NCI.chartData.push([timeValue, nciValue]);
 		};
-	    NCI.chart.series[0].data = chartDataArray;
+		
+		var timeValue = recievedDataArray[recievedDataArray.length/2].substring(7);
+		timeValue = timeValue.substring(1, timeValue.length - 1);
+		NCI.lastChartDate = new Date(timeValue);	
+		
+	    NCI.chart.series[0].data = NCI.chartData;
 		NCI.chart.resetAxesScale();
-	    NCI.chart.replot( {data: [ chartDataArray]});
+	    NCI.chart.replot( {data: [ NCI.chartData]});
 	};
 	
 };

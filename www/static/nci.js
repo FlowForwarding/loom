@@ -46,7 +46,7 @@ NCI.convertDateForServer = function(date){
 	return returnDate;
 };
 
-NCI.convertNCITimePeriodToDate = function(num, dimention){
+NCI.getMillisecondsBefore = function(num, dimention){
 	var millisecondsBefore = 0;
 	switch (dimention)
 	{
@@ -66,7 +66,12 @@ NCI.convertNCITimePeriodToDate = function(num, dimention){
 		millisecondsBefore =  num * 60 * 60 * 24 * 30 * 12;
 		break;
 	}; 
-	return new Date(new Date - millisecondsBefore * 1000);
+	return millisecondsBefore * 1000;
+}
+
+NCI.convertNCITimePeriodToDate = function(num, dimention){
+
+	return new Date(new Date - NCI.getMillisecondsBefore(num, dimention));
 };
 
 NCI.parceDateForLastUpdate = function(stringDate){
@@ -121,7 +126,7 @@ NCI.slider = (function(){
 	var me =  $('#slider');
 	
 	function genMinXScale(val){
-		return {val : val, dim: NCI.label.min, pointsNum: 11, indexDim: NCI.label.sec}
+		return {val : val, dim: NCI.label.min, pointsNum: 21, indexDim: NCI.label.sec}
 	};
 	
 	function genDecMinXScale(val){
@@ -205,6 +210,7 @@ NCI.slider = (function(){
 	
 	me.updateChart = function (){
 		var xScaleVal = me.xAxesScale[me[0].value];
+		NCI.gapForChartUpdate = NCI.getMillisecondsBefore(xScaleVal.val, xScaleVal.dim)/ (xScaleVal.pointsNum -1);
 		var endDate = NCI.convertNCITimePeriodToDate(xScaleVal.val, xScaleVal.dim)
 	    NCI.Connection.send('{"request":"more_data","start": "' + NCI.convertDateForServer(endDate) + '",' +
 		     '"end": "' + NCI.convertDateForServer(new Date()) + '","max_items": "' + xScaleVal.pointsNum + '"}');
