@@ -103,7 +103,7 @@ NCI.parceDateWithDimention = function(stringDate, dimention){
 	// 	break;
 	// };
 	// return uiDate;
-	return  date.toDateString()
+	return  date.toDateString() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
 };
 
 NCI.parceNumberForView = function(labelValue){
