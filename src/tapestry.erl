@@ -21,10 +21,10 @@ start()->
     tap_yaws:start(),
     loom_app:start(),
     loom_sup:launch_controller(dns_tap,6634),
-    Pid = tap_ds:start(),
-    DataPid = whereis(tap_client_data),
-    spawn(tap_client_data,fake_nci_feed2,[DataPid]),
-    %Pid = tap_aggr:start(),
+    %Pid = tap_ds:start(),
+    %DataPid = whereis(tap_client_data),
+    %spawn(tap_client_data,fake_nci_feed2,[DataPid]),
+    Pid = tap_aggr:start(),
     {Pid,ok}.
 
 
