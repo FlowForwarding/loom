@@ -23,7 +23,10 @@ NCI.chart = $.jqplot ('visualization', [[[0,0]]], {
     },
 	axes: {
 	      xaxis: {
-	        renderer: $.jqplot.CategoryAxisRenderer//,
+	        renderer: $.jqplot.CategoryAxisRenderer,
+			tickOptions:{
+			            formatString:'%b&nbsp;%#d'
+			          } 
 	      }
 	 },
 	 seriesDefaults: {
@@ -32,10 +35,15 @@ NCI.chart = $.jqplot ('visualization', [[[0,0]]], {
 		shadow: false
 	 },
 	 grid :{
-	 	 drawGridLines: false,
-	 		background: '#ffffff',  
-	 		drawBorder: false,
-	 		shadow: false
+		 drawGridLines: false,
+		 background: '#ffffff',  
+		 drawBorder: false,
+		 shadow: false
+	 },
+	 highlighter: {
+		 show: true,
+		 sizeAdjust: 10,
+		 tooltipAxes: 'y'
 	 }
 });
 
