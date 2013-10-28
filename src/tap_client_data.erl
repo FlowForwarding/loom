@@ -109,7 +109,7 @@ listen(State)->
 					  NewTarget = lists:filter(fun(X)->X /= false end,Subset),
 					  send_more_data(Pid,NewTarget)
 				  end;
-			      false -> ok
+			      false -> error_logger:info_msg("tap_client_data: NO RESULTS (i.e. empty set) for {more_nci_data,...} request from ~p~n",[Pid])
 			  end
 		  end),
 	    listen(State);
