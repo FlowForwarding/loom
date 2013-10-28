@@ -14,22 +14,7 @@ $('#visualization').height(NCI.getChartHeight());
 
 var xaxiscounter = 0;
 
-NCI.jqPlotDateFormatter = function(f, date) {
-	console.log();
-	if (date == 0 || date == 1)
-		return "";
-	var show = true;	
-	if (NCI.chartData.length > 40){
-		show = xaxiscounter > 2;
-	} else if (NCI.chartData.length > 15){
-		show = xaxiscounter % 2 == 0;
-	};
-	xaxiscounter = xaxiscounter > 2 ? 0 : xaxiscounter + 1;
-	if (!show)
-		return " ";
-	var dimention = NCI.slider.xAxesScale[NCI.slider[0].value].indexDim;
-	return NCI.parceDateWithDimention(date, dimention)
-};
+NCI.chartData = [];
 
 NCI.chart = $.jqplot ('visualization', [[[0,0]]], {
     axesDefaults: {
@@ -42,9 +27,9 @@ NCI.chart = $.jqplot ('visualization', [[[0,0]]], {
     },
 	axes: {
 	      xaxis: {
-	        renderer: $.jqplot.CategoryAxisRenderer,
+	        renderer: $.jqplot.DateAxisRenderer,
 	        tickOptions: {
-				formatter: NCI.jqPlotDateFormatter
+				formatString: '%d %b %y %H:%M:%S',
 			}
 	      },
 		  yaxis: {
@@ -73,8 +58,6 @@ NCI.chart = $.jqplot ('visualization', [[[0,0]]], {
 		 tooltipAxes: 'y'
 	 }
 });
-
-NCI.chartData = [];
 
 NCI.addValueToChart = function(params) {
 	var newData = NCI.chartData;

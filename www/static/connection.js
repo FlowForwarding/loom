@@ -8,7 +8,6 @@ NCI.gapForChartUpdate = 0;   //10 sec
    
 NCI.Connection = new WebSocket("ws://" + 'nci.ilabs.inca.infoblox.com:28080' + "/clientsock.yaws");
 NCI.Connection.onopen = function () {
-	console.log('opened');
 	NCI.Connection.send('START_DATA');
 };
 
@@ -53,7 +52,7 @@ NCI.Connection.onmessage  = function (e) {
 			timeValue = timeValue.substring(1, timeValue.length - 1);
 			var nciValue = recievedDataArray[curIndex + 1];
 			nciValue = parseInt(nciValue.split(":")[1]);
-			NCI.chartData.push([timeValue, nciValue]);
+			NCI.chartData.push([new Date(timeValue), nciValue]);
 		};
 		
 		var timeValue = recievedDataArray[recievedDataArray.length/2].substring(7);
