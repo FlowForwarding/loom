@@ -36,7 +36,8 @@ NCI.chart = $.jqplot ('visualization', [[[0,0]]], {
 	 seriesDefaults: {
 	 	showMarker: false,
 		color: "#205BBB",
-		shadow: false
+		shadow: false,
+		lineWidth: 1
 	 },
 	 grid :{
 		 drawGridLines: false,
