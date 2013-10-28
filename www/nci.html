@@ -4,12 +4,6 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title> Tapestry </title>
 		<link rel="shortcut icon" href="static/images/favicon.ico" >
-		
-                <dl id="copyright">
-                   <dt title="Copyright">&copy;</dt>
-                   <dd>2013 Infoblox Inc</dd>
-                </dl>
-                <a rel="license" href="http://www.apache.org/licenses/LICENSE-2.0"> Apache 2.0 License </a>
 
   	    <link rel="stylesheet" href="static/libs/foundation/normalize.css" />
   	    <link rel="stylesheet" href="static/libs/foundation/foundation.min.css"/> 
@@ -27,6 +21,11 @@
 		
 	</head>
 	<body>
+        <dl id="copyright">
+           <dt title="Copyright">&copy;</dt>
+           <dd>2013 Infoblox Inc</dd>
+        </dl>
+        <a rel="license" href="http://www.apache.org/licenses/LICENSE-2.0"> Apache 2.0 License </a>
 		<nav class="top-bar">
 			Tapestry: A Network Complexity Analyzer		
 		</nav> 
@@ -37,18 +36,18 @@
 				<div class="indexValue" style="padding-top:10px">
 					<name> NCI</name>
 					<span data-tooltip class="has-tip" title="Network Complexity Index"><i class="icon-question-sign"></i></span>
-					<span id="nciLatestValue"> <val> &nbsp; </val> <br><i> &nbsp; </i></span>
+					<span id="nciLatestValue"> <val> &nbsp; </val> </span>
 				</div><br>
 			</div>	
 			<div class="large-6 small-12 columns qps-value indexValue" style="padding-top:10px">  	
 				<name>Endpoints</name>
 				<span data-tooltip class="has-tip" title="Number of Connected Network Elements"> 
 					<i class="icon-question-sign"></i></span>	
-				<span id="nepLatestValue"><val> &nbsp; </val> <br><i> &nbsp; </i></span>	<br> <br>
+				<span id="nepLatestValue"><val> &nbsp; </val> </span>	<br> <br>
 				<name>Queries per Second </name>
 					<span data-tooltip class="has-tip" title="Successful DNS Query Responses per Second">
 						<i class="icon-question-sign"></i></span>
-				<span id="qpsLatestValue"><val> &nbsp; </val><br><i> &nbsp; </i> </span>
+				<span id="qpsLatestValue"><val> &nbsp; </val> </span>
 			</div>	
 			</div>	
 			<div class="large-2 small-2 columns">

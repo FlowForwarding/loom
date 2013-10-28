@@ -22,7 +22,7 @@ NCI.currentNCI = 0;
 
 NCI.setNciLatestValue = function (val, time) {
 	
-	var colorClass = val > NCI.currentNCI ? 'green' : 'red';
+	var colorClass = val > NCI.currentNCI ? 'green' : val == NCI.currentNCI ? 'black' : 'red';
 	NCI.currentNCI = val;
 	var newVal = NCI.parceNumberForView(val);
 	NCI.nciLatestValue.html('<val class="' + colorClass + '"> ' + newVal + ' </val><br><i>updated &nbsp;' + time + '</i> ');
