@@ -25,17 +25,17 @@ NCI.setNciLatestValue = function (val, time) {
 	var colorClass = val > NCI.currentNCI ? 'green' : 'red';
 	NCI.currentNCI = val;
 	var newVal = NCI.parceNumberForView(val);
-	NCI.nciLatestValue.html('<val class="' + colorClass + '"> ' + newVal + ' </val> ');
+	NCI.nciLatestValue.html('<val class="' + colorClass + '"> ' + newVal + ' </val><br><i>updated &nbsp;' + time + '</i> ');
 	NCI.lastUpdateTime.html('updated &nbsp;' + time);
 };
 
 NCI.setNepLatestValue = function (newVal, time) {
-	NCI.nepLatestValue.html('<val>' + newVal + '</val>');
+	NCI.nepLatestValue.html('<val>' + newVal + '</val><br><i>updated &nbsp;' + time + '</i>');
 	NCI.lastUpdateTime.html('updated &nbsp;' + time);
 };
 
 NCI.setQpsLatestValue = function (newVal, time) {
-	NCI.qpsLatestValue.html('<val>' + newVal + '</val> <br>');
+	NCI.qpsLatestValue.html('<val>' + newVal + '</val> <br><i>updated &nbsp;' + time + '</i>');
 	NCI.lastUpdateTime.html('updated &nbsp;' + time);
 };
 
@@ -82,30 +82,78 @@ NCI.parceDateForLastUpdate = function(stringDate){
 };
 
 NCI.parceDateWithDimention = function(stringDate, dimention){
-	var curDate = new Date(new Date() - NCI.time_adjustment);
 	var date = new Date(stringDate);
 	var uiDate;
 	switch (dimention)
 	{
 	case NCI.label.sec:
-		uiDate = Math.round((curDate - date)/1000);
+		uiDate = date.getMinutes() + "m" + date.getSeconds() + "s";
 		break;
 	case NCI.label.min:
-		uiDate =  Math.round((curDate - date)/60/1000);
+		uiDate =  date.getHours() + "h" + date.getMinutes() + "m" ;
 		break;
 	case NCI.label.hours:
-		uiDate =  Math.round((curDate - date)/60/60/1000);
+		uiDate =  NCI.getWeekDay(date.getDay()) + " " + date.getMinutes() + "h" ;
 		break;
 	case NCI.label.days:
-		uiDate =  Math.round((curDate - date)/24/60/60/1000);
+		uiDate =  NCI.getMonthName(date.getMonth()) + " " + date.getDate();
 		break;
 	case NCI.label.months:
-		uiDate =  Math.round((curDate - date)/30/24/60/60/1000);
+		uiDate =  NCI.getMonthName(date.getMonth()) + "'" + date.getYear();
 		break;
 	};
-	return uiDate - + " " + dimention;
+	return uiDate;
 };
 
+NCI.getMonthName = function(mnth){
+	switch(mnth)
+	{
+	case 0:
+		return "Jan";
+	case 1:
+		return "Feb";
+	case 2:
+		return "Mar";
+	case 3:
+		return "Apr";
+	case 4:
+		return "May";
+	case 5:
+		return "Jun";
+	case 6:
+		return "Jul";				
+	case 7:
+		return "Aug";
+	case 8:
+		return "Sep";
+	case 9:
+		return "Oct";
+	case 10:
+		return "Nov";
+	case 11:
+		return "Dec";						
+	}
+};	
+
+NCI.getWeekDay = function(day){
+	switch(day)
+	{
+	case 0:
+		return "Sun";
+	case 1:
+		return "Mon";
+	case 2:
+		return "Tue";
+	case 3:
+		return "Wed";
+	case 4:
+		return "Thu";
+	case 5:
+		return "Fri";
+	case 6:
+		return "Sat";					
+	}
+};
 
 NCI.parceNumberForView = function(labelValue){
     return Math.abs(Number(labelValue)) >= 1.0e+9

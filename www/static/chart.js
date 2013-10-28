@@ -12,9 +12,21 @@ NCI.getChartHeight = function(){
 
 $('#visualization').height(NCI.getChartHeight());
 
+var xaxiscounter = 0;
+
 NCI.jqPlotDateFormatter = function(f, date) {
+	console.log();
 	if (date == 0 || date == 1)
 		return "";
+	var show = true;	
+	if (NCI.chartData.length > 40){
+		show = xaxiscounter > 2;
+	} else if (NCI.chartData.length > 15){
+		show = xaxiscounter % 2 == 0;
+	};
+	xaxiscounter = xaxiscounter > 2 ? 0 : xaxiscounter + 1;
+	if (!show)
+		return " ";
 	var dimention = NCI.slider.xAxesScale[NCI.slider[0].value].indexDim;
 	return NCI.parceDateWithDimention(date, dimention)
 };
@@ -71,5 +83,5 @@ NCI.addValueToChart = function(params) {
 	if (newData.length > NCI.slider.xAxesScale[NCI.slider[0].value].pointsNum)
 		newData.shift();
 	NCI.chart.resetAxesScale();
-    NCI.chart.replot( {data: [newData]});
+    NCI.chart.replot( {data: [newData.slice(0)]});
 };
