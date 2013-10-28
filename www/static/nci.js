@@ -126,7 +126,7 @@ NCI.slider = (function(){
 	var me =  $('#slider');
 	
 	function genMinXScale(val){
-		return {val : val, dim: NCI.label.min, pointsNum: 21, indexDim: NCI.label.sec}
+		return {val : val, dim: NCI.label.min, pointsNum: 61, indexDim: NCI.label.sec}
 	};
 	
 	function genDecMinXScale(val){
