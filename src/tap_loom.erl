@@ -29,7 +29,7 @@ process_ofdps([OFDP|Rest]) ->
     io:format("process_ofdps: ofdp = ~p, Rest = ~p~n",[OFDP,Rest]),
     case OFDP of
 	{ofdp,IP,DNSPort,ClientPort,DNSIps}->
-	    io:format("processing: ~p~n",[OFDP]),
+	    error_logger:info_msg("processing: ~p~n",[OFDP]),
 	    {ip_addr,IPAddr} = IP,
 	    {dns_port,Port1} = DNSPort,
 	    {client_port,Port2} = ClientPort,
@@ -55,18 +55,18 @@ dns_tap([],_Port1,_Port2,_IPTupleList)->
 dns_tap(OFDPL,Port1,Port2,IPTupleList)->
     [OFDP|Rest] = OFDPL,
     IPList = [ list_to_binary(tuple_to_list(IPTuple)) || IPTuple <- IPTupleList ],
-    io:format("dns_tap: ~p, ~p, ~p, ~p~n",[OFDP,Port1,Port2,IPTupleList]),
-    %loom_ofdp_lib:clear(OFDP),
+    error_logger:info_msg("dns_tap: ~p, ~p, ~p, ~p~n",[OFDP,Port1,Port2,IPTupleList]),
+    loom_ofdp_lib:clear(OFDP),
     lists:foreach(fun(X)->send_dns_tap_msg(Port1,Port2, controller, X, OFDP) end,IPList),
-    %loom_ofdp_lib:forward(OFDP,Port2,[Port1]), 
-    %loom_ofdp_lib:forward(OFDP, Port1,[Port2]),
+    loom_ofdp_lib:forward(OFDP,Port2,[Port1]), 
+    loom_ofdp_lib:forward(OFDP, Port1,[Port2]),
     dns_tap(Rest,Port1,Port2,IPTupleList).
 
 send_dns_tap_msg(Port1, Port2, Port3, IPv4Src, OFDP) ->    
-    io:format("send_dns_tap_msg: Port1 = ~p, Port2 = ~p, Port3 = ~p, IPv4src = ~p, OFDP = ~p~n",[Port1, Port2, Port3, IPv4Src, OFDP]),
+    error_logger:info_msg("send_dns_tap_msg: Port1 = ~p, Port2 = ~p, Port3 = ~p, IPv4src = ~p, OFDP = ~p~n",[Port1, Port2, Port3, IPv4Src, OFDP]),
     M1 = loom_flow_lib:tap_dns_response(Port1, Port2, Port3, IPv4Src),
-    io:format("OFP_MSG: ~p~n",[M1]).
-    %loom_ofdp:send_ofp_msg(OFDP, M1).
+    error_logger:info_msg("OFP_MSG: ~p~n",[M1]),
+    loom_ofdp:send_ofp_msg(OFDP, M1).
 
 
 
