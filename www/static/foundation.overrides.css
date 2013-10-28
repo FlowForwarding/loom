@@ -48,25 +48,28 @@
 
 .timePeriod small{
 	color: #565656;
-	font-size: 18px;
+	font-size: 14px;
+}
+
+.timePeriod i{
+	font-size: 14px;
+	color: #565656;
 }
 
 .timePeriod{
-	font-size: 28px;
+	font-size: 18px;
 	font-weight:500;
 }
 
 .nci-chart {
-	margin-left: 30px;
+
 }
 
 .date-slider {
     -webkit-appearance: none !important;
     background: #565656;
     border-radius: 5px;
-    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.6);
-	border-width: 0px;
-    height:7px;
+    height:5px;
 	width:100%;
 }
 
@@ -76,8 +79,10 @@
 
 .date-slider::-webkit-slider-thumb {
     -webkit-appearance: none !important;
-    background: #205BBB;
+    background: #95ADB7;
 	border-radius: 5px;
+/*	border-width: 1px;
+	border-color: #205BBB;;*/
     height:20px;
     width:20px;
 }
@@ -91,13 +96,8 @@
 }
 
 .slider .icon-plus-sign, .slider .icon-minus-sign{
+	color: #565656;
 	font-size: 35px;
-}
-
-.yAxisLabel {
-	position:absolute;
-	top:40%; 
-	left:1px;
 }
 
 

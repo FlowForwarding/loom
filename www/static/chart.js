@@ -23,11 +23,15 @@ NCI.chart = $.jqplot ('visualization', [[[0,0]]], {
     },
 	axes: {
 	      xaxis: {
-	        renderer: $.jqplot.CategoryAxisRenderer,
-			tickOptions:{
-			            formatString:'%b&nbsp;%#d'
-			          } 
-	      }
+	        renderer: $.jqplot.CategoryAxisRenderer
+	      },
+		  yaxis: {
+			  label:'NCI',
+			  labelOptions:{
+				  fontFamily:'Helvetica',
+				  fontSize: '14pt'
+			  }
+		  }
 	 },
 	 seriesDefaults: {
 	 	showMarker: false,
@@ -42,7 +46,7 @@ NCI.chart = $.jqplot ('visualization', [[[0,0]]], {
 	 },
 	 highlighter: {
 		 show: true,
-		 sizeAdjust: 10,
+		 tooltipOffset: 4,
 		 tooltipAxes: 'y'
 	 }
 });
