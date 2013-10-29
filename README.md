@@ -6,7 +6,7 @@ Tapestry is a system that measures network complexity by monitoring DNS
 queries via a series of one or more Openflow enabled network taps in
 front of a DNS server.
 
-Network complexity information (NCI) is collacted over time in an
+Network complexity information (NCI) is collected over time in an
 internal database and reports can be viewed via a built in Web based
 interface.
 
@@ -14,7 +14,7 @@ interface.
 
 Tapestry requires:
 
-* A server runing erlang to collact and report the NCI data
+* A server running erlang to collect and report the NCI data
 * One or more DNS servers to collect data from
 * One or more Open flow enabled Switches or network white boxes with at
     least 3 ports to act as network taps. (or you can install LINC on
