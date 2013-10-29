@@ -7,8 +7,8 @@ NCI.time_adjustment = 0; //difference between client and server time in millisec
 NCI.Connection = new WebSocket("ws://" + 'nci.ilabs.inca.infoblox.com:28080' + "/clientsock.yaws");
 NCI.Connection.onopen = function () {
 	NCI.Connection.send('START_DATA');
-    NCI.Connection.send('{"request":"more_data","start": "' + NCI.convertDateForServer(new Date() - 1000*60*60*24*30*12*10) + '",' +
-	     '"end": "' + NCI.convertDateForServer(new Date()) + '","max_items": "200"}');
+   //  NCI.Connection.send('{"request":"more_data","start": "' + NCI.convertDateForServer(new Date() - 1000*60*60*24*30*12*10) + '",' +
+// 	     '"end": "' + NCI.convertDateForServer(new Date()) + '","max_items": "200"}');
 };
 
 NCI.lastUpdateTimeVal = new Date();
@@ -34,7 +34,7 @@ NCI.Connection.onmessage  = function (e) {
 			} else {
 				NCI.chartData.push([new Date(dateVal).getTime(), data.NCI]);
 				var diff = NCI.chart.dateWindow_[1] - NCI.chart.dateWindow_[0];
-				if (new Date(dateVal).getTime() - NCI.chart.dateWindow_[0] < 1000*60){
+				if (parseInt((new Date(dateVal).getTime() - NCI.chart.dateWindow_[0])) > (1000*60*2)){
 					NCI.chart.updateOptions({
 						file: NCI.chartData,
 						dateWindow: [new Date(dateVal - diff).getTime(),  dateVal.getTime()]

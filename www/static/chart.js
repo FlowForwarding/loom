@@ -26,11 +26,14 @@ NCI.chartPeriods = {
     day: 1000*60*60*24,
 	twodays: 1000*60*60*24*2,
     fivedays: 1000*60*60*24*5,
+	halfmnth: 1000*60*60*24*15,
     onemnth: 1000*60*60*24*30,
     threemnth: 1000*60*60*24*30*3,
     sixmnth: 1000*60*60*24*30*6,
     oneyear: 1000*60*60*24*30*12,
+	threeyears: 1000*60*60*24*30*12*3,
     fiveyears: 1000*60*60*24*30*12*5,
+	sixyears: 1000*60*60*24*30*12*6,
     tenyears: 1000*60*60*24*30*12*10
 };
 
@@ -44,29 +47,80 @@ NCI.initChart = function(date){
 			 labels : ['NCI', 'NCI'],
 			 dateWindow: [new Date(new Date(date)-1000*60*10).getTime(),  new Date(date).getTime()],
 			 zoomCallback: function(minDate, maxDate, yRanges){
- 				 if (NCI.lastUpdateTimeVal.getTime() - minDate > NCI.chartPeriods.halfday *3/2 
-				 && NCI.chartPeriods.fivedays > NCI.curChartPeriod  ){
-					 NCI.curChartPeriod = NCI.chartPeriods.fivedays;
-					 NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData),
-					 NCI.chart.updateOptions({
-						 file: NCI.chartData
-					 });
-				 } else {
-					 if (NCI.lastUpdateTimeVal.getTime() - minDate< NCI.chartPeriods.halfday 
-					 	&& NCI.chartPeriods.fivedays<= NCI.curChartPeriod ){
+				 var updated = false;
+				 var updatedDown = false;
+ 				 if (NCI.lastUpdateTimeVal.getTime() - minDate > NCI.chartPeriods.day / 15
+				 	&& NCI.chartPeriods.halfmnth > NCI.curChartPeriod  ){
+					 NCI.curChartPeriod = NCI.chartPeriods.halfmnth;
+					 updated = true;
+				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate > NCI.chartPeriods.halfmnth/6
+				 	&& NCI.chartPeriods.threemnth > NCI.curChartPeriod  ){
+				 	   NCI.curChartPeriod = NCI.chartPeriods.threemnth;
+					   updated = true;
+				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate > NCI.chartPeriods.threemnth /4 
+				 	&& NCI.chartPeriods.oneyear > NCI.curChartPeriod  ){
+				 	   NCI.curChartPeriod = NCI.chartPeriods.oneyear;
+					   updated = true;
+				 }  else if (NCI.lastUpdateTimeVal.getTime() - minDate > NCI.chartPeriods.oneyear / 3 
+				 	&& NCI.chartPeriods.threeyears > NCI.curChartPeriod  ){
+				 	   NCI.curChartPeriod = NCI.chartPeriods.threeyears;
+					   updated = true;
+				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate > NCI.chartPeriods.threeyears / 2
+				 	&& NCI.chartPeriods.sixyears > NCI.curChartPeriod  ){
+				 	   NCI.curChartPeriod = NCI.chartPeriods.sixyears;
+					   updated = true;
+				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate > NCI.chartPeriods.sixyears * 4/5 
+				 	&& NCI.chartPeriods.tenyears > NCI.curChartPeriod  ){
+				 	   NCI.curChartPeriod = NCI.chartPeriods.tenyears;
+					   updated = true;
+			      } else if (NCI.lastUpdateTimeVal.getTime() - minDate< NCI.chartPeriods.day
+					 	&& NCI.chartPeriods.halfmnth <= NCI.curChartPeriod ){
+							updatedDown = true;
 							NCI.curChartPeriod = NCI.chartPeriods.day;
-							var newChartData = [];
-							$.each(NCI.chartData, function(ind, val){
-								if (val[0] > ( NCI.lastUpdateTimeVal - NCI.chartPeriods.day)){
-									newChartData.push(val);
-								};
-							});
-							NCI.chartData = newChartData;
-							NCI.chart.updateOptions({
-								file: NCI.chartData
-							});
+				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate< NCI.chartPeriods.halfmnth 
+					 	&& NCI.chartPeriods.threemnth <= NCI.curChartPeriod ){
+							updatedDown = true;
+							NCI.curChartPeriod = NCI.chartPeriods.halfmnth;
+				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate< NCI.chartPeriods.threemnth
+					 	&& NCI.chartPeriods.oneyear <= NCI.curChartPeriod ){
+							updatedDown = true;
+							NCI.curChartPeriod = NCI.chartPeriods.threemnth;		 	
+				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate < NCI.chartPeriods.oneyear
+					 	&& NCI.chartPeriods.threeyears<= NCI.curChartPeriod ){
+							updatedDown = true;
+							NCI.curChartPeriod = NCI.chartPeriods.oneyear;	 	
+				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate< NCI.chartPeriods.threeyears
+					 	&& NCI.chartPeriods.sixyears <= NCI.curChartPeriod ){
+							updatedDown = true;
+							NCI.curChartPeriod = NCI.chartPeriods.threeyears;	 	
+				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate< NCI.chartPeriods.sixyears
+					 	&& NCI.chartPeriods.tenyears <= NCI.curChartPeriod ){
+							updatedDown = true;
+							NCI.curChartPeriod = NCI.chartPeriods.sixyears; 	
+				 } ;
+				 
+				 if (updatedDown) {
+					 console.log('down');
+					var newChartData = [];
+					$.each(NCI.chartData, function(ind, val){
+						if (val[0] > ( NCI.lastUpdateTimeVal - NCI.curChartPeriod)){
+							newChartData.push(val);
 						};
-					}	 
+					});
+					NCI.chartData = newChartData;
+					NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData),
+					NCI.chart.updateOptions({
+						file: NCI.chartData
+					});
+				 }
+					
+					if (updated){
+						console.log('up');
+   					 	NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData),
+   					 	NCI.chart.updateOptions({
+   						 	file: NCI.chartData
+   					 	});
+					} 
 			 },
 			 xValueFormatter: Dygraph.dateString_,
 			 axisLabelFontSize: 10,
