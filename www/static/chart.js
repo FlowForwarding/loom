@@ -16,48 +16,37 @@ var xaxiscounter = 0;
 
 NCI.chartData = [];
 
-NCI.chart = $.jqplot ('visualization', [[[0,0]]], {
-    axesDefaults: {
-       tickRenderer: $.jqplot.CanvasAxisTickRenderer ,
-       tickOptions: {
-          angle: -30,
-          fontSize: '10pt',
-		  showGridline: true
-	   }
-    },
-	axes: {
-	      xaxis: {
-	        renderer: $.jqplot.DateAxisRenderer,
-	        tickOptions: {
-				formatString: '%d %b %y %H:%M:%S',
-			}
-	      },
-		  yaxis: {
-			  label:'NCI',
-			  labelOptions:{
-				  fontFamily:'Helvetica',
-				  fontSize: '14pt'
-			  }
-		  }
-	 },
-	 seriesDefaults: {
-	 	showMarker: false,
-		color: "#205BBB",
-		shadow: false,
-		lineWidth: 1
-	 },
-	 grid :{
-		 drawGridLines: false,
-		 background: '#ffffff',  
-		 drawBorder: false,
-		 shadow: false
-	 },
-	 highlighter: {
-		 show: true,
-		 tooltipOffset: 4,
-		 tooltipAxes: 'y'
-	 }
-});
+NCI.chart;
+
+NCI.initChart = function(date){
+	NCI.chartData = [[ new Date(new Date(date)-1000*60*60*24).getTime(), 0],
+		    [ new Date(date).getTime(), 0]];
+     NCI.chart = new Dygraph(
+		 document.getElementById("nciChart"),
+		 NCI.chartData,
+		 {
+			 labels : ['NCI', 'NCI'],
+			 dateWindow: [new Date(new Date(date)-1000*60*10).getTime(),  new Date(date).getTime()],
+			 zoomCallback: function(minDate, maxDate, yRanges){
+				 console.log(minDate);
+			 },
+			 xValueFormatter: Dygraph.dateString_,
+			 axisLabelFontSize: 10,
+			 xAxisLabelWidth: 60,
+			 logscale: true,
+			 axes : { x : 
+				 {
+					 axisLabelFormatter: Dygraph.dateString_, 
+					 ticker : Dygraph.dateTicker 
+				 } 
+			 },
+			 ylabel: 'NCI',
+			// legend: 'always',
+			 labelsDivStyles: { 'textAlign': 'right' },
+			 showRangeSelector: true
+          }
+	  );		
+};
 
 NCI.addValueToChart = function(params) {
 	var newData = NCI.chartData;

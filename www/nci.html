@@ -8,15 +8,9 @@
   	    <link rel="stylesheet" href="static/libs/foundation/foundation.min.css"/> 
         <link rel="stylesheet" href="static/foundation.overrides.css"/> 
 		<link rel="stylesheet" href="static/libs/font-awesome/css/font-awesome.min.css" />
-		
-	    <link rel="stylesheet" href="static/libs/jquery/jquery.jqplot.min.css" />
-		<!-- jquery.flot is ligter  and does the same, take it mind -->
-		<script src='static/libs/jquery/jquery.min.js'></script>	
-		<script src='static/libs/jquery/jquery.jqplot.min.js'></script>
-		<script src='static/libs/jquery/jqplot.canvasTextRenderer.min.js'></script>	
-		<script src='static/libs/jquery/jqplot.canvasAxisTickRenderer.min.js'></script>	
-		<script src='static/libs/jquery/jqplot.dateAxisRenderer.js'></script>
-		<script src='static/libs/jquery/jqplot.highlighter.min.js'></script>		
+	
+		<script src='static/libs/jquery/jquery.min.js'></script>
+		<script src='static/libs/dygraph/dygraph-combined.js'></script>	
 		
 	</head>
 	<body>
@@ -53,32 +47,8 @@
 				<i data-reveal-id="infoModal" class="round-info icon-info-sign"></i>
 			</div>	  
 		</div>  
-		  
-		<div class="row">
-	  		  <div class="large-12 columns">
-				  <br>
-	  			  <div id="visualization" class="nci-chart"></div>
-				   <br><br> <br><br><br>
-	  		  </div>
-		</div>
-		
-		<div class="row slider">
-			<div class="large-3 small-12 columns timePeriod">
-				<span id="periodLabel"> <small> data for last </small> 1 min</span> <br>
-				<i id="lastUpdateTime">&nbsp;</i><br><br>
-			</div>
-			<div class="large-1  small-2 columns">
-				<i class="icon-minus-sign"></i>
-			</div>
-			<div class="large-7  small-8 columns">
-				<br>
-				<input id="slider" type="range"
-				   class="date-slider" value="0" min="0" max="133" data-highlight="true" />
-			</div>
-			<div class="large-1  small-2 columns">
-				<i class="icon-plus-sign"></i>
-			</div>
-		</div>
+		<br><br>
+		<div id="nciChart" class="nci-chart" style="width:90%; padding-left:20px;"></div>
 		
 		<div id="infoModal" class="reveal-modal">
 			<a href='http://infoblox.com' target='blank'>About NCI</a> <br><br>
@@ -95,7 +65,7 @@
 		<script type="text/javascript">
 			$(function(){
 		    	$(document).foundation();
-				//NCI.slider.trigger('change');
+					  					  		   			
 			});
 		</script>
 	</body>

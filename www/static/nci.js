@@ -189,54 +189,22 @@ NCI.slider = (function(){
 	for (var i = 1; i< 11; i++){
 		me.xAxesScale.push(genYearXScale(i));
 	};
-	
-	me[0].max = me.xAxesScale.length-1;
-	
-	var getValueByRange = function(intValue){
-		var date, friquent;
-		var xScaleVal = me.xAxesScale[intValue];
-		date = xScaleVal.val + " " + xScaleVal.dim;
-		return {date : date, friquent: friquent};
-    };
-	
-	me.on('change', function(){
-		me.updateValueLabel();
-	});
-	
-	me.on('mouseup', function(){
-		me.updateChart();
-	});
+
 	
 	me.updateChart = function (){
-		var xScaleVal = me.xAxesScale[me[0].value];
-		NCI.gapForChartUpdate = NCI.getMillisecondsBefore(xScaleVal.val, xScaleVal.dim)/ (xScaleVal.pointsNum -1);
-		var endDate = NCI.convertNCITimePeriodToDate(xScaleVal.val, xScaleVal.dim)
-	    NCI.Connection.send('{"request":"more_data","start": "' + NCI.convertDateForServer(endDate) + '",' +
-		     '"end": "' + NCI.convertDateForServer(new Date()) + '","max_items": "' + xScaleVal.pointsNum + '"}');
-		me.updateValueLabel();
+		// var xScaleVal = me.xAxesScale[me[0].value];
+// 		NCI.gapForChartUpdate = NCI.getMillisecondsBefore(xScaleVal.val, xScaleVal.dim)/ (xScaleVal.pointsNum -1);
+// 		var endDate = NCI.convertNCITimePeriodToDate(xScaleVal.val, xScaleVal.dim)
+// 	    NCI.Connection.send('{"request":"more_data","start": "' + NCI.convertDateForServer(endDate) + '",' +
+// 		     '"end": "' + NCI.convertDateForServer(new Date()) + '","max_items": "' + xScaleVal.pointsNum + '"}');
+// 		me.updateValueLabel();
 	}
 
 	me.updateValueLabel = function(){
-		NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(parseInt(me[0].value)).date)
+		//NCI.periodLabel.html("<small> data for last </small> " + getValueByRange(parseInt(me[0].value)).date)
 	};
 	return me;
 }());	
-
-$('.slider .icon-plus-sign').on('click', function(){
-	var curVal = NCI.slider[0].value;
-	if (curVal < parseInt(NCI.slider[0].max)){
-		NCI.slider[0].value = 1 + parseInt(NCI.slider[0].value);
-		NCI.slider.updateChart();
-	};
-});
-
-$('.slider .icon-minus-sign').on('click', function(){
-	var curVal = NCI.slider[0].value;
-	if (curVal > 0){
-	   NCI.slider[0].value = NCI.slider[0].value - 1;
-	   NCI.slider.updateChart();
-    };
-});
 
 $('.round-info').on('touchend', function(){
 	$('.round-info').trigger('click');
