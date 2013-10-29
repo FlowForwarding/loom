@@ -85,6 +85,32 @@ dns_tap(OFDPL,Port1,Port2,IPTupleList)->
     loom_ofdp_lib:forward(OFDP, Port1,[Port2]),
     dns_tap(Rest,Port1,Port2,IPTupleList).
 
+
+delete_flows(IPAddress) when is_tuple(IPAddress)->
+    io:format("delete_flows: deleting all flows ~p~n",[IPAddress]),
+    OFDPList = loom_ofdp:get_all(default),
+    lists:foreach(fun(X)->
+			  {OFDPIP,_} = loom_ofdp:get_address(X),
+			  case OFDPIP == IPAddress of
+			      true ->
+				  loom_ofdp_lib:clear(X);
+			      false -> ok
+			  end
+		  end, OFDPList).
+
+bridge_ports(IPAddress,Port1,Port2) when is_tuple(IPAddress)->
+    io:format("delete_flows: deleting all flows ~p~n",[IPAddress]),
+    OFDPList = loom_ofdp:get_all(default),
+    lists:foreach(fun(X)->
+			  {OFDPIP,_} = loom_ofdp:get_address(X),
+			  case OFDPIP == IPAddress of
+			      true ->
+				  loom_ofdp_lib:forward(X,Port2,[Port1]), 
+				  loom_ofdp_lib:forward(X, Port1,[Port2]);
+			      false -> ok
+			  end
+		  end, OFDPList).
+
 send_dns_tap_msg(Port1, Port2, Port3, IPv4Src, OFDP) ->    
     error_logger:info_msg("send_dns_tap_msg: Port1 = ~p, Port2 = ~p, Port3 = ~p, IPv4src = ~p, OFDP = ~p~n",[Port1, Port2, Port3, IPv4Src, OFDP]),
     M1 = loom_flow_lib:tap_dns_response(Port1, Port2, Port3, IPv4Src),
