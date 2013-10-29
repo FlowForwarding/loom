@@ -18,8 +18,6 @@ NCI.chartData = [];
 
 NCI.chart;
 
-NCI.curChartPeriod = 0;
-
 NCI.chartPeriods = {
 	first: 0,
     halfday: 1000*60*60*12,
@@ -36,6 +34,9 @@ NCI.chartPeriods = {
 	sixyears: 1000*60*60*24*30*12*6,
     tenyears: 1000*60*60*24*30*12*10
 };
+
+NCI.curChartPeriod = NCI.chartPeriods.day;
+NCI.lastUpdateChartPeriod = NCI.chartPeriods.day;
 
 NCI.initChart = function(date){
 	NCI.chartData = [[ new Date(new Date(date)-NCI.chartPeriods.day).getTime(), 0],
@@ -112,14 +113,22 @@ NCI.initChart = function(date){
 					NCI.chart.updateOptions({
 						file: NCI.chartData
 					});
+					NCI.lastUpdateChartPeriod  = NCI.curChartPeriod;
 				 }
 					
 					if (updated){
 						console.log('up');
-   					 	NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData),
    					 	NCI.chart.updateOptions({
    						 	file: NCI.chartData
    					 	});
+						NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData);
+					 	NCI.chart.updateOptions({
+						 	file: NCI.chartData
+					 	});
+						NCI.Connection.send('{"request":"more_data","start": "' + 
+						    NCI.convertDateForServer(new Date() - NCI.curChartPeriod - NCI.time_adjustment) + '",' +
+						     '"end": "' + NCI.convertDateForServer(new Date() - NCI.lastUpdateChartPeriod  - NCI.time_adjustment) + '","max_items": "20"}');
+						NCI.lastUpdateChartPeriod  = NCI.curChartPeriod;
 					} 
 			 },
 			 xValueFormatter: Dygraph.dateString_,
