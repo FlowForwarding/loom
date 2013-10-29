@@ -99,7 +99,7 @@ delete_flows(IPAddress) when is_tuple(IPAddress)->
 		  end, OFDPList).
 
 bridge_ports(IPAddress,Port1,Port2) when is_tuple(IPAddress)->
-    io:format("delete_flows: deleting all flows ~p~n",[IPAddress]),
+    io:format("bridge_ports: bringing Ports ~p and ~p on ~p~n",[Port1,Port2,IPAddress]),
     OFDPList = loom_ofdp:get_all(default),
     lists:foreach(fun(X)->
 			  {OFDPIP,_} = loom_ofdp:get_address(X),
