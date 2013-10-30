@@ -9,6 +9,11 @@
 	
 }
 
+//override dygraph styles, to show xAxes values better
+.dygraph-rangesel-fgcanvas, .dygraph-rangesel-bgcanvas{
+	margin-top:20px;
+}
+
 .nci-label .indexValue name{
 	font-size:24;
 	font-weight:700;
