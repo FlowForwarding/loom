@@ -16,12 +16,12 @@ Tapestry requires:
 
 * One or more servers running the Erlang/OTP distributed computing platform to aggregate the data and calculate the NCI.
 * One or more internal recursive DNS servers to provide the raw data feeds
-* One or more Open flow enabled Switches or network white boxes with at
+* One or more OpenFlow enabled switches or network white boxes with at
     least 3 ports to act as network taps. (or you can install LINC on
     the network white boxes)
 * Network cabling and access to install the taps inline in front of
-    the DNS servers
-* Network connectivity between the taps and the collector
+    the internal recursive DNS servers
+* Network connectivity between the taps and machine or cluster running the Erlang/OTP
 
 ## Installation
 
