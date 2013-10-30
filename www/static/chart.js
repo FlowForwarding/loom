@@ -12,14 +12,13 @@ NCI.getChartHeight = function(){
 
 $('#visualization').height(NCI.getChartHeight());
 
-var xaxiscounter = 0;
-
 NCI.chartData = [];
 
 NCI.chart;
 
 NCI.chartPeriods = {
 	first: 0,
+	tenminutes: 1000*60*10,
     halfday: 1000*60*60*12,
     day: 1000*60*60*24,
 	twodays: 1000*60*60*24*2,
@@ -35,6 +34,16 @@ NCI.chartPeriods = {
     tenyears: 1000*60*60*24*30*12*10
 };
 
+// day is first NCI.chartPeriods.day
+NCI.upPeriods = [
+	NCI.chartPeriods.day,
+	NCI.chartPeriods.halfmnth, 
+	NCI.chartPeriods.threemnth, 
+	NCI.chartPeriods.oneyear, 
+	NCI.chartPeriods.threeyear,
+	NCI.chartPeriods.sixyears,
+	NCI.chartPeriods.tenyears];
+
 NCI.curChartPeriod = NCI.chartPeriods.day;
 NCI.lastUpdateChartPeriod = NCI.chartPeriods.day;
 
@@ -48,88 +57,50 @@ NCI.initChart = function(date){
 			 labels : ['NCI', 'NCI'],
 			 dateWindow: [new Date(new Date(date)-1000*60*10).getTime(),  new Date(date).getTime()],
 			 zoomCallback: function(minDate, maxDate, yRanges){
-				 var updated = false;
-				 var updatedDown = false;
- 				 if (NCI.lastUpdateTimeVal.getTime() - minDate > NCI.chartPeriods.day / 15
-				 	&& NCI.chartPeriods.halfmnth > NCI.curChartPeriod  ){
-					 NCI.curChartPeriod = NCI.chartPeriods.halfmnth;
-					 updated = true;
-				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate > NCI.chartPeriods.halfmnth/6
-				 	&& NCI.chartPeriods.threemnth > NCI.curChartPeriod  ){
-				 	   NCI.curChartPeriod = NCI.chartPeriods.threemnth;
-					   updated = true;
-				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate > NCI.chartPeriods.threemnth /4 
-				 	&& NCI.chartPeriods.oneyear > NCI.curChartPeriod  ){
-				 	   NCI.curChartPeriod = NCI.chartPeriods.oneyear;
-					   updated = true;
-				 }  else if (NCI.lastUpdateTimeVal.getTime() - minDate > NCI.chartPeriods.oneyear / 3 
-				 	&& NCI.chartPeriods.threeyears > NCI.curChartPeriod  ){
-				 	   NCI.curChartPeriod = NCI.chartPeriods.threeyears;
-					   updated = true;
-				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate > NCI.chartPeriods.threeyears / 2
-				 	&& NCI.chartPeriods.sixyears > NCI.curChartPeriod  ){
-				 	   NCI.curChartPeriod = NCI.chartPeriods.sixyears;
-					   updated = true;
-				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate > NCI.chartPeriods.sixyears * 4/5 
-				 	&& NCI.chartPeriods.tenyears > NCI.curChartPeriod  ){
-				 	   NCI.curChartPeriod = NCI.chartPeriods.tenyears;
-					   updated = true;
-			      } else if (NCI.lastUpdateTimeVal.getTime() - minDate< NCI.chartPeriods.day
-					 	&& NCI.chartPeriods.halfmnth <= NCI.curChartPeriod ){
-							updatedDown = true;
-							NCI.curChartPeriod = NCI.chartPeriods.day;
-				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate< NCI.chartPeriods.halfmnth 
-					 	&& NCI.chartPeriods.threemnth <= NCI.curChartPeriod ){
-							updatedDown = true;
-							NCI.curChartPeriod = NCI.chartPeriods.halfmnth;
-				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate< NCI.chartPeriods.threemnth
-					 	&& NCI.chartPeriods.oneyear <= NCI.curChartPeriod ){
-							updatedDown = true;
-							NCI.curChartPeriod = NCI.chartPeriods.threemnth;		 	
-				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate < NCI.chartPeriods.oneyear
-					 	&& NCI.chartPeriods.threeyears<= NCI.curChartPeriod ){
-							updatedDown = true;
-							NCI.curChartPeriod = NCI.chartPeriods.oneyear;	 	
-				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate< NCI.chartPeriods.threeyears
-					 	&& NCI.chartPeriods.sixyears <= NCI.curChartPeriod ){
-							updatedDown = true;
-							NCI.curChartPeriod = NCI.chartPeriods.threeyears;	 	
-				 } else if (NCI.lastUpdateTimeVal.getTime() - minDate< NCI.chartPeriods.sixyears
-					 	&& NCI.chartPeriods.tenyears <= NCI.curChartPeriod ){
-							updatedDown = true;
-							NCI.curChartPeriod = NCI.chartPeriods.sixyears; 	
-				 } ;
-				 
-				 if (updatedDown) {
-					 console.log('down');
-					var newChartData = [];
-					$.each(NCI.chartData, function(ind, val){
-						if (val[0] > ( NCI.lastUpdateTimeVal - NCI.curChartPeriod)){
-							newChartData.push(val);
-						};
-					});
-					NCI.chartData = newChartData;
-					NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData),
-					NCI.chart.updateOptions({
-						file: NCI.chartData
-					});
-					NCI.lastUpdateChartPeriod  = NCI.curChartPeriod;
-				 }
-					
-					if (updated){
-						console.log('up');
-   					 	NCI.chart.updateOptions({
-   						 	file: NCI.chartData
-   					 	});
-						NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData);
-					 	NCI.chart.updateOptions({
-						 	file: NCI.chartData
-					 	});
-						NCI.Connection.send('{"request":"more_data","start": "' + 
-						    NCI.convertDateForServer(new Date() - NCI.curChartPeriod - NCI.time_adjustment) + '",' +
-						     '"end": "' + NCI.convertDateForServer(new Date() - NCI.lastUpdateChartPeriod  - NCI.time_adjustment) + '","max_items": "20"}');
-						NCI.lastUpdateChartPeriod  = NCI.curChartPeriod;
-					} 
+				 		 
+				 //we detect do we need to add more time to chart, increaing is discret - NCI.upPeriods
+				 for (var index = 1; index < NCI.upPeriods.length; index++){	 
+					 var period = NCI.upPeriods[index];
+				 	 if (maxDate - minDate > NCI.curChartPeriod * (index*4 + 2)/27
+						&& period > NCI.curChartPeriod){
+							console.log("up");
+							NCI.curChartPeriod = period;
+
+		 					NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData);
+		 				 	NCI.chart.updateOptions({
+		 					 	file: NCI.chartData
+		 				 	});
+		 					NCI.Connection.send('{"request":"more_data","start": "' + 
+		 					    NCI.convertDateForServer(new Date() - NCI.curChartPeriod - NCI.time_adjustment) + '",' +
+		 					     '"end": "' + NCI.convertDateForServer(new Date() - NCI.lastUpdateChartPeriod  - NCI.time_adjustment) + '","max_items": "20"}');
+		 					NCI.lastUpdateChartPeriod  = NCI.curChartPeriod;	
+							return;			 	
+						};					
+			 	};
+				
+				//we detect do we need to remove time from chart period, decreasing is discret - NCI.upPeriods
+				for(var k = NCI.upPeriods.length -2; k > -1; k--){
+					var period = NCI.upPeriods[k];
+					if (maxDate - minDate < NCI.curChartPeriod * (k*4 + 2)/27
+						&& period < NCI.curChartPeriod){
+							console.log("down");
+							NCI.curChartPeriod =  period;
+							var newChartData = [];
+							$.each(NCI.chartData, function(ind, val){
+								if (val[0] > ( NCI.lastUpdateTimeVal - NCI.curChartPeriod)){
+									newChartData.push(val);
+								};
+							});
+							NCI.chartData = newChartData;
+							NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData),
+							NCI.chart.updateOptions({
+								file: NCI.chartData
+							});
+							NCI.lastUpdateChartPeriod  = NCI.curChartPeriod;
+							return;
+					  };
+				};
+
 			 },
 			 xValueFormatter: Dygraph.dateString_,
 			 axisLabelFontSize: 10,
