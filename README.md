@@ -2,13 +2,13 @@
 
 ## Overview
 
-Tapestry is a system that measures network complexity by monitoring DNS
-queries via OpenFlow enabled network taps in
+Tapestry is a system that measures network complexity by caputring Domain Name System (DNS)
+endpoint interaction data via OpenFlow enabled network taps in
 front of one or more of an organization's internal recursive DNS servers.
 
-Network interaction data is collected over time and a Network Complexity Index (NCI)
-is computed on-line and can be viewed in near real-time via a built in Web based
-interface.
+Network interaction data is collected over time, distinct acitivites between are detected
+and a Network Complexity Index (NCI) is computed on-line and can be viewed 
+in near real-time via a built in Web based interface.
 
 ## Requirements
 
