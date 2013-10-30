@@ -49,9 +49,9 @@ NCI.Connection.onmessage  = function (e) {
 				}
 			};
 		};
-		data.QPS = 0;
+
 		if (data.QPS !== undefined)
-			NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS), NCI.parceDateForLastUpdate(data.Time));
+			NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS, 1), NCI.parceDateForLastUpdate(data.Time));
 		if (data.NEP !== undefined)
 			NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDateForLastUpdate(data.Time));
 	} else {

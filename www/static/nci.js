@@ -106,7 +106,7 @@ NCI.parceDateWithDimention = function(stringDate, dimention){
 	return  date.toDateString() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
 };
 
-NCI.parceNumberForView = function(labelValue){
+NCI.parceNumberForView = function(labelValue, fixVal){
     return Math.abs(Number(labelValue)) >= 1.0e+9
 
          ? Math.abs(Number(labelValue)) / 1.0e+9.toFixed(1) + " B"
@@ -116,7 +116,7 @@ NCI.parceNumberForView = function(labelValue){
          : Math.abs(Number(labelValue)) >= 1.0e+3
 
          ? (labelValue / 1.0e+3).toFixed(1) + " K"
-         : Math.abs(Number(labelValue));
+         : Math.abs(Number(labelValue)).toFixed(fixVal);
 };
 
 NCI.periodLabel = $('#periodLabel');
