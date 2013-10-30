@@ -4,7 +4,7 @@
 
 Tapestry is a system that measures network complexity by monitoring DNS
 queries via a series of one or more Openflow enabled network taps in
-front of a DNS server.
+front of a recursive DNS server.
 
 Network complexity information (NCI) is collected over time in an
 internal database and reports can be viewed via a built in Web based
