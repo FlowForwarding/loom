@@ -1,16 +1,14 @@
 if (typeof NCI === 'undefined')
    NCI = {};   
 
-NCI.getChartHeight = function(){
-   	var chartHeight = 	$( window ).height()/2;
-       if ($( window ).width() < 400) 	{
-   	  chartWidth = 4*$( window ).width()/5; 
-   	  chartHeight = $( window ).height()/3;
-       };
-   	return chartHeight;
-};
-
-$('#visualization').height(NCI.getChartHeight());
+// NCI.getChartHeight = function(){
+//    	var chartHeight = 	$( window ).height()/2;
+//        if ($( window ).width() < 400) 	{
+//    	  chartWidth = 4*$( window ).width()/5; 
+//    	  chartHeight = $( window ).height()/3;
+//        };
+//    	return chartHeight;
+// };
 
 NCI.chartData = [];
 
@@ -119,14 +117,4 @@ NCI.initChart = function(date){
 			 showRangeSelector: true
           }
 	  );		
-};
-
-NCI.addValueToChart = function(params) {
-	var newData = NCI.chartData;
-	newData.push([params.time.toString(), params.NCI]);
-    NCI.chart.series[0].data = newData;
-	if (newData.length > NCI.slider.xAxesScale[NCI.slider[0].value].pointsNum)
-		newData.shift();
-	NCI.chart.resetAxesScale();
-    NCI.chart.replot( {data: [newData.slice(0)]});
 };
