@@ -106,6 +106,7 @@ NCI.initChart = function(date){
 			 axisLabelFontSize: 10,
 			 xAxisLabelWidth: 60,
 			 logscale: true,
+			 yRangePad: true,
 			 axes : { x : 
 				 {
 					 axisLabelFormatter: Dygraph.dateString_, 
