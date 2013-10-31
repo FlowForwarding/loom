@@ -46,7 +46,7 @@ You will need to edit $LINC_ROOT/rel/files/sys.config and then
 
 An example deployment diagram: ![alt text][Illustration]
 
-[Illustration]: docs/images/tapestry_deployment.jpg "Tapestry deployment"
+[Illustration]: https://github.com/FlowForwarding/tapestry/docs/images/tapestry_deployment.jpg "Tapestry deployment"
 
 ## Configure Tapestry Collector
 Tapestry Collector Configuration file is located in $TAPESTRY_ROOT/tapestry.config file
