@@ -2,26 +2,32 @@
 
 ## Overview
 
-Tapestry is a system that measures network complexity by capturing Domain Name System (DNS)
-endpoint interaction data via OpenFlow enabled network taps in
-front of one or more of an organization's internal recursive DNS servers.
+Tapestry is a system that measures network complexity by capturing Domain
+Name System (DNS) endpoint interaction data via OpenFlow enabled network
+taps in front of one or more of an organization's internal recursive DNS
+servers.
 
-Network interaction data is collected over time, distinct organizational activities are detected,
-and a Network Complexity Index (NCI) is computed on-line.  The NCI can be viewed and graphed
-in near real-time via a built in Web based interface.
+Network interaction data is collected over time, distinct organizational
+activities are detected, and a Network Complexity Index (NCI) is computed
+on-line.  The NCI can be viewed and graphed in near real-time via a built
+in Web based interface.
 
 ## Requirements
 
 Tapestry requires:
 
-* One or more servers running the Erlang/OTP distributed computing platform to aggregate the data and calculate the NCI.
+* Erlang/OTP distributed computing platform, available from
+    [Erlang.org](http://www.erlang.org/download.html)
+* One or more servers running the Erlang to aggregate the data and 
+    calculate the NCI.
 * One or more internal recursive DNS servers to provide the raw data feeds
 * One or more OpenFlow enabled switches or network white boxes with at
     least 3 ports to act as network taps. (or you can install LINC on
     the network white boxes)
 * Network cabling and access to install the taps inline in front of
     the internal recursive DNS servers
-* Network connectivity between the taps and machine or cluster running the Erlang/OTP
+* Network connectivity between the taps and machine or cluster running 
+    the Erlang/OTP
 
 ## Installation
 
@@ -49,12 +55,14 @@ An example deployment diagram: ![alt text][Illustration]
 [Illustration]: https://raw.github.com/FlowForwarding/tapestry/master/docs/images/tapestry_deployment.jpg "Tapestry deployment"
 
 ## Configure Tapestry Collector
-Tapestry Collector Configuration file is located in $TAPESTRY_ROOT/tapestry.config file
+Tapestry Collector Configuration file is located in
+$TAPESTRY_ROOT/tapestry.config file
 
-In the below file, LINC Switch IP Address is 10.10.10.149 and DNS Server connected to 
-Port 1 (as per LINC Switch's sys.config file) of the LINC Switch is 10.10.10.10.
-Port 2 (as per LINC Switch's sys.config file) of the LINC Switch is connected to the
-Top of the Rack switch to act as a receptor for DNS Queries and responses.
+In the below file, LINC Switch IP Address is 10.10.10.149 and DNS Server
+connected to Port 1 (as per LINC Switch's sys.config file) of the LINC
+Switch is 10.10.10.10.  Port 2 (as per LINC Switch's sys.config file) of
+the LINC Switch is connected to the Top of the Rack switch to act as a
+receptor for DNS Queries and responses.
 
 ```erlang
 {ofdps,[{ofdp,{ip_addr,{10,10,10,149}},
