@@ -2,7 +2,7 @@
 
 ## Overview
 
-Tapestry is a system that measures network complexity by caputring Domain Name System (DNS)
+Tapestry is a system that measures network complexity by capturing Domain Name System (DNS)
 endpoint interaction data via OpenFlow enabled network taps in
 front of one or more of an organization's internal recursive DNS servers.
 
