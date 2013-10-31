@@ -25,12 +25,22 @@
 -record(state,{raw_edge_list,tap_ds,tap_client_data,query_count,time_stamp}).
 
 start()->
+    Pid = spawn(?MODULE,start,[0,2,30]),
+    Pid.
+
+    
+
+start(Time,Interval,MsgTime)->
     Receivers = tap_loom:get_ofdp_recv_list(),
     case Receivers of
-	[] -> timer:sleep(2000),
-	      io:format("tap_aggr: waiting for data recievers...~n"),
-	      start();
-	_ -> io:format("tap_aggr: starting...~n"),
+	[] -> timer:sleep(Interval * 1000),
+	      case Rem = Time rem MsgTime of
+		  Rem when Rem == 0 ->
+		      error_logger:info_msg("tap_aggr: waiting for data recievers for ~p seconds...~n",[Time]),
+		      start(Time+Interval,Interval,MsgTime);
+		  _ -> start(Time+Interval,Interval,MsgTime)
+		  end;
+	_ -> error_logger:info_msg("tap_aggr: starting...~n"),
 	     TapDS = tap_ds:start(),
 	     TCD = whereis(tap_client_data),
 	     {_Date,Time} = calendar:universal_time(),
@@ -39,6 +49,7 @@ start()->
 	     [ Recv ! {subscribe, {Pid, packet_in_dns_reply}} || Recv <- Receivers ],
 	     Pid
     end.
+
 
 
 listen(State)->

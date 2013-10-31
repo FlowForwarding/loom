@@ -26,17 +26,17 @@
 -export([start/0, nci_from_log_lines/1, nci_from_benchmark_data/1]).
 
 start()->
+    error_logger:info_msg("Starting tapestry.  View $TAPESTRY_HOME/log/console.log for operational messages.~n"),
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/deps/*/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/apps/*/ebin")],
-    tap_yaws:start(),
     loom_app:start(),
     loom_sup:launch_controller(dns_tap,6634),
-    %Pid = tap_ds:start(),
-    %DataPid = whereis(tap_client_data),
-    %spawn(tap_client_data,fake_nci_feed2,[DataPid]),
+    tap_yaws:start(),
     Pid = tap_aggr:start(),
-    {Pid,ok}.
+    error_logger:info_msg("Stared tapestry with Process ID ~p.",[Pid]),
+    Pid.
+
 
 
 
