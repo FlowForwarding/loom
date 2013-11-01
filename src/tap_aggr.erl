@@ -43,8 +43,8 @@ start(Time,Interval,MsgTime)->
 	_ -> error_logger:info_msg("tap_aggr: starting...~n"),
 	     TapDS = tap_ds:start(),
 	     TCD = whereis(tap_client_data),
-	     {_Date,Time} = calendar:universal_time(),
-	     Pid = spawn(?MODULE,listen,[#state{raw_edge_list=[],tap_ds = TapDS,tap_client_data=TCD,query_count=0,time_stamp=calendar:time_to_seconds(Time)}]),
+	     {_Date,CurTime} = calendar:universal_time(),
+	     Pid = spawn(?MODULE,listen,[#state{raw_edge_list=[],tap_ds = TapDS,tap_client_data=TCD,query_count=0,time_stamp=calendar:time_to_seconds(CurTime)}]),
 	     register(tap_aggr,Pid),
 	     [ Recv ! {subscribe, {Pid, packet_in_dns_reply}} || Recv <- Receivers ],
 	     Pid
