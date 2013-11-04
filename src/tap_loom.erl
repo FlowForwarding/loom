@@ -37,6 +37,15 @@ config()->
 	_ -> {error,no_config}
     end.
 
+config(IP)->
+    ConfigFile = file:consult("tapestry.config"),
+    case ConfigFile of
+	{ok,Config}->
+	    process_config(Config,IP);
+	_ -> {error,no_config}
+    end.
+
+
 process_config([])->
     ok;
 process_config([Config|Rest]) ->
@@ -45,6 +54,41 @@ process_config([Config|Rest]) ->
 	    process_ofdps(OFDPSConfig);
 	_ -> process_config(Rest)
     end.
+
+process_config([],IP)->
+    ok;
+process_config([Config|Rest],IP) ->
+    case Config of
+	{ofdps,OFDPSConfig}->
+	    process_ofdps(OFDPSConfig,IP);
+	_ -> process_config(Rest,IP)
+    end.
+
+
+process_ofdps([],TargetIP)->
+        ok;
+process_ofdps([OFDP|Rest],TargetIP) ->
+    case OFDP of
+	{ofdp,{ip_addr,IPAddr},DNSPort,ClientPort,DNSIps} when (IPAddr == TargetIP)->
+	    error_logger:info_msg("processing: ~p~n",[OFDP]),
+%	    {ip_addr,IPAddr} = IP,
+	    {dns_port,Port1} = DNSPort,
+	    {client_port,Port2} = ClientPort,
+	    {dns_ips,IPs} = DNSIps,
+	    OFDPList = loom_ofdp:get_all(default),
+	    lists:foreach(fun(X)->
+				  {OFDPIP,_} = loom_ofdp:get_address(X),
+				  case OFDPIP == IPAddr of
+				      true ->
+					  dns_tap([X],Port1,Port2,IPs);
+				      false -> ok
+				  end
+			  end, OFDPList),
+	    process_ofdps(Rest,TargetIP);
+	_ -> process_ofdps(Rest,TargetIP)
+    end.
+
+
 
 process_ofdps([])->
     ok;
