@@ -46,8 +46,7 @@ NCI.curChartPeriod = NCI.chartPeriods.day;
 NCI.lastUpdateChartPeriod = NCI.chartPeriods.day;
 
 NCI.initChart = function(date){
-	NCI.chartData = [[ new Date(new Date(date)-NCI.chartPeriods.day).getTime(), 0],
-		    [ new Date(date).getTime(), 0]];
+	NCI.chartData = [];
      NCI.chart = new Dygraph(
 		 document.getElementById("nciChart"),
 		 NCI.chartData,
@@ -63,18 +62,16 @@ NCI.initChart = function(date){
 						&& period > NCI.curChartPeriod){
 							console.log("up");
 							NCI.curChartPeriod = period;
-
-		 					NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData);
-		 				 	NCI.chart.updateOptions({
-		 					 	file: NCI.chartData
-		 				 	});
-		 					NCI.Connection.send('{"request":"more_data","start": "' + 
-		 					    NCI.convertDateForServer(new Date() - NCI.curChartPeriod - NCI.time_adjustment) + '",' +
-		 					     '"end": "' + NCI.convertDateForServer(new Date() - NCI.lastUpdateChartPeriod  - NCI.time_adjustment) + '","max_items": "20"}');
-		 					NCI.lastUpdateChartPeriod  = NCI.curChartPeriod;	
+							NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData);
+							NCI.chart.updateOptions({
+								file: NCI.chartData
+							});
+							NCI.Connection.moreData(new Date() - NCI.curChartPeriod - NCI.time_adjustment, 
+								new Date() - NCI.lastUpdateChartPeriod  - NCI.time_adjustment, 20);
+							NCI.lastUpdateChartPeriod  = NCI.curChartPeriod;	
 							return;			 	
-						};					
-			 	};
+						};
+				 };
 				
 				//we detect do we need to remove time from chart period, decreasing is discret - NCI.upPeriods
 				for(var k = NCI.upPeriods.length -2; k > -1; k--){
