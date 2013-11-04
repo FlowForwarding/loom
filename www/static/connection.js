@@ -6,7 +6,7 @@ NCI.time_adjustment = 0; //difference between client and server time in millisec
 
 NCI.Connection = new WebSocket("ws://" + location.host + "/clientsock.yaws");
 NCI.Connection.onopen = function () {
-	NCI.Connection.send('START_DATA');
+	NCI.Connection.startData();
 };
 
 NCI.lastUpdateTimeVal = new Date();
@@ -18,9 +18,8 @@ NCI.Connection.onmessage  = function (e) {
 		NCI.time_adjustment = new Date() - new Date(data.current_time);
 		if (!NCI.chart){
 			NCI.initChart(data.current_time);
-		    NCI.Connection.send('{"request":"more_data","start": "' + 
-			NCI.convertDateForServer(new Date() - NCI.curChartPeriod - NCI.time_adjustment) + '",' +
-			     '"end": "' + NCI.convertDateForServer(new Date() - NCI.time_adjustment) + '","max_items": "20"}');
+			NCI.Connection.moreData(new Date() - NCI.curChartPeriod - NCI.time_adjustment,
+				new Date() - NCI.time_adjustment, 20);
 		};
 		return;
 	};
@@ -78,7 +77,18 @@ NCI.Connection.onmessage  = function (e) {
 	
 };
 
-NCI.Connection.onerror= function (e) {
+NCI.Connection.startData = function() {
+	NCI.Connection.send('START_DATA');
+};
+
+NCI.Connection.moreData = function(startTime, endTime, pointsNum) {
+	startTime = NCI.convertDateForServer(startTime);
+	endTime = NCI.convertDateForServer(endTime);
+    NCI.Connection.send('{"request":"more_data","start": "' + 
+		startTime + '",' +  '"end": "' + endTime + '","max_items": "' + pointsNum + '"}');
+};
+
+NCI.Connection.onerror = function (e) {
 	console.log('error ' + e.data);
 };
 
