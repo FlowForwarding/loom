@@ -67,7 +67,7 @@ NCI.initChart = function(date){
 								file: NCI.chartData
 							});
 							NCI.Connection.moreData(new Date() - NCI.curChartPeriod - NCI.time_adjustment, 
-								new Date() - NCI.lastUpdateChartPeriod  - NCI.time_adjustment, NCI.numOfPoints);
+								new Date() - NCI.time_adjustment, NCI.numOfPoints);
 							NCI.lastUpdateChartPeriod  = NCI.curChartPeriod;	
 							return;			 	
 						};
@@ -90,6 +90,8 @@ NCI.initChart = function(date){
 							NCI.chart.updateOptions({
 								file: NCI.chartData
 							});
+							NCI.Connection.moreData(new Date() - NCI.curChartPeriod - NCI.time_adjustment, 
+								new Date() - NCI.time_adjustment, NCI.numOfPoints);
 							NCI.lastUpdateChartPeriod  = NCI.curChartPeriod;
 							return;
 					  };

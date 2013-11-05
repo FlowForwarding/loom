@@ -70,7 +70,7 @@ NCI.Connection.onmessage  = function (e) {
 			nciValue = parseInt(nciValue.split(":")[1]);
 			newData.push([new Date(timeValue).getTime(), nciValue]);
 		};
-		NCI.chartData = newData.concat(NCI.chartData);
+		NCI.chartData = newData;
 	 	NCI.chart.updateOptions({
 			connectSeparatedPoints: true,
 		 	file: NCI.chartData
