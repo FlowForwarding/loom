@@ -67,7 +67,7 @@ NCI.initChart = function(date){
 								file: NCI.chartData
 							});
 							NCI.Connection.moreData(new Date() - NCI.curChartPeriod - NCI.time_adjustment, 
-								new Date() - NCI.lastUpdateChartPeriod  - NCI.time_adjustment, 20);
+								new Date() - NCI.lastUpdateChartPeriod  - NCI.time_adjustment, NCI.numOfPoints);
 							NCI.lastUpdateChartPeriod  = NCI.curChartPeriod;	
 							return;			 	
 						};
@@ -87,7 +87,6 @@ NCI.initChart = function(date){
 								};
 							});
 							NCI.chartData = newChartData;
-							NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData),
 							NCI.chart.updateOptions({
 								file: NCI.chartData
 							});
@@ -98,6 +97,7 @@ NCI.initChart = function(date){
 
 			 },
 			 xValueFormatter: Dygraph.dateString_,
+			 fillGraph: true,
 			 axisLabelFontSize: 10,
 			 xAxisLabelWidth: 60,
 			 logscale: true,

@@ -3,6 +3,7 @@ if (typeof NCI === 'undefined')
    
 NCI.start_time; // no data exists on the server before
 NCI.time_adjustment = 0; //difference between client and server time in milliseconds
+NCI.numOfPoints = 200;
 
 NCI.Connection = new WebSocket("ws://" + location.host + "/clientsock.yaws");
 NCI.Connection.onopen = function () {
@@ -19,7 +20,7 @@ NCI.Connection.onmessage  = function (e) {
 		if (!NCI.chart){
 			NCI.initChart(data.current_time);
 			NCI.Connection.moreData(new Date() - NCI.curChartPeriod - NCI.time_adjustment,
-				new Date() - NCI.time_adjustment, 20);
+				new Date() - NCI.time_adjustment, NCI.numOfPoints);
 		};
 		return;
 	};
@@ -54,12 +55,12 @@ NCI.Connection.onmessage  = function (e) {
 		if (data.NEP !== undefined)
 			NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDateForLastUpdate(data.Time));
 	} else {
-		NCI.chartData = [];
 		//we recieve such format:
 		// {"Time":"2013-10-27T13:01:09Z","NCI":99,
 		// "Time":"2013-10-27T13:11:39Z","NCI":8,
 		// "Time":"2013-10-27T13:22:15Z","NCI":18,
 		// "Time":"2013-10-27T13:33:01Z","NCI":87} 
+		var newData = [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]];
 		var recievedDataArray = e.data.substring(1, e.data.length - 1).split(',');
 		for (var i = 0; i < recievedDataArray.length/2; i++){
 			var curIndex = 2 * i;
@@ -67,10 +68,11 @@ NCI.Connection.onmessage  = function (e) {
 			timeValue = timeValue.substring(1, timeValue.length - 1);
 			var nciValue = recievedDataArray[curIndex + 1];
 			nciValue = parseInt(nciValue.split(":")[1]);
-			NCI.chartData.push([new Date(timeValue).getTime(), nciValue]);
+			newData.push([new Date(timeValue).getTime(), nciValue]);
 		};
-		NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData);
+		NCI.chartData = newData.concat(NCI.chartData);
 	 	NCI.chart.updateOptions({
+			connectSeparatedPoints: true,
 		 	file: NCI.chartData
 	 	});
 	};
