@@ -58,4 +58,11 @@ NCI.Connection.moreData = function(startTime, endTime, pointsNum) {
 	};
 	
 };   
+
+//Override to do nothing, for the case if connection opened successfull in emulation mode
+NCI.Connection.onopen = function () {
+	
+};
+
+NCI.Connection.startData();
    
