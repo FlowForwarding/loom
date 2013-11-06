@@ -87,12 +87,15 @@
 
 }
 
-
 .round-info{
 	right: 20px;
 	position:absolute;
 	font-size: 35px;
 	top:0px;
+}
+
+.zoom-panel a.selected {
+	text-decoration: underline;
 }
 
 

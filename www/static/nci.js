@@ -63,3 +63,16 @@ $('.round-info').on('touchend', function(){
 	$('.round-info').trigger('click');
 })
 
+NCI.zoomLinks = $('.zoom-panel a');
+
+NCI.zoomLinks.on('click', function(){
+	NCI.zoomLinks.removeClass('selected');
+	var min = new Date().getTime() - NCI.time_adjustment - parseInt(this.dataset.time);
+	var max = new Date().getTime() - NCI.time_adjustment;
+	NCI.chart.updateDataset(min, max);
+	NCI.chart.updateOptions({
+		dateWindow: [ min,  max]
+	});
+	$(this).addClass('selected');
+});
+
