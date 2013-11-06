@@ -79,22 +79,28 @@ NCI.initChart = function(date){
 	 );	
  	 NCI.chart.updateDataset = function(minDate, maxDate, yRanges) {
 		 //we detect do we need to add more time to chart, increaing is discret - NCI.upPeriods
+		 var timeUp = false;
 		 for (var index = 1; index < NCI.upPeriods.length; index++){	 
 			 var period = NCI.upPeriods[index];
 		 	 if (maxDate - minDate > NCI.curChartPeriod * (index*4 + 2)/27
 				&& period > NCI.curChartPeriod){
-					console.log("up");
-					NCI.curChartPeriod = period;
-					NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData);
-					NCI.chart.updateOptions({
-						file: NCI.chartData
-					});
-					NCI.Connection.moreData(new Date() - NCI.curChartPeriod - NCI.time_adjustment, 
-						new Date() - NCI.time_adjustment, NCI.numOfPoints);
-					NCI.lastUpdateChartPeriod  = NCI.curChartPeriod;	
-					return;			 	
+					NCI.curChartPeriod = period;	
+					timeUp = true; 	
 				};
 		 };
+		 
+		 if (timeUp) {
+			console.log("up");
+			NCI.chartData =  [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]].concat(NCI.chartData);
+			NCI.chart.updateOptions({
+				file: NCI.chartData
+			});
+			NCI.Connection.moreData(new Date() - NCI.curChartPeriod - NCI.time_adjustment, 
+				new Date() - NCI.time_adjustment, NCI.numOfPoints);
+			NCI.lastUpdateChartPeriod  = NCI.curChartPeriod;
+			return;
+		 };
+		
 		
 		//we detect do we need to remove time from chart period, decreasing is discret - NCI.upPeriods
 		for(var k = NCI.upPeriods.length -2; k > -1; k--){
