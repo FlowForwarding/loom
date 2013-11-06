@@ -3,7 +3,7 @@ if (typeof NCI === 'undefined')
    
 NCI.start_time; // no data exists on the server before
 NCI.time_adjustment = 0; //difference between client and server time in milliseconds
-NCI.numOfPoints = 200;
+NCI.numOfPoints = 600;
 
 NCI.Connection = new WebSocket("ws://" + location.host + "/clientsock.yaws");
 NCI.Connection.onopen = function () {
@@ -28,16 +28,25 @@ NCI.Connection.onmessage  = function (e) {
 	if (e.data.length < 60){
 		var dateVal = new Date(data.Time);
 		if (data.NCI){
-			NCI.lastUpdateTimeVal = new Date(data.Time);
+			NCI.lastUpdateTimeVal = dateVal;
 			NCI.setNciLatestValue(data.NCI, NCI.parceDateForLastUpdate(data.Time));
 			if (!NCI.chart){
 				NCI.initChart(data.Time);
 			} else {
 				NCI.chartData.push([new Date(dateVal).getTime(), data.NCI]);
+				var len = NCI.chartData.length - 2;
+				for (var ind = 0; ind < len; ind++ ){
+					if (new Date(data.Time).getTime() - NCI.chartData[ind + 1][0] > NCI.curChartPeriod){
+						NCI.chartData.shift();
+						console.log("YES");
+					} else {
+						break;
+					}
+				}
 				var diff = NCI.chart.dateWindow_[1] - NCI.chart.dateWindow_[0];
 				//check if chart select4ed area right border is in the beginning of chart ,
 				//then automaticaly move selection area to the beginning (error ~ one minute)
-				if (parseInt(NCI.chart.xAxisExtremes()[1] - NCI.chart.xAxisRange()[1]) < 1000*60*1){
+				if (parseInt(NCI.chart.xAxisExtremes()[1] - NCI.chart.xAxisRange()[1]) < NCI.chartPeriods.minute){
 					NCI.chart.updateOptions({
 						file: NCI.chartData,
 						dateWindow: [new Date(dateVal - diff).getTime(),  dateVal.getTime()]

@@ -7,7 +7,7 @@ if (typeof NCI === 'undefined')
    NCI = {};
    
 NCI.Emulator = {};  
-NCI.Emulator.liveDataFrequency = 2000; //in mseconds
+NCI.Emulator.liveDataFrequency = 500; //in mseconds
 NCI.Emulator.dataAvailablePeriod = NCI.chartPeriods.onemnth;  //in mseconds
 NCI.Emulator.serverResponceDelay = 3000;  //in mseconds
 

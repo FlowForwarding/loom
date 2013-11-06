@@ -16,7 +16,9 @@ NCI.chart;
 
 NCI.chartPeriods = {
 	first: 0,
+	minute: 1000*60,
 	tenminutes: 1000*60*10,
+	halfhour: 1000*60*30,
     halfday: 1000*60*60*12,
     day: 1000*60*60*24,
 	twodays: 1000*60*60*24*2,
@@ -52,7 +54,7 @@ NCI.initChart = function(date){
 		 NCI.chartData,
 		 {
 			 labels : ['NCI', 'NCI'],
-			 dateWindow: [new Date(new Date(date)-1000*60*10).getTime(),  new Date(date).getTime()],
+			 dateWindow: [new Date(new Date(date) - NCI.chartPeriods.halfhour).getTime(),  new Date(date).getTime()],
 			 zoomCallback: function(minDate, maxDate, yRanges){
 				 		 
 				 //we detect do we need to add more time to chart, increaing is discret - NCI.upPeriods
