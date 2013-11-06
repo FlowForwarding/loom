@@ -35,8 +35,8 @@ NCI.Connection.onmessage  = function (e) {
 				NCI.initChart(data.Time);
 			} else {
 				//next expression check that minimum required time passed from last time graph was redrawed
-				//for day period (current chart period) - is one second, for 2 days - 2seconds and then encreases linerar
-				if (new Date() - NCI.lastRedrawTimeVal < NCI.curChartPeriod/NCI.chartPeriods.day*1000)
+				//for day period (current chart period) - is 3 seconds, for 2 days - 6 seconds and then encreases linerar
+				if (new Date() - NCI.lastRedrawTimeVal < NCI.curChartPeriod/NCI.chartPeriods.day*3000)
 					return;
 
 				NCI.chartData.push([new Date(dateVal).getTime(), data.NCI]);
