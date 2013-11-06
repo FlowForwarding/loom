@@ -76,3 +76,7 @@ NCI.zoomLinks.on('click', function(){
 	$(this).addClass('selected');
 });
 
+$('body').on('touchend', function(){
+	$('.tooltip').hide();
+});
+
