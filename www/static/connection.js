@@ -11,6 +11,7 @@ NCI.Connection.onopen = function () {
 };
 
 NCI.lastUpdateTimeVal = new Date();
+NCI.lastRedrawTimeVal = new Date();
 
 NCI.Connection.onmessage  = function (e) {
 	var data = eval("tmp = " + e.data );
@@ -33,20 +34,28 @@ NCI.Connection.onmessage  = function (e) {
 			if (!NCI.chart){
 				NCI.initChart(data.Time);
 			} else {
+				//next expression check that minimum required time passed from last time graph was redrawed
+				//for day period (current chart period) - is one second, for 2 days - 2seconds and then encreases linerar
+				if (new Date() - NCI.lastRedrawTimeVal < NCI.curChartPeriod/NCI.chartPeriods.day*1000)
+					return;
+
 				NCI.chartData.push([new Date(dateVal).getTime(), data.NCI]);
+				NCI.lastRedrawTimeVal = new Date();
+				//next cycle checks if there are values in chart data set, 
+				//that are older then current chart time period
 				var len = NCI.chartData.length - 2;
 				for (var ind = 0; ind < len; ind++ ){
 					if (new Date(data.Time).getTime() - NCI.chartData[ind + 1][0] > NCI.curChartPeriod){
 						NCI.chartData.shift();
-						console.log("YES");
 					} else {
 						break;
 					}
 				}
-				var diff = NCI.chart.dateWindow_[1] - NCI.chart.dateWindow_[0];
-				//check if chart select4ed area right border is in the beginning of chart ,
+				
+				//check if chart selected area right border is in the beginning of chart ,
 				//then automaticaly move selection area to the beginning (error ~ one minute)
-				if (parseInt(NCI.chart.xAxisExtremes()[1] - NCI.chart.xAxisRange()[1]) < NCI.chartPeriods.minute){
+				if (parseInt(NCI.chart.xAxisExtremes()[1] - NCI.chart.xAxisRange()[1]) < NCI.chartPeriods.minute && NCI.chart){
+					var diff = NCI.chart.dateWindow_[1] - NCI.chart.dateWindow_[0];
 					NCI.chart.updateOptions({
 						file: NCI.chartData,
 						dateWindow: [new Date(dateVal - diff).getTime(),  dateVal.getTime()]
