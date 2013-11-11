@@ -22,37 +22,130 @@
 
 -compile([export_all]).
 
--record(state,{tap_client_data,edge_dict,endpoint_dict}).
+-record(state,{digraph,tap_client_data,nci_timestamp,nci_min_interval,cleaning_timestamp,data_max_age}).
 
 start()->
+    NCIMinInterval = get_config(nci_min_interval),
+    DataMaxAge = days_to_seconds(get_config(data_max_age)),
     TapClientData = tap_client_data:start(),
-    Pid = spawn(?MODULE,listen,[#state{edge_dict=dict:new(),endpoint_dict=dict:new(),tap_client_data=TapClientData}]),
+    CurTime = calendar:universal_time(),
+    CurSeconds = calendar:time_to_seconds(CurTime),
+    Pid = spawn(?MODULE,listen,[#state{digraph = undefined,
+				       tap_client_data=TapClientData,
+				       nci_timestamp=CurSeconds,
+				       nci_min_interval=NCIMinInterval,
+				       cleaning_timestamp=CurTime,
+				       data_max_age=DataMaxAge}]),
     Pid.
 
 
 listen(State)->
+    Digraph = State#state.digraph,
     TapClientData = State#state.tap_client_data,
-    Edges = State#state.edge_dict,
-    Endpoints = State#state.endpoint_dict,
+    NCITimeStamp = State#state.nci_timestamp,
+    NCIMinInterval = State#state.nci_min_interval,
+    CleaningTimeStamp = State#state.cleaning_timestamp,
+    DataMaxAge = State#state.data_max_age,
+    case Digraph of
+	undefined ->
+	    listen(State#state{digraph = digraph:new()});
+	_ -> ok
+    end,
     receive
 	{ordered_edge,OE}->
-	    {A,B} = OE,
 	    Time = calendar:universal_time(),
-	    NewEdges = dict:store(OE,Time,Edges),
-	    NewEndpoints1 = dict:store(A,Time,Endpoints),
-	    NewEndpoints2 = dict:store(B,Time,NewEndpoints1),
-	    TapClientData ! {num_endpoints,{dict:size(NewEndpoints2),calendar:universal_time()}},
-	    EdgeList = dict:to_list(NewEdges),
-	    NCIinput = [ Edge || {Edge,_Time} <- EdgeList ],
-	    spawn(?MODULE,get_nci,[TapClientData,NCIinput]),
-	    NewState = State#state{edge_dict=NewEdges,endpoint_dict=NewEndpoints2},
-	    listen(NewState);
+	    add_edge(Digraph,OE,Time),
+	    TapClientData ! {num_endpoints,{digraph:no_vertices(Digraph),Time}},
+	    TimeInSeconds = calendar:time_to_seconds(Time),
+	    Elapsed = TimeInSeconds - NCITimeStamp,
+	    case Elapsed > NCIMinInterval of
+		true ->
+		    spawn(?MODULE,get_nci,[TapClientData,Digraph]),
+		    listen(State#state{nci_timestamp=TimeInSeconds});
+		false ->
+		    Age = calendar:time_difference(CleaningTimeStamp,Time),
+		    AgeSeconds = days_to_seconds(Age),
+		    case AgeSeconds > DataMaxAge of
+			true ->
+			    clean(Digraph,Time,DataMaxAge),
+			    listen(State#state{cleaning_timestamp=Time});
+			false ->
+			    listen(State)
+		    end
+	    end;
 	Msg ->
 	    io:format("Msg: ~p, ~p~n",[Msg,State]),
 	    listen(State)
     end.
+
+
+clean(G,T,MaxAge)->
+    Vertices = digraph:vertices(G),
+    OldVertices = lists:filter(fun(X)->
+				    {_,TS} = digraph:vertex(G,X),
+				    Age = days_to_seconds(calendar:time_difference(TS,T)),
+				    Age > MaxAge
+			    end,
+			    Vertices),
+    digraph:del_vertices(G,OldVertices).
+
+
+add_edge(G,E,Time)->
+    {A,B} = E,
+    V1 = digraph:add_vertex(G,A,Time),
+    V2 = digraph:add_vertex(G,B,Time),
+    find_edge(G,V1,V2,Time),
+    find_edge(G,V2,V1,Time).
+
 	  
 
-get_nci(Pid,EdgeList)->	  
-    NCI = nci:compute(EdgeList),
+get_nci(Pid,Digraph)->	  
+    NCI = nci:compute_from_graph(Digraph),
     Pid ! {nci,{NCI,calendar:universal_time()}}.
+
+
+find_edge(G,V1,V2,Time)->
+    Edges = digraph:edges(G,V1),
+    Found = lists:filter(fun(X)-> 
+				 {_, FV1, FV2, _} = digraph:edge(G,X),
+				 (V1 == FV1) and (V2 == FV2)
+			 end,
+			 Edges),
+    case Found of
+	[] ->
+	    digraph:add_edge(G,V1,V2,Time);
+	[E] -> digraph:add_edge(G,E,V1,V2,Time)
+    end.
+   
+
+get_config(Value)-> 
+    ConfigFile = file:consult("tapestry.config"),
+    case ConfigFile of
+	{ok,Config}->
+	    process_config(Value,Config);
+	_ -> {error,no_config}
+    end.
+
+
+process_config(_,[])->
+    error;
+process_config(Value,[Config|Rest]) ->
+    case Config of
+	{timers,Timers}->
+	    process_timers(Value,Timers);
+	_ -> process_config(Value,Rest)
+    end.
+
+process_timers(_,[])->
+    error;
+process_timers(nci_min_interval,[{nci_min_interval,{seconds,Time}}|Rest]) ->
+    Time;
+process_timers(data_max_age,[{data_max_age,{{days,D},{hms,{H,M,S}}}}|Rest]) ->
+    {D,{H,M,S}};
+process_timers(Value,[H|Rest]) ->
+    process_timers(Value,Rest).
+
+
+days_to_seconds({D,{H,M,S}})->
+   ( D * 24 * 60 * 60) + (H * 60 * 60) + (M * 60) + S.
+

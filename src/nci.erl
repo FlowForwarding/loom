@@ -53,7 +53,7 @@
 
 -module(nci).
 
--export([compute/1,clean_vertex/2]).
+-export([compute/1,compute_from_graph/1,clean_vertex/2]).
 
 
 %% === compute(EdgeList) is the API function to be called by external calling code === 
@@ -78,6 +78,10 @@
 %%        Vertex labels can be any legal Erlang number or atom
 %%        http://www.erlang.org/doc/reference_manual/data_types.html
 %%
+
+    
+    
+    
 -spec compute( EdgeList :: list() ) -> NCI :: integer().
 compute(EdgeList)->
     %%  Convert the list of edges into an Erlang "digraph"
@@ -118,11 +122,6 @@ compute(EdgeList)->
     %%
     [ clean_vertex(G2,Vertex) || Vertex <- V ],
 
-    V2 = digraph:vertices(G2),
-%    io:format("V2 = ~p~n",[V2]),
-    
-
-    
     %%  In the above list comphrehension we exploit the fact that 
     %%  G2 is actually just a handle and not an immutable
     %%  data structure. 
@@ -454,3 +453,19 @@ add_edge(G,{X,Y})->
 add_edges(G,Edges)->
     [add_edge(G,Edge) || Edge <- Edges],
     G.
+
+
+compute_from_graph(InG)->
+    G = digraph:new(),
+    Vertices = digraph:vertices(InG),
+    lists:foreach(fun(X)->
+			  digraph:add_vertex(G,X,X) end,
+		  Vertices),
+    Edges = digraph:edges(InG),
+    lists:foreach(fun(X)->
+			  {_,V1,V2,_} = digraph:edge(InG,X),
+			  digraph:add_edge(G,V1,V2) end,
+		  Edges),
+    G2 = prop_labels(G),
+    NCI = calc_nci(G2),
+    NCI.
