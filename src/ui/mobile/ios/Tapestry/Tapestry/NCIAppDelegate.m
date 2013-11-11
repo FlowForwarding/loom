@@ -7,15 +7,21 @@
 //
 
 #import "NCIAppDelegate.h"
+#import "NCIGraphController.h"
 
 @implementation NCIAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
+    
+    UINavigationController *navController = [[UINavigationController alloc] init];
+    NCIGraphController *graphController = [[NCIGraphController alloc] init];
+    [navController addChildViewController:graphController];
+    self.window.rootViewController = navController;
+    
     return YES;
 }
 

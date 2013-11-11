@@ -19,6 +19,7 @@
 		2AAFE566182FA1DE007BBFEA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2AAFE54E182FA1DE007BBFEA /* UIKit.framework */; };
 		2AAFE56E182FA1DE007BBFEA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2AAFE56C182FA1DE007BBFEA /* InfoPlist.strings */; };
 		2AAFE570182FA1DE007BBFEA /* TapestryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AAFE56F182FA1DE007BBFEA /* TapestryTests.m */; };
+		2ABE3B351830CD340046A0FC /* NCIGraphController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ABE3B341830CD340046A0FC /* NCIGraphController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +49,8 @@
 		2AAFE56B182FA1DE007BBFEA /* TapestryTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TapestryTests-Info.plist"; sourceTree = "<group>"; };
 		2AAFE56D182FA1DE007BBFEA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2AAFE56F182FA1DE007BBFEA /* TapestryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TapestryTests.m; sourceTree = "<group>"; };
+		2ABE3B331830CD340046A0FC /* NCIGraphController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIGraphController.h; sourceTree = "<group>"; };
+		2ABE3B341830CD340046A0FC /* NCIGraphController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIGraphController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +110,8 @@
 		2AAFE550182FA1DE007BBFEA /* Tapestry */ = {
 			isa = PBXGroup;
 			children = (
+				2ABE3B331830CD340046A0FC /* NCIGraphController.h */,
+				2ABE3B341830CD340046A0FC /* NCIGraphController.m */,
 				2AAFE559182FA1DE007BBFEA /* NCIAppDelegate.h */,
 				2AAFE55A182FA1DE007BBFEA /* NCIAppDelegate.m */,
 				2AAFE55C182FA1DE007BBFEA /* Images.xcassets */,
@@ -244,6 +249,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2AAFE557182FA1DE007BBFEA /* main.m in Sources */,
+				2ABE3B351830CD340046A0FC /* NCIGraphController.m in Sources */,
 				2AAFE55B182FA1DE007BBFEA /* NCIAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -369,7 +375,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tapestry/Tapestry-Prefix.pch";
 				INFOPLIST_FILE = "Tapestry/Tapestry-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 2;
 				WRAPPER_EXTENSION = app;
@@ -385,7 +391,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tapestry/Tapestry-Prefix.pch";
 				INFOPLIST_FILE = "Tapestry/Tapestry-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 2;
 				WRAPPER_EXTENSION = app;
@@ -453,6 +459,7 @@
 				2AAFE575182FA1DE007BBFEA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2AAFE576182FA1DE007BBFEA /* Build configuration list for PBXNativeTarget "TapestryTests" */ = {
 			isa = XCConfigurationList;
@@ -461,6 +468,7 @@
 				2AAFE578182FA1DE007BBFEA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
