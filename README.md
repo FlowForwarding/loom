@@ -98,3 +98,4 @@ Using a browser, go to URL - http://<tapestry_collector_hostname:28080/nci.html 
 ## Additional Documentation
 >1. Technical White Paper: “[A Network Complexity Index for Networks of Networks] (http://www.flowforwarding.org/nci-article)” by Stuart Bailey and Robert L. Grossman
 >2. NCI White Paper: [Tapestry for Tracking Network Complexity Index (NCI)] (http://www.infoblox.com/downloads/resources/network-complexity/download)
+>3. Tapestry [Archicture Details] (https://github.com/FlowForwarding/tapestry/blob/master/docs/Tapestry.pdf?raw=true)
