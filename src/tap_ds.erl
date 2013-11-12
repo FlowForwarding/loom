@@ -65,12 +65,12 @@ listen(State)->
 		    spawn(?MODULE,get_nci,[TapClientData,Digraph]),
 		    listen(State#state{nci_timestamp=TimeInSeconds});
 		false ->
-		    Age = calendar:time_difference(CleaningTimeStamp,Time),
+		    Age = calendar:time_difference(CleaningTimeStamp,DateTime),
 		    AgeSeconds = days_to_seconds(Age),
 		    case AgeSeconds > DataMaxAge of
 			true ->
 			    clean(Digraph,Time,DataMaxAge),
-			    listen(State#state{cleaning_timestamp=Time});
+			    listen(State#state{cleaning_timestamp=DateTime});
 			false ->
 			    listen(State)
 		    end
