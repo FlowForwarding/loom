@@ -55,11 +55,15 @@ listen(State)->
     receive
 	{num_endpoints,Data}->
 	    {NEP,UT} = Data,
-	    Time = list_to_binary(tap_utils:rfc3339(UT)),
-	    JSON = jiffy:encode({[{<<"Time">>,Time},{<<"NEP">>,NEP}]}),
-	    NewClients = broadcast_msg(Clients,JSON),
-	    NewState = State#state{clients=NewClients,last_nep=JSON},
-	    listen(NewState);
+	    case NEP =/= LNEP of
+		true ->
+		    Time = list_to_binary(tap_utils:rfc3339(UT)),
+		    JSON = jiffy:encode({[{<<"Time">>,Time},{<<"NEP">>,NEP}]}),
+		    NewClients = broadcast_msg(Clients,JSON),
+		    NewState = State#state{clients=NewClients,last_nep=JSON},
+		    listen(NewState);
+		false -> listen(State)
+	    end;
 	{nci,Data}->
 	    {NCI,UT} = Data,
 	    NewNCILog = [{UT,NCI}|NCILog],
