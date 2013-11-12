@@ -116,7 +116,8 @@ find_edge(G,V1,V2,Time)->
     case Found of
 	[] ->
 	    digraph:add_edge(G,V1,V2,Time);
-	[E] -> digraph:add_edge(G,E,V1,V2,Time)
+	[E] -> digraph:del_edge(G,E),
+	       digraph:add_edge(G,V1,V2,Time)
     end.
    
 
