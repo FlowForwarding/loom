@@ -24,7 +24,7 @@
 
 -include("../include/tapestry.hrl").
 
--record(state,{start_time,clients,last_nci,nci_log,last_nep,last_qps}).
+-record(state,{start_time,clients,last_nci,nci_log,last_nep,last_int_nep,last_qps}).
 
 start()->
     StartTime = calendar:universal_time(),
@@ -32,7 +32,7 @@ start()->
     LNCI = jiffy:encode({[{<<"Time">>,Time},{<<"NCI">>,1}]}),
     LNEP = jiffy:encode({[{<<"Time">>,Time},{<<"NEP">>,1}]}),
     LQPS = jiffy:encode({[{<<"Time">>,Time},{<<"QPS">>,1}]}),
-    Pid = spawn(?MODULE,listen,[#state{start_time=StartTime,clients=[],last_nci=LNCI,nci_log=[],last_nep=LNEP,last_qps=LQPS}]),
+    Pid = spawn(?MODULE,listen,[#state{start_time=StartTime,clients=[],last_nci=LNCI,nci_log=[],last_nep=LNEP,last_int_nep=0,last_qps=LQPS}]),
     register(tap_client_data,Pid),
     Pid.
 
@@ -52,15 +52,16 @@ listen(State)->
     LNCI = State#state.last_nci,
     LNEP = State#state.last_nep,
     LQPS = State#state.last_qps,
+    LIntNEP = State#state.last_int_nep,
     receive
 	{num_endpoints,Data}->
 	    {NEP,UT} = Data,
-	    case NEP =/= LNEP of
+	    case NEP =/= LIntNEP of
 		true ->
 		    Time = list_to_binary(tap_utils:rfc3339(UT)),
 		    JSON = jiffy:encode({[{<<"Time">>,Time},{<<"NEP">>,NEP}]}),
 		    NewClients = broadcast_msg(Clients,JSON),
-		    NewState = State#state{clients=NewClients,last_nep=JSON},
+		    NewState = State#state{clients=NewClients,last_nep=JSON,last_int_nep=NEP},
 		    listen(NewState);
 		false -> listen(State)
 	    end;
