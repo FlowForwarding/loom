@@ -94,10 +94,14 @@ clean(G,T,MaxAge)->
 
 add_edge(G,E,Time)->
     {A,B} = E,
-    V1 = digraph:add_vertex(G,A,Time),
-    V2 = digraph:add_vertex(G,B,Time),
-    find_edge(G,V1,V2,Time),
-    find_edge(G,V2,V1,Time).
+    case A =/= B of
+	true ->
+	    V1 = digraph:add_vertex(G,A,Time),
+	    V2 = digraph:add_vertex(G,B,Time),
+	    find_edge(G,V1,V2,Time),
+	    find_edge(G,V2,V1,Time);
+	false -> error
+    end.
 
 	  
 
@@ -116,8 +120,7 @@ find_edge(G,V1,V2,Time)->
     case Found of
 	[] ->
 	    digraph:add_edge(G,V1,V2,Time);
-	[E] -> digraph:del_edge(G,E),
-	       digraph:add_edge(G,V1,V2,Time)
+	[E] -> digraph:add_edge(G,E,V1,V2,Time)
     end.
    
 
