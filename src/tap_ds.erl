@@ -56,7 +56,7 @@ listen(State)->
 	{ordered_edge,OE}->
 	    DateTime = calendar:universal_time(),
 	    {Date,Time} = DateTime,
-	    add_edge(Digraph,OE,Time),
+	    add_edge(Digraph,OE,DateTime),
 	    TapClientData ! {num_endpoints,{digraph:no_vertices(Digraph),DateTime}},
 	    TimeInSeconds = calendar:time_to_seconds(Time),
 	    Elapsed = TimeInSeconds - NCITimeStamp,
