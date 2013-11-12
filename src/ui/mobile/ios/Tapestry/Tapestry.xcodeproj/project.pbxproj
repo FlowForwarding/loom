@@ -20,6 +20,8 @@
 		2AAFE56E182FA1DE007BBFEA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2AAFE56C182FA1DE007BBFEA /* InfoPlist.strings */; };
 		2AAFE570182FA1DE007BBFEA /* TapestryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AAFE56F182FA1DE007BBFEA /* TapestryTests.m */; };
 		2ABE3B351830CD340046A0FC /* NCIGraphController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ABE3B341830CD340046A0FC /* NCIGraphController.m */; };
+		2ABE3B3E183128B40046A0FC /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2ABE3B3D183128B40046A0FC /* Localizable.strings */; };
+		2AF0F87218322BDD00FBF9E6 /* NCIIndexValueView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AF0F87118322BDD00FBF9E6 /* NCIIndexValueView.m */; };
 		B989E7ED8B4D4086A19D20D1 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36248AC0518B46CD87C92109 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -51,7 +53,10 @@
 		2AAFE56D182FA1DE007BBFEA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2AAFE56F182FA1DE007BBFEA /* TapestryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TapestryTests.m; sourceTree = "<group>"; };
 		2ABE3B331830CD340046A0FC /* NCIGraphController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIGraphController.h; sourceTree = "<group>"; };
-		2ABE3B341830CD340046A0FC /* NCIGraphController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIGraphController.m; sourceTree = "<group>"; };
+		2ABE3B341830CD340046A0FC /* NCIGraphController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = NCIGraphController.m; sourceTree = "<group>"; };
+		2ABE3B3D183128B40046A0FC /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		2AF0F87018322BDD00FBF9E6 /* NCIIndexValueView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIIndexValueView.h; sourceTree = "<group>"; };
+		2AF0F87118322BDD00FBF9E6 /* NCIIndexValueView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIIndexValueView.m; sourceTree = "<group>"; };
 		36248AC0518B46CD87C92109 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0D415E2262C4B2E8C4A192B /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -120,6 +125,8 @@
 				2ABE3B341830CD340046A0FC /* NCIGraphController.m */,
 				2AAFE559182FA1DE007BBFEA /* NCIAppDelegate.h */,
 				2AAFE55A182FA1DE007BBFEA /* NCIAppDelegate.m */,
+				2AF0F87018322BDD00FBF9E6 /* NCIIndexValueView.h */,
+				2AF0F87118322BDD00FBF9E6 /* NCIIndexValueView.m */,
 				2AAFE55C182FA1DE007BBFEA /* Images.xcassets */,
 				2AAFE551182FA1DE007BBFEA /* Supporting Files */,
 			);
@@ -133,6 +140,7 @@
 				2AAFE553182FA1DE007BBFEA /* InfoPlist.strings */,
 				2AAFE556182FA1DE007BBFEA /* main.m */,
 				2AAFE558182FA1DE007BBFEA /* Tapestry-Prefix.pch */,
+				2ABE3B3D183128B40046A0FC /* Localizable.strings */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -237,6 +245,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2AAFE555182FA1DE007BBFEA /* InfoPlist.strings in Resources */,
+				2ABE3B3E183128B40046A0FC /* Localizable.strings in Resources */,
 				2AAFE55D182FA1DE007BBFEA /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -289,6 +298,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2AF0F87218322BDD00FBF9E6 /* NCIIndexValueView.m in Sources */,
 				2AAFE557182FA1DE007BBFEA /* main.m in Sources */,
 				2ABE3B351830CD340046A0FC /* NCIGraphController.m in Sources */,
 				2AAFE55B182FA1DE007BBFEA /* NCIAppDelegate.m in Sources */,
@@ -417,7 +427,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tapestry/Tapestry-Prefix.pch";
 				INFOPLIST_FILE = "Tapestry/Tapestry-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 2;
 				WRAPPER_EXTENSION = app;
@@ -434,7 +444,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tapestry/Tapestry-Prefix.pch";
 				INFOPLIST_FILE = "Tapestry/Tapestry-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 2;
 				WRAPPER_EXTENSION = app;

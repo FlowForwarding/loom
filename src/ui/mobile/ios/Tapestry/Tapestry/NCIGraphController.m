@@ -8,12 +8,13 @@
 
 #import "NCIGraphController.h"
 #import "SRWebSocket.h"
+#import "NCIIndexValueView.h"
 
 @interface NCIGraphController() <SRWebSocketDelegate>{
     SRWebSocket *socket;
-    UILabel *nciValue;
-    UILabel *nepValue;
-    UILabel *qpsValue;
+    NCIIndexValueView *nciValue;
+    NCIIndexValueView *nepValue;
+    NCIIndexValueView *qpsValue;
 }
 @end
 
@@ -35,19 +36,20 @@ static NSString* websocketStartRequest = @"START_DATA";
 {
     [super viewDidLoad];
     int topIndent = 100;
-    int indexLabelHeight = 30;
+    int indexLabelHeight = 60;
     self.title = NSLocalizedString(@"Tapestry: A Network Complexity Analyzer", nil);
-    nciValue = [[UILabel alloc] initWithFrame:CGRectMake(0, topIndent, self.view.bounds.size.width/2, indexLabelHeight)];
+    
+    nciValue = [[NCIIndexValueView alloc] initWithFrame:CGRectMake(0, topIndent, self.view.bounds.size.width/2, indexLabelHeight)
+                                                indName:@"NCI" indSize:14];
     [self.view addSubview:nciValue];
-    nepValue = [[UILabel alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2,
-                                                         topIndent, self.view.bounds.size.width/2, indexLabelHeight)];
+    nepValue = [[NCIIndexValueView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2,
+                                                         topIndent, self.view.bounds.size.width/2, indexLabelHeight)
+                                                indName:@"NEP" indSize:14];
     [self.view addSubview:nepValue];
-    
-    
-    qpsValue = [[UILabel alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2,
-                                                         topIndent + indexLabelHeight, self.view.bounds.size.width/2, indexLabelHeight)];
+    qpsValue = [[NCIIndexValueView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2,
+                                                         topIndent + indexLabelHeight, self.view.bounds.size.width/2, indexLabelHeight)
+                                                indName:@"QPS" indSize:14];
     [self.view addSubview:qpsValue];
-    
     
     [self reconnect];
 }
@@ -94,11 +96,11 @@ static NSString* websocketStartRequest = @"START_DATA";
     NSString *nep = dataPoint[@"NEP"];
     NSString *qps = dataPoint[@"QPS"];
     if (nci){
-        nciValue.text = [NSString stringWithFormat: @"NCI %@  : %@", nci, dataPoint[@"Time"]];
+        [nciValue setIndValue:nci withDate:dataPoint[@"Time"]];
     } else if (nep) {
-        nepValue.text = [NSString stringWithFormat: @"NEP %@  : %@", nep, dataPoint[@"Time"]];
+        [nepValue setIndValue:nep  withDate:dataPoint[@"Time"]];
     } else if (qps) {
-        qpsValue.text = [NSString stringWithFormat: @"QPS %@  : %@", qps, dataPoint[@"Time"]];
+        [qpsValue setIndValue:qps withDate:dataPoint[@"Time"]];
     }
 }
 

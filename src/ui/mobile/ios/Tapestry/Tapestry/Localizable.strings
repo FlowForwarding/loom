@@ -1,0 +1,9 @@
+/* 
+  Localizable.strings
+  Tapestry
+
+  Created by Ira on 11/11/13.
+  Copyright (c) 2013 Truststix. All rights reserved.
+*/
+"Tapestry: A Network Complexity Analyzer" = "Tapestry: A Network Complexity Analyzer";
+"updated %@" = "updated %@";
