@@ -28,13 +28,14 @@ start()->
     NCIMinInterval = get_config(nci_min_interval),
     DataMaxAge = days_to_seconds(get_config(data_max_age)),
     TapClientData = tap_client_data:start(),
-    CurTime = calendar:universal_time(),
+    CurDateTime = calendar:universal_time(),
+    {CurDate,CurTime} = CurDateTime,
     CurSeconds = calendar:time_to_seconds(CurTime),
     Pid = spawn(?MODULE,listen,[#state{digraph = undefined,
 				       tap_client_data=TapClientData,
 				       nci_timestamp=CurSeconds,
 				       nci_min_interval=NCIMinInterval,
-				       cleaning_timestamp=CurTime,
+				       cleaning_timestamp=CurDateTime,
 				       data_max_age=DataMaxAge}]),
     Pid.
 
@@ -53,9 +54,10 @@ listen(State)->
     end,
     receive
 	{ordered_edge,OE}->
-	    Time = calendar:universal_time(),
+	    DateTime = calendar:universal_time(),
+	    {Date,Time} = DateTime,
 	    add_edge(Digraph,OE,Time),
-	    TapClientData ! {num_endpoints,{digraph:no_vertices(Digraph),Time}},
+	    TapClientData ! {num_endpoints,{digraph:no_vertices(Digraph),DateTime}},
 	    TimeInSeconds = calendar:time_to_seconds(Time),
 	    Elapsed = TimeInSeconds - NCITimeStamp,
 	    case Elapsed > NCIMinInterval of
