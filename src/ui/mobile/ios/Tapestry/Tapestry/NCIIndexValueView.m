@@ -28,37 +28,41 @@
     if (self) {
         fontSize = size;
         indexName = indName;
+        contentView = [[UIView alloc] initWithFrame:self.bounds];
+        contentView.backgroundColor = [UIColor whiteColor];
+        [self addSubview:contentView];
+        indLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+        indLabel.text = indexName;
+        indLabel.font = [UIFont boldSystemFontOfSize:fontSize];
+        [contentView addSubview:indLabel];
+        
+        helpBtn = [[UIButton alloc] initWithFrame:CGRectZero];
+        helpBtn.backgroundColor = [UIColor blackColor];
+        helpBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14];
+        [helpBtn setTitle:@"?" forState:UIControlStateNormal];
+        helpBtn.layer.cornerRadius = 8;
+        [contentView addSubview:helpBtn];
+        
+        indValue = [[UILabel alloc] initWithFrame:CGRectZero];
+        indValue.font = [UIFont boldSystemFontOfSize:fontSize + 4];
+        [contentView addSubview:indValue];
+        updateLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+        updateLabel.font = [UIFont italicSystemFontOfSize:14];
+        updateLabel.backgroundColor = [UIColor clearColor];
+        [contentView addSubview:updateLabel];
 
     }
     return self;
 }
 
 - (void)layoutSubviews{
-    contentView = [[UIView alloc] initWithFrame:self.bounds];
-    contentView.backgroundColor = [UIColor whiteColor];
-    [self addSubview:contentView];
-    indLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.frame.size.width, 30)];
-    indLabel.text = indexName;
-    indLabel.font = [UIFont boldSystemFontOfSize:fontSize];
-    [contentView addSubview:indLabel];
+    contentView.frame = self.bounds;
+    indLabel.frame = CGRectMake(10, 0, self.frame.size.width, 30);
     CGFloat width =  [indLabel.text sizeWithFont:indLabel.font].width;
-    
-    helpBtn = [[UIButton alloc] initWithFrame:CGRectMake(width + 10, 0, 16, 16)];
-    helpBtn.backgroundColor = [UIColor blackColor];
-    helpBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14];
-    [helpBtn setTitle:@"?" forState:UIControlStateNormal];
-    helpBtn.layer.cornerRadius = 8;
-    [contentView addSubview:helpBtn];
-    
-    indValue = [[UILabel alloc] initWithFrame:CGRectMake(width + 50, 0, 100, 30)];
-    indValue.font = [UIFont boldSystemFontOfSize:fontSize + 4];
-    [contentView addSubview:indValue];
-    updateLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 20, self.frame.size.width, 30)];
-    updateLabel.font = [UIFont italicSystemFontOfSize:14];
-    updateLabel.backgroundColor = [UIColor clearColor];
-    [contentView addSubview:updateLabel];
+    helpBtn.frame = CGRectMake(width + 10, 0, 16, 16);
+    indValue.frame = CGRectMake(width + 50, 0, 100, 30);
+    updateLabel.frame = CGRectMake(10, 20, self.frame.size.width, 30);
 }
-
 
 - (void)setIndValue:(NSString *)value withDate:(NSString *)date{
     indValue.text = [self processIndexValue: value];
