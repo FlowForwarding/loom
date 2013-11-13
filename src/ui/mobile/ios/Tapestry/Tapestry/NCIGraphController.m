@@ -24,7 +24,7 @@
 static NSString* websocketUrl = @"ws://nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
 static NSString* websocketStartRequest = @"START_DATA";
 static NSString* websocketMoreDataRequest =
-    @"{\"request\":\"more_data\",\"start\": \"2013-11-12T11:34:22Z\",\"end\": \"2013-11-13T11:34:22Z\",\"max_items\": \"20\"}";
+    @"{\"request\":\"more_data\",\"start\": \"2013-11-12T17:15:37Z\",\"end\": \"2013-11-13T17:15:37Z\",\"max_items\": \"20\"}";
 
 @implementation NCIGraphController
 
