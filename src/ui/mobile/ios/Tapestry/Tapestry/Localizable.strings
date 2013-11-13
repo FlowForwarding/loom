@@ -7,3 +7,9 @@
 */
 "Tapestry: A Network Complexity Analyzer" = "Tapestry: A Network Complexity Analyzer";
 "updated %@" = "updated %@";
+"NCI" = "NCI";
+"Endpoints" = "Endpoints";
+"Queries per Second" = "Queries per Second";
+"Network Complexity Index" = "Network Complexity Index";
+"Number of Connected Network Elements" = "Number of Connected Network Elements";
+"Successful DNS Query Responses per Second" = "Successful DNS Query Responses per Second";

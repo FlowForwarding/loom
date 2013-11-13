@@ -18,7 +18,7 @@
 }
 @end
 
-static NSString* websocketUrl = @"secret";
+static NSString* websocketUrl = @"ws://nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
 static NSString* websocketStartRequest = @"START_DATA";
 
 @implementation NCIGraphController
@@ -35,21 +35,27 @@ static NSString* websocketStartRequest = @"START_DATA";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    int topIndent = 100;
-    int indexLabelHeight = 60;
+    int topIndent = 85;
+    int indexLabelHeight = 50;
     self.title = NSLocalizedString(@"Tapestry: A Network Complexity Analyzer", nil);
     
     nciValue = [[NCIIndexValueView alloc] initWithFrame:CGRectMake(0, topIndent, self.view.bounds.size.width/2, indexLabelHeight)
-                                                indName:@"NCI" indSize:14];
+                                                indName:NSLocalizedString(@"NCI", nil) indSize:22];
+    [nciValue setTooltipText: NSLocalizedString(@"Network Complexity Index", nil)];
+    
     [self.view addSubview:nciValue];
+    qpsValue = [[NCIIndexValueView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2,
+                                                                   topIndent + indexLabelHeight + 25, self.view.bounds.size.width/2, indexLabelHeight)
+                                                indName:NSLocalizedString(@"Queries per Second", nil) indSize:14];
+    [qpsValue setTooltipText:NSLocalizedString(@"Successful DNS Query Responses per Second", nil)];
+    [self.view addSubview:qpsValue];
+    
     nepValue = [[NCIIndexValueView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2,
                                                          topIndent, self.view.bounds.size.width/2, indexLabelHeight)
-                                                indName:@"NEP" indSize:14];
+                                                indName:NSLocalizedString(@"Endpoints", nil) indSize:14];
+    [nepValue setTooltipText:NSLocalizedString(@"Number of Connected Network Elements", nil)];
+    
     [self.view addSubview:nepValue];
-    qpsValue = [[NCIIndexValueView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2,
-                                                         topIndent + indexLabelHeight, self.view.bounds.size.width/2, indexLabelHeight)
-                                                indName:@"QPS" indSize:14];
-    [self.view addSubview:qpsValue];
     
     [self reconnect];
 }
