@@ -9,17 +9,22 @@
 #import "NCIGraphController.h"
 #import "SRWebSocket.h"
 #import "NCIIndexValueView.h"
+#import "NCIChartView.h"
 
 @interface NCIGraphController() <SRWebSocketDelegate>{
     SRWebSocket *socket;
     NCIIndexValueView *nciValue;
     NCIIndexValueView *nepValue;
     NCIIndexValueView *qpsValue;
+    NCIChartView *graphView;
+    NSDateFormatter *serverDateformatter;
 }
 @end
 
 static NSString* websocketUrl = @"ws://nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
 static NSString* websocketStartRequest = @"START_DATA";
+static NSString* websocketMoreDataRequest =
+    @"{\"request\":\"more_data\",\"start\": \"2013-11-12T11:34:22Z\",\"end\": \"2013-11-13T11:34:22Z\",\"max_items\": \"20\"}";
 
 @implementation NCIGraphController
 
@@ -57,7 +62,14 @@ static NSString* websocketStartRequest = @"START_DATA";
     
     [self.view addSubview:nepValue];
     
+    graphView = [[NCIChartView alloc] initWithFrame:CGRectMake(0, 250, self.view.bounds.size.width, 400)];
+    graphView.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:graphView];
+    
     [self reconnect];
+    
+    serverDateformatter = [[NSDateFormatter alloc] init];
+    [serverDateformatter setDateFormat:@"yyyy-MM-dd_HH:mm:ss"];
 }
 
 - (void)didReceiveMemoryWarning
@@ -82,7 +94,8 @@ static NSString* websocketStartRequest = @"START_DATA";
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket;
 {
     NSLog(@"Websocket Connected");
-    [webSocket send:websocketStartRequest];
+   // [webSocket send:websocketStartRequest];
+    [webSocket send:websocketMoreDataRequest];
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
@@ -93,20 +106,35 @@ static NSString* websocketStartRequest = @"START_DATA";
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message;
 {
-    NSDictionary *dataPoint = [NSJSONSerialization
-                               JSONObjectWithData:[message dataUsingEncoding:NSUTF8StringEncoding]
-                               options:NSJSONReadingMutableContainers error:NULL];
+    NSString *messageString = ((NSString *)message);
+    NSArray *dataPieces = [[messageString substringWithRange:NSMakeRange(1, messageString.length -2) ] componentsSeparatedByString:@","];
+    if (dataPieces.count > 2){
+        int i;
+        for (i = 0; i < dataPieces.count/2 -1; i+=2){
+            //we get such fromat data 2013-11-12T14:04:29
+            NSString *dateString = [dataPieces[i] substringWithRange:NSMakeRange(8, ((NSString *)dataPieces[i]).length -10)];
+            dateString = [dateString stringByReplacingOccurrencesOfString:@"T" withString:@"_"];
+            NSDate *date = [serverDateformatter dateFromString:dateString];
+            NSString *nciVal = [dataPieces[i+1] substringFromIndex:6];
+            [graphView addPoint:date val:nciVal];
+        }
+        [graphView drawChart];
+        
+    } else {
+        NSDictionary *dataPoint = [NSJSONSerialization
+                                   JSONObjectWithData:[message dataUsingEncoding:NSUTF8StringEncoding]
+                                   options:NSJSONReadingMutableContainers error:NULL];
     
-   // NSLog(@"dataPoint %@", dataPoint);
-    NSString *nci = dataPoint[@"NCI"];
-    NSString *nep = dataPoint[@"NEP"];
-    NSString *qps = dataPoint[@"QPS"];
-    if (nci){
-        [nciValue setIndValue:nci withDate:dataPoint[@"Time"]];
-    } else if (nep) {
-        [nepValue setIndValue:nep  withDate:dataPoint[@"Time"]];
-    } else if (qps) {
-        [qpsValue setIndValue:qps withDate:dataPoint[@"Time"]];
+        NSString *nci = dataPoint[@"NCI"];
+        NSString *nep = dataPoint[@"NEP"];
+        NSString *qps = dataPoint[@"QPS"];
+        if (nci){
+            [nciValue setIndValue:nci withDate:dataPoint[@"Time"]];
+        } else if (nep) {
+            [nepValue setIndValue:nep  withDate:dataPoint[@"Time"]];
+        } else if (qps) {
+            [qpsValue setIndValue:qps withDate:dataPoint[@"Time"]];
+        }
     }
 }
 

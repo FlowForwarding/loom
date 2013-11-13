@@ -22,6 +22,7 @@
 		2ABE3B351830CD340046A0FC /* NCIGraphController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ABE3B341830CD340046A0FC /* NCIGraphController.m */; };
 		2ABE3B3E183128B40046A0FC /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2ABE3B3D183128B40046A0FC /* Localizable.strings */; };
 		2AF0F87218322BDD00FBF9E6 /* NCIIndexValueView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AF0F87118322BDD00FBF9E6 /* NCIIndexValueView.m */; };
+		2AF0F8781833BE5F00FBF9E6 /* NCIChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AF0F8771833BE5F00FBF9E6 /* NCIChartView.m */; };
 		B989E7ED8B4D4086A19D20D1 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36248AC0518B46CD87C92109 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -57,6 +58,8 @@
 		2ABE3B3D183128B40046A0FC /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		2AF0F87018322BDD00FBF9E6 /* NCIIndexValueView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIIndexValueView.h; sourceTree = "<group>"; };
 		2AF0F87118322BDD00FBF9E6 /* NCIIndexValueView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIIndexValueView.m; sourceTree = "<group>"; };
+		2AF0F8761833BE5F00FBF9E6 /* NCIChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIChartView.h; sourceTree = "<group>"; };
+		2AF0F8771833BE5F00FBF9E6 /* NCIChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIChartView.m; sourceTree = "<group>"; };
 		36248AC0518B46CD87C92109 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0D415E2262C4B2E8C4A192B /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -129,6 +132,8 @@
 				2AF0F87118322BDD00FBF9E6 /* NCIIndexValueView.m */,
 				2AAFE55C182FA1DE007BBFEA /* Images.xcassets */,
 				2AAFE551182FA1DE007BBFEA /* Supporting Files */,
+				2AF0F8761833BE5F00FBF9E6 /* NCIChartView.h */,
+				2AF0F8771833BE5F00FBF9E6 /* NCIChartView.m */,
 			);
 			path = Tapestry;
 			sourceTree = "<group>";
@@ -300,6 +305,7 @@
 			files = (
 				2AF0F87218322BDD00FBF9E6 /* NCIIndexValueView.m in Sources */,
 				2AAFE557182FA1DE007BBFEA /* main.m in Sources */,
+				2AF0F8781833BE5F00FBF9E6 /* NCIChartView.m in Sources */,
 				2ABE3B351830CD340046A0FC /* NCIGraphController.m in Sources */,
 				2AAFE55B182FA1DE007BBFEA /* NCIAppDelegate.m in Sources */,
 			);
