@@ -69,7 +69,7 @@ listen(State)->
 		    AgeSeconds = days_to_seconds(Age),
 		    case AgeSeconds > DataMaxAge of
 			true ->
-			    clean(Digraph,Time,DataMaxAge),
+			    clean(Digraph,DateTime,DataMaxAge),
 			    listen(State#state{cleaning_timestamp=DateTime});
 			false ->
 			    listen(State)
