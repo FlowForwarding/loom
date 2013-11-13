@@ -29,7 +29,7 @@ start()->
     DataMaxAge = days_to_seconds(get_config(data_max_age)),
     TapClientData = tap_client_data:start(),
     CurDateTime = calendar:universal_time(),
-    {CurDate,CurTime} = CurDateTime,
+    {_CurDate,CurTime} = CurDateTime,
     CurSeconds = calendar:time_to_seconds(CurTime),
     Pid = spawn(?MODULE,listen,[#state{digraph = undefined,
 				       tap_client_data=TapClientData,
@@ -55,7 +55,7 @@ listen(State)->
     receive
 	{ordered_edge,OE}->
 	    DateTime = calendar:universal_time(),
-	    {Date,Time} = DateTime,
+	    {_Date,Time} = DateTime,
 	    add_edge(Digraph,OE,DateTime),
 	    TapClientData ! {num_endpoints,{digraph:no_vertices(Digraph),DateTime}},
 	    TimeInSeconds = calendar:time_to_seconds(Time),
@@ -144,11 +144,11 @@ process_config(Value,[Config|Rest]) ->
 
 process_timers(_,[])->
     error;
-process_timers(nci_min_interval,[{nci_min_interval,{seconds,Time}}|Rest]) ->
+process_timers(nci_min_interval,[{nci_min_interval,{seconds,Time}}|_Rest]) ->
     Time;
-process_timers(data_max_age,[{data_max_age,{{days,D},{hms,{H,M,S}}}}|Rest]) ->
+process_timers(data_max_age,[{data_max_age,{{days,D},{hms,{H,M,S}}}}|_Rest]) ->
     {D,{H,M,S}};
-process_timers(Value,[H|Rest]) ->
+process_timers(Value,[_H|Rest]) ->
     process_timers(Value,Rest).
 
 
