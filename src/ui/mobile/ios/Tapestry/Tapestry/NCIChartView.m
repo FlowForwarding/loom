@@ -99,10 +99,15 @@
     
     UIBezierPath *path = [UIBezierPath bezierPath];
     [path setLineWidth:.5];
-    [path moveToPoint:CGPointMake(chartIndent, chartIndent)];
+    if (self.chartData.count > 0){
+        NSDate *date = self.chartData[0][0];
+        int yVal = self.frame.size.height - (chartIndent + ([self.chartData[0][1] integerValue] - minYVal)*yStep);
+        int xVal = chartIndent + ([date timeIntervalSince1970] - minXVal)*xStep;
+        [path moveToPoint:CGPointMake(xVal, yVal)];
+    }
     
     int ind;
-    for (ind =0; ind < self.chartData.count; ind++){
+    for (ind = 1; ind < self.chartData.count; ind++){
         NSDate *date = self.chartData[ind][0];
         int yVal = self.frame.size.height - (chartIndent + ([self.chartData[ind][1] integerValue] - minYVal)*yStep);
         int xVal = chartIndent + ([date timeIntervalSince1970] - minXVal)*xStep;
@@ -115,8 +120,10 @@
     CGContextSetLineWidth(currentContext, 0.5);
     CGContextSetLineJoin(currentContext, kCGLineJoinRound);
     CGContextBeginPath(currentContext);
+    [[UIColor blueColor] setStroke];
     CGContextAddPath(currentContext, path.CGPath);
     CGContextDrawPath(currentContext, kCGPathStroke);
+    [[UIColor blackColor] setStroke];
 
     
     CGFloat dashes[] = { 1, 1 };
