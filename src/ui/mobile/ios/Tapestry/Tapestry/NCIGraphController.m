@@ -18,6 +18,7 @@
     NCIIndexValueView *qpsValue;
     NCIChartView *graphView;
     NSDateFormatter *serverDateformatter;
+    bool isShowingLandscapeView;
 }
 @end
 
@@ -40,36 +41,41 @@ static NSString* websocketMoreDataRequest =
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    int topIndent = 85;
-    int indexLabelHeight = 50;
     self.title = NSLocalizedString(@"Tapestry: A Network Complexity Analyzer", nil);
     
-    nciValue = [[NCIIndexValueView alloc] initWithFrame:CGRectMake(0, topIndent, self.view.bounds.size.width/2, indexLabelHeight)
-                                                indName:NSLocalizedString(@"NCI", nil) indSize:22];
+    nciValue = [[NCIIndexValueView alloc] initWithFrame:CGRectZero indName:NSLocalizedString(@"NCI", nil) indSize:22];
     [nciValue setTooltipText: NSLocalizedString(@"Network Complexity Index", nil)];
     
     [self.view addSubview:nciValue];
-    qpsValue = [[NCIIndexValueView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2,
-                                                                   topIndent + indexLabelHeight + 25, self.view.bounds.size.width/2, indexLabelHeight)
+    qpsValue = [[NCIIndexValueView alloc] initWithFrame:CGRectZero
                                                 indName:NSLocalizedString(@"Queries per Second", nil) indSize:14];
+    
     [qpsValue setTooltipText:NSLocalizedString(@"Successful DNS Query Responses per Second", nil)];
     [self.view addSubview:qpsValue];
     
-    nepValue = [[NCIIndexValueView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2,
-                                                         topIndent, self.view.bounds.size.width/2, indexLabelHeight)
-                                                indName:NSLocalizedString(@"Endpoints", nil) indSize:14];
+    nepValue = [[NCIIndexValueView alloc] initWithFrame:CGRectZero indName:NSLocalizedString(@"Endpoints", nil) indSize:14];
     [nepValue setTooltipText:NSLocalizedString(@"Number of Connected Network Elements", nil)];
     
     [self.view addSubview:nepValue];
     
-    graphView = [[NCIChartView alloc] initWithFrame:CGRectMake(0, 250, self.view.bounds.size.width, 400)];
+    graphView = [[NCIChartView alloc] initWithFrame:CGRectZero];
     graphView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:graphView];
+    
+    [self layoutSubviews];
     
     [self reconnect];
     
     serverDateformatter = [[NSDateFormatter alloc] init];
     [serverDateformatter setDateFormat:@"yyyy-MM-dd_HH:mm:ss"];
+    
+    isShowingLandscapeView = NO;
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(orientationChanged:)
+                                                 name:UIDeviceOrientationDidChangeNotification
+                                               object:nil];
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -78,6 +84,23 @@ static NSString* websocketMoreDataRequest =
     // Dispose of any resources that can be recreated.
 }
 
+- (void)layoutSubviews {
+    int topIndent = 85;
+    int indexLabelHeight = 50;
+    if (isShowingLandscapeView) {
+        
+    } else {
+        
+    }
+    
+    nciValue.frame = CGRectMake(0, topIndent, self.view.bounds.size.width/2, indexLabelHeight);
+    
+    qpsValue.frame = CGRectMake(self.view.bounds.size.width/2, topIndent + indexLabelHeight + 25, self.view.bounds.size.width/2, indexLabelHeight);
+    
+    nepValue.frame = CGRectMake(self.view.bounds.size.width/2, topIndent, self.view.bounds.size.width/2, indexLabelHeight);
+    
+    graphView.frame = CGRectMake(0, 250, self.view.bounds.size.width, 400);
+}
 
 - (void)reconnect;
 {
@@ -94,7 +117,7 @@ static NSString* websocketMoreDataRequest =
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket;
 {
     NSLog(@"Websocket Connected");
-   // [webSocket send:websocketStartRequest];
+    [webSocket send:websocketStartRequest];
     [webSocket send:websocketMoreDataRequest];
 }
 
@@ -142,6 +165,23 @@ static NSString* websocketMoreDataRequest =
 {
     NSLog(@"WebSocket closed");
     socket = nil;
+}
+
+- (void)orientationChanged:(NSNotification *)notification
+{
+    UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
+    if (UIDeviceOrientationIsLandscape(deviceOrientation) &&
+        !isShowingLandscapeView)
+    {
+        [self layoutSubviews];
+        isShowingLandscapeView = YES;
+    }
+    else if (UIDeviceOrientationIsPortrait(deviceOrientation) &&
+             isShowingLandscapeView)
+    {
+        [self layoutSubviews];
+        isShowingLandscapeView = NO;
+    }
 }
 
 @end

@@ -38,22 +38,17 @@
         chartIndent = 50;
         int ind = 0;
         for (ind = 0; ind< yLabelsCount; ind++){
-            UILabel *yLabel = [[UILabel alloc] initWithFrame:
-                               CGRectMake(10,
-                                          chartIndent + ind*(self.bounds.size.height - chartIndent*2)/(yLabelsCount - 1),
-                                          50, 20)];
+            UILabel *yLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+            yLabel.backgroundColor = [UIColor clearColor];
             [yAxisLabels addObject:yLabel];
             [self addSubview:yLabel];
         };
         int xLabelsCount  = 4;
         xAxisLabels = [[NSMutableArray alloc] initWithCapacity:xLabelsCount];
         for (ind = 0; ind< xLabelsCount; ind++){
-            UILabel *xLabel = [[UILabel alloc] initWithFrame:
-                               CGRectMake(chartIndent + ind*(self.bounds.size.width - chartIndent*2)/(xLabelsCount - 1),
-                                          self.bounds.size.height,
-                                          150, 20)];
+            UILabel *xLabel = [[UILabel alloc] initWithFrame: CGRectZero];
             xLabel.font = [UIFont italicSystemFontOfSize:14];
-            CATransform3D transform = CATransform3DMakeRotation(M_PI/3, 0, 0, 1);
+           // CATransform3D transform = CATransform3DMakeRotation(M_PI/3, 0, 0, 1);
            // xLabel.layer.transform = transform;
             
             [xAxisLabels addObject:xLabel];
@@ -61,6 +56,20 @@
         };
     }
     return self;
+}
+
+- (void)layoutSubviews{
+    int ind;
+    for (ind = 0; ind< yAxisLabels.count; ind++){
+        UILabel *yLabel = yAxisLabels[ind];
+        yLabel.frame = CGRectMake(10, chartIndent + ind*(self.bounds.size.height - chartIndent*2)/(yAxisLabels.count - 1),50, 20);
+    }
+    for (ind = 0; ind< xAxisLabels.count; ind++){
+        UILabel *xLabel = xAxisLabels[ind];
+        xLabel.frame = CGRectMake(chartIndent + ind*(self.bounds.size.width - chartIndent*2)/(xAxisLabels.count - 1),
+                                  self.bounds.size.height,
+                                  150, 20);
+    };
 }
 
 - (void)addPoint:(NSDate *)date val:(NSString *)value{
