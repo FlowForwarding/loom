@@ -16,6 +16,7 @@
     int minYVal;
     
     int chartIndent;
+    int xLabelShift;
     
     NSDateFormatter* dateFormatter;
     NSMutableArray *yAxisLabels;
@@ -35,7 +36,8 @@
         [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
         int yLabelsCount  = 5;
         yAxisLabels = [[NSMutableArray alloc] initWithCapacity:yLabelsCount];
-        chartIndent = 50;
+        chartIndent = 80;
+        xLabelShift = 75;
         int ind = 0;
         for (ind = 0; ind< yLabelsCount; ind++){
             UILabel *yLabel = [[UILabel alloc] initWithFrame:CGRectZero];
@@ -66,8 +68,8 @@
     }
     for (ind = 0; ind< xAxisLabels.count; ind++){
         UILabel *xLabel = xAxisLabels[ind];
-        xLabel.frame = CGRectMake(chartIndent + ind*(self.bounds.size.width - chartIndent*2)/(xAxisLabels.count - 1),
-                                  self.bounds.size.height,
+        xLabel.frame = CGRectMake(chartIndent - xLabelShift + ind*(self.bounds.size.width - chartIndent*2)/(xAxisLabels.count - 1),
+                                  self.bounds.size.height - chartIndent/2,
                                   150, 20);
     };
 }
@@ -152,8 +154,8 @@
             UILabel *xLabel = xAxisLabels[ind];
             NSDate *date = [NSDate dateWithTimeIntervalSince1970:(minXVal + ind * xFork/(yAxisLabels.count - 1))];
             xLabel.text = [NSString stringWithFormat:@"%@", [dateFormatter stringFromDate: date]];
-            CGContextMoveToPoint(currentContext, xLabel.frame.origin.x , xLabel.frame.origin.y + chartIndent/2);
-            CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x , chartIndent/2);
+            CGContextMoveToPoint(currentContext, xLabel.frame.origin.x + xLabelShift , xLabel.frame.origin.y - chartIndent/2);
+            CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x + xLabelShift, chartIndent/2);
             CGContextStrokePath(currentContext);
         };
     };
