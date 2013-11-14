@@ -219,7 +219,7 @@
 				ORGANIZATIONNAME = Truststix;
 				TargetAttributes = {
 					2AAFE546182FA1DE007BBFEA = {
-						DevelopmentTeam = G6Q4LXCQY7;
+						DevelopmentTeam = 2KLYQL2BD3;
 					};
 					2AAFE561182FA1DE007BBFEA = {
 						TestTargetID = 2AAFE546182FA1DE007BBFEA;

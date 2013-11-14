@@ -33,6 +33,7 @@
     if (self) {
         self.chartData = [[NSMutableArray alloc] init];
         dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
         [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
         int yLabelsCount  = 5;
         yAxisLabels = [[NSMutableArray alloc] initWithCapacity:yLabelsCount];
@@ -142,7 +143,7 @@
     if (maxYVal && minYVal){
         for (ind = 0; ind< yAxisLabels.count; ind++){
             UILabel *yLabel = yAxisLabels[ind];
-            yLabel.text = [NSString stringWithFormat:@"%.1f", minYVal + ind * yFork/(yAxisLabels.count - 1)];
+            yLabel.text = [NSString stringWithFormat:@"%.1f", maxYVal - ind * yFork/(yAxisLabels.count - 1)];
             CGContextMoveToPoint(currentContext, yLabel.frame.origin.x + chartIndent/2, yLabel.frame.origin.y);
             CGContextAddLineToPoint(currentContext, self.frame.size.width - chartIndent/2, yLabel.frame.origin.y);
             CGContextStrokePath(currentContext);
@@ -152,7 +153,7 @@
     if (maxXVal && minXVal){
         for (ind = 0; ind< xAxisLabels.count; ind++){
             UILabel *xLabel = xAxisLabels[ind];
-            NSDate *date = [NSDate dateWithTimeIntervalSince1970:(minXVal + ind * xFork/(yAxisLabels.count - 1))];
+            NSDate *date = [NSDate dateWithTimeIntervalSince1970:(minXVal + ind * xFork/(xAxisLabels.count - 1))];
             xLabel.text = [NSString stringWithFormat:@"%@", [dateFormatter stringFromDate: date]];
             CGContextMoveToPoint(currentContext, xLabel.frame.origin.x + xLabelShift , xLabel.frame.origin.y - chartIndent/2);
             CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x + xLabelShift, chartIndent/2);

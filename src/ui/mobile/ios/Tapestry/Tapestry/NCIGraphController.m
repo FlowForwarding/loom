@@ -19,13 +19,15 @@
     NCIChartView *graphView;
     NSDateFormatter *serverDateformatter;
     bool isShowingLandscapeView;
+    
+    int timeAdjustment;
 }
 @end
 
 static NSString* websocketUrl = @"ws://nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
 static NSString* websocketStartRequest = @"START_DATA";
 static NSString* websocketMoreDataRequest =
-    @"{\"request\":\"more_data\",\"start\": \"2013-11-12T17:15:37Z\",\"end\": \"2013-11-13T17:15:37Z\",\"max_items\": \"20\"}";
+    @"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"20\"}";
 
 @implementation NCIGraphController
 
@@ -67,6 +69,7 @@ static NSString* websocketMoreDataRequest =
     [self reconnect];
     
     serverDateformatter = [[NSDateFormatter alloc] init];
+    [serverDateformatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
     [serverDateformatter setDateFormat:@"yyyy-MM-dd_HH:mm:ss"];
     
     isShowingLandscapeView = NO;
@@ -118,7 +121,6 @@ static NSString* websocketMoreDataRequest =
 {
     NSLog(@"Websocket Connected");
     [webSocket send:websocketStartRequest];
-    [webSocket send:websocketMoreDataRequest];
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
@@ -134,8 +136,8 @@ static NSString* websocketMoreDataRequest =
     if (dataPieces.count > 2){
         int i;
         for (i = 0; i < dataPieces.count/2 -1; i+=2){
-            //we get such fromat data 2013-11-12T14:04:29
-            NSString *dateString = [dataPieces[i] substringWithRange:NSMakeRange(8, ((NSString *)dataPieces[i]).length -10)];
+            //we get such fromat data 2013-11-12T14:04:29Z
+            NSString *dateString = [dataPieces[i] substringWithRange:NSMakeRange(8, ((NSString *)dataPieces[i]).length - 10)];
             dateString = [dateString stringByReplacingOccurrencesOfString:@"T" withString:@"_"];
             NSDate *date = [serverDateformatter dateFromString:dateString];
             NSString *nciVal = [dataPieces[i+1] substringFromIndex:6];
@@ -157,6 +159,23 @@ static NSString* websocketMoreDataRequest =
             [nepValue setIndValue:nep  withDate:dataPoint[@"Time"]];
         } else if (qps) {
             [qpsValue setIndValue:qps withDate:dataPoint[@"Time"]];
+        }
+        //{"start_time":"2013-11-13T16:42:55Z","current_time":"2013-11-13T21:23:47Z"}
+        NSString *start_time = dataPoint[@"start_time"];
+        if (start_time){
+            NSString *current_time = dataPoint[@"current_time"];
+            current_time = [current_time stringByReplacingOccurrencesOfString:@"T" withString:@"_"];
+            NSDate *date = [serverDateformatter dateFromString:current_time];
+            timeAdjustment = [date timeIntervalSinceNow];
+            NSString *endDate = [[serverDateformatter stringFromDate:
+                                 [[NSDate date] dateByAddingTimeInterval: -timeAdjustment]]
+                                 stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
+            NSString *startDate = [[serverDateformatter stringFromDate:
+                                  [[[NSDate date] dateByAddingTimeInterval: -timeAdjustment]
+                                   dateByAddingTimeInterval: -60*60*24]]
+                                   stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
+             NSLog(websocketMoreDataRequest,  startDate, endDate);
+            [webSocket send: [NSString stringWithFormat: websocketMoreDataRequest, startDate, endDate]];
         }
     }
 }
