@@ -10,6 +10,7 @@
 #import "SRWebSocket.h"
 #import "NCIIndexValueView.h"
 #import "NCIChartView.h"
+#import "NCIHelpView.h"
 
 @interface NCIGraphController() <SRWebSocketDelegate>{
     SRWebSocket *socket;
@@ -17,6 +18,9 @@
     NCIIndexValueView *nepValue;
     NCIIndexValueView *qpsValue;
     NCIChartView *graphView;
+    UIButton *infoButton;
+    NCIHelpView *helpView;
+    
     NSDateFormatter *serverDateformatter;
     bool isShowingLandscapeView;
     
@@ -43,6 +47,11 @@ static NSString* websocketMoreDataRequest =
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    //for iOS 7 to make same calculations views y position
+    if ([self respondsToSelector:@selector(edgesForExtendedLayout)]){
+        self.edgesForExtendedLayout = UIRectEdgeNone;
+    };
+    
     self.title = NSLocalizedString(@"Tapestry: A Network Complexity Analyzer", nil);
     
     nciValue = [[NCIIndexValueView alloc] initWithFrame:CGRectZero indName:NSLocalizedString(@"NCI", nil) indSize:22];
@@ -64,6 +73,17 @@ static NSString* websocketMoreDataRequest =
     graphView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:graphView];
     
+    infoButton = [[UIButton alloc] initWithFrame:CGRectMake(self.view.bounds.size.width - 50, 20, 30, 30)];
+    infoButton.backgroundColor = [UIColor blackColor];
+    infoButton.layer.cornerRadius = 15;
+    [infoButton setTitle:@"i" forState:UIControlStateNormal];
+    infoButton.titleLabel.font = [UIFont boldSystemFontOfSize:24];
+    [infoButton addTarget:self action:@selector(showHelp) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:infoButton];
+    
+    helpView = [[NCIHelpView alloc] initWithFrame:self.view.bounds];
+    [self.view addSubview:helpView];
+    
     [self layoutSubviews];
     
     [self reconnect];
@@ -78,7 +98,17 @@ static NSString* websocketMoreDataRequest =
                                              selector:@selector(orientationChanged:)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
+}
+
+- (void)showHelp{
+   // if(helpView.isPresented){
+//    [UIView animateWithDuration:0.3 animations:^{
+//        helpView.frame = CGRectMake(0, 0, self.view.frame.size.width, 100);
+//    }];
+    [helpView showHelp];
+   // }
 }
 
 - (void)didReceiveMemoryWarning
@@ -88,7 +118,7 @@ static NSString* websocketMoreDataRequest =
 }
 
 - (void)layoutSubviews {
-    int topIndent = 85;
+    int topIndent = 10;
     int indexLabelHeight = 50;
     if (isShowingLandscapeView) {
         
@@ -103,6 +133,10 @@ static NSString* websocketMoreDataRequest =
     nepValue.frame = CGRectMake(self.view.bounds.size.width/2, topIndent, self.view.bounds.size.width/2, indexLabelHeight);
     
     graphView.frame = CGRectMake(0, 250, self.view.bounds.size.width, 400);
+    
+    infoButton.center = CGPointMake(self.view.bounds.size.width - 50, 30);
+    
+    helpView.frame = self.view.bounds;
 }
 
 - (void)reconnect;
