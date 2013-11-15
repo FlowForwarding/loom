@@ -3,7 +3,7 @@ if (typeof NCI === 'undefined')
    
 NCI.start_time; // no data exists on the server before
 NCI.time_adjustment = 0; //difference between client and server time in milliseconds
-NCI.numOfPoints = 600;
+NCI.numOfPoints = 200;
 
 NCI.Connection = new WebSocket("ws://" + location.host + "/clientsock.yaws");
 NCI.Connection.onopen = function () {
@@ -35,8 +35,8 @@ NCI.Connection.onmessage  = function (e) {
 				NCI.initChart(data.Time);
 			} else {
 				//next expression check that minimum required time passed from last time graph was redrawed
-				//for day period (current chart period) - is 3 seconds, for 2 days - 6 seconds and then encreases linerar
-				if (new Date() - NCI.lastRedrawTimeVal < NCI.curChartPeriod/NCI.chartPeriods.day*3000)
+				//for half month period (current chart period) - is 3 seconds, for month - 6 seconds and then encreases linerar
+				if (new Date() - NCI.lastRedrawTimeVal < NCI.curChartPeriod/NCI.chartPeriods.halfmnth*3000)
 					return;
 
 				NCI.chartData.push([new Date(dateVal).getTime(), data.NCI]);

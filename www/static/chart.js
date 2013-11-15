@@ -41,7 +41,7 @@ NCI.chartPeriods = {
 };
 
 NCI.curChartPeriod = NCI.chartPeriods.halfmnth;
-NCI.detailedChartPeriod = NCI.chartPeriods.sixhours;
+NCI.detailedChartPeriod = NCI.chartPeriods.threehours;
 NCI.rangeStartDate = $("#range-start-date");
 NCI.rangeMiddleDate = $("#range-middle-date");
 
