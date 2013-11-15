@@ -49,7 +49,7 @@ NCI.Connection.moreData = function(startTime, endTime, pointsNum) {
 	event.data = '{';
 	var dateGap = (endTime - startTime) / pointsNum;
 	if (startTime < endTime) {
-		for (var i=0; i < pointsNum; i++ ){
+		for (var i=0; i <= pointsNum; i++ ){
 			event.data += '"Time":"' +  NCI.convertDateForServer(startTime + dateGap*i) 
 			+ '","NCI":' + Math.floor((Math.random()*3)+5) +',';
 		};
