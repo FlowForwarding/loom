@@ -84,7 +84,13 @@
 }
 
 .nci-chart {
+	padding-left:20px;
+}
 
+.nci-range-dates {
+	width: 90%;
+	padding-left: 70px;
+	padding-top: 25px;
 }
 
 .round-info{

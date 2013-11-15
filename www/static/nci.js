@@ -45,7 +45,6 @@ NCI.parceDateForLastUpdate = function(stringDate){
 	return showDate;
 };
 
-
 NCI.parceNumberForView = function(labelValue, fixVal){
     return Math.abs(Number(labelValue)) >= 1.0e+9
 
