@@ -33,13 +33,13 @@ NCI.setQpsLatestValue = function (newVal, time) {
 
 NCI.convertDateForServer = function(date){
 	//we need to get such format in UTC 2013-10-27T13:11:39Z for server
-	var returnDate = new Date(date - NCI.time_adjustment).toISOString();
+	var returnDate = new Date(date).toISOString();
 	returnDate = returnDate.substring(0, returnDate.length - 5) + "Z";
 	return returnDate;
 };
 
 NCI.parceDateForLastUpdate = function(stringDate){
-	var date = new Date(stringDate)
+	var date = new Date(new Date(stringDate) - NCI.time_adjustment);
 	var showDate = date.getMonth() + '.' + date.getDate() + '.' + date.getFullYear() % 100
 		+ '  ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
 	return showDate;

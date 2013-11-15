@@ -17,11 +17,11 @@ NCI.Connection.onmessage  = function (e) {
 	var data = eval("tmp = " + e.data );
 	//console.log(e.data);
 	if (data.start_time){
-		NCI.time_adjustment = new Date() - new Date(data.current_time);
+		NCI.time_adjustment = new Date() - new Date(data.current_time) - new Date().getTimezoneOffset()*1000*60;
 		if (!NCI.chart){
 			NCI.initChart(data.current_time);
-			NCI.Connection.moreData(new Date() - NCI.curChartPeriod - NCI.time_adjustment,
-				new Date() - NCI.time_adjustment, NCI.numOfPoints);
+			NCI.Connection.moreData(new Date() - NCI.curChartPeriod + NCI.time_adjustment,
+				new Date() + NCI.time_adjustment, NCI.numOfPoints);
 		};
 		return;
 	};
@@ -86,12 +86,12 @@ NCI.Connection.onmessage  = function (e) {
 			timeValue = timeValue.substring(1, timeValue.length - 1);
 			var nciValue = recievedDataArray[curIndex + 1];
 			nciValue = parseInt(nciValue.split(":")[1]);
-			newData.push([new Date(timeValue).getTime(), nciValue]);
+			newData.push([new Date(new Date(timeValue) - NCI.time_adjustment).getTime() , nciValue]);
 		};
 		NCI.chartData = newData;
 	 	NCI.chart.updateOptions({
-			connectSeparatedPoints: true,
-		 	file: NCI.chartData
+	 				connectSeparatedPoints: true,
+	 			 	file: NCI.chartData
 	 	});
 	};
 	

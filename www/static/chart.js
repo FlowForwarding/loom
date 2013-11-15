@@ -62,16 +62,17 @@ NCI.dateForThirdRangePeriod = function(date){
 
 
 NCI.initChart = function(date){
-	NCI.chartData = [];
-	NCI.rangeStartDate.text(NCI.dateForFirstRangePeriod(new Date(new Date() - NCI.curChartPeriod)));
-	NCI.rangeMiddleDate.text(NCI.dateForFirstRangePeriod(new Date(new Date() - NCI.curChartPeriod/2)));
+	NCI.chartData = [[new Date(new Date() - NCI.curChartPeriod - NCI.time_adjustment).getTime(), '0'], 
+		[new Date(new Date() -  NCI.time_adjustment).getTime() , '1']];
+	NCI.rangeStartDate.text(NCI.dateForFirstRangePeriod(new Date(new Date() - NCI.curChartPeriod - NCI.time_adjustment)));
+	NCI.rangeMiddleDate.text(NCI.dateForFirstRangePeriod(new Date(new Date() - NCI.curChartPeriod/2 - NCI.time_adjustment)));
 	
 	NCI.chart = new Dygraph(
 		 document.getElementById("nciChart"),
 		 NCI.chartData,
 		 {
 			 labels : ['NCI', 'NCI'],
-			 dateWindow: [(new Date(new Date(date) - NCI.detailedChartPeriod)).getTime(),  new Date(date).getTime()],
+			 dateWindow: [(new Date(new Date(date) - NCI.detailedChartPeriod - NCI.time_adjustment)).getTime(),  new Date(new Date(date) - NCI.time_adjustment).getTime()],
 			 zoomCallback: function(minDate, maxDate, yRanges){
 				 NCI.zoomLinks.removeClass('selected');
 				 NCI.chart.updateDataset(minDate, maxDate, yRanges);		 
@@ -157,8 +158,8 @@ NCI.initChart = function(date){
 			NCI.chart.updateOptions({
 				file: NCI.chartData
 			});
-			NCI.Connection.moreData(new Date() - NCI.curChartPeriod - NCI.time_adjustment, 
-				new Date() - NCI.time_adjustment, NCI.numOfPoints);
+			NCI.Connection.moreData(new Date() - NCI.curChartPeriod + NCI.time_adjustment, 
+				new Date() + NCI.time_adjustment, NCI.numOfPoints);
 			return;
 		};	
 	};
