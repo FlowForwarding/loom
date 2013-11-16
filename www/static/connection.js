@@ -19,9 +19,8 @@ NCI.Connection.onmessage  = function (e) {
 	if (data.start_time){
 		NCI.time_adjustment = new Date() - new Date(data.current_time) - new Date().getTimezoneOffset()*1000*60;
 		if (!NCI.chart){
-			NCI.initChart(data.current_time);
-			NCI.Connection.moreData(new Date() - NCI.curChartPeriod + NCI.time_adjustment,
-				new Date() + NCI.time_adjustment, NCI.numOfPoints);
+			NCI.initChart(new Date(data.current_time) - NCI.time_adjustment);
+			NCI.Connection.moreData(new Date() - NCI.curChartPeriod, new Date(), NCI.numOfPoints);
 		};
 		return;
 	};
@@ -32,14 +31,14 @@ NCI.Connection.onmessage  = function (e) {
 			NCI.lastUpdateTimeVal = dateVal;
 			NCI.setNciLatestValue(data.NCI, NCI.parceDateForLastUpdate(data.Time));
 			if (!NCI.chart){
-				NCI.initChart(data.Time);
+				 NCI.initChart(new Date(data.Time) - NCI.time_adjustment);
 			} else {
 				//next expression check that minimum required time passed from last time graph was redrawed
 				//for half month period (current chart period) - is 3 seconds, for month - 6 seconds and then encreases linerar
 				if (new Date() - NCI.lastRedrawTimeVal < NCI.curChartPeriod/NCI.chartPeriods.halfmnth*3000)
 					return;
 
-				NCI.chartData.push([new Date(dateVal).getTime(), data.NCI]);
+				NCI.chartData.push([new Date(dateVal - NCI.time_adjustment).getTime(), data.NCI]);
 				NCI.lastRedrawTimeVal = new Date();
 				//next cycle checks if there are values in chart data set, 
 				//that are older then current chart time period
@@ -58,7 +57,8 @@ NCI.Connection.onmessage  = function (e) {
 					var diff = NCI.chart.dateWindow_[1] - NCI.chart.dateWindow_[0];
 					NCI.chart.updateOptions({
 						file: NCI.chartData,
-						dateWindow: [new Date(dateVal - diff).getTime(),  dateVal.getTime()]
+						dateWindow: [new Date(dateVal - diff  - NCI.time_adjustment).getTime(),  
+							new Date(dateVal  - NCI.time_adjustment).getTime()]
 					});
 				} else {
 					NCI.chart.updateOptions({

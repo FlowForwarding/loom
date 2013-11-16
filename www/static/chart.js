@@ -47,32 +47,35 @@ NCI.rangeMiddleDate = $("#range-middle-date");
 
 NCI.months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-NCI.dateForFirstRangePeriod = function(date){
+NCI.dateForFirstRangePeriod = function(period){
+	var date = new Date(new Date() - period - NCI.time_adjustment);
 	return date.getDate() + " " + NCI.months[date.getMonth()] + " " + date.getFullYear();
 };
 
-NCI.dateForSecondRangePeriod = function(date){
+NCI.dateForSecondRangePeriod = function(period){
+	var date = new Date(new Date() - period - NCI.time_adjustment);
 	return NCI.months[date.getMonth()] + " " + date.getFullYear();
 };
 
-NCI.dateForThirdRangePeriod = function(date){
+NCI.dateForThirdRangePeriod = function(period){
+	var date = new Date(new Date() - period - NCI.time_adjustment);
 	return date.getFullYear();
 };
 
 
 
 NCI.initChart = function(date){
-	NCI.chartData = [[new Date(new Date() - NCI.curChartPeriod - NCI.time_adjustment).getTime(), '0'], 
-		[new Date(new Date() -  NCI.time_adjustment).getTime() , '1']];
-	NCI.rangeStartDate.text(NCI.dateForFirstRangePeriod(new Date(new Date() - NCI.curChartPeriod - NCI.time_adjustment)));
-	NCI.rangeMiddleDate.text(NCI.dateForFirstRangePeriod(new Date(new Date() - NCI.curChartPeriod/2 - NCI.time_adjustment)));
+	NCI.chartData = [[new Date(new Date(date) - NCI.curChartPeriod).getTime(), '0'], 
+		[new Date(date).getTime() , '1']];
+	NCI.rangeStartDate.text(NCI.dateForFirstRangePeriod(NCI.curChartPeriod));
+	NCI.rangeMiddleDate.text(NCI.dateForFirstRangePeriod(NCI.curChartPeriod/2));
 	
 	NCI.chart = new Dygraph(
 		 document.getElementById("nciChart"),
 		 NCI.chartData,
 		 {
 			 labels : ['NCI', 'NCI'],
-			 dateWindow: [(new Date(new Date(date) - NCI.detailedChartPeriod - NCI.time_adjustment)).getTime(),  new Date(new Date(date) - NCI.time_adjustment).getTime()],
+			 dateWindow: [(new Date(new Date(date) - NCI.detailedChartPeriod)).getTime(),  new Date(date).getTime()],
 			 zoomCallback: function(minDate, maxDate, yRanges){
 				 NCI.zoomLinks.removeClass('selected');
 				 NCI.chart.updateDataset(minDate, maxDate, yRanges);		 
@@ -102,16 +105,16 @@ NCI.initChart = function(date){
 		 var timeUp = false;
 		 if (NCI.curChartPeriod == NCI.chartPeriods.halfmnth && (maxDate - minDate) > NCI.chartPeriods.sixdays){
 			 NCI.curChartPeriod = NCI.chartPeriods.oneyear;
-			 NCI.rangeStartDate.text(NCI.dateForSecondRangePeriod(new Date(new Date() - NCI.curChartPeriod - NCI.time_adjustment)));
-			 NCI.rangeMiddleDate.text(NCI.dateForSecondRangePeriod(new Date(new Date() - NCI.curChartPeriod/2 - NCI.time_adjustment)));
+			 NCI.rangeStartDate.text(NCI.dateForSecondRangePeriod(NCI.curChartPeriod));
+			 NCI.rangeMiddleDate.text(NCI.dateForSecondRangePeriod(NCI.curChartPeriod/2));
 			 timeUp = true;
 		 //if it is second period for not scaled chart ( one year ) 
 		 //and range becomes more then 8 month we make jump
 		 //to increase range chart period to 10 years
 		 } else  if (NCI.curChartPeriod == NCI.chartPeriods.oneyear && (maxDate - minDate) > NCI.chartPeriods.tenmnth) {
 			 NCI.curChartPeriod = NCI.chartPeriods.tenyears;
-			 NCI.rangeStartDate.text(NCI.dateForThirdRangePeriod(new Date(new Date() - NCI.curChartPeriod - NCI.time_adjustment)));
-			 NCI.rangeMiddleDate.text(NCI.dateForThirdRangePeriod(new Date(new Date() - NCI.curChartPeriod/2 - NCI.time_adjustment)));
+			 NCI.rangeStartDate.text(NCI.dateForThirdRangePeriod(NCI.curChartPeriod));
+			 NCI.rangeMiddleDate.text(NCI.dateForThirdRangePeriod(NCI.curChartPeriod/2));
 			 timeUp = true;
 		 };
 		 
@@ -122,8 +125,7 @@ NCI.initChart = function(date){
 				file: NCI.chartData
 			});
 			
-			NCI.Connection.moreData(new Date() - NCI.curChartPeriod - NCI.time_adjustment, 
-				new Date() - NCI.time_adjustment, NCI.numOfPoints);
+			NCI.Connection.moreData(new Date() - NCI.curChartPeriod, new Date(), NCI.numOfPoints);
 			return;
 		 };
 		 
@@ -133,16 +135,16 @@ NCI.initChart = function(date){
 		 //to decrease range chart period to half month
 		 if (NCI.curChartPeriod == NCI.chartPeriods.oneyear && (maxDate - minDate) < NCI.chartPeriods.sixdays){
 			 NCI.curChartPeriod = NCI.chartPeriods.halfmnth;
-			 NCI.rangeStartDate.text(NCI.dateForFirstRangePeriod(new Date(new Date() - NCI.curChartPeriod - NCI.time_adjustment)));
-			 NCI.rangeMiddleDate.text(NCI.dateForFirstRangePeriod(new Date(new Date() - NCI.curChartPeriod/2 - NCI.time_adjustment)));
+			 NCI.rangeStartDate.text(NCI.dateForFirstRangePeriod(NCI.curChartPeriod));
+			 NCI.rangeMiddleDate.text(NCI.dateForFirstRangePeriod(NCI.curChartPeriod/2));
 			 timeDown = true;
 		//if it is thirdperiod for not scaled chart ( 10 years ) 
 		//and range becomes less then 5 years we make jump
 		//to decrease range chart period to one year			 
 		 } else if (NCI.curChartPeriod == NCI.chartPeriods.tenyears && (maxDate - minDate) < NCI.chartPeriods.fiveyears) {
 			 NCI.curChartPeriod = NCI.chartPeriods.oneyear;
-			 NCI.rangeStartDate.text(NCI.dateForSecondRangePeriod(new Date(new Date() - NCI.curChartPeriod - NCI.time_adjustment)));
-			 NCI.rangeMiddleDate.text(NCI.dateForSecondRangePeriod(new Date(new Date() - NCI.curChartPeriod/2 - NCI.time_adjustment)));
+			 NCI.rangeStartDate.text(NCI.dateForSecondRangePeriod(NCI.curChartPeriod));
+			 NCI.rangeMiddleDate.text(NCI.dateForSecondRangePeriod(NCI.curChartPeriod/2));
 		 	 timeDown = true;
 		 };
 		 
@@ -158,8 +160,7 @@ NCI.initChart = function(date){
 			NCI.chart.updateOptions({
 				file: NCI.chartData
 			});
-			NCI.Connection.moreData(new Date() - NCI.curChartPeriod + NCI.time_adjustment, 
-				new Date() + NCI.time_adjustment, NCI.numOfPoints);
+			NCI.Connection.moreData(new Date() - NCI.curChartPeriod, new Date(), NCI.numOfPoints);
 			return;
 		};	
 	};
