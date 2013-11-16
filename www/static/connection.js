@@ -5,7 +5,7 @@ NCI.start_time; // no data exists on the server before
 NCI.time_adjustment = 0; //difference between client and server time in milliseconds
 NCI.numOfPoints = 200;
 
-NCI.Connection = new WebSocket("ws://"  + location.host + "/clientsock.yaws");
+NCI.Connection = new WebSocket("ws://"  + "nci.ilabs.inca.infoblox.com:28080" + "/clientsock.yaws");
 NCI.Connection.onopen = function () {
 	NCI.Connection.startData();
 };
@@ -88,7 +88,7 @@ NCI.Connection.onmessage  = function (e) {
 			nciValue = parseInt(nciValue.split(":")[1]);
 			newData.push([new Date(new Date(timeValue) - NCI.time_adjustment).getTime() , nciValue]);
 		};
-		newData.push([new Date(new Date() - NCI.time_adjustment).getTime() , nciValue]);
+		newData.push([new Date(new Date() - NCI.time_adjustment).getTime() , null]);
 		NCI.chartData = newData;
 	 	NCI.chart.updateOptions({
 			connectSeparatedPoints: true,
