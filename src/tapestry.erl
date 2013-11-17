@@ -23,10 +23,22 @@
 
 -compile([all]).
 
--export([start/0, nci_from_log_lines/1, nci_from_benchmark_data/1]).
+-export([start/0,start/1,nci_from_log_lines/1,nci_from_benchmark_data/1]).
 
 start()->
-    error_logger:info_msg("Starting tapestry.  View $TAPESTRY_HOME/log/console.log for operational messages.~n"),
+    start(loom).
+
+start(Type)->
+    case Type of
+	loom ->
+	    start_loom();
+	grid  ->
+	    start_grid()
+    end.
+	   
+
+start_loom()->
+    error_logger:info_msg("Starting tapestry. Loom Mode. View $TAPESTRY_HOME/log/console.log for operational messages.~n"),
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/deps/*/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/apps/*/ebin")],
@@ -34,7 +46,20 @@ start()->
     loom_sup:launch_controller(dns_tap,6634),
     tap_yaws:start(),
     Pid = tap_aggr:start(),
-    error_logger:info_msg("Stared tapestry with Process ID ~p.",[Pid]),
+    error_logger:info_msg("Stared tapestry with Process ID ~p.~n",[Pid]),
+    Pid.
+
+start_grid()->
+    error_logger:info_msg("Starting tapestry.~n Grid Mode. Listening via FTP on port 7777.~n View $TAPESTRY_HOME/log/console.log for operational messages.~n"),
+    [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/ebin")],
+    [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/deps/*/ebin")],
+    [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/apps/*/ebin")],
+    [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/bifrost/ebin")],
+    [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/bifrost/deps/*/ebin")],
+    loom_app:start(),
+    tap_yaws:start(),
+    Pid = tap_ftpd:start(),
+    error_logger:info_msg("Stared tapestry with Process ID ~p.~n",[Pid]),
     Pid.
 
 

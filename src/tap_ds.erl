@@ -49,6 +49,7 @@ listen(State)->
     DataMaxAge = State#state.data_max_age,
     case Digraph of
 	undefined ->
+	    register(tap_ds,self()),
 	    listen(State#state{digraph = digraph:new()});
 	_ -> ok
     end,
@@ -69,7 +70,29 @@ listen(State)->
 		    AgeSeconds = days_to_seconds(Age),
 		    case AgeSeconds > DataMaxAge of
 			true ->
-			    clean(Digraph,DateTime,DataMaxAge),
+		%	    clean(Digraph,DateTime,DataMaxAge),
+			    listen(State#state{cleaning_timestamp=DateTime});
+			false ->
+			    listen(State)
+		    end
+	    end;
+	{bulk_data,BulkData} when is_list(BulkData) ->
+	    DateTime = calendar:universal_time(),
+	    {_Date,Time} = DateTime,
+	    [ add_edge(Digraph,OE,DateTime) || OE <- BulkData ],
+	    TapClientData ! {num_endpoints,{digraph:no_vertices(Digraph),DateTime}},
+	    TimeInSeconds = calendar:time_to_seconds(Time),
+	    Elapsed = TimeInSeconds - NCITimeStamp,
+	    case Elapsed > NCIMinInterval of
+		true ->
+		    spawn(?MODULE,get_nci,[TapClientData,Digraph]),
+		    listen(State#state{nci_timestamp=TimeInSeconds});
+		false ->
+		    Age = calendar:time_difference(CleaningTimeStamp,DateTime),
+		    AgeSeconds = days_to_seconds(Age),
+		    case AgeSeconds > DataMaxAge of
+			true ->
+		%	    clean(Digraph,DateTime,DataMaxAge),
 			    listen(State#state{cleaning_timestamp=DateTime});
 			false ->
 			    listen(State)
@@ -79,6 +102,8 @@ listen(State)->
 	    io:format("Msg: ~p, ~p~n",[Msg,State]),
 	    listen(State)
     end.
+
+
 
 
 clean(G,T,MaxAge)->
