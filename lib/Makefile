@@ -3,7 +3,7 @@
 all:	libs
 	@echo "*** library installation complete ***"
 
-libs:   rebar rebarUpdate yaws yawsUpdate loom loomUpdate bifrost bifrostUpdate
+libs:   yaws yawsUpdate loom loomUpdate bifrost bifrostUpdate
 
 rebar:
 	git clone https://github.com/basho/rebar.git
@@ -25,7 +25,7 @@ loomUpdate:
 	cd loom; git pull; make
 
 bifrost:
-	git clone https://github.com/thorstadt/bifrost.git
+	git clone https://github.com/thorstadt/bifrost.git; cd bifrost; ./rebar get-deps
 
 bifrostUpdate:
-	cd bifrost; git pull; make
+	cd bifrost; git pull; ./rebar compile
