@@ -93,16 +93,17 @@ static NSString* websocketMoreDataRequest =
     editServerView = [[NCIEditServerView alloc] initWithFrame:CGRectZero];
     [self.view addSubview:editServerView];
     
-    helpView = [[NCIHelpView alloc] initWithFrame:self.view.bounds];
-    [self.view addSubview:helpView];
-    
     noConnectionLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     noConnectionLabel.text = NSLocalizedString(@"Can't connect, please try agian.", nil);
+    noConnectionLabel.backgroundColor = [UIColor clearColor];
     noConnectionLabel.font = [UIFont boldSystemFontOfSize:22];
     noConnectionLabel.textAlignment = NSTextAlignmentCenter;
     noConnectionLabel.textColor = [UIColor redColor];
     [noConnectionLabel setHidden:YES];
     [self.view addSubview:noConnectionLabel];
+    
+    helpView = [[NCIHelpView alloc] initWithFrame:self.view.bounds];
+    [self.view addSubview:helpView];
     
     
     [self layoutSubviews];

@@ -86,8 +86,17 @@ static int btnHeigth = 38;
         [actionsBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         actionsBtn.backgroundColor = [UIColor colorWithWhite:0 alpha:0.8];
         [self addSubview:actionsBtn];
+        UITapGestureRecognizer *tapBg = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapBg)];
+        self.userInteractionEnabled = YES;
+        [self addGestureRecognizer:tapBg];
+        tapBg.numberOfTapsRequired = 1;
+        
     }
     return self;
+}
+
+- (void)tapBg{
+    [serverUrlEdit resignFirstResponder];
 }
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
