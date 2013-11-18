@@ -21,6 +21,7 @@
     UIButton *infoButton;
     NCIHelpView *helpView;
     UIButton *connectUrlBtn;
+    UILabel *noConnectionLabel;
     
     NSDateFormatter *serverDateformatter;
     bool isShowingLandscapeView;
@@ -28,10 +29,11 @@
     int timeAdjustment;
     
     UITextField *serverUrlEdit;
+   // NSString *websocketUrl;
 }
 @end
 
-static NSString* websocketUrl = @"ws://nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
+static NSString* defaultWebsocketUrl = @"ws://nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
 static NSString* websocketStartRequest = @"START_DATA";
 static NSString* websocketMoreDataRequest =
     @"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"100\"}";
@@ -61,12 +63,12 @@ static int editServerInputHeigth = 40;
     
     serverUrlEdit = [[UITextField alloc] initWithFrame:CGRectZero];
     serverUrlEdit.backgroundColor = [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
-    serverUrlEdit.text = websocketUrl;
+    serverUrlEdit.text = defaultWebsocketUrl;
     serverUrlEdit.layer.cornerRadius = 10;
     serverUrlEdit.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     UITextView *serverEditLeftView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 145, editServerInputHeigth)];
     serverEditLeftView.backgroundColor =  [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
-    serverEditLeftView.text = @"Tapestry Server";
+    serverEditLeftView.text = NSLocalizedString(@"Tapestry Server", nil);
     serverEditLeftView.font = [UIFont boldSystemFontOfSize:16];
     serverEditLeftView.textColor = [UIColor blackColor];
     serverUrlEdit.leftView = serverEditLeftView;
@@ -74,7 +76,7 @@ static int editServerInputHeigth = 40;
     [self.view addSubview:serverUrlEdit];
     
     connectUrlBtn = [[UIButton alloc] initWithFrame:CGRectZero];
-    [connectUrlBtn setTitle:@"Connect" forState:UIControlStateNormal];
+    [connectUrlBtn setTitle: NSLocalizedString(@"Connect", nil) forState:UIControlStateNormal];
     [connectUrlBtn setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
     [connectUrlBtn addTarget:self action:@selector(resetData) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:connectUrlBtn];
@@ -109,6 +111,14 @@ static int editServerInputHeigth = 40;
     helpView = [[NCIHelpView alloc] initWithFrame:self.view.bounds];
     [self.view addSubview:helpView];
     
+    noConnectionLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+    noConnectionLabel.text = NSLocalizedString(@"Can't connect, please try agian.", nil);
+    noConnectionLabel.font = [UIFont boldSystemFontOfSize:22];
+    noConnectionLabel.textAlignment = NSTextAlignmentCenter;
+    noConnectionLabel.textColor = [UIColor redColor];
+    [noConnectionLabel setHidden:YES];
+    [self.view addSubview:noConnectionLabel];
+    
     [self layoutSubviews];
     
     [self reconnect];
@@ -131,6 +141,7 @@ static int editServerInputHeigth = 40;
     [nciValue resetData];
     [qpsValue resetData];
     [nepValue resetData];
+    [noConnectionLabel setHidden:YES];
     [graphView resetChart];
     [self reconnect];
 }
@@ -169,6 +180,8 @@ static int editServerInputHeigth = 40;
     
     nepValue.frame = CGRectMake(self.view.bounds.size.width/2, indexLabelHeight + 2*topIndent, self.view.bounds.size.width/2, indexLabelHeight);
     
+    noConnectionLabel.frame = CGRectMake(0, 200, self.view.bounds.size.width, 50);
+    
     graphView.frame = CGRectMake(0, 200, self.view.bounds.size.width, 400);
     
     infoButton.center = CGPointMake(self.view.bounds.size.width - 50, indexLabelHeight + 30);
@@ -180,7 +193,7 @@ static int editServerInputHeigth = 40;
 {
     socket.delegate = nil;
     [socket close];
-    socket = [[SRWebSocket alloc] initWithURLRequest: [NSURLRequest requestWithURL: [NSURL URLWithString: websocketUrl]]];
+    socket = [[SRWebSocket alloc] initWithURLRequest: [NSURLRequest requestWithURL: [NSURL URLWithString: serverUrlEdit.text]]];
     socket.delegate = self;
     [socket open];
     
@@ -197,6 +210,7 @@ static int editServerInputHeigth = 40;
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
 {
     NSLog(@"Websocket Failed With Error %@", error);
+    [noConnectionLabel setHidden:NO];
     webSocket = nil;
 }
 
@@ -254,6 +268,7 @@ static int editServerInputHeigth = 40;
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
 {
     NSLog(@"WebSocket closed");
+    [noConnectionLabel setHidden:NO];
     socket = nil;
 }
 
