@@ -25,7 +25,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         topViewHeigth  = 140;
-        shadowHeigth = 5;
+        shadowHeigth = 3;
         self.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.2];
         self.hidden = YES;
         

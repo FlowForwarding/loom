@@ -61,6 +61,11 @@
     return self;
 }
 
+- (void)resetChart{
+    [self.chartData removeAllObjects];
+    [self setNeedsDisplay];
+}
+
 - (void)layoutSubviews{
     int ind;
     for (ind = 0; ind< yAxisLabels.count; ind++){
@@ -77,7 +82,7 @@
 
 - (void)addPoint:(NSDate *)date val:(NSString *)value{
     NSLog(@"%@", date);
-    NSLog(@"%i", [value integerValue]);
+    NSLog(@"%li", (long)[value integerValue]);
     int dateSeconds = [date timeIntervalSince1970];
     if (!minXVal || minXVal > dateSeconds){
         minXVal = dateSeconds;

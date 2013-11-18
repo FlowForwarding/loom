@@ -20,18 +20,23 @@
     NCIChartView *graphView;
     UIButton *infoButton;
     NCIHelpView *helpView;
+    UIButton *connectUrlBtn;
     
     NSDateFormatter *serverDateformatter;
     bool isShowingLandscapeView;
     
     int timeAdjustment;
+    
+    UITextField *serverUrlEdit;
 }
 @end
 
 static NSString* websocketUrl = @"ws://nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
 static NSString* websocketStartRequest = @"START_DATA";
 static NSString* websocketMoreDataRequest =
-    @"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"20\"}";
+    @"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"100\"}";
+
+static int editServerInputHeigth = 40;
 
 @implementation NCIGraphController
 
@@ -53,6 +58,26 @@ static NSString* websocketMoreDataRequest =
     };
     
     self.title = NSLocalizedString(@"Tapestry: A Network Complexity Analyzer", nil);
+    
+    serverUrlEdit = [[UITextField alloc] initWithFrame:CGRectZero];
+    serverUrlEdit.backgroundColor = [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
+    serverUrlEdit.text = websocketUrl;
+    serverUrlEdit.layer.cornerRadius = 10;
+    serverUrlEdit.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    UITextView *serverEditLeftView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 145, editServerInputHeigth)];
+    serverEditLeftView.backgroundColor =  [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
+    serverEditLeftView.text = @"Tapestry Server";
+    serverEditLeftView.font = [UIFont boldSystemFontOfSize:16];
+    serverEditLeftView.textColor = [UIColor blackColor];
+    serverUrlEdit.leftView = serverEditLeftView;
+    serverUrlEdit.leftViewMode = UITextFieldViewModeAlways;
+    [self.view addSubview:serverUrlEdit];
+    
+    connectUrlBtn = [[UIButton alloc] initWithFrame:CGRectZero];
+    [connectUrlBtn setTitle:@"Connect" forState:UIControlStateNormal];
+    [connectUrlBtn setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+    [connectUrlBtn addTarget:self action:@selector(resetData) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:connectUrlBtn];
     
     nciValue = [[NCIIndexValueView alloc] initWithFrame:CGRectZero indName:NSLocalizedString(@"NCI", nil) indSize:22];
     [nciValue setTooltipText: NSLocalizedString(@"Network Complexity Index", nil)];
@@ -102,6 +127,14 @@ static NSString* websocketMoreDataRequest =
     
 }
 
+- (void)resetData{
+    [nciValue resetData];
+    [qpsValue resetData];
+    [nepValue resetData];
+    [graphView resetChart];
+    [self reconnect];
+}
+
 - (void)showHelp{
    // if(helpView.isPresented){
 //    [UIView animateWithDuration:0.3 animations:^{
@@ -126,24 +159,28 @@ static NSString* websocketMoreDataRequest =
         
     }
     
-    nciValue.frame = CGRectMake(0, topIndent, self.view.bounds.size.width/2, indexLabelHeight);
+    serverUrlEdit.frame = CGRectMake(10, topIndent, self.view.bounds.size.width - 130, editServerInputHeigth);
     
-    qpsValue.frame = CGRectMake(self.view.bounds.size.width/2, topIndent + indexLabelHeight + 25, self.view.bounds.size.width/2, indexLabelHeight);
+    connectUrlBtn.frame = CGRectMake(self.view.bounds.size.width - 130, topIndent, 130, editServerInputHeigth);
     
-    nepValue.frame = CGRectMake(self.view.bounds.size.width/2, topIndent, self.view.bounds.size.width/2, indexLabelHeight);
+    nciValue.frame = CGRectMake(0, 2*topIndent + indexLabelHeight, self.view.bounds.size.width/2, indexLabelHeight);
     
-    graphView.frame = CGRectMake(0, 250, self.view.bounds.size.width, 400);
+    qpsValue.frame = CGRectMake(self.view.bounds.size.width/2, 2*topIndent + 2*indexLabelHeight + 25, self.view.bounds.size.width/2, indexLabelHeight);
     
-    infoButton.center = CGPointMake(self.view.bounds.size.width - 50, 30);
+    nepValue.frame = CGRectMake(self.view.bounds.size.width/2, indexLabelHeight + 2*topIndent, self.view.bounds.size.width/2, indexLabelHeight);
+    
+    graphView.frame = CGRectMake(0, 200, self.view.bounds.size.width, 400);
+    
+    infoButton.center = CGPointMake(self.view.bounds.size.width - 50, indexLabelHeight + 30);
     
     helpView.frame = self.view.bounds;
 }
 
-- (void)reconnect;
+- (void)reconnect
 {
     socket.delegate = nil;
     [socket close];
-    socket = [[SRWebSocket alloc] initWithURLRequest: [NSURLRequest requestWithURL:[NSURL URLWithString:websocketUrl]]];
+    socket = [[SRWebSocket alloc] initWithURLRequest: [NSURLRequest requestWithURL: [NSURL URLWithString: websocketUrl]]];
     socket.delegate = self;
     [socket open];
     

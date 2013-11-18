@@ -54,6 +54,10 @@
     }
     return self;
 }
+- (void)resetData{
+    updateLabel.text = @"";
+    indValue.text = @"";
+}
 
 - (void)layoutSubviews{
     contentView.frame = self.bounds;

@@ -12,5 +12,6 @@
 
 - (void)addPoint:(NSDate *)date val:(NSString *)value;
 - (void)drawChart;
+- (void)resetChart;
 
 @end
