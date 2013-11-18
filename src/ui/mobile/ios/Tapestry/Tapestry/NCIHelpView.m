@@ -102,7 +102,10 @@
 }
 
 - (void)showHelp{
-
+    if (!self.hidden){
+        [self hideHelp];
+        return;
+    }
     [UIView animateWithDuration:0.3 animations:^{
         self.hidden = NO;
         topView.frame = CGRectMake(0, 0, self.frame.size.width, topViewHeigth);

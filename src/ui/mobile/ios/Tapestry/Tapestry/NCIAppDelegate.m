@@ -21,7 +21,7 @@
     NCIGraphController *graphController = [[NCIGraphController alloc] init];
     [navController addChildViewController:graphController];
     self.window.rootViewController = navController;
-    
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     return YES;
 }
 

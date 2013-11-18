@@ -54,12 +54,23 @@ static int editServerInputHeigth = 40;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    self.title = NSLocalizedString(@"Tapestry: A Network Complexity Analyzer", nil);
+    UIBarButtonItem* editButton = [[UIBarButtonItem alloc]  initWithImage:[UIImage imageNamed:@"actionsarrow"]
+                                                                    style:UIBarButtonItemStyleBordered target:self action:@selector(showHelp)];
+    [[self navigationItem] setRightBarButtonItem: editButton ];
+    [self.navigationItem.rightBarButtonItem setTintColor:[UIColor whiteColor]];
     //for iOS 7 to make same calculations views y position
     if ([self respondsToSelector:@selector(edgesForExtendedLayout)]){
         self.edgesForExtendedLayout = UIRectEdgeNone;
-    };
-    
-    self.title = NSLocalizedString(@"Tapestry: A Network Complexity Analyzer", nil);
+        [self.navigationController.navigationBar setBarTintColor:[UIColor blackColor]];
+        [self.navigationController.navigationBar setTitleTextAttributes:
+         [NSDictionary dictionaryWithObjectsAndKeys:[UIColor whiteColor],
+          UITextAttributeTextColor, nil]];
+    } else {
+        [self.navigationController.navigationBar setTintColor:[UIColor blackColor]];
+    }
+
     
     serverUrlEdit = [[UITextField alloc] initWithFrame:CGRectZero];
     serverUrlEdit.backgroundColor = [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
@@ -99,14 +110,6 @@ static int editServerInputHeigth = 40;
     graphView = [[NCIChartView alloc] initWithFrame:CGRectZero];
     graphView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:graphView];
-    
-    infoButton = [[UIButton alloc] initWithFrame:CGRectMake(self.view.bounds.size.width - 50, 20, 30, 30)];
-    infoButton.backgroundColor = [UIColor blackColor];
-    infoButton.layer.cornerRadius = 15;
-    [infoButton setTitle:@"i" forState:UIControlStateNormal];
-    infoButton.titleLabel.font = [UIFont boldSystemFontOfSize:24];
-    [infoButton addTarget:self action:@selector(showHelp) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:infoButton];
     
     helpView = [[NCIHelpView alloc] initWithFrame:self.view.bounds];
     [self.view addSubview:helpView];
