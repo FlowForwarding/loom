@@ -142,6 +142,7 @@ static int btnHeigth = 38;
 
 -(void)connectlUrl{
     savedUrl = serverUrlEdit.text;
+    NSLog(@"%@", actionsTarget);
     [actionsTarget resetData];
     [self hideActions];
 }
@@ -165,7 +166,7 @@ static int btnHeigth = 38;
 -(id)initWithTarget:(id)target{
     self = [self initWithFrame:CGRectZero];
     if (self){
-        target = actionsTarget;
+        actionsTarget = target;
     }
     return self;
 }

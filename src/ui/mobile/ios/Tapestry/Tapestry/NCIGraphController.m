@@ -90,7 +90,7 @@ static NSString* websocketMoreDataRequest =
     graphView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:graphView];
     
-    editServerView = [[NCIEditServerView alloc] initWithFrame:CGRectZero];
+    editServerView = [[NCIEditServerView alloc] initWithTarget:self];
     [self.view addSubview:editServerView];
     
     noConnectionLabel = [[UILabel alloc] initWithFrame:CGRectZero];
