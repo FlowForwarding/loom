@@ -11,6 +11,7 @@
 #import "NCIIndexValueView.h"
 #import "NCIChartView.h"
 #import "NCIHelpView.h"
+#import "NCIEditServerView.h"
 
 @interface NCIGraphController() <SRWebSocketDelegate>{
     SRWebSocket *socket;
@@ -20,25 +21,24 @@
     NCIChartView *graphView;
     UIButton *infoButton;
     NCIHelpView *helpView;
-    UIButton *connectUrlBtn;
+
     UILabel *noConnectionLabel;
-    
     NSDateFormatter *serverDateformatter;
+    NCIEditServerView *editServerView;
+    
     bool isShowingLandscapeView;
     
     int timeAdjustment;
     
-    UITextField *serverUrlEdit;
+    
    // NSString *websocketUrl;
 }
 @end
 
-static NSString* defaultWebsocketUrl = @"ws://nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
+
 static NSString* websocketStartRequest = @"START_DATA";
 static NSString* websocketMoreDataRequest =
     @"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"100\"}";
-
-static int editServerInputHeigth = 40;
 
 @implementation NCIGraphController
 
@@ -70,27 +70,6 @@ static int editServerInputHeigth = 40;
     } else {
         [self.navigationController.navigationBar setTintColor:[UIColor blackColor]];
     }
-
-    
-    serverUrlEdit = [[UITextField alloc] initWithFrame:CGRectZero];
-    serverUrlEdit.backgroundColor = [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
-    serverUrlEdit.text = defaultWebsocketUrl;
-    serverUrlEdit.layer.cornerRadius = 10;
-    serverUrlEdit.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-    UITextView *serverEditLeftView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 145, editServerInputHeigth)];
-    serverEditLeftView.backgroundColor =  [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
-    serverEditLeftView.text = NSLocalizedString(@"Tapestry Server", nil);
-    serverEditLeftView.font = [UIFont boldSystemFontOfSize:16];
-    serverEditLeftView.textColor = [UIColor blackColor];
-    serverUrlEdit.leftView = serverEditLeftView;
-    serverUrlEdit.leftViewMode = UITextFieldViewModeAlways;
-    [self.view addSubview:serverUrlEdit];
-    
-    connectUrlBtn = [[UIButton alloc] initWithFrame:CGRectZero];
-    [connectUrlBtn setTitle: NSLocalizedString(@"Connect", nil) forState:UIControlStateNormal];
-    [connectUrlBtn setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-    [connectUrlBtn addTarget:self action:@selector(resetData) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:connectUrlBtn];
     
     nciValue = [[NCIIndexValueView alloc] initWithFrame:CGRectZero indName:NSLocalizedString(@"NCI", nil) indSize:22];
     [nciValue setTooltipText: NSLocalizedString(@"Network Complexity Index", nil)];
@@ -111,6 +90,9 @@ static int editServerInputHeigth = 40;
     graphView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:graphView];
     
+    editServerView = [[NCIEditServerView alloc] initWithFrame:CGRectZero];
+    [self.view addSubview:editServerView];
+    
     helpView = [[NCIHelpView alloc] initWithFrame:self.view.bounds];
     [self.view addSubview:helpView];
     
@@ -121,6 +103,7 @@ static int editServerInputHeigth = 40;
     noConnectionLabel.textColor = [UIColor redColor];
     [noConnectionLabel setHidden:YES];
     [self.view addSubview:noConnectionLabel];
+    
     
     [self layoutSubviews];
     
@@ -150,12 +133,7 @@ static int editServerInputHeigth = 40;
 }
 
 - (void)showHelp{
-   // if(helpView.isPresented){
-//    [UIView animateWithDuration:0.3 animations:^{
-//        helpView.frame = CGRectMake(0, 0, self.view.frame.size.width, 100);
-//    }];
     [helpView showHelp];
-   // }
 }
 
 - (void)didReceiveMemoryWarning
@@ -173,9 +151,7 @@ static int editServerInputHeigth = 40;
         
     }
     
-    serverUrlEdit.frame = CGRectMake(10, topIndent, self.view.bounds.size.width - 130, editServerInputHeigth);
-    
-    connectUrlBtn.frame = CGRectMake(self.view.bounds.size.width - 130, topIndent, 130, editServerInputHeigth);
+    editServerView.frame = CGRectMake(0, topIndent, self.view.bounds.size.width, 170);
     
     nciValue.frame = CGRectMake(0, 2*topIndent + indexLabelHeight, self.view.bounds.size.width/2, indexLabelHeight);
     
@@ -196,7 +172,7 @@ static int editServerInputHeigth = 40;
 {
     socket.delegate = nil;
     [socket close];
-    socket = [[SRWebSocket alloc] initWithURLRequest: [NSURLRequest requestWithURL: [NSURL URLWithString: serverUrlEdit.text]]];
+    socket = [[SRWebSocket alloc] initWithURLRequest: [NSURLRequest requestWithURL: [NSURL URLWithString: [editServerView getServerUrl]]]];
     socket.delegate = self;
     [socket open];
     
