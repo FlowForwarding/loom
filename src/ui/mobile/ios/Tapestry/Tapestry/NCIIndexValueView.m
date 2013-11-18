@@ -55,6 +55,7 @@
     return self;
 }
 - (void)resetData{
+    currentValue = 0;
     updateLabel.text = @"";
     indValue.text = @"";
 }
