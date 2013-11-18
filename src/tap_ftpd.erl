@@ -60,7 +60,8 @@
 
 start()->
     tap_ds:start(),
-    {ok,Pid} = bifrost:start_link(?MODULE,[{ip_address, {0,0,0,0}}, {port, 7777}]),
+    {ftpd,Port} = tap_config:get([ports,ftpd]),
+    {ok,Pid} = bifrost:start_link(?MODULE,[{ip_address, {0,0,0,0}}, {port, Port}]),
     Pid.
 
 init(InitialState, _) ->

@@ -50,7 +50,8 @@ start_loom()->
     Pid.
 
 start_grid()->
-    error_logger:info_msg("Starting tapestry.~n Grid Mode. Listening via FTP on port 7777.~n View $TAPESTRY_HOME/log/console.log for operational messages.~n"),
+    {ftpd,Port} = tap_config:get([ports,ftpd]),
+    error_logger:info_msg("Starting tapestry.~n Grid Mode. Listening via FTP on port ~p.~n View $TAPESTRY_HOME/log/console.log for operational messages.~n",[Port]),
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/deps/*/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/apps/*/ebin")],

@@ -25,7 +25,8 @@
 -include("../include/tapestry.hrl").
 
 start()->
-    start(?TAP_DEFAULT_HOST,?YAWS_DEFAULT_ADDRESS,?TAP_DEFAULT_PORT).
+    {web_client,Port} = tap_config:get([ports,web_client]),
+    start(?TAP_DEFAULT_HOST,?YAWS_DEFAULT_ADDRESS,Port).
 
 start(Servername,IPAddress,Port) ->
     start(Servername,IPAddress,Port,[]).
