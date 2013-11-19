@@ -53,10 +53,17 @@
     }
 }
 
+- (void)setMinX:(NSDate *)date{
+    _minXVal  = [date timeIntervalSince1970];
+}
+
+- (void)setMaxX:(NSDate *)date{
+    _maxXVal = [date timeIntervalSince1970];
+}
+
 
 - (void)addPoint:(NSDate *)date val:(NSString *)value{
-    NSLog(@"%@", date);
-    NSLog(@"%li", (long)[value integerValue]);
+
     int dateSeconds = [date timeIntervalSince1970];
     if (!_minXVal || _minXVal > dateSeconds){
         _minXVal = dateSeconds;

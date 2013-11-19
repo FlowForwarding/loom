@@ -38,7 +38,7 @@
 
 static NSString* websocketStartRequest = @"START_DATA";
 static NSString* websocketMoreDataRequest =
-    @"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"100\"}";
+    @"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"300\"}";
 
 @implementation NCIGraphController
 
@@ -199,12 +199,12 @@ static NSString* websocketMoreDataRequest =
     NSArray *dataPieces = [[messageString substringWithRange:NSMakeRange(1, messageString.length -2) ] componentsSeparatedByString:@","];
     if (dataPieces.count > 2){
         int i;
-        for (i = 0; i < dataPieces.count/2 -1; i+=2){
+        for (i = 0; i < dataPieces.count/2; i+=2){
             //we get such fromat data 2013-11-12T14:04:29Z
-            NSString *dateString = [dataPieces[i] substringWithRange:NSMakeRange(8, ((NSString *)dataPieces[i]).length - 10)];
+            NSString *dateString = [dataPieces[i*2] substringWithRange:NSMakeRange(8, ((NSString *)dataPieces[i]).length - 10)];
             dateString = [dateString stringByReplacingOccurrencesOfString:@"T" withString:@"_"];
             NSDate *date = [serverDateformatter dateFromString:dateString];
-            NSString *nciVal = [dataPieces[i+1] substringFromIndex:6];
+            NSString *nciVal = [dataPieces[2*i+1] substringFromIndex:6];
             [graphView addPoint:date val:nciVal];
         }
         [graphView drawChart];
@@ -231,15 +231,18 @@ static NSString* websocketMoreDataRequest =
             current_time = [current_time stringByReplacingOccurrencesOfString:@"T" withString:@"_"];
             NSDate *date = [serverDateformatter dateFromString:current_time];
             timeAdjustment = [date timeIntervalSinceNow];
-            NSString *endDate = [[serverDateformatter stringFromDate:
-                                 [[NSDate date] dateByAddingTimeInterval: -timeAdjustment]]
+            
+            NSDate *endDate = [[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
+            NSDate *startDate = [[[NSDate date] dateByAddingTimeInterval: -timeAdjustment]
+                                 dateByAddingTimeInterval: -60*60*24*2];
+            [graphView setMinX:startDate];
+            [graphView setMaxX:endDate];
+            
+            NSString *endDateString = [[serverDateformatter stringFromDate: endDate]
                                  stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
-            NSString *startDate = [[serverDateformatter stringFromDate:
-                                  [[[NSDate date] dateByAddingTimeInterval: -timeAdjustment]
-                                   dateByAddingTimeInterval: -60*60*24]]
+            NSString *startDateString = [[serverDateformatter stringFromDate:startDate]
                                    stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
-             NSLog(websocketMoreDataRequest,  startDate, endDate);
-            [webSocket send: [NSString stringWithFormat: websocketMoreDataRequest, startDate, endDate]];
+            [webSocket send: [NSString stringWithFormat: websocketMoreDataRequest, startDateString, endDateString]];
         }
     }
 }

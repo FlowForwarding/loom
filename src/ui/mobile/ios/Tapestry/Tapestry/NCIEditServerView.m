@@ -112,10 +112,10 @@ static int btnHeigth = 38;
 
 - (void)toggleActions{
     if (!actionsShown){
+        [self showActions];
         if (![serverUrlEdit isFirstResponder]){
             [serverUrlEdit  becomeFirstResponder];
         };
-        [self showActions];
     } else {
         [self hideActions];
     }
