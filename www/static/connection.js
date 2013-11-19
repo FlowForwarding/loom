@@ -77,8 +77,8 @@ NCI.Connection.onmessage  = function (e) {
 		// {"Time":"2013-10-27T13:01:09Z","NCI":99,
 		// "Time":"2013-10-27T13:11:39Z","NCI":8,
 		// "Time":"2013-10-27T13:22:15Z","NCI":18,
-		// "Time":"2013-10-27T13:33:01Z","NCI":87} 
-		var newData = [[new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod).getTime(), 0]];
+		// "Time":"2013-10-27T13:33:01Z","NCI":87}
+		var newData = [];
 		var recievedDataArray = e.data.substring(1, e.data.length - 1).split(',');
 		for (var i = 0; i < recievedDataArray.length/2; i++){
 			var curIndex = 2 * i;
@@ -88,6 +88,9 @@ NCI.Connection.onmessage  = function (e) {
 			nciValue = parseInt(nciValue.split(":")[1]);
 			newData.push([new Date(new Date(timeValue) - NCI.time_adjustment).getTime() , nciValue]);
 		};
+		
+		NCI.setBottomChartDates(new Date(new Date() - NCI.time_adjustment).getTime() - newData[0][0]);
+		
 		newData.push([new Date(new Date() - NCI.time_adjustment).getTime() , null]);
 		NCI.chartData = newData;
 	 	NCI.chart.updateOptions({

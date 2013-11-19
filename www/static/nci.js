@@ -69,6 +69,10 @@ NCI.zoomLinks.on('click', function(){
 	var min = new Date().getTime() - NCI.time_adjustment - parseInt(this.dataset.time);
 	var max = new Date().getTime() - NCI.time_adjustment;
 	NCI.chart.updateDataset(min, max);
+	
+	if (min < NCI.chartData[0][0])
+		min = NCI.chartData[0][0]
+	
 	NCI.chart.updateOptions({
 		dateWindow: [ min,  max]
 	});
