@@ -42,11 +42,6 @@ start()->
 
 listen(State)->
     Digraph = State#state.digraph,
-    TapClientData = State#state.tap_client_data,
-    NCITimeStamp = State#state.nci_timestamp,
-    NCIMinInterval = State#state.nci_min_interval,
-    CleaningTimeStamp = State#state.cleaning_timestamp,
-    DataMaxAge = State#state.data_max_age,
     case Digraph of
 	undefined ->
 	    register(tap_ds,self()),
@@ -55,65 +50,62 @@ listen(State)->
     end,
     receive
 	{ordered_edge,OE}->
-	    DateTime = calendar:universal_time(),
-	    {_Date,Time} = DateTime,
-	    add_edge(Digraph,OE,DateTime),
-	    TapClientData ! {num_endpoints,{digraph:no_vertices(Digraph),DateTime}},
-	    TimeInSeconds = calendar:time_to_seconds(Time),
-	    Elapsed = TimeInSeconds - NCITimeStamp,
-	    case Elapsed > NCIMinInterval of
-		true ->
-		    spawn(?MODULE,get_nci,[TapClientData,Digraph]),
-		    listen(State#state{nci_timestamp=TimeInSeconds});
-		false ->
-		    Age = calendar:time_difference(CleaningTimeStamp,DateTime),
-		    AgeSeconds = days_to_seconds(Age),
-		    case AgeSeconds > DataMaxAge of
-			true ->
-		%	    clean(Digraph,DateTime,DataMaxAge),
-			    listen(State#state{cleaning_timestamp=DateTime});
-			false ->
-			    listen(State)
-		    end
-	    end;
+	    add_edges_and_clean(State,[OE]);
 	{bulk_data,BulkData} when is_list(BulkData) ->
-	    DateTime = calendar:universal_time(),
-	    {_Date,Time} = DateTime,
-	    [ add_edge(Digraph,OE,DateTime) || OE <- BulkData ],
-	    TapClientData ! {num_endpoints,{digraph:no_vertices(Digraph),DateTime}},
-	    TimeInSeconds = calendar:time_to_seconds(Time),
-	    Elapsed = TimeInSeconds - NCITimeStamp,
-	    case Elapsed > NCIMinInterval of
-		true ->
-		    spawn(?MODULE,get_nci,[TapClientData,Digraph]),
-		    listen(State#state{nci_timestamp=TimeInSeconds});
-		false ->
-		    Age = calendar:time_difference(CleaningTimeStamp,DateTime),
-		    AgeSeconds = days_to_seconds(Age),
-		    case AgeSeconds > DataMaxAge of
-			true ->
-		%	    clean(Digraph,DateTime,DataMaxAge),
-			    listen(State#state{cleaning_timestamp=DateTime});
-			false ->
-			    listen(State)
-		    end
-	    end;
+	    add_edges_and_clean(State,BulkData);
 	Msg ->
 	    io:format("Msg: ~p, ~p~n",[Msg,State]),
 	    listen(State)
     end.
 
 
+add_edges_and_clean(State,Edges)->
+    Digraph = State#state.digraph,
+    TapClientData = State#state.tap_client_data,
+    NCITimeStamp = State#state.nci_timestamp,
+    NCIMinInterval = State#state.nci_min_interval,
+    CleaningTimeStamp = State#state.cleaning_timestamp,
+    DataMaxAge = State#state.data_max_age,
+    DateTime = calendar:universal_time(),
+    {_Date,Time} = DateTime,
+    lists:foreach(fun(X)->add_edge(Digraph,X,DateTime) end,Edges),
+    TapClientData ! {num_endpoints,{digraph:no_vertices(Digraph),DateTime}},
+    TimeInSeconds = calendar:time_to_seconds(Time),
+    Elapsed = TimeInSeconds - NCITimeStamp,
+%	    io:format("CleaningTimeStamp = ~p~nDateTime = ~p~nNCITimeStamp = ~p~nTimeInSeconds= ~p~nElapsed = ~p~nNCIMinInterval = ~p~n",[CleaningTimeStamp,
+%																	  DateTime,
+%																	  NCITimeStamp,
+%																	  TimeInSeconds,
+%																	  Elapsed,
+%																	  NCIMinInterval]),
+    case Elapsed > NCIMinInterval of
+	true ->
+	    spawn(?MODULE,get_nci,[TapClientData,Digraph]),
+	    listen(State#state{nci_timestamp=TimeInSeconds});
+	false ->
+	    Age = calendar:time_difference(CleaningTimeStamp,DateTime),
+	    AgeSeconds = days_to_seconds(Age),
+%		    io:format("****~nAge = ~p~nAgeSeconds = ~p~nDataMaxAge = ~p~n",[Age,AgeSeconds,DataMaxAge]),
+	    case AgeSeconds > DataMaxAge of
+		true ->
+		    clean(Digraph,DateTime,DataMaxAge),
+		    listen(State#state{cleaning_timestamp=DateTime});
+		false ->
+		    listen(State)
+	    end
+    end.
+    
 
 
 clean(G,T,MaxAge)->
     Vertices = digraph:vertices(G),
     OldVertices = lists:filter(fun(X)->
-				    {_,TS} = digraph:vertex(G,X),
-				    Age = days_to_seconds(calendar:time_difference(TS,T)),
-				    Age > MaxAge
-			    end,
-			    Vertices),
+				       {_,TS} = digraph:vertex(G,X),
+				       Age = days_to_seconds(calendar:time_difference(TS,T)),
+				       Age > MaxAge
+			       end,
+			       Vertices),
+    error_logger:info_msg("~n**** Cleaning at Time ~p ****~nMaxAge = ~p~nStale Vertices = ~p~n****",[T,MaxAge,OldVertices]),
     digraph:del_vertices(G,OldVertices).
 
 
