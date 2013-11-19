@@ -25,7 +25,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         topViewHeigth  = 140;
-        shadowHeigth = 5;
+        shadowHeigth = 1;
         self.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.2];
         self.hidden = YES;
         
@@ -34,12 +34,8 @@
         [self addSubview:topView];
         
         shadowView = [[UIView alloc] initWithFrame:CGRectMake(0, topViewHeigth - shadowHeigth, topView.frame.size.width, shadowHeigth)];
+        shadowView.backgroundColor = [UIColor lightGrayColor];
         [topView addSubview:shadowView];
-        
-        gradient = [CAGradientLayer layer];
-        [gradient setFrame:[shadowView bounds]];
-        [gradient setColors:[NSArray arrayWithObjects:(id)[UIColor whiteColor].CGColor, (id)[UIColor colorWithWhite:0.2 alpha:1].CGColor, nil]];
-        [shadowView.layer addSublayer:gradient];
         
         int leftIndent =  20;
         int labelWidth = 300;
@@ -106,7 +102,10 @@
 }
 
 - (void)showHelp{
-
+    if (!self.hidden){
+        [self hideHelp];
+        return;
+    }
     [UIView animateWithDuration:0.3 animations:^{
         self.hidden = NO;
         topView.frame = CGRectMake(0, 0, self.frame.size.width, topViewHeigth);

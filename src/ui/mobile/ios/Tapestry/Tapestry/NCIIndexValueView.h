@@ -14,5 +14,6 @@
 - (id)initWithFrame:(CGRect)frame indName:(NSString *)indName indSize:(float)size;
 - (void)setIndValue:(NSString *)value withDate:(NSString *)date;
 - (void)setTooltipText:(NSString *)text;
+- (void)resetData;
 
 @end
