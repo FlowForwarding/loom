@@ -14,4 +14,7 @@
 - (id)initWithChart: (NCIChartView *)chartHolder;
 @property(nonatomic, strong) NCIChartView* chart;
 
+@property(nonatomic)bool hasGrid;
+@property(nonatomic)bool hasYLabels;
+
 @end

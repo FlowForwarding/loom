@@ -8,10 +8,12 @@
 
 #import "NCIChartView.h"
 #import "NCIGraphView.h"
+#import "NCIBottomGraphView.h"
 
 @interface NCIChartView(){
     
     NCIGraphView *mainGraph;
+    NCIBottomGraphView *bottomGraph;
     bool hasSlider;
 }
 
@@ -28,6 +30,10 @@
         mainGraph = [[NCIGraphView alloc] initWithChart:self];
         mainGraph.backgroundColor = [UIColor whiteColor];
         [self addSubview:mainGraph];
+        
+        bottomGraph = [[NCIBottomGraphView alloc] initWithChart:self];
+        bottomGraph.backgroundColor = [UIColor whiteColor];
+        [self addSubview:bottomGraph];
 
     }
     return self;
@@ -38,7 +44,13 @@
 }
 
 - (void)layoutSubviews{
-    mainGraph.frame = self.bounds;
+    float bottomGraphHeight = 130;
+    if (hasSlider){
+        mainGraph.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - bottomGraphHeight);
+        bottomGraph.frame = CGRectMake(0, self.bounds.size.height - bottomGraphHeight, self.bounds.size.width, bottomGraphHeight);
+    } else {
+        mainGraph.frame = self.bounds;
+    }
 }
 
 
@@ -65,7 +77,8 @@
 }
 
 - (void)drawChart{
-     [mainGraph setNeedsDisplay];
+    [mainGraph setNeedsDisplay];
+    [bottomGraph setNeedsDisplay];
 }
 
 @end
