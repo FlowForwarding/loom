@@ -12,6 +12,10 @@
 @interface NCIGraphView : UIView
 
 - (id)initWithChart: (NCIChartView *)chartHolder;
+
+@property(nonatomic) float bottomChartIndent;
+@property(nonatomic) float leftRightIndent;
+
 @property(nonatomic, strong) NCIChartView* chart;
 
 @property(nonatomic)bool hasGrid;

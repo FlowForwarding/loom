@@ -11,10 +11,7 @@
 @interface NCIGraphView(){
     NSMutableArray *yAxisLabels;
     NSMutableArray *xAxisLabels;
-    float bottomChartIndent;
     float topChartIndent;
-    float leftRightIndent;
-    float xLabelShift;
     NSDateFormatter* dateFormatter;
 }
 
@@ -61,12 +58,11 @@
 - (void)layoutSubviews{
     
     if (!yAxisLabels){
-        bottomChartIndent = 60;
+        _bottomChartIndent = 60;
         topChartIndent = 15;
-        leftRightIndent = 60;
-        xLabelShift = 75;
+        _leftRightIndent = 60;
         
-        int yLabelsCount  = (self.bounds.size.height - bottomChartIndent - topChartIndent)/50;
+        int yLabelsCount  = (self.bounds.size.height - _bottomChartIndent - topChartIndent)/50;
         if (yLabelsCount < 2)
             yLabelsCount = 2;
         yAxisLabels = [[NSMutableArray alloc] initWithCapacity:yLabelsCount];
@@ -84,12 +80,12 @@
     int ind;
     for (ind = 0; ind< yAxisLabels.count; ind++){
         UILabel *yLabel = yAxisLabels[ind];
-        yLabel.frame = CGRectMake(10, topChartIndent + ind*(self.bounds.size.height - bottomChartIndent - topChartIndent)/(yAxisLabels.count - 1),50, 20);
+        yLabel.frame = CGRectMake(10, topChartIndent + ind*(self.bounds.size.height - _bottomChartIndent - topChartIndent)/(yAxisLabels.count - 1),50, 20);
     }
     for (ind = 0; ind< xAxisLabels.count; ind++){
         UILabel *xLabel = xAxisLabels[ind];
-        xLabel.frame = CGRectMake(leftRightIndent - xLabelShift + ind*(self.bounds.size.width - leftRightIndent*2)/(xAxisLabels.count - 1),
-                                  self.bounds.size.height - bottomChartIndent + 15,
+        xLabel.frame = CGRectMake(_leftRightIndent + ind*(self.bounds.size.width - _leftRightIndent*2)/(xAxisLabels.count - 1),
+                                  self.bounds.size.height - _bottomChartIndent + 15,
                                   150, 20);
     };
 }
@@ -97,25 +93,25 @@
 - (void)drawRect:(CGRect)rect {
     
     float xFork = self.chart.maxXVal - self.chart.minXVal;
-    float xStep = (self.bounds.size.width - leftRightIndent*2)/xFork;
+    float xStep = (self.bounds.size.width - _leftRightIndent*2)/xFork;
     
     float yFork = self.chart.maxYVal - self.chart.minYVal;
-    float yStep = (self.bounds.size.height - bottomChartIndent - topChartIndent)/yFork;
+    float yStep = (self.bounds.size.height - _bottomChartIndent - topChartIndent)/yFork;
     
     UIBezierPath *path = [UIBezierPath bezierPath];
     [path setLineWidth:.5];
     if (self.chart.chartData.count > 0){
         NSDate *date = self.chart.chartData[0][0];
-        int yVal = self.frame.size.height - (bottomChartIndent + ([self.chart.chartData[0][1] integerValue] - self.chart.minYVal)*yStep);
-        int xVal = leftRightIndent + ([date timeIntervalSince1970] - self.chart.minXVal)*xStep;
+        int yVal = self.frame.size.height - (_bottomChartIndent + ([self.chart.chartData[0][1] integerValue] - self.chart.minYVal)*yStep);
+        int xVal = _leftRightIndent + ([date timeIntervalSince1970] - self.chart.minXVal)*xStep;
         [path moveToPoint:CGPointMake(xVal, yVal)];
     }
     
     int ind;
     for (ind = 1; ind < self.chart.chartData.count; ind++){
         NSDate *date = self.chart.chartData[ind][0];
-        int yVal = self.frame.size.height - (bottomChartIndent + ([self.chart.chartData[ind][1] integerValue] - self.chart.minYVal)*yStep);
-        int xVal = leftRightIndent + ([date timeIntervalSince1970] - self.chart.minXVal)*xStep;
+        int yVal = self.frame.size.height - (_bottomChartIndent + ([self.chart.chartData[ind][1] integerValue] - self.chart.minYVal)*yStep);
+        int xVal = _leftRightIndent + ([date timeIntervalSince1970] - self.chart.minXVal)*xStep;
         [path addLineToPoint:CGPointMake(xVal, yVal)];
         
     };
@@ -140,8 +136,8 @@
                 yLabel.text = [NSString stringWithFormat:@"%.1f", self.chart.maxYVal - ind * yFork/(yAxisLabels.count - 1)];
             }
             if (self.hasGrid || ind == yAxisLabels.count -1){
-                CGContextMoveToPoint(currentContext, yLabel.frame.origin.x + topChartIndent/2, yLabel.frame.origin.y);
-                CGContextAddLineToPoint(currentContext, self.frame.size.width - topChartIndent/2, yLabel.frame.origin.y);
+                CGContextMoveToPoint(currentContext, yLabel.frame.origin.x + _leftRightIndent/2, yLabel.frame.origin.y);
+                CGContextAddLineToPoint(currentContext, self.frame.size.width - _leftRightIndent/2, yLabel.frame.origin.y);
                 CGContextStrokePath(currentContext);
             }
         };
@@ -153,8 +149,8 @@
             NSDate *date = [NSDate dateWithTimeIntervalSince1970:(self.chart.minXVal + ind * xFork/(xAxisLabels.count - 1))];
             xLabel.text = [NSString stringWithFormat:@"%@", [dateFormatter stringFromDate: date]];
             if (self.hasGrid || ind == 0){
-                CGContextMoveToPoint(currentContext, xLabel.frame.origin.x + xLabelShift , xLabel.frame.origin.y );
-                CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x + xLabelShift, topChartIndent/2);
+                CGContextMoveToPoint(currentContext, xLabel.frame.origin.x, xLabel.frame.origin.y );
+                CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x, topChartIndent/2);
                 CGContextStrokePath(currentContext);
             }
         };
