@@ -234,11 +234,11 @@ static NSString* websocketMoreDataRequest =
             
             NSDate *endDate = [[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
             NSDate *startDate = [[[NSDate date] dateByAddingTimeInterval: -timeAdjustment]
-                                 dateByAddingTimeInterval: -60*60*24*2];
+                                 dateByAddingTimeInterval: -60*60*12];
             [graphView setMinX:startDate];
             [graphView setMaxX:endDate];
-            graphView.minRangeDate = [[[NSDate date] dateByAddingTimeInterval: -timeAdjustment] dateByAddingTimeInterval: -60*60];
-            graphView.maxRangeDate = endDate;
+            [graphView setMinRangeDate: [endDate dateByAddingTimeInterval: -60*60*1]];
+            [graphView setMaxRangeDate:endDate];
             
             NSString *endDateString = [[serverDateformatter stringFromDate: endDate]
                                  stringByReplacingOccurrencesOfString:@"_" withString:@"T"];

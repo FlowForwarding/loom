@@ -14,8 +14,6 @@
     NCIHandspikeView *handspikeRight;
     UIView *rightAmputation;
     UIView *leftAmputation;
-    float xHandspikeLeft;
-    float xHandspikeRight;
 }
 
 @end
@@ -28,9 +26,6 @@
         self.chart = chartHolder;
         self.hasGrid = NO;
         self.hasYLabels = NO;
-        
-        xHandspikeLeft = -1;
-        xHandspikeRight = -1;
         
         leftAmputation = [[UIView alloc] initWithFrame:CGRectZero];
         leftAmputation.backgroundColor = [[UIColor blueColor] colorWithAlphaComponent:0.2];
@@ -53,40 +48,32 @@
     [super layoutSubviews];
     int handspikeWidth = 32;
     
-    if (xHandspikeLeft < 0){
-        if (self.chart.minRangeDate){
-            xHandspikeLeft = self.leftRightIndent - handspikeWidth/2;;
-        } else {
-            xHandspikeLeft = self.leftRightIndent - handspikeWidth/2;
-        }
+    if (!_xHandspikeLeft){
+        _xHandspikeLeft = self.leftRightIndent - handspikeWidth/2;
     };
     
-    if (xHandspikeRight < 0){
-        if (self.chart.maxRangeDate){
-            xHandspikeRight = self.frame.size.width - self.leftRightIndent - handspikeWidth/2;
-        } else {
-            xHandspikeRight = self.frame.size.width - self.leftRightIndent - handspikeWidth/2;
-        }
+    if (!_xHandspikeRight){
+        _xHandspikeRight = self.frame.size.width - self.leftRightIndent - handspikeWidth/2;
     };
     
-    if (xHandspikeLeft < self.leftRightIndent - handspikeWidth/2){
-        xHandspikeLeft = self.leftRightIndent - handspikeWidth/2;
+    if (_xHandspikeLeft < self.leftRightIndent - handspikeWidth/2){
+        _xHandspikeLeft = self.leftRightIndent - handspikeWidth/2;
     }
     
-    if (xHandspikeRight > self.frame.size.width - self.leftRightIndent - handspikeWidth/2){
-        xHandspikeRight = self.frame.size.width - self.leftRightIndent - handspikeWidth/2;
+    if (_xHandspikeRight > self.frame.size.width - self.leftRightIndent - handspikeWidth/2){
+        _xHandspikeRight = self.frame.size.width - self.leftRightIndent - handspikeWidth/2;
     }
     
-    if (xHandspikeRight - xHandspikeLeft < 50)
+    if (_xHandspikeRight - _xHandspikeLeft < 30)
         return;
     
     
-    handspikeLeft.frame = CGRectMake(xHandspikeLeft, 0, handspikeWidth, self.frame.size.height - self.bottomChartIndent);
-    leftAmputation.frame = CGRectMake(self.leftRightIndent, 0, xHandspikeLeft - self.leftRightIndent + handspikeWidth/2, self.frame.size.height - self.bottomChartIndent);
+    handspikeLeft.frame = CGRectMake(_xHandspikeLeft, 0, handspikeWidth, self.frame.size.height - self.bottomChartIndent);
+    leftAmputation.frame = CGRectMake(self.leftRightIndent, 0, _xHandspikeLeft - self.leftRightIndent + handspikeWidth/2, self.frame.size.height - self.bottomChartIndent);
     
-    handspikeRight.frame = CGRectMake(xHandspikeRight, 0, handspikeWidth, self.frame.size.height - self.bottomChartIndent);
-    rightAmputation.frame = CGRectMake(xHandspikeRight + handspikeWidth/2, 0,
-                                       self.frame.size.width - xHandspikeRight - self.leftRightIndent - handspikeWidth/2,
+    handspikeRight.frame = CGRectMake(_xHandspikeRight, 0, handspikeWidth, self.frame.size.height - self.bottomChartIndent);
+    rightAmputation.frame = CGRectMake(_xHandspikeRight + handspikeWidth/2, 0,
+                                       self.frame.size.width - _xHandspikeRight - self.leftRightIndent - handspikeWidth/2,
                                        self.frame.size.height - self.bottomChartIndent);
 }
 
@@ -113,11 +100,11 @@ float startY = 0;
     if( [touch view] == handspikeLeft)
     {
         CGPoint location = [touch locationInView:self];
-        xHandspikeLeft = location.x - startX;
+        _xHandspikeLeft = location.x - startX;
         [self setNeedsLayout];
     } else if ([touch view] == handspikeRight){
         CGPoint location = [touch locationInView:self];
-        xHandspikeRight = location.x - startX;
+        _xHandspikeRight = location.x - startX;
         [self setNeedsLayout];
     }
 }
