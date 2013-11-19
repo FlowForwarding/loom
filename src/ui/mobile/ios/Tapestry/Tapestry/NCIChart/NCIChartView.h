@@ -16,6 +16,9 @@
 - (void)setMinX:(NSDate *)date;
 - (void)setMaxX:(NSDate *)date;
 
+@property (nonatomic, strong)NSDate *minRangeDate;
+@property (nonatomic, strong)NSDate *maxRangeDate;
+
 @property (atomic, strong)NSMutableArray *chartData;
 @property (nonatomic)int maxXVal;
 @property (nonatomic)int minXVal;

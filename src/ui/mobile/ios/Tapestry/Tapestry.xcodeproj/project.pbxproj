@@ -26,6 +26,7 @@
 		2AD3DC0C183B9AEC003E334F /* NCIChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AD3DC0B183B9AEC003E334F /* NCIChartView.m */; };
 		2AD3DC0F183B9AFB003E334F /* NCIGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AD3DC0E183B9AFB003E334F /* NCIGraphView.m */; };
 		2AD3DC12183B9B0A003E334F /* NCIBottomGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AD3DC11183B9B0A003E334F /* NCIBottomGraphView.m */; };
+		2AD3DC15183BB8DC003E334F /* NCIHandspikeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AD3DC14183BB8DC003E334F /* NCIHandspikeView.m */; };
 		2AF0F87218322BDD00FBF9E6 /* NCIIndexValueView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AF0F87118322BDD00FBF9E6 /* NCIIndexValueView.m */; };
 		B989E7ED8B4D4086A19D20D1 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36248AC0518B46CD87C92109 /* libPods.a */; };
 /* End PBXBuildFile section */
@@ -70,6 +71,8 @@
 		2AD3DC0E183B9AFB003E334F /* NCIGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIGraphView.m; sourceTree = "<group>"; };
 		2AD3DC10183B9B0A003E334F /* NCIBottomGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIBottomGraphView.h; sourceTree = "<group>"; };
 		2AD3DC11183B9B0A003E334F /* NCIBottomGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIBottomGraphView.m; sourceTree = "<group>"; };
+		2AD3DC13183BB8DC003E334F /* NCIHandspikeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIHandspikeView.h; sourceTree = "<group>"; };
+		2AD3DC14183BB8DC003E334F /* NCIHandspikeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIHandspikeView.m; sourceTree = "<group>"; };
 		2AF0F87018322BDD00FBF9E6 /* NCIIndexValueView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIIndexValueView.h; sourceTree = "<group>"; };
 		2AF0F87118322BDD00FBF9E6 /* NCIIndexValueView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIIndexValueView.m; sourceTree = "<group>"; };
 		36248AC0518B46CD87C92109 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -192,6 +195,8 @@
 				2AD3DC0E183B9AFB003E334F /* NCIGraphView.m */,
 				2AD3DC0A183B9AEC003E334F /* NCIChartView.h */,
 				2AD3DC0B183B9AEC003E334F /* NCIChartView.m */,
+				2AD3DC13183BB8DC003E334F /* NCIHandspikeView.h */,
+				2AD3DC14183BB8DC003E334F /* NCIHandspikeView.m */,
 			);
 			path = NCIChart;
 			sourceTree = "<group>";
@@ -332,6 +337,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2AD3DC0F183B9AFB003E334F /* NCIGraphView.m in Sources */,
+				2AD3DC15183BB8DC003E334F /* NCIHandspikeView.m in Sources */,
 				2AF0F87218322BDD00FBF9E6 /* NCIIndexValueView.m in Sources */,
 				2AAFE557182FA1DE007BBFEA /* main.m in Sources */,
 				2ACC8A9A1834F98A003B781D /* NCIHelpView.m in Sources */,
@@ -469,7 +475,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tapestry/Tapestry-Prefix.pch";
 				INFOPLIST_FILE = "Tapestry/Tapestry-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 2;
@@ -488,7 +494,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tapestry/Tapestry-Prefix.pch";
 				INFOPLIST_FILE = "Tapestry/Tapestry-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 2;
