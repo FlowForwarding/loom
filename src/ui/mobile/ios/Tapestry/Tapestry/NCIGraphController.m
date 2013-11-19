@@ -87,7 +87,7 @@ static NSString* websocketMoreDataRequest =
     [self.view addSubview:nepValue];
     
     graphView = [[NCIChartView alloc] initWithFrame:CGRectZero];
-    graphView.backgroundColor = [UIColor whiteColor];
+    graphView.backgroundColor = [UIColor yellowColor];
     [self.view addSubview:graphView];
     
     editServerView = [[NCIEditServerView alloc] initWithTarget:self];
@@ -104,7 +104,6 @@ static NSString* websocketMoreDataRequest =
     
     helpView = [[NCIHelpView alloc] initWithFrame:self.view.bounds];
     [self.view addSubview:helpView];
-    
     
     [self layoutSubviews];
     
@@ -162,7 +161,7 @@ static NSString* websocketMoreDataRequest =
     
     noConnectionLabel.frame = CGRectMake(0, 200, self.view.bounds.size.width, 50);
     
-    graphView.frame = CGRectMake(0, 200, self.view.bounds.size.width, 400);
+    graphView.frame = CGRectMake(0, 200, self.view.bounds.size.width, 450);
     
     infoButton.center = CGPointMake(self.view.bounds.size.width - 50, indexLabelHeight + 30);
     

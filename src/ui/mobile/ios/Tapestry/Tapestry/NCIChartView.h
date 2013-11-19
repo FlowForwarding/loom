@@ -14,4 +14,10 @@
 - (void)drawChart;
 - (void)resetChart;
 
+@property (atomic, strong)NSMutableArray *chartData;
+@property (nonatomic)int maxXVal;
+@property (nonatomic)int minXVal;
+@property (nonatomic)int maxYVal;
+@property (nonatomic)int minYVal;
+
 @end

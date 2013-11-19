@@ -20,6 +20,7 @@
 		2AAFE56E182FA1DE007BBFEA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2AAFE56C182FA1DE007BBFEA /* InfoPlist.strings */; };
 		2AAFE570182FA1DE007BBFEA /* TapestryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AAFE56F182FA1DE007BBFEA /* TapestryTests.m */; };
 		2AB3C94A183A5C4F00099182 /* NCIEditServerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AB3C949183A5C4F00099182 /* NCIEditServerView.m */; };
+		2AB3C94D183B479000099182 /* NCIGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AB3C94C183B479000099182 /* NCIGraphView.m */; };
 		2ABE3B351830CD340046A0FC /* NCIGraphController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ABE3B341830CD340046A0FC /* NCIGraphController.m */; };
 		2ABE3B3E183128B40046A0FC /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2ABE3B3D183128B40046A0FC /* Localizable.strings */; };
 		2ACC8A9A1834F98A003B781D /* NCIHelpView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ACC8A991834F98A003B781D /* NCIHelpView.m */; };
@@ -57,6 +58,8 @@
 		2AAFE56F182FA1DE007BBFEA /* TapestryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TapestryTests.m; sourceTree = "<group>"; };
 		2AB3C948183A5C4F00099182 /* NCIEditServerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIEditServerView.h; sourceTree = "<group>"; };
 		2AB3C949183A5C4F00099182 /* NCIEditServerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIEditServerView.m; sourceTree = "<group>"; };
+		2AB3C94B183B479000099182 /* NCIGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIGraphView.h; sourceTree = "<group>"; };
+		2AB3C94C183B479000099182 /* NCIGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIGraphView.m; sourceTree = "<group>"; };
 		2ABE3B331830CD340046A0FC /* NCIGraphController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIGraphController.h; sourceTree = "<group>"; };
 		2ABE3B341830CD340046A0FC /* NCIGraphController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = NCIGraphController.m; sourceTree = "<group>"; };
 		2ABE3B3D183128B40046A0FC /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
@@ -144,6 +147,8 @@
 				2ACC8A991834F98A003B781D /* NCIHelpView.m */,
 				2AB3C948183A5C4F00099182 /* NCIEditServerView.h */,
 				2AB3C949183A5C4F00099182 /* NCIEditServerView.m */,
+				2AB3C94B183B479000099182 /* NCIGraphView.h */,
+				2AB3C94C183B479000099182 /* NCIGraphView.m */,
 			);
 			path = Tapestry;
 			sourceTree = "<group>";
@@ -313,6 +318,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2AB3C94D183B479000099182 /* NCIGraphView.m in Sources */,
 				2AF0F87218322BDD00FBF9E6 /* NCIIndexValueView.m in Sources */,
 				2AAFE557182FA1DE007BBFEA /* main.m in Sources */,
 				2ACC8A9A1834F98A003B781D /* NCIHelpView.m in Sources */,
