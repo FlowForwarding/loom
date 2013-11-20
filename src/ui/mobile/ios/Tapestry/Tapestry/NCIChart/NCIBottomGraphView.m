@@ -55,6 +55,7 @@
     if (!_xHandspikeLeft){
         //todo simplify all of these calculations!! on th bottom to
         _xHandspikeLeft = self.leftRightIndent - handspikeWidth/2;
+       // self.chart.mainGraph.leftShift = _xHandspikeLeft - self.leftRightIndent;
         fixedLeftVal = _xHandspikeLeft;
     };
     

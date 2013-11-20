@@ -93,7 +93,7 @@
     }
     
     gridScroll.frame = CGRectMake(_leftRightIndent, topChartIndent, self.frame.size.width - 2*_leftRightIndent,
-                                  self.frame.size.height - topChartIndent - _bottomChartIndent);
+                                  self.frame.size.height - topChartIndent);
     gridScroll.contentSize = CGSizeMake((self.frame.size.width - 2*_leftRightIndent)*self.scaleIndex, self.frame.size.height - topChartIndent - _bottomChartIndent);
     gridArea.frame = CGRectMake(0, 0, (self.frame.size.width - 2*_leftRightIndent)*self.scaleIndex, self.frame.size.height - topChartIndent - _bottomChartIndent);
     //temp dirty hack, TODO chage this!!!

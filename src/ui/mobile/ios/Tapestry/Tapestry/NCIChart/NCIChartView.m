@@ -66,7 +66,7 @@
     float xStep = (self.bounds.size.width - _bottomGraph.leftRightIndent*2)/xFork;
     _bottomGraph.xHandspikeLeft = self.frame.size.width -  _bottomGraph.leftRightIndent - (self.maxXVal - [min timeIntervalSince1970])*xStep;
     _bottomGraph.xHandspikeRight = self.frame.size.width -  _bottomGraph.leftRightIndent - (self.maxXVal - [max timeIntervalSince1970])*xStep;
-    _mainGraph.scaleIndex = (self.maxXVal - self.minXVal)/([max timeIntervalSince1970] - [min timeIntervalSince1970]);
+    _mainGraph.scaleIndex = xFork/([max timeIntervalSince1970] - [min timeIntervalSince1970]);
     NSLog(@"%f", _mainGraph.scaleIndex);
 }
 
