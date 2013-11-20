@@ -19,6 +19,8 @@
 @property(nonatomic, strong) NCIChartView* chart;
 
 @property(nonatomic)float scaleIndex;
+//TODO change to date, thats fast hack
+@property(nonatomic)float leftShift;
 
 @property(nonatomic)bool hasGrid;
 @property(nonatomic)bool hasYLabels;

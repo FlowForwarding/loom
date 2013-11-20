@@ -14,6 +14,10 @@
     NCIHandspikeView *handspikeRight;
     UIView *rightAmputation;
     UIView *leftAmputation;
+    
+    //todo not to redraw on initial ranges setup
+    float fixedLeftVal;
+    float fixedRightVal;
 }
 
 @end
@@ -49,11 +53,14 @@
     int handspikeWidth = 32;
     
     if (!_xHandspikeLeft){
+        //todo simplify all of these calculations!! on th bottom to
         _xHandspikeLeft = self.leftRightIndent - handspikeWidth/2;
+        fixedLeftVal = _xHandspikeLeft;
     };
     
     if (!_xHandspikeRight){
         _xHandspikeRight = self.frame.size.width - self.leftRightIndent - handspikeWidth/2;
+        fixedRightVal = _xHandspikeRight;
     };
     
     if (_xHandspikeLeft < self.leftRightIndent - handspikeWidth/2){
@@ -107,6 +114,32 @@ float startY = 0;
         _xHandspikeRight = location.x - startX;
         [self setNeedsLayout];
     }
+}
+
+
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
+    
+//    _xHandspikeLeft = self.leftRightIndent - handspikeWidth/2;
+//    _xHandspikeRight = self.frame.size.width - self.leftRightIndent - handspikeWidth/2;
+    
+    if (fixedLeftVal != _xHandspikeLeft || fixedRightVal != _xHandspikeRight){
+        float xlength = self.frame.size.width - 2 *self.leftRightIndent;
+        float leftFloat = _xHandspikeLeft - self.leftRightIndent;
+        float rightFloat = _xHandspikeRight - self.leftRightIndent;
+        
+        self.chart.mainGraph.leftShift = leftFloat;
+        
+        self.chart.mainGraph.scaleIndex = xlength/(rightFloat - leftFloat);
+       
+        
+        [self.chart.mainGraph setNeedsLayout];
+        [self.chart.mainGraph setNeedsDisplay];
+        
+        fixedLeftVal = _xHandspikeLeft ;
+        fixedRightVal = _xHandspikeRight;
+    }
+    
 }
 
 

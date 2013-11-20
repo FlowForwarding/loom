@@ -55,7 +55,7 @@
     if (self.scaleIndex != 1){
         float handspikeDiff = self.chart.bottomGraph.xHandspikeRight  - self.chart.bottomGraph.xHandspikeLeft;
         float newLeftHandsptipeX = (scrollView.contentOffset.x)/(self.scaleIndex)  + _leftRightIndent - 16; //half width hendstrike
-        if (scrollView.contentOffset.x > 0 && scrollView.contentOffset.x < scrollView.contentSize.width){
+        if (scrollView.contentOffset.x > 0 && scrollView.contentOffset.x < scrollView.contentSize.width - 16){
             self.chart.bottomGraph.xHandspikeLeft = newLeftHandsptipeX;
             self.chart.bottomGraph.xHandspikeRight = newLeftHandsptipeX + handspikeDiff;
          }
@@ -98,7 +98,7 @@
     gridArea.frame = CGRectMake(0, 0, (self.frame.size.width - 2*_leftRightIndent)*self.scaleIndex, self.frame.size.height - topChartIndent - _bottomChartIndent);
     //temp dirty hack, TODO chage this!!!
     if (self.scaleIndex != 1){
-        [gridScroll setContentOffset:CGPointMake(11*(self.frame.size.width - 2*_leftRightIndent), 0)];
+        [gridScroll setContentOffset:CGPointMake((self.scaleIndex -1)*(self.frame.size.width - 2*_leftRightIndent - _leftShift*self.scaleIndex), 0)];
     }
 
 }
