@@ -7,6 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+//#import "NCIBottomGraphView.h"
+//#import "NCIGraphView.h"
+
+@class NCIGraphView;
+@class NCIBottomGraphView;
 
 @interface NCIChartView : UIView
 
@@ -16,8 +21,10 @@
 - (void)setMinX:(NSDate *)date;
 - (void)setMaxX:(NSDate *)date;
 
-- (void)setMinRangeDate:(NSDate *)date;
-- (void)setMaxRangeDate:(NSDate *)date;
+- (void)setRanges:(NSDate *)min max:(NSDate *)max;
+
+@property (nonatomic, strong)NCIGraphView *mainGraph;
+@property (nonatomic, strong)NCIBottomGraphView *bottomGraph;
 
 @property (atomic, strong)NSMutableArray *chartData;
 @property (nonatomic)int maxXVal;

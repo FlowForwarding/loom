@@ -237,8 +237,7 @@ static NSString* websocketMoreDataRequest =
                                  dateByAddingTimeInterval: -60*60*12];
             [graphView setMinX:startDate];
             [graphView setMaxX:endDate];
-            [graphView setMinRangeDate: [endDate dateByAddingTimeInterval: -60*60*1]];
-            [graphView setMaxRangeDate:endDate];
+            [graphView setRanges:[endDate dateByAddingTimeInterval: -60*60*1] max:endDate];
             
             NSString *endDateString = [[serverDateformatter stringFromDate: endDate]
                                  stringByReplacingOccurrencesOfString:@"_" withString:@"T"];

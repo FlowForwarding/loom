@@ -12,8 +12,6 @@
 
 @interface NCIChartView(){
     
-    NCIGraphView *mainGraph;
-    NCIBottomGraphView *bottomGraph;
     bool hasSlider;
 }
 
@@ -27,13 +25,13 @@
     if (self) {
         hasSlider = YES;
         self.chartData = [[NSMutableArray alloc] init];
-        mainGraph = [[NCIGraphView alloc] initWithChart:self];
-        mainGraph.backgroundColor = [UIColor whiteColor];
-        [self addSubview:mainGraph];
+        _mainGraph = [[NCIGraphView alloc] initWithChart:self];
+        _mainGraph.backgroundColor = [UIColor whiteColor];
+        [self addSubview:_mainGraph];
         
-        bottomGraph = [[NCIBottomGraphView alloc] initWithChart:self];
-        bottomGraph.backgroundColor = [UIColor whiteColor];
-        [self addSubview:bottomGraph];
+        _bottomGraph = [[NCIBottomGraphView alloc] initWithChart:self];
+        _bottomGraph.backgroundColor = [UIColor whiteColor];
+        [self addSubview:_bottomGraph];
 
     }
     return self;
@@ -46,11 +44,13 @@
 - (void)layoutSubviews{
     float bottomGraphHeight = 130;
     if (hasSlider){
-        mainGraph.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - bottomGraphHeight);
-        bottomGraph.frame = CGRectMake(0, self.bounds.size.height - bottomGraphHeight, self.bounds.size.width, bottomGraphHeight);
+        _mainGraph.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - bottomGraphHeight);
+        _bottomGraph.frame = CGRectMake(0, self.bounds.size.height - bottomGraphHeight, self.bounds.size.width, bottomGraphHeight);
     } else {
-        mainGraph.frame = self.bounds;
+        _mainGraph.frame = self.bounds;
     }
+    [_mainGraph setNeedsDisplay];
+    [_bottomGraph setNeedsDisplay];
 }
 
 - (void)setMinX:(NSDate *)date{
@@ -61,20 +61,14 @@
     _maxXVal = [date timeIntervalSince1970];
 }
 
-- (void)setMinRangeDate:(NSDate *)date{
+- (void)setRanges:(NSDate *)min max:(NSDate *)max{
     float xFork = self.maxXVal - self.minXVal;
-    float xStep = (self.bounds.size.width -  bottomGraph.leftRightIndent*2)/xFork;
-    bottomGraph.xHandspikeLeft = self.frame.size.width -  bottomGraph.leftRightIndent - (self.maxXVal - [date timeIntervalSince1970])*xStep;
-      NSLog(@"%f", bottomGraph.xHandspikeLeft);
+    float xStep = (self.bounds.size.width - _bottomGraph.leftRightIndent*2)/xFork;
+    _bottomGraph.xHandspikeLeft = self.frame.size.width -  _bottomGraph.leftRightIndent - (self.maxXVal - [min timeIntervalSince1970])*xStep;
+    _bottomGraph.xHandspikeRight = self.frame.size.width -  _bottomGraph.leftRightIndent - (self.maxXVal - [max timeIntervalSince1970])*xStep;
+    _mainGraph.scaleIndex = (self.maxXVal - self.minXVal)/([max timeIntervalSince1970] - [min timeIntervalSince1970]);
+    NSLog(@"%f", _mainGraph.scaleIndex);
 }
-
-- (void)setMaxRangeDate:(NSDate *)date{
-    float xFork = self.maxXVal - self.minXVal;
-    float xStep = (self.bounds.size.width -  bottomGraph.leftRightIndent*2)/xFork;
-    bottomGraph.xHandspikeRight = self.frame.size.width -  bottomGraph.leftRightIndent - (self.maxXVal - [date timeIntervalSince1970])*xStep;
-    NSLog(@"%f", bottomGraph.xHandspikeRight);
-}
-
 
 - (void)addPoint:(NSDate *)date val:(NSString *)value{
 
@@ -98,9 +92,10 @@
 }
 
 - (void)drawChart{
-    [mainGraph setNeedsDisplay];
-    [bottomGraph setNeedsDisplay];
-    [bottomGraph setNeedsLayout];
+    [_mainGraph setNeedsDisplay];
+    [_mainGraph setNeedsLayout];
+    [_bottomGraph setNeedsDisplay];
+    [_bottomGraph setNeedsLayout];
 }
 
 @end

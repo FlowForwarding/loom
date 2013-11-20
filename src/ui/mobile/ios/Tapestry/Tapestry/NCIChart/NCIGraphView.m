@@ -7,14 +7,16 @@
 //
 
 #import "NCIGraphView.h"
+#import "NCIGridAreaView.h"
+#import "NCIBottomGraphView.h"
 
-@interface NCIGraphView(){
+@interface NCIGraphView()<UIScrollViewDelegate>{
     NSMutableArray *yAxisLabels;
-    NSMutableArray *xAxisLabels;
     float topChartIndent;
-    NSDateFormatter* dateFormatter;
     int minXVal;
     int maxXVal;
+    NCIGridAreaView *gridArea;
+    UIScrollView *gridScroll;
 }
 
 @end
@@ -24,9 +26,16 @@
 - (id)initWithChart: (NCIChartView *)chartHolder{
     self = [self initWithFrame:CGRectZero];
     if (self){
+        self.scaleIndex = 1;
         self.chart = chartHolder;
         self.hasGrid = YES;
         self.hasYLabels = YES;
+        gridScroll = [[UIScrollView alloc] init];
+        gridScroll.delegate = self;
+        [self addSubview:gridScroll];
+        gridScroll.showsHorizontalScrollIndicator = NO;
+        gridArea = [[NCIGridAreaView alloc] initWithChart:self.chart];
+        [gridScroll addSubview:gridArea];
     }
     return self;
 }
@@ -35,26 +44,24 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-        [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm"];
         
-        
-        int ind = 0;
-        int xLabelsCount  = 4;
-        xAxisLabels = [[NSMutableArray alloc] initWithCapacity:xLabelsCount];
-        for (ind = 0; ind< xLabelsCount; ind++){
-            UILabel *xLabel = [[UILabel alloc] initWithFrame: CGRectZero];
-            xLabel.font = [UIFont italicSystemFontOfSize:14];
-            // CATransform3D transform = CATransform3DMakeRotation(M_PI/3, 0, 0, 1);
-            // xLabel.layer.transform = transform;
-            
-            [xAxisLabels addObject:xLabel];
-            [self addSubview:xLabel];
-        };
         
     }
     return self;
+}
+
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    //TODO clean up this!!! not in general logic
+    if (self.scaleIndex != 1){
+        float handspikeDiff = self.chart.bottomGraph.xHandspikeRight  - self.chart.bottomGraph.xHandspikeLeft;
+        float newLeftHandsptipeX = (scrollView.contentOffset.x)/(self.scaleIndex)  + _leftRightIndent - 16; //half width hendstrike
+        if (scrollView.contentOffset.x > 0 && scrollView.contentOffset.x < scrollView.contentSize.width){
+            self.chart.bottomGraph.xHandspikeLeft = newLeftHandsptipeX;
+            self.chart.bottomGraph.xHandspikeRight = newLeftHandsptipeX + handspikeDiff;
+         }
+
+        [self.chart.bottomGraph setNeedsLayout];
+    }
 }
 
 - (void)layoutSubviews{
@@ -84,12 +91,16 @@
         UILabel *yLabel = yAxisLabels[ind];
         yLabel.frame = CGRectMake(10, topChartIndent + ind*(self.bounds.size.height - _bottomChartIndent - topChartIndent)/(yAxisLabels.count - 1),50, 20);
     }
-    for (ind = 0; ind< xAxisLabels.count; ind++){
-        UILabel *xLabel = xAxisLabels[ind];
-        xLabel.frame = CGRectMake(_leftRightIndent + ind*(self.bounds.size.width - _leftRightIndent*2)/(xAxisLabels.count - 1),
-                                  self.bounds.size.height - _bottomChartIndent + 15,
-                                  150, 20);
-    };
+    
+    gridScroll.frame = CGRectMake(_leftRightIndent, topChartIndent, self.frame.size.width - 2*_leftRightIndent,
+                                  self.frame.size.height - topChartIndent - _bottomChartIndent);
+    gridScroll.contentSize = CGSizeMake((self.frame.size.width - 2*_leftRightIndent)*self.scaleIndex, self.frame.size.height - topChartIndent - _bottomChartIndent);
+    gridArea.frame = CGRectMake(0, 0, (self.frame.size.width - 2*_leftRightIndent)*self.scaleIndex, self.frame.size.height - topChartIndent - _bottomChartIndent);
+    //temp dirty hack, TODO chage this!!!
+    if (self.scaleIndex != 1){
+        [gridScroll setContentOffset:CGPointMake(11*(self.frame.size.width - 2*_leftRightIndent), 0)];
+    }
+
 }
 
 - (void)detectXRange {
@@ -101,29 +112,9 @@
     [self detectXRange];
     
     float xFork = maxXVal - minXVal;
-    float xStep = (self.bounds.size.width - _leftRightIndent*2)/xFork;
-    
     float yFork = self.chart.maxYVal - self.chart.minYVal;
-    float yStep = (self.bounds.size.height - _bottomChartIndent - topChartIndent)/yFork;
-    
+
     UIBezierPath *path = [UIBezierPath bezierPath];
-    [path setLineWidth:.5];
-    if (self.chart.chartData.count > 0){
-        NSDate *date = self.chart.chartData[0][0];
-        int yVal = self.frame.size.height - (_bottomChartIndent + ([self.chart.chartData[0][1] integerValue] - self.chart.minYVal)*yStep);
-        int xVal = _leftRightIndent + ([date timeIntervalSince1970] - minXVal)*xStep;
-        [path moveToPoint:CGPointMake(xVal, yVal)];
-    }
-    
-    int ind;
-    for (ind = 1; ind < self.chart.chartData.count; ind++){
-        NSDate *date = self.chart.chartData[ind][0];
-        int yVal = self.frame.size.height - (_bottomChartIndent + ([self.chart.chartData[ind][1] integerValue] - self.chart.minYVal)*yStep);
-        int xVal = _leftRightIndent + ([date timeIntervalSince1970] - minXVal)*xStep;
-        [path addLineToPoint:CGPointMake(xVal, yVal)];
-        
-    };
-    
     CGContextRef currentContext = UIGraphicsGetCurrentContext();
     CGContextSetLineCap(currentContext, kCGLineCapRound);
     CGContextSetLineWidth(currentContext, 0.5);
@@ -134,6 +125,7 @@
     CGContextDrawPath(currentContext, kCGPathStroke);
     [[UIColor blackColor] setStroke];
     
+    int ind = 0;
     
     CGFloat dashes[] = { 1, 1 };
     CGContextSetLineDash(currentContext, 0.0,  dashes , 2 );
@@ -150,19 +142,9 @@
             }
         };
     };
+
     
-    if (maxXVal && minXVal){
-        for (ind = 0; ind< xAxisLabels.count; ind++){
-            UILabel *xLabel = xAxisLabels[ind];
-            NSDate *date = [NSDate dateWithTimeIntervalSince1970:(minXVal + ind * xFork/(xAxisLabels.count - 1))];
-            xLabel.text = [NSString stringWithFormat:@"%@", [dateFormatter stringFromDate: date]];
-            if (self.hasGrid || ind == 0){
-                CGContextMoveToPoint(currentContext, xLabel.frame.origin.x, xLabel.frame.origin.y );
-                CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x, topChartIndent/2);
-                CGContextStrokePath(currentContext);
-            }
-        };
-    };
+    [gridArea setNeedsDisplay];
     
 }
 

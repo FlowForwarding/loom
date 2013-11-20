@@ -18,6 +18,8 @@
 
 @property(nonatomic, strong) NCIChartView* chart;
 
+@property(nonatomic)float scaleIndex;
+
 @property(nonatomic)bool hasGrid;
 @property(nonatomic)bool hasYLabels;
 
