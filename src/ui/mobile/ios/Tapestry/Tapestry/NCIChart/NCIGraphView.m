@@ -13,6 +13,8 @@
     NSMutableArray *xAxisLabels;
     float topChartIndent;
     NSDateFormatter* dateFormatter;
+    int minXVal;
+    int maxXVal;
 }
 
 @end
@@ -35,7 +37,7 @@
     if (self) {
         dateFormatter = [[NSDateFormatter alloc] init];
         [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-        [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+        [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm"];
         
         
         int ind = 0;
@@ -90,9 +92,15 @@
     };
 }
 
+- (void)detectXRange {
+    minXVal = self.chart.minXVal;
+    maxXVal = self.chart.maxXVal;
+}
+
 - (void)drawRect:(CGRect)rect {
+    [self detectXRange];
     
-    float xFork = self.chart.maxXVal - self.chart.minXVal;
+    float xFork = maxXVal - minXVal;
     float xStep = (self.bounds.size.width - _leftRightIndent*2)/xFork;
     
     float yFork = self.chart.maxYVal - self.chart.minYVal;
@@ -103,7 +111,7 @@
     if (self.chart.chartData.count > 0){
         NSDate *date = self.chart.chartData[0][0];
         int yVal = self.frame.size.height - (_bottomChartIndent + ([self.chart.chartData[0][1] integerValue] - self.chart.minYVal)*yStep);
-        int xVal = _leftRightIndent + ([date timeIntervalSince1970] - self.chart.minXVal)*xStep;
+        int xVal = _leftRightIndent + ([date timeIntervalSince1970] - minXVal)*xStep;
         [path moveToPoint:CGPointMake(xVal, yVal)];
     }
     
@@ -111,7 +119,7 @@
     for (ind = 1; ind < self.chart.chartData.count; ind++){
         NSDate *date = self.chart.chartData[ind][0];
         int yVal = self.frame.size.height - (_bottomChartIndent + ([self.chart.chartData[ind][1] integerValue] - self.chart.minYVal)*yStep);
-        int xVal = _leftRightIndent + ([date timeIntervalSince1970] - self.chart.minXVal)*xStep;
+        int xVal = _leftRightIndent + ([date timeIntervalSince1970] - minXVal)*xStep;
         [path addLineToPoint:CGPointMake(xVal, yVal)];
         
     };
@@ -143,10 +151,10 @@
         };
     };
     
-    if (self.chart.maxXVal && self.chart.minXVal){
+    if (maxXVal && minXVal){
         for (ind = 0; ind< xAxisLabels.count; ind++){
             UILabel *xLabel = xAxisLabels[ind];
-            NSDate *date = [NSDate dateWithTimeIntervalSince1970:(self.chart.minXVal + ind * xFork/(xAxisLabels.count - 1))];
+            NSDate *date = [NSDate dateWithTimeIntervalSince1970:(minXVal + ind * xFork/(xAxisLabels.count - 1))];
             xLabel.text = [NSString stringWithFormat:@"%@", [dateFormatter stringFromDate: date]];
             if (self.hasGrid || ind == 0){
                 CGContextMoveToPoint(currentContext, xLabel.frame.origin.x, xLabel.frame.origin.y );

@@ -61,6 +61,20 @@
     _maxXVal = [date timeIntervalSince1970];
 }
 
+- (void)setMinRangeDate:(NSDate *)date{
+    float xFork = self.maxXVal - self.minXVal;
+    float xStep = (self.bounds.size.width -  bottomGraph.leftRightIndent*2)/xFork;
+    bottomGraph.xHandspikeLeft = self.frame.size.width -  bottomGraph.leftRightIndent - (self.maxXVal - [date timeIntervalSince1970])*xStep;
+      NSLog(@"%f", bottomGraph.xHandspikeLeft);
+}
+
+- (void)setMaxRangeDate:(NSDate *)date{
+    float xFork = self.maxXVal - self.minXVal;
+    float xStep = (self.bounds.size.width -  bottomGraph.leftRightIndent*2)/xFork;
+    bottomGraph.xHandspikeRight = self.frame.size.width -  bottomGraph.leftRightIndent - (self.maxXVal - [date timeIntervalSince1970])*xStep;
+    NSLog(@"%f", bottomGraph.xHandspikeRight);
+}
+
 
 - (void)addPoint:(NSDate *)date val:(NSString *)value{
 
@@ -86,6 +100,7 @@
 - (void)drawChart{
     [mainGraph setNeedsDisplay];
     [bottomGraph setNeedsDisplay];
+    [bottomGraph setNeedsLayout];
 }
 
 @end
