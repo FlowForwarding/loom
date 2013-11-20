@@ -32,8 +32,7 @@ start()->
     LNCI = jiffy:encode({[{<<"Time">>,Time},{<<"NCI">>,1}]}),
     LNEP = jiffy:encode({[{<<"Time">>,Time},{<<"NEP">>,1}]}),
     LQPS = jiffy:encode({[{<<"Time">>,Time},{<<"QPS">>,1}]}),
-    Pid = spawn(?MODULE,listen,[#state{start_time=StartTime,clients=[],last_nci=LNCI,nci_log=[],last_nep=LNEP,last_int_nep=0,last_qps=LQPS}]),
-    register(tap_client_data,Pid),
+    Pid = spawn(?MODULE,listen,[#state{start_time=StartTime,clients=[],last_nci=LNCI,nci_log=undefined,last_nep=LNEP,last_int_nep=0,last_qps=LQPS}]),
     Pid.
 
 send(Msg) when is_atom(Msg); is_tuple(Msg) ->
@@ -46,8 +45,15 @@ send(Msg) when is_atom(Msg); is_tuple(Msg) ->
     end.
 
 listen(State)->
-    Clients = State#state.clients,
     NCILog = State#state.nci_log,
+    case NCILog of
+	undefined ->
+	    register(tap_client_data,self()),
+	    listen(State#state{nci_log = ets:new(nci_log,[])});
+	_ -> ok
+    end,
+    Clients = State#state.clients,
+%    NCILog = State#state.nci_log,
     StartTime = State#state.start_time,
     LNCI = State#state.last_nci,
     LNEP = State#state.last_nep,
@@ -67,11 +73,12 @@ listen(State)->
 	    end;
 	{nci,Data}->
 	    {NCI,UT} = Data,
-	    NewNCILog = [{UT,NCI}|NCILog],
+	    ets:insert(NCILog,{UT,NCI}),
+%	    NewNCILog = [{UT,NCI}|NCILog],
 	    Time = list_to_binary(tap_utils:rfc3339(UT)),
 	    JSON = jiffy:encode({[{<<"Time">>,Time},{<<"NCI">>,NCI}]}),
 	    NewClients = broadcast_msg(Clients,JSON),
-	    NewState = State#state{clients=NewClients,last_nci=JSON,nci_log=NewNCILog},
+	    NewState = State#state{clients=NewClients,last_nci=JSON,nci_log=NCILog},
 	    listen(NewState);
 	{qps,Data}->
 	    {QPS,UT} = Data,
@@ -97,7 +104,13 @@ listen(State)->
 	{more_nci_data,Pid,Start,End,MaxData} ->
 	    error_logger:info_msg("tap_client_data: {more_nci_data,~p,~p,~p,~p}~n",[Pid,Start,End,MaxData]),
 	    spawn(fun()->
-			  Target = lists:filter(fun({Time,_Value})->(Time >= Start) and (Time =< End) end,NCILog),
+%			  Target = lists:filter(fun({Time,_Value})->(Time >= Start) and (Time =< End) end,NCILog),
+			  Target = ets:foldl(fun(X,AccIn)->{Time,_Value} = X,
+							   case (Time >= Start) and (Time =< End) of
+							       true -> [X|AccIn];
+							       false -> AccIn
+							   end
+					     end, [], NCILog),
 			  Length = length(Target),
 			  case Length > 0 of
 			      true ->
