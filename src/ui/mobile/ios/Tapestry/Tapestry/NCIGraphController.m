@@ -12,6 +12,7 @@
 #import "NCIChartView.h"
 #import "NCIHelpView.h"
 #import "NCIEditServerView.h"
+#import "NCIPeriodSwitcherPanel.h"
 
 @interface NCIGraphController() <SRWebSocketDelegate>{
     SRWebSocket *socket;
@@ -25,6 +26,7 @@
     UILabel *noConnectionLabel;
     NSDateFormatter *serverDateformatter;
     NCIEditServerView *editServerView;
+    NCIPeriodSwitcherPanel *switcherPanel;
     
     bool isShowingLandscapeView;
     
@@ -85,6 +87,9 @@ static NSString* websocketMoreDataRequest =
     [nepValue setTooltipText:NSLocalizedString(@"Number of Connected Network Elements", nil)];
     
     [self.view addSubview:nepValue];
+    
+    switcherPanel = [[NCIPeriodSwitcherPanel alloc] initWithFrame:CGRectZero];
+    [self.view addSubview:switcherPanel];
     
     graphView = [[NCIChartView alloc] initWithFrame:CGRectZero];
     [self.view addSubview:graphView];
@@ -158,9 +163,11 @@ static NSString* websocketMoreDataRequest =
     
     nepValue.frame = CGRectMake(self.view.bounds.size.width/2, indexLabelHeight + 2*topIndent, self.view.bounds.size.width/2, indexLabelHeight);
     
-    noConnectionLabel.frame = CGRectMake(0, 200, self.view.bounds.size.width, 50);
+    switcherPanel.frame  = CGRectMake(20, 200, 500, 40);
     
-    graphView.frame = CGRectMake(0, 200, self.view.bounds.size.width, 450);
+    noConnectionLabel.frame = CGRectMake(0, 250, self.view.bounds.size.width, 50);
+    
+    graphView.frame = CGRectMake(0, 250, self.view.bounds.size.width, 450);
     
     infoButton.center = CGPointMake(self.view.bounds.size.width - 50, indexLabelHeight + 30);
     
