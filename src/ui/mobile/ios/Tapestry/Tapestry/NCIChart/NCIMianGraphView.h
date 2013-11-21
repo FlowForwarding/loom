@@ -1,14 +1,13 @@
 //
-//  NCIBottomGraphView.h
+//  NCIMianGraphView.h
 //  Tapestry
 //
-//  Created by Ira on 11/19/13.
+//  Created by Ira on 11/20/13.
 //  Copyright (c) 2013 Truststix. All rights reserved.
 //
 
 #import "NCIGraphView.h"
 
-@interface NCIBottomGraphView : NCIGraphView
-
+@interface NCIMianGraphView : NCIGraphView
 
 @end

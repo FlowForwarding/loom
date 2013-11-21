@@ -9,10 +9,9 @@
 #import "NCIChartView.h"
 #import "NCIGraphView.h"
 #import "NCIBottomGraphView.h"
+#import "NCIMianGraphView.h"
 
 @interface NCIChartView(){
-    
-    bool hasSlider;
 }
 
 @end
@@ -23,9 +22,10 @@
 {
     self = [super initWithFrame:(CGRect)frame];
     if (self) {
-        hasSlider = YES;
+        _hasSlider = YES;
+        
         self.chartData = [[NSMutableArray alloc] init];
-        _mainGraph = [[NCIGraphView alloc] initWithChart:self];
+        _mainGraph = [[NCIMianGraphView alloc] initWithChart:self];
         _mainGraph.backgroundColor = [UIColor whiteColor];
         [self addSubview:_mainGraph];
         
@@ -43,7 +43,7 @@
 
 - (void)layoutSubviews{
     float bottomGraphHeight = 130;
-    if (hasSlider){
+    if (_hasSlider){
         _mainGraph.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - bottomGraphHeight);
         _bottomGraph.frame = CGRectMake(0, self.bounds.size.height - bottomGraphHeight, self.bounds.size.width, bottomGraphHeight);
     } else {
@@ -53,21 +53,12 @@
     [_bottomGraph setNeedsDisplay];
 }
 
-- (void)setMinX:(NSDate *)date{
+- (void)setMinArgument:(NSDate *)date{
     _minXVal  = [date timeIntervalSince1970];
 }
 
-- (void)setMaxX:(NSDate *)date{
+- (void)setMaxArgument:(NSDate *)date{
     _maxXVal = [date timeIntervalSince1970];
-}
-
-- (void)setRanges:(NSDate *)min max:(NSDate *)max{
-    float xFork = self.maxXVal - self.minXVal;
-    float xStep = (self.bounds.size.width - _bottomGraph.leftRightIndent*2)/xFork;
-    _bottomGraph.xHandspikeLeft = self.frame.size.width -  _bottomGraph.leftRightIndent - (self.maxXVal - [min timeIntervalSince1970])*xStep;
-    _bottomGraph.xHandspikeRight = self.frame.size.width -  _bottomGraph.leftRightIndent - (self.maxXVal - [max timeIntervalSince1970])*xStep;
-    _mainGraph.scaleIndex = xFork/([max timeIntervalSince1970] - [min timeIntervalSince1970]);
-    NSLog(@"%f", _mainGraph.scaleIndex);
 }
 
 - (void)addPoint:(NSDate *)date val:(NSString *)value{

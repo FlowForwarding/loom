@@ -12,11 +12,8 @@
 
 @interface NCIGraphView()<UIScrollViewDelegate>{
     NSMutableArray *yAxisLabels;
-    float topChartIndent;
     int minXVal;
     int maxXVal;
-    NCIGridAreaView *gridArea;
-    UIScrollView *gridScroll;
 }
 
 @end
@@ -30,12 +27,13 @@
         self.chart = chartHolder;
         self.hasGrid = YES;
         self.hasYLabels = YES;
-        gridScroll = [[UIScrollView alloc] init];
-        gridScroll.delegate = self;
-        [self addSubview:gridScroll];
-        gridScroll.showsHorizontalScrollIndicator = NO;
-        gridArea = [[NCIGridAreaView alloc] initWithChart:self.chart];
-        [gridScroll addSubview:gridArea];
+        self.topChartIndent =  15;
+        _gridScroll = [[UIScrollView alloc] init];
+        _gridScroll.delegate = self;
+        [self addSubview:_gridScroll];
+        _gridScroll.showsHorizontalScrollIndicator = NO;
+        _gridArea = [[NCIGridAreaView alloc] initWithChart:self.chart];
+        [_gridScroll addSubview:_gridArea];
     }
     return self;
 }
@@ -50,28 +48,13 @@
     return self;
 }
 
--(void)scrollViewDidScroll:(UIScrollView *)scrollView{
-    //TODO clean up this!!! not in general logic
-    if (self.scaleIndex != 1){
-        float handspikeDiff = self.chart.bottomGraph.xHandspikeRight  - self.chart.bottomGraph.xHandspikeLeft;
-        float newLeftHandsptipeX = (scrollView.contentOffset.x)/(self.scaleIndex)  + _leftRightIndent - 16; //half width hendstrike
-        if (scrollView.contentOffset.x > 0 && scrollView.contentOffset.x < scrollView.contentSize.width - 16){
-            self.chart.bottomGraph.xHandspikeLeft = newLeftHandsptipeX;
-            self.chart.bottomGraph.xHandspikeRight = newLeftHandsptipeX + handspikeDiff;
-         }
-
-        [self.chart.bottomGraph setNeedsLayout];
-    }
-}
-
 - (void)layoutSubviews{
     
     if (!yAxisLabels){
         _bottomChartIndent = 60;
-        topChartIndent = 15;
         _leftRightIndent = 60;
         
-        int yLabelsCount  = (self.bounds.size.height - _bottomChartIndent - topChartIndent)/50;
+        int yLabelsCount  = (self.bounds.size.height - _bottomChartIndent - _topChartIndent)/50;
         if (yLabelsCount < 2)
             yLabelsCount = 2;
         yAxisLabels = [[NSMutableArray alloc] initWithCapacity:yLabelsCount];
@@ -89,18 +72,9 @@
     int ind;
     for (ind = 0; ind< yAxisLabels.count; ind++){
         UILabel *yLabel = yAxisLabels[ind];
-        yLabel.frame = CGRectMake(10, topChartIndent + ind*(self.bounds.size.height - _bottomChartIndent - topChartIndent)/(yAxisLabels.count - 1),50, 20);
+        yLabel.frame = CGRectMake(10, _topChartIndent + ind*(self.bounds.size.height - _bottomChartIndent - _topChartIndent)/(yAxisLabels.count - 1),50, 20);
     }
     
-    gridScroll.frame = CGRectMake(_leftRightIndent, topChartIndent, self.frame.size.width - 2*_leftRightIndent,
-                                  self.frame.size.height - topChartIndent);
-    gridScroll.contentSize = CGSizeMake((self.frame.size.width - 2*_leftRightIndent)*self.scaleIndex, self.frame.size.height - topChartIndent - _bottomChartIndent);
-    gridArea.frame = CGRectMake(0, 0, (self.frame.size.width - 2*_leftRightIndent)*self.scaleIndex, self.frame.size.height - topChartIndent - _bottomChartIndent);
-    //temp dirty hack, TODO chage this!!!
-    if (self.scaleIndex != 1){
-        [gridScroll setContentOffset:CGPointMake((self.scaleIndex -1)*(self.frame.size.width - 2*_leftRightIndent - _leftShift*self.scaleIndex), 0)];
-    }
-
 }
 
 - (void)detectXRange {
@@ -111,7 +85,6 @@
 - (void)drawRect:(CGRect)rect {
     [self detectXRange];
     
-    float xFork = maxXVal - minXVal;
     float yFork = self.chart.maxYVal - self.chart.minYVal;
 
     UIBezierPath *path = [UIBezierPath bezierPath];
@@ -144,7 +117,7 @@
     };
 
     
-    [gridArea setNeedsDisplay];
+    [_gridArea setNeedsDisplay];
     
 }
 

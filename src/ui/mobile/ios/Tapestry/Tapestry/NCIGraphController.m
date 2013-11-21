@@ -87,7 +87,6 @@ static NSString* websocketMoreDataRequest =
     [self.view addSubview:nepValue];
     
     graphView = [[NCIChartView alloc] initWithFrame:CGRectZero];
-    graphView.backgroundColor = [UIColor yellowColor];
     [self.view addSubview:graphView];
     
     editServerView = [[NCIEditServerView alloc] initWithTarget:self];
@@ -235,9 +234,10 @@ static NSString* websocketMoreDataRequest =
             NSDate *endDate = [[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
             NSDate *startDate = [[[NSDate date] dateByAddingTimeInterval: -timeAdjustment]
                                  dateByAddingTimeInterval: -60*60*24];
-            [graphView setMinX:startDate];
-            [graphView setMaxX:endDate];
-            [graphView setRanges:[endDate dateByAddingTimeInterval: -60*60*2] max:endDate];
+            [graphView setMinArgument:startDate];
+            [graphView setMaxArgument:endDate];
+            graphView.minRangeDate = [endDate dateByAddingTimeInterval: -60*60*2];
+            graphView.maxRangeDate = endDate;
             
             NSString *endDateString = [[serverDateformatter stringFromDate: endDate]
                                  stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
