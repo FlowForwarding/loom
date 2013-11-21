@@ -22,6 +22,7 @@
         border = [[UIView alloc] initWithFrame:CGRectZero];
         border.backgroundColor = [UIColor blackColor];
         [self addSubview:border];
+        self.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.5];
     }
     return self;
 }

@@ -40,13 +40,12 @@ static NSString* websocketMoreDataRequest =
 }
 
 - (void)requestLastDataForPeiodInSeconds:(int) period{
-    [self.graphView resetChart];
     NSDate *endDate = [[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
     NSDate *startDate = [[[NSDate date] dateByAddingTimeInterval: -timeAdjustment]
                          dateByAddingTimeInterval: - period];
     [self.graphView setMinArgument:startDate];
     [self.graphView setMaxArgument:endDate];
-    self.graphView.minRangeDate = [endDate dateByAddingTimeInterval: - period/12];
+    self.graphView.minRangeDate = [endDate dateByAddingTimeInterval: - period/3];
     self.graphView.maxRangeDate = endDate;
     
     NSString *endDateString = [[self.serverDateformatter stringFromDate: endDate]
@@ -96,6 +95,7 @@ static NSString* websocketMoreDataRequest =
     NSString *messageString = ((NSString *)message);
     NSArray *dataPieces = [[messageString substringWithRange:NSMakeRange(1, messageString.length -2) ] componentsSeparatedByString:@","];
     if (dataPieces.count > 2){
+        [self.graphView resetChart];
         int i;
         for (i = 0; i < dataPieces.count/2; i+=2){
             //we get such fromat data 2013-11-12T14:04:29Z

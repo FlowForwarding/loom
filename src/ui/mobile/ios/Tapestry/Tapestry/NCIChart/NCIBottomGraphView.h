@@ -10,5 +10,6 @@
 
 @interface NCIBottomGraphView : NCIGraphView
 
+- (void)redrawRanges;
 
 @end
