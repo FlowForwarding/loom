@@ -46,7 +46,6 @@
                                                        [button deselect];
                                                    }
                                                }];
-            
             [buttons addObject:switcher];
             [self addSubview:switcher];
             btnNum ++;

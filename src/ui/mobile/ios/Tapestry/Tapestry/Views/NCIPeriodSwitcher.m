@@ -7,6 +7,7 @@
 //
 
 #import "NCIPeriodSwitcher.h"
+#import "NCIWebSocketConnector.h"
 
 @interface NCIPeriodSwitcher(){
     int period;
@@ -49,6 +50,7 @@
 
 - (void)selectPeriod{
     actionBlock();
+    [[NCIWebSocketConnector interlocutor] requestLastDataForPeiodInSeconds:period];
     self.backgroundColor = [UIColor grayColor];
     self.selected = YES;
 }

@@ -40,7 +40,20 @@ static NSString* websocketMoreDataRequest =
 }
 
 - (void)requestLastDataForPeiodInSeconds:(int) period{
+    [self.graphView resetChart];
+    NSDate *endDate = [[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
+    NSDate *startDate = [[[NSDate date] dateByAddingTimeInterval: -timeAdjustment]
+                         dateByAddingTimeInterval: - period];
+    [self.graphView setMinArgument:startDate];
+    [self.graphView setMaxArgument:endDate];
+    self.graphView.minRangeDate = [endDate dateByAddingTimeInterval: - period/12];
+    self.graphView.maxRangeDate = endDate;
     
+    NSString *endDateString = [[self.serverDateformatter stringFromDate: endDate]
+                               stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
+    NSString *startDateString = [[self.serverDateformatter stringFromDate:startDate]
+                                 stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
+    [socket send: [NSString stringWithFormat: websocketMoreDataRequest, startDateString, endDateString]];
 }
 
 - (void)resetData{
@@ -117,19 +130,7 @@ static NSString* websocketMoreDataRequest =
             NSDate *date = [self.serverDateformatter dateFromString:current_time];
             timeAdjustment = [date timeIntervalSinceNow];
             
-            NSDate *endDate = [[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
-            NSDate *startDate = [[[NSDate date] dateByAddingTimeInterval: -timeAdjustment]
-                                 dateByAddingTimeInterval: -60*60*24];
-            [self.graphView setMinArgument:startDate];
-            [self.graphView setMaxArgument:endDate];
-            self.graphView.minRangeDate = [endDate dateByAddingTimeInterval: -60*60*2];
-            self.graphView.maxRangeDate = endDate;
-            
-            NSString *endDateString = [[self.serverDateformatter stringFromDate: endDate]
-                                       stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
-            NSString *startDateString = [[self.serverDateformatter stringFromDate:startDate]
-                                         stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
-            [webSocket send: [NSString stringWithFormat: websocketMoreDataRequest, startDateString, endDateString]];
+            [self requestLastDataForPeiodInSeconds:60*60*24];
         }
     }
 }
