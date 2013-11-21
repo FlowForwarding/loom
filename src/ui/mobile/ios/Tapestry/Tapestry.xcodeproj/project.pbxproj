@@ -32,6 +32,7 @@
 		2AD3DC3B183E2F85003E334F /* NCIIndexValueView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AD3DC34183E2F85003E334F /* NCIIndexValueView.m */; };
 		2AD3DC3C183E2F85003E334F /* NCIPeriodSwitcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AD3DC36183E2F85003E334F /* NCIPeriodSwitcher.m */; };
 		2AD3DC3D183E2F85003E334F /* NCIPeriodSwitcherPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AD3DC38183E2F85003E334F /* NCIPeriodSwitcherPanel.m */; };
+		2AD3DC43183E36E0003E334F /* NCIWebSocketConnector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AD3DC42183E36E0003E334F /* NCIWebSocketConnector.m */; };
 		B989E7ED8B4D4086A19D20D1 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36248AC0518B46CD87C92109 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -87,6 +88,8 @@
 		2AD3DC36183E2F85003E334F /* NCIPeriodSwitcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIPeriodSwitcher.m; sourceTree = "<group>"; };
 		2AD3DC37183E2F85003E334F /* NCIPeriodSwitcherPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIPeriodSwitcherPanel.h; sourceTree = "<group>"; };
 		2AD3DC38183E2F85003E334F /* NCIPeriodSwitcherPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIPeriodSwitcherPanel.m; sourceTree = "<group>"; };
+		2AD3DC41183E36E0003E334F /* NCIWebSocketConnector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIWebSocketConnector.h; sourceTree = "<group>"; };
+		2AD3DC42183E36E0003E334F /* NCIWebSocketConnector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIWebSocketConnector.m; sourceTree = "<group>"; };
 		36248AC0518B46CD87C92109 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0D415E2262C4B2E8C4A192B /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -159,6 +162,8 @@
 				2AAFE55A182FA1DE007BBFEA /* NCIAppDelegate.m */,
 				2AAFE55C182FA1DE007BBFEA /* Images.xcassets */,
 				2AAFE551182FA1DE007BBFEA /* Supporting Files */,
+				2AD3DC41183E36E0003E334F /* NCIWebSocketConnector.h */,
+				2AD3DC42183E36E0003E334F /* NCIWebSocketConnector.m */,
 			);
 			path = Tapestry;
 			sourceTree = "<group>";
@@ -378,6 +383,7 @@
 				2AD3DC24183D150C003E334F /* NCIMianGraphView.m in Sources */,
 				2ABE3B351830CD340046A0FC /* NCIGraphController.m in Sources */,
 				2AAFE55B182FA1DE007BBFEA /* NCIAppDelegate.m in Sources */,
+				2AD3DC43183E36E0003E334F /* NCIWebSocketConnector.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,12 +7,7 @@
 //
 
 #import "NCIEditServerView.h"
-
-@protocol PresentNCIProtocol <NSObject>
-
--(void)resetData;
-
-@end
+#import "NCIWebSocketConnector.h"
 
 @interface NCIEditServerView()<UITextFieldDelegate>{
     UIButton *actionsBtn;
@@ -20,7 +15,6 @@
     UIButton *cancelBtn;
     UIButton *defaultBtn;
     UITextField *serverUrlEdit;
-    id<PresentNCIProtocol> actionsTarget;
     
     NSString *savedUrl;
     bool actionsShown;
@@ -142,8 +136,7 @@ static int btnHeigth = 38;
 
 -(void)connectlUrl{
     savedUrl = serverUrlEdit.text;
-    NSLog(@"%@", actionsTarget);
-    [actionsTarget resetData];
+    [[NCIWebSocketConnector interlocutor] resetData];
     [self hideActions];
 }
 
@@ -155,7 +148,7 @@ static int btnHeigth = 38;
 -(void)setDefaultUrl{
     serverUrlEdit.text = defaultWebsocketUrl;
     savedUrl = defaultWebsocketUrl;
-    [actionsTarget resetData];
+    [[NCIWebSocketConnector interlocutor] resetData];
     [self hideActions];
 }
 
@@ -163,13 +156,6 @@ static int btnHeigth = 38;
     return serverUrlEdit.text;
 }
 
--(id)initWithTarget:(id)target{
-    self = [self initWithFrame:CGRectZero];
-    if (self){
-        actionsTarget = target;
-    }
-    return self;
-}
 
 - (void)layoutSubviews {
     serverUrlEdit.frame = CGRectMake(10, 0, self.bounds.size.width - 130, editServerInputHeigth);
