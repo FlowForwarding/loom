@@ -26,8 +26,7 @@
     
     self.scaleIndex = timePeriod/
     ([self.chart.maxRangeDate timeIntervalSince1970] - [self.chart.minRangeDate timeIntervalSince1970]);
-
-
+    
     self.chart.minRangeDate =  [NSDate dateWithTimeIntervalSince1970:self.chart.minXVal +
                                 timePeriod*(scrollView.contentOffset.x/scrollView.frame.size.width/self.scaleIndex)];
     
@@ -52,10 +51,10 @@
         self.gridArea.frame = CGRectMake(0, 0, (self.frame.size.width - 2*self.leftRightIndent)*self.scaleIndex,
                                          self.frame.size.height - self.topChartIndent - self.bottomChartIndent);
         
-//        float gridStep = (self.chart.maxXVal - self.chart.minXVal)/self.gridScroll.contentSize.width;
-//        self.leftShift = (self.chart.maxXVal - [self.chart.maxRangeDate timeIntervalSince1970])/gridStep;
+        float gridStep = (self.chart.maxXVal - self.chart.minXVal)/self.gridScroll.contentSize.width;
+        self.leftShift = (self.chart.maxXVal - [self.chart.maxRangeDate timeIntervalSince1970])/gridStep;
 
-        [self.gridScroll setContentOffset:CGPointMake((self.scaleIndex -1)*(self.frame.size.width - 2*self.leftRightIndent - 0), 0)];
+        [self.gridScroll setContentOffset:CGPointMake((self.scaleIndex -1)*(self.frame.size.width - 2*self.leftRightIndent) - self.leftShift, 0)];
     }
     
 }
