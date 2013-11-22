@@ -27,6 +27,8 @@
 @property(nonatomic)bool hasGrid;
 @property(nonatomic)bool hasYLabels;
 
+@property(nonatomic)float gridVerticalIndent;
+
 @property(nonatomic, strong)UIScrollView *gridScroll;
 @property(nonatomic, strong)NCIGridAreaView *gridArea;
 

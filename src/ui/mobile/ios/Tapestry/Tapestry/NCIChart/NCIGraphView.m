@@ -93,7 +93,7 @@
     CGContextSetLineWidth(currentContext, 0.5);
     CGContextSetLineJoin(currentContext, kCGLineJoinRound);
     CGContextBeginPath(currentContext);
-    [[UIColor blueColor] setStroke];
+    
     CGContextAddPath(currentContext, path.CGPath);
     CGContextDrawPath(currentContext, kCGPathStroke);
     [[UIColor blackColor] setStroke];

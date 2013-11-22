@@ -82,7 +82,6 @@
     float yStep = self.bounds.size.height/yFork;
     
     UIBezierPath *path = [UIBezierPath bezierPath];
-    [path setLineWidth:.3];
     if (chart.chartData.count > 0){
         NSDate *date = chart.chartData[0][0];
         int yVal = self.frame.size.height - (([chart.chartData[0][1] integerValue] - chart.minYVal)*yStep);
@@ -98,15 +97,30 @@
         [path addLineToPoint:CGPointMake(xVal, yVal)];
         
     };
+    if (chart.chartData.count > 1){
+        NSDate *date = chart.chartData[ind-1][0];
+        int yVal = self.frame.size.height - 0;
+        int xVal =  ([date timeIntervalSince1970] - chart.minXVal)*xStep;
+        [path addLineToPoint:CGPointMake(xVal, yVal)];
+        
+        date = chart.chartData[0][0];
+        yVal = self.frame.size.height - (([chart.chartData[0][1] integerValue] - chart.minYVal)*yStep);
+        xVal =  ([date timeIntervalSince1970] - chart.minXVal)*xStep;
+        [path addLineToPoint:CGPointMake(xVal, self.frame.size.height)];
+        
+        [[[UIColor blueColor] colorWithAlphaComponent:0.2] setFill];
+        [path closePath];
+        [path fill];
+    }
+    
+    [[UIColor blueColor] setStroke];
+    [path setLineWidth:.5];
+    [path stroke];
     
     CGContextRef currentContext = UIGraphicsGetCurrentContext();
-    CGContextSetLineCap(currentContext, kCGLineCapRound);
     CGContextSetLineWidth(currentContext, 0.5);
-    CGContextSetLineJoin(currentContext, kCGLineJoinRound);
-    CGContextBeginPath(currentContext);
-    [[UIColor blueColor] setStroke];
-    CGContextAddPath(currentContext, path.CGPath);
-    CGContextDrawPath(currentContext, kCGPathStroke);
+    
+
     CGFloat dashes[] = { 1, 1 };
     CGContextSetLineDash(currentContext, 0.0,  dashes , 2 );
     [[UIColor blackColor] setStroke];
