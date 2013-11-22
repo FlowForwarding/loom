@@ -69,7 +69,6 @@
         [xAxisLabels addObject:xLabel];
         [self addSubview:xLabel];
         dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
         [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm"];
         
     };

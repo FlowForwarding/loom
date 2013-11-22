@@ -18,6 +18,8 @@
     
     float fontSize;
     NSString *indexName;
+    
+    NSDateFormatter *serverDateformatter;
 }
 @end
 
@@ -50,6 +52,9 @@
         updateLabel.font = [UIFont italicSystemFontOfSize:14];
         updateLabel.backgroundColor = [UIColor clearColor];
         [contentView addSubview:updateLabel];
+        
+        serverDateformatter = [[NSDateFormatter alloc] init];
+        [serverDateformatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
 
     }
     return self;
@@ -81,8 +86,11 @@
 #pragma mark util methods
 
 - (NSString *)processTime:(NSString *) time{
-    return [[time stringByReplacingOccurrencesOfString:@"T" withString:@" "]
-            stringByReplacingOccurrencesOfString:@"Z" withString:@""];
+    time = [[time stringByReplacingOccurrencesOfString:@"T" withString:@" "] stringByReplacingOccurrencesOfString:@"Z" withString:@""];
+        [serverDateformatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+    NSDate *date = [serverDateformatter dateFromString:time];
+    [serverDateformatter setTimeZone:[NSTimeZone  localTimeZone]];
+    return [serverDateformatter stringFromDate:date];
 }
 
 - (NSString *)processIndexValue:(NSString *)indexValue

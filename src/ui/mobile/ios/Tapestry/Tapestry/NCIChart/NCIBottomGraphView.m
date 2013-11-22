@@ -41,14 +41,14 @@
         self.topChartIndent = 15;
         
         leftAmputation = [[UIView alloc] initWithFrame:CGRectZero];
-        leftAmputation.backgroundColor = [[UIColor blueColor] colorWithAlphaComponent:0.2];
+        leftAmputation.backgroundColor = [UIColor colorWithWhite:0.3 alpha:0.1];
         [self addSubview:leftAmputation];
         
         handspikeLeft = [[NCIHandspikeView alloc] initWithFrame:CGRectZero];
         [self addSubview:handspikeLeft];
         
         rightAmputation = [[UIView alloc] initWithFrame:CGRectZero];
-        rightAmputation.backgroundColor = [[UIColor blueColor] colorWithAlphaComponent:0.2];
+        rightAmputation.backgroundColor = [UIColor colorWithWhite:0.3 alpha:0.1];
         [self addSubview:rightAmputation];
         
         handspikeRight = [[NCIHandspikeView alloc] initWithFrame:CGRectZero];
@@ -80,6 +80,9 @@
     float handspikeIndent = self.leftRightIndent - handspikeWidth/2;
     float gridHeigth = self.frame.size.height - self.bottomChartIndent - self.topChartIndent;
     
+    if (self.chart.chartData.count < 1)
+        return;
+    
     if (!_xHandspikeLeft){
         _xHandspikeLeft = handspikeIndent;
         fixedLeftVal = _xHandspikeLeft;
@@ -103,7 +106,7 @@
         _xHandspikeRight = gridWidth + handspikeIndent;
     }
     
-    if (_xHandspikeRight - _xHandspikeLeft < 30)
+    if (_xHandspikeRight - _xHandspikeLeft < 0)
         return;
     
     
@@ -137,13 +140,21 @@ float startX = 0;
     if( [touch view] == handspikeLeft)
     {
         CGPoint location = [touch locationInView:self];
+        if (_xHandspikeRight - (location.x - startX - self.leftRightIndent) < 35)
+            return;
+        
         self.chart.minRangeDate = [NSDate dateWithTimeIntervalSince1970:
                                    self.chart.minXVal + (location.x - startX - self.leftRightIndent)/gridStep];
-        [self redrawRanges];
+        [self.chart.mainGraph setNeedsLayout];
+        [self.chart.mainGraph setNeedsDisplay];
+     //   [self redrawRanges];
     } else if ([touch view] == handspikeRight){
+        
         CGPoint location = [touch locationInView:self];
-         self.chart.maxRangeDate = [NSDate dateWithTimeIntervalSince1970:self.chart.minXVal + (location.x - startX - self.leftRightIndent)/gridStep];
-        [self redrawRanges];
+        [self.chart.mainGraph setNeedsLayout];
+        [self.chart.mainGraph setNeedsDisplay];
+        self.chart.maxRangeDate = [NSDate dateWithTimeIntervalSince1970:self.chart.minXVal + (location.x - startX - self.leftRightIndent)/gridStep];
+        //[self redrawRanges];
     }
 }
 
