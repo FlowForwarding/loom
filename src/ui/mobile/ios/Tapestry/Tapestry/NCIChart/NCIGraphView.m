@@ -12,8 +12,10 @@
 
 @interface NCIGraphView()<UIScrollViewDelegate>{
     NSMutableArray *yAxisLabels;
-    int minXVal;
-    int maxXVal;
+    float minXVal;
+    float maxXVal;
+    float minYVal;
+    float maxYVal;
 }
 
 @end
@@ -80,12 +82,19 @@
 - (void)detectXRange {
     minXVal = self.chart.minXVal;
     maxXVal = self.chart.maxXVal;
+    if (self.chart.maxYVal - self.chart.minYVal == 0){
+        minYVal = self.chart.minYVal - 1;
+        maxYVal = self.chart.maxYVal + 1;
+    } else {
+        minYVal = self.chart.minYVal + (self.chart.maxYVal - self.chart.minYVal)*0.05;
+        maxYVal = self.chart.maxYVal + (self.chart.maxYVal - self.chart.minYVal)*0.05;;
+    }
 }
 
 - (void)drawRect:(CGRect)rect {
     [self detectXRange];
     
-    float yFork = self.chart.maxYVal - self.chart.minYVal;
+    float yFork = maxYVal - minYVal;
 
     UIBezierPath *path = [UIBezierPath bezierPath];
     CGContextRef currentContext = UIGraphicsGetCurrentContext();
@@ -102,11 +111,11 @@
     
     CGFloat dashes[] = { 1, 1 };
     CGContextSetLineDash(currentContext, 0.0,  dashes , 2 );
-    if (self.chart.maxYVal && self.chart.minYVal){
+    if (maxYVal && minYVal){
         for (ind = 0; ind < yAxisLabels.count; ind++){
             UILabel *yLabel = yAxisLabels[ind];
             if (self.hasYLabels){
-                yLabel.text = [NSString stringWithFormat:@"%.1f", self.chart.maxYVal - ind * yFork/(yAxisLabels.count - 1)];
+                yLabel.text = [NSString stringWithFormat:@"%.1f", maxYVal - ind * yFork/(yAxisLabels.count - 1)];
             }
             if (self.hasGrid || ind == yAxisLabels.count -1){
                 CGContextMoveToPoint(currentContext, yLabel.frame.origin.x + _leftRightIndent/2, yLabel.frame.origin.y);

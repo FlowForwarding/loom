@@ -20,6 +20,11 @@
     float yFork;
     float yStep;
     UILabel *selectedPoint;
+    
+    float minXVal;
+    float maxXVal;
+    float minYVal;
+    float maxYVal;
 }
 
 @end
@@ -84,12 +89,27 @@
 }
 
 
+//TODO !!!! remove duplication from  NCIGraphView
+//temporary made for friday release
+- (void)detectXRange {
+    minXVal = chart.minXVal;
+    maxXVal = chart.maxXVal;
+    if (chart.maxYVal - chart.minYVal == 0){
+        minYVal = chart.minYVal - 1;
+        maxYVal = chart.maxYVal + 1;
+    } else {
+        minYVal = chart.minYVal + (chart.maxYVal - chart.minYVal)*0.05;
+        maxYVal = chart.maxYVal + (chart.maxYVal - chart.minYVal)*0.05;;
+    }
+}
+
 - (void)drawRect:(CGRect)rect
 {
-    xFork = chart.maxXVal - chart.minXVal;
+    [self detectXRange];
+    xFork = maxXVal - minXVal;
     xStep = self.bounds.size.width/xFork;
     
-    yFork = chart.maxYVal - chart.minYVal;
+    yFork = maxYVal - minYVal;
     yStep = self.bounds.size.height/yFork;
     
     UIBezierPath *path = [UIBezierPath bezierPath];
@@ -105,12 +125,12 @@
     if (chart.chartData.count > 1){
         NSDate *date = chart.chartData[ind-1][0];
         int yVal = self.frame.size.height - 0;
-        int xVal =  ([date timeIntervalSince1970] - chart.minXVal)*xStep;
+        int xVal =  ([date timeIntervalSince1970] - minXVal)*xStep;
         [path addLineToPoint:CGPointMake(xVal, yVal)];
         
         date = chart.chartData[0][0];
-        yVal = self.frame.size.height - (([chart.chartData[0][1] integerValue] - chart.minYVal)*yStep);
-        xVal =  ([date timeIntervalSince1970] - chart.minXVal)*xStep;
+        yVal = self.frame.size.height - (([chart.chartData[0][1] integerValue] - minYVal)*yStep);
+        xVal =  ([date timeIntervalSince1970] - minXVal)*xStep;
         [path addLineToPoint:CGPointMake(xVal, self.frame.size.height)];
         
         [[[UIColor blueColor] colorWithAlphaComponent:0.1] setFill];
@@ -130,10 +150,10 @@
     CGContextSetLineDash(currentContext, 0.0,  dashes , 2 );
     [[UIColor blackColor] setStroke];
     
-    if (chart.maxXVal && chart.minXVal){
+    if (maxXVal && minXVal){
         for (ind = 0; ind< xAxisLabels.count; ind++){
             UILabel *xLabel = xAxisLabels[ind];
-            NSDate *date = [NSDate dateWithTimeIntervalSince1970:(chart.minXVal + ind * xFork/(xAxisLabels.count - 1))];
+            NSDate *date = [NSDate dateWithTimeIntervalSince1970:(minXVal + ind * xFork/(xAxisLabels.count - 1))];
             xLabel.text = [NSString stringWithFormat:@"%@", [dateFormatter stringFromDate: date]];
            // if (self.hasGrid || ind == 0){
                 CGContextMoveToPoint(currentContext, xLabel.frame.origin.x + xLabelShift, xLabel.frame.origin.y );
@@ -147,8 +167,8 @@
 
 - (CGPoint)pointByServerData:(NSArray *)data{
     NSDate *date = data[0];
-    int yVal = self.frame.size.height - (([data[1] integerValue] - chart.minYVal)*yStep);
-    int xVal =  ([date timeIntervalSince1970] - chart.minXVal)*xStep;
+    int yVal = self.frame.size.height - (([data[1] integerValue] - minYVal)*yStep);
+    int xVal =  ([date timeIntervalSince1970] - minXVal)*xStep;
     return CGPointMake(xVal, yVal);
 }
 
@@ -166,7 +186,7 @@
 - (void)showPoint:(UIEvent *)event{
     UITouch *touch = [[event allTouches] anyObject];
     CGPoint location = [touch locationInView:self];
-    NSDate *date =  [NSDate dateWithTimeIntervalSince1970: location.x/xStep + chart.minXVal];
+    NSDate *date =  [NSDate dateWithTimeIntervalSince1970: location.x/xStep + minXVal];
     int i;
     for (i =0; i < chart.chartData.count; i++){
         NSArray *point = chart.chartData[i];

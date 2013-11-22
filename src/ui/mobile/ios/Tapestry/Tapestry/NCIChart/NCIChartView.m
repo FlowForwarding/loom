@@ -45,6 +45,11 @@
 
 - (void)resetChart{
     [self.chartData removeAllObjects];
+    //TODO get rid with this!!! temporary made for friday build!!!
+//    _minXVal = 0;
+//    _maxXVal = 0;
+    _minYVal = 0;
+    _maxYVal = 0;
 }
 
 - (void)layoutSubviews{
@@ -89,6 +94,7 @@
     
     [self.chartData addObject:@[date, value]];
 }
+
 
 - (void)drawChart{
     [_mainGraph setNeedsDisplay];
