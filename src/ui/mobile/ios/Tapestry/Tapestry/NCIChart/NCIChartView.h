@@ -26,6 +26,10 @@
 @property(nonatomic, strong)NSDate *maxRangeDate;
 
 //Inside usage
+
+//TODO make a class for point
+@property (nonatomic, strong)UILabel *selectedPoint;
+
 @property (nonatomic, strong)NCIMianGraphView *mainGraph;
 @property (nonatomic, strong)NCIBottomGraphView *bottomGraph;
 @property (atomic, strong)NSMutableArray *chartData;

@@ -13,7 +13,7 @@
 
 @interface NCIWebSocketConnector()<SRWebSocketDelegate>{
     SRWebSocket *socket;
-    int timeAdjustment;
+    //int timeAdjustment;
 }
 @property(nonatomic, strong)NSDateFormatter *serverDateformatter;
 
@@ -40,8 +40,8 @@ static NSString* websocketMoreDataRequest =
 }
 
 - (void)requestLastDataForPeiodInSeconds:(int) period{
-    NSDate *endDate = [[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
-    NSDate *startDate = [[[NSDate date] dateByAddingTimeInterval: -timeAdjustment]
+    NSDate *endDate = [NSDate date];//[[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
+    NSDate *startDate = [[NSDate date]
                          dateByAddingTimeInterval: - period];
     [self.graphView setMinArgument:startDate];
     [self.graphView setMaxArgument:endDate];
@@ -128,7 +128,7 @@ static NSString* websocketMoreDataRequest =
             NSString *current_time = dataPoint[@"current_time"];
             current_time = [current_time stringByReplacingOccurrencesOfString:@"T" withString:@"_"];
             NSDate *date = [self.serverDateformatter dateFromString:current_time];
-            timeAdjustment = [date timeIntervalSinceNow];
+            //timeAdjustment = [date timeIntervalSinceNow];
             
             [self requestLastDataForPeiodInSeconds:60*60*24];
         }
