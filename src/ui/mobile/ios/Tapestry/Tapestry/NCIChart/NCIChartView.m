@@ -106,6 +106,8 @@
                 maxXVal = cur;
         }
     }
+    if (minXVal == MAXFLOAT)
+        return @[[NSNumber numberWithFloat: [self getMinValue]], [NSNumber numberWithFloat: [self getMaxValue]]];
     float diff = maxXVal - minXVal;
     if (diff == 0){
         maxXVal = maxXVal + 1;
