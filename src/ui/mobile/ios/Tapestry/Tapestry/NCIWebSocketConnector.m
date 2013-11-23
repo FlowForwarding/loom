@@ -43,6 +43,7 @@ static NSString* websocketMoreDataRequest =
     NSDate *endDate = [NSDate date];//[[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
     NSDate *startDate = [[NSDate date]
                          dateByAddingTimeInterval: - period];
+    [self.chartView resetChart];
     [self.chartView setMinArgument:startDate];
     [self.chartView setMaxArgument:endDate];
     self.chartView.minRangeDate = [endDate dateByAddingTimeInterval: - period/3];
@@ -95,7 +96,6 @@ static NSString* websocketMoreDataRequest =
     NSString *messageString = ((NSString *)message);
     NSArray *dataPieces = [[messageString substringWithRange:NSMakeRange(1, messageString.length -2) ] componentsSeparatedByString:@","];
     if (dataPieces.count > 2){
-        [self.chartView resetChart];
         int i;
         for (i = 0; i < dataPieces.count/2; i+=2){
             //we get such fromat data 2013-11-12T14:04:29Z

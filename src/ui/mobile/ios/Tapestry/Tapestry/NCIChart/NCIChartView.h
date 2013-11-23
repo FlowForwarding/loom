@@ -28,6 +28,7 @@
 @property(nonatomic)bool hasSlider; 
 
 //Inside usage
+//All date values are in convertion to timeIntervalSince1970
 - (float)getMinValue;
 - (float)getMaxValue;
 @property (nonatomic)float maxXVal;

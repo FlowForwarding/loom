@@ -28,6 +28,8 @@
     if (self) {
         _hasSlider = YES;
         _topBottomReserve = 5;
+        _minXVal = MAXFLOAT;
+        _maxXVal = -MAXFLOAT;
         
         self.chartData = [[NSMutableArray alloc] init];
         _mainGraph = [[NCIMianGraphView alloc] initWithChart:self];
@@ -85,9 +87,8 @@
 
 - (void)resetChart{
     [self.chartData removeAllObjects];
-    //TODO get rid with this!!! temporary made for friday build!!!
-    //    _minXVal = 0;
-    //    _maxXVal = 0;
+    _minXVal = MAXFLOAT;
+    _maxXVal = -MAXFLOAT;
     _minYVal = 0;
     _maxYVal = 0;
 }
@@ -115,8 +116,8 @@
 
 
 - (void)drawChart{
-    [_mainGraph setNeedsDisplay];
     [_mainGraph setNeedsLayout];
+    [_mainGraph setNeedsDisplay];
     [_bottomGraph setNeedsDisplay];
     [_bottomGraph setNeedsLayout];
 }
