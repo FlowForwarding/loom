@@ -15,6 +15,9 @@
 
 }
 
+@property (nonatomic)int maxYVal;
+@property (nonatomic)int minYVal;
+
 @end
 
 @implementation NCIChartView
@@ -24,6 +27,7 @@
     self = [super initWithFrame:(CGRect)frame];
     if (self) {
         _hasSlider = YES;
+        _topBottomReserve = 5;
         
         self.chartData = [[NSMutableArray alloc] init];
         _mainGraph = [[NCIMianGraphView alloc] initWithChart:self];
@@ -43,15 +47,6 @@
     return self;
 }
 
-- (void)resetChart{
-    [self.chartData removeAllObjects];
-    //TODO get rid with this!!! temporary made for friday build!!!
-//    _minXVal = 0;
-//    _maxXVal = 0;
-    _minYVal = 0;
-    _maxYVal = 0;
-}
-
 - (void)layoutSubviews{
     float bottomGraphHeight = 130;
     _selectedPoint.frame = CGRectMake(self.bounds.size.width - 320, 0, 300, 30);
@@ -66,12 +61,35 @@
     [_bottomGraph setNeedsDisplay];
 }
 
+- (float)getMinValue{
+    float diff = _maxYVal - _minYVal;
+    if (diff == 0)
+        return _minYVal -1;
+    return _minYVal - diff*_topBottomReserve/100;
+}
+
+- (float)getMaxValue{
+    float diff = _maxYVal - _minYVal;
+    if (diff == 0)
+        return _maxYVal -1;
+    return _maxYVal + diff*_topBottomReserve/100;
+}
+
 - (void)setMinArgument:(NSDate *)date{
     _minXVal  = [date timeIntervalSince1970];
 }
 
 - (void)setMaxArgument:(NSDate *)date{
     _maxXVal = [date timeIntervalSince1970];
+}
+
+- (void)resetChart{
+    [self.chartData removeAllObjects];
+    //TODO get rid with this!!! temporary made for friday build!!!
+    //    _minXVal = 0;
+    //    _maxXVal = 0;
+    _minYVal = 0;
+    _maxYVal = 0;
 }
 
 - (void)addPoint:(NSDate *)date val:(NSString *)value{

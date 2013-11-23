@@ -79,20 +79,12 @@
     
 }
 
-- (void)detectXRange {
-    minXVal = self.chart.minXVal;
-    maxXVal = self.chart.maxXVal;
-    if (self.chart.maxYVal - self.chart.minYVal == 0){
-        minYVal = self.chart.minYVal - 1;
-        maxYVal = self.chart.maxYVal + 1;
-    } else {
-        minYVal = self.chart.minYVal + (self.chart.maxYVal - self.chart.minYVal)*0.05;
-        maxYVal = self.chart.maxYVal + (self.chart.maxYVal - self.chart.minYVal)*0.05;;
-    }
-}
 
 - (void)drawRect:(CGRect)rect {
-    [self detectXRange];
+    minYVal = [self.chart getMinValue];
+    maxYVal = [self.chart getMaxValue];
+    minXVal = self.chart.minXVal;
+    maxXVal = self.chart.maxXVal;
     
     float yFork = maxYVal - minYVal;
 

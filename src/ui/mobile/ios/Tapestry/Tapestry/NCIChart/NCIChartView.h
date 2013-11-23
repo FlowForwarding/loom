@@ -7,9 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-//#import "NCIBottomGraphView.h"
-//#import "NCIGraphView.h"
-
 @class NCIMianGraphView;
 @class NCIBottomGraphView;
 
@@ -19,25 +16,28 @@
 - (void)addPoint:(NSDate *)date val:(NSString *)value;
 - (void)drawChart;
 - (void)resetChart;
+
 - (void)setMinArgument:(NSDate *)date;
 - (void)setMaxArgument:(NSDate *)date;
-@property(nonatomic)bool hasSlider;
+
 @property(nonatomic, strong)NSDate *minRangeDate;
 @property(nonatomic, strong)NSDate *maxRangeDate;
 
-//Inside usage
+//top and bottom reserve for grph Y values in persentage, default 5%
+@property(nonatomic)float topBottomReserve;
+@property(nonatomic)bool hasSlider; 
 
+//Inside usage
+- (float)getMinValue;
+- (float)getMaxValue;
+@property (nonatomic)float maxXVal;
+@property (nonatomic)float minXVal;
 //TODO make a class for point
 @property (nonatomic, strong)UILabel *selectedPoint;
-
 @property (nonatomic, strong)NCIMianGraphView *mainGraph;
 @property (nonatomic, strong)NCIBottomGraphView *bottomGraph;
 @property (atomic, strong)NSMutableArray *chartData;
 
-@property (nonatomic)int maxXVal;
-@property (nonatomic)int minXVal;
-@property (nonatomic)int maxYVal;
-@property (nonatomic)int minYVal;
 
 
 @end

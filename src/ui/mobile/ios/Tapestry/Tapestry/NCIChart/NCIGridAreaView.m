@@ -89,23 +89,13 @@
 }
 
 
-//TODO !!!! remove duplication from  NCIGraphView
-//temporary made for friday release
-- (void)detectXRange {
-    minXVal = chart.minXVal;
-    maxXVal = chart.maxXVal;
-    if (chart.maxYVal - chart.minYVal == 0){
-        minYVal = chart.minYVal - 1;
-        maxYVal = chart.maxYVal + 1;
-    } else {
-        minYVal = chart.minYVal + (chart.maxYVal - chart.minYVal)*0.05;
-        maxYVal = chart.maxYVal + (chart.maxYVal - chart.minYVal)*0.05;;
-    }
-}
-
 - (void)drawRect:(CGRect)rect
 {
-    [self detectXRange];
+    minYVal = [chart getMinValue];
+    maxYVal = [chart getMaxValue];
+    minXVal = chart.minXVal;
+    maxXVal = chart.maxXVal;
+    
     xFork = maxXVal - minXVal;
     xStep = self.bounds.size.width/xFork;
     

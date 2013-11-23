@@ -151,9 +151,9 @@ float startX = 0;
     } else if ([touch view] == handspikeRight){
         
         CGPoint location = [touch locationInView:self];
+        self.chart.maxRangeDate = [NSDate dateWithTimeIntervalSince1970:self.chart.minXVal + (location.x - startX - self.leftRightIndent)/gridStep];
         [self.chart.mainGraph setNeedsLayout];
         [self.chart.mainGraph setNeedsDisplay];
-        self.chart.maxRangeDate = [NSDate dateWithTimeIntervalSince1970:self.chart.minXVal + (location.x - startX - self.leftRightIndent)/gridStep];
         //[self redrawRanges];
     }
 }
