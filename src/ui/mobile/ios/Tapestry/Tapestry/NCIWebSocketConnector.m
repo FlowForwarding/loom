@@ -43,10 +43,10 @@ static NSString* websocketMoreDataRequest =
     NSDate *endDate = [NSDate date];//[[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
     NSDate *startDate = [[NSDate date]
                          dateByAddingTimeInterval: - period];
-    [self.graphView setMinArgument:startDate];
-    [self.graphView setMaxArgument:endDate];
-    self.graphView.minRangeDate = [endDate dateByAddingTimeInterval: - period/3];
-    self.graphView.maxRangeDate = endDate;
+    [self.chartView setMinArgument:startDate];
+    [self.chartView setMaxArgument:endDate];
+    self.chartView.minRangeDate = [endDate dateByAddingTimeInterval: - period/3];
+    self.chartView.maxRangeDate = endDate;
     
     NSString *endDateString = [[self.serverDateformatter stringFromDate: endDate]
                                stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
@@ -60,7 +60,7 @@ static NSString* websocketMoreDataRequest =
     [self.qpsValue resetData];
     [self.nepValue resetData];
     [self.noConnectionLabel setHidden:YES];
-    [self.graphView resetChart];
+    [self.chartView resetChart];
     [[NCIWebSocketConnector interlocutor] reconnect];
 }
 
@@ -95,7 +95,7 @@ static NSString* websocketMoreDataRequest =
     NSString *messageString = ((NSString *)message);
     NSArray *dataPieces = [[messageString substringWithRange:NSMakeRange(1, messageString.length -2) ] componentsSeparatedByString:@","];
     if (dataPieces.count > 2){
-        [self.graphView resetChart];
+        [self.chartView resetChart];
         int i;
         for (i = 0; i < dataPieces.count/2; i+=2){
             //we get such fromat data 2013-11-12T14:04:29Z
@@ -103,9 +103,9 @@ static NSString* websocketMoreDataRequest =
             dateString = [dateString stringByReplacingOccurrencesOfString:@"T" withString:@"_"];
             NSDate *date = [self.serverDateformatter dateFromString:dateString];
             NSString *nciVal = [dataPieces[2*i+1] substringFromIndex:6];
-            [self.graphView addPoint:date val:nciVal];
+            [self.chartView addPoint:date val:nciVal];
         }
-        [self.graphView drawChart];
+        [self.chartView drawChart];
         
     } else {
         NSDictionary *dataPoint = [NSJSONSerialization

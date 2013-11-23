@@ -18,7 +18,7 @@
     NCIIndexValueView *nciValue;
     NCIIndexValueView *nepValue;
     NCIIndexValueView *qpsValue;
-    NCIChartView *graphView;
+    NCIChartView *chartView;
     UIButton *infoButton;
     NCIHelpView *helpView;
 
@@ -80,8 +80,8 @@
     switcherPanel = [[NCIPeriodSwitcherPanel alloc] initWithFrame:CGRectZero];
     [self.view addSubview:switcherPanel];
     
-    graphView = [[NCIChartView alloc] initWithFrame:CGRectZero];
-    [self.view addSubview:graphView];
+    chartView = [[NCIChartView alloc] initWithFrame:CGRectZero];
+    [self.view addSubview:chartView];
     
     editServerView = [[NCIEditServerView alloc] initWithFrame:CGRectZero];
     [self.view addSubview:editServerView];
@@ -105,7 +105,7 @@
     [NCIWebSocketConnector interlocutor].nciValue = nciValue;
     [NCIWebSocketConnector interlocutor].nepValue = nepValue;
     [NCIWebSocketConnector interlocutor].qpsValue = qpsValue;
-    [NCIWebSocketConnector interlocutor].graphView = graphView;
+    [NCIWebSocketConnector interlocutor].chartView = chartView;
     [NCIWebSocketConnector interlocutor].noConnectionLabel = noConnectionLabel;
     [[NCIWebSocketConnector interlocutor] reconnect];
     
@@ -150,7 +150,7 @@
     
     noConnectionLabel.frame = CGRectMake(0, 250, self.view.bounds.size.width, 50);
     
-    graphView.frame = CGRectMake(0, 250, self.view.bounds.size.width, 450);
+    chartView.frame = CGRectMake(0, 250, self.view.bounds.size.width, 450);
     
     infoButton.center = CGPointMake(self.view.bounds.size.width - 50, indexLabelHeight + 30);
     
