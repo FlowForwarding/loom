@@ -19,6 +19,8 @@
     int handspikeWidth;
     float gridWidth;
     float gridStep; //number of seconds for pixel
+    float handspikeIndent;
+    float gridHeigth;
     
     //values on start dragging ranges
     float fixedLeftVal;
@@ -62,6 +64,11 @@
 - (void)layoutSubviews{
     [super layoutSubviews];
     
+    gridWidth = self.frame.size.width - 2*self.leftRightIndent;
+    gridStep = gridWidth/([self.chart getMaxArgument] - [self.chart getMinArgument]);
+    handspikeIndent = self.leftRightIndent - handspikeWidth/2;
+    gridHeigth = self.frame.size.height - self.bottomChartIndent - self.topChartIndent;
+    
     self.scaleIndex = 1;
     self.gridScroll.frame = CGRectMake(self.leftRightIndent,self.topChartIndent, self.frame.size.width - 2*self.leftRightIndent,
                                        self.frame.size.height - self.topChartIndent);
@@ -75,10 +82,6 @@
 }
 
 - (void)redrawRanges{
-    gridWidth = self.frame.size.width - 2*self.leftRightIndent;
-    gridStep = gridWidth/([self.chart getMaxArgument] - [self.chart getMinArgument]);
-    float handspikeIndent = self.leftRightIndent - handspikeWidth/2;
-    float gridHeigth = self.frame.size.height - self.bottomChartIndent - self.topChartIndent;
     
     if (self.chart.chartData.count < 1)
         return;
@@ -143,19 +146,22 @@ float startX = 0;
         if (_xHandspikeRight - (location.x - startX - self.leftRightIndent) < 35)
             return;
         
-        self.chart.minRangeDate = [NSDate dateWithTimeIntervalSince1970:
-                                   [self.chart getMinArgument] + (location.x - startX - self.leftRightIndent)/gridStep];
+        self.chart.minRangeDate = [self dateFromXPos:(location.x - startX)];
         [self.chart.mainGraph setNeedsLayout];
         [self.chart.mainGraph setNeedsDisplay];
      //   [self redrawRanges];
     } else if ([touch view] == handspikeRight){
-        
         CGPoint location = [touch locationInView:self];
-        self.chart.maxRangeDate = [NSDate dateWithTimeIntervalSince1970:[self.chart getMinArgument] + (location.x - startX - self.leftRightIndent)/gridStep];
+        self.chart.maxRangeDate = [self dateFromXPos:(location.x - startX)];
+        
         [self.chart.mainGraph setNeedsLayout];
         [self.chart.mainGraph setNeedsDisplay];
         //[self redrawRanges];
     }
+}
+
+- (NSDate *)dateFromXPos:(float)xPos{
+    return [NSDate dateWithTimeIntervalSince1970:[self.chart getMinArgument] + (xPos - self.leftRightIndent)/gridStep];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{

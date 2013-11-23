@@ -87,7 +87,7 @@
     [self.view addSubview:editServerView];
     
     noConnectionLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-    noConnectionLabel.text = NSLocalizedString(@"Can't connect, please try agian.", nil);
+    noConnectionLabel.text = NSLocalizedString(@"Can't connect, please try again.", nil);
     noConnectionLabel.backgroundColor = [UIColor clearColor];
     noConnectionLabel.font = [UIFont boldSystemFontOfSize:22];
     noConnectionLabel.textAlignment = NSTextAlignmentCenter;

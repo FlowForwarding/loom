@@ -54,15 +54,12 @@
 - (void)layoutSubviews{
     float bottomGraphHeight = 130;
     _selectedPoint.frame = CGRectMake(self.bounds.size.width - 320, 0, 300, 30);
-    //[_selectedPoint setBackgroundColor:[UIColor purpleColor]];
     if (_hasRangeSelector){
         _mainGraph.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - bottomGraphHeight);
         _bottomGraph.frame = CGRectMake(0, self.bounds.size.height - bottomGraphHeight, self.bounds.size.width, bottomGraphHeight);
     } else {
         _mainGraph.frame = self.bounds;
     }
-    [_mainGraph setNeedsDisplay];
-    [_bottomGraph setNeedsDisplay];
 }
 
 - (float)getMinValue{
