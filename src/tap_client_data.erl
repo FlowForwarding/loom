@@ -49,7 +49,7 @@ listen(State)->
     case NCILog of
 	undefined ->
 	    register(tap_client_data,self()),
-	    listen(State#state{nci_log = ets:new(nci_log,[])});
+	    listen(State#state{nci_log = ets:new(nci_log,[ordered_set])});
 	_ -> ok
     end,
     Clients = State#state.clients,
@@ -73,12 +73,12 @@ listen(State)->
 	    end;
 	{nci,Data}->
 	    {NCI,UT} = Data,
-	    ets:insert(NCILog,{UT,NCI}),
+	    true = ets:insert(NCILog,{UT,NCI}),
 %	    NewNCILog = [{UT,NCI}|NCILog],
 	    Time = list_to_binary(tap_utils:rfc3339(UT)),
 	    JSON = jiffy:encode({[{<<"Time">>,Time},{<<"NCI">>,NCI}]}),
 	    NewClients = broadcast_msg(Clients,JSON),
-	    NewState = State#state{clients=NewClients,last_nci=JSON,nci_log=NCILog},
+	    NewState = State#state{clients=NewClients,last_nci=JSON},
 	    listen(NewState);
 	{qps,Data}->
 	    {QPS,UT} = Data,

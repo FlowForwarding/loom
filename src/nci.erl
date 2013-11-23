@@ -466,6 +466,7 @@ compute_from_graph(InG)->
 			  {_,V1,V2,_} = digraph:edge(InG,X),
 			  digraph:add_edge(G,V1,V2) end,
 		  Edges),
-    G2 = prop_labels(G),
-    NCI = calc_nci(G2),
+    prop_labels(G),
+    NCI = calc_nci(G),
+    digraph:delete(G),
     NCI.
