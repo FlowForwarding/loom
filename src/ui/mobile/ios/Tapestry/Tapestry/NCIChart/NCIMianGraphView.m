@@ -22,15 +22,15 @@
 
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView{
-    float timePeriod = self.chart.maxXVal - self.chart.minXVal;
+    float timePeriod = [self.chart getMaxArgument] - [self.chart getMinArgument];
     
     self.scaleIndex = timePeriod/
     ([self.chart.maxRangeDate timeIntervalSince1970] - [self.chart.minRangeDate timeIntervalSince1970]);
     
-    self.chart.minRangeDate =  [NSDate dateWithTimeIntervalSince1970:self.chart.minXVal +
+    self.chart.minRangeDate =  [NSDate dateWithTimeIntervalSince1970:[self.chart getMinArgument] +
                                 timePeriod*(scrollView.contentOffset.x/scrollView.frame.size.width/self.scaleIndex)];
     
-    self.chart.maxRangeDate = [NSDate dateWithTimeIntervalSince1970:self.chart.minXVal +
+    self.chart.maxRangeDate = [NSDate dateWithTimeIntervalSince1970:[self.chart getMinArgument] +
                                timePeriod*((scrollView.contentOffset.x + scrollView.frame.size.width)/scrollView.frame.size.width/self.scaleIndex)];
 
     [self.chart.bottomGraph redrawRanges];
@@ -40,7 +40,7 @@
 - (void)layoutSubviews{
     
     [super layoutSubviews];
-    self.scaleIndex = (self.chart.maxXVal - self.chart.minXVal)/
+    self.scaleIndex = ([self.chart getMaxArgument] - [self.chart getMinArgument])/
         ([self.chart.maxRangeDate timeIntervalSince1970] - [self.chart.minRangeDate timeIntervalSince1970]);
 
     if (self.scaleIndex > 0 ){
@@ -51,8 +51,8 @@
         self.gridArea.frame = CGRectMake(0, 0, (self.frame.size.width - 2*self.leftRightIndent)*self.scaleIndex,
                                          self.frame.size.height - self.topChartIndent - self.bottomChartIndent);
         
-        float gridStep = (self.chart.maxXVal - self.chart.minXVal)/self.gridScroll.contentSize.width;
-        self.leftShift = (self.chart.maxXVal - [self.chart.maxRangeDate timeIntervalSince1970])/gridStep;
+        float gridStep = ([self.chart getMaxArgument] - [self.chart getMinArgument])/self.gridScroll.contentSize.width;
+        self.leftShift = ([self.chart getMaxArgument] - [self.chart.maxRangeDate timeIntervalSince1970])/gridStep;
 
         [self.gridScroll setContentOffset:CGPointMake((self.scaleIndex -1)*(self.frame.size.width - 2*self.leftRightIndent) - self.leftShift, 0)];
     }

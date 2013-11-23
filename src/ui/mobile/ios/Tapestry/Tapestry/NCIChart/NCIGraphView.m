@@ -83,8 +83,8 @@
 - (void)drawRect:(CGRect)rect {
     minYVal = [self.chart getMinValue];
     maxYVal = [self.chart getMaxValue];
-    minXVal = self.chart.minXVal;
-    maxXVal = self.chart.maxXVal;
+    minXVal = [self.chart getMinArgument];
+    maxXVal = [self.chart getMaxArgument];
     
     float yFork = maxYVal - minYVal;
 

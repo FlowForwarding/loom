@@ -17,6 +17,8 @@
 
 @property (nonatomic)int maxYVal;
 @property (nonatomic)int minYVal;
+@property (nonatomic)float maxXVal;
+@property (nonatomic)float minXVal;
 
 @end
 
@@ -26,7 +28,7 @@
 {
     self = [super initWithFrame:(CGRect)frame];
     if (self) {
-        _hasSlider = YES;
+        _hasRangeSelector = YES;
         _topBottomReserve = 5;
         _minXVal = MAXFLOAT;
         _maxXVal = -MAXFLOAT;
@@ -53,7 +55,7 @@
     float bottomGraphHeight = 130;
     _selectedPoint.frame = CGRectMake(self.bounds.size.width - 320, 0, 300, 30);
     //[_selectedPoint setBackgroundColor:[UIColor purpleColor]];
-    if (_hasSlider){
+    if (_hasRangeSelector){
         _mainGraph.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - bottomGraphHeight);
         _bottomGraph.frame = CGRectMake(0, self.bounds.size.height - bottomGraphHeight, self.bounds.size.width, bottomGraphHeight);
     } else {
@@ -75,6 +77,14 @@
     if (diff == 0)
         return _maxYVal -1;
     return _maxYVal + diff*_topBottomReserve/100;
+}
+
+- (float)getMinArgument{
+    return _minXVal;
+}
+
+- (float)getMaxArgument{
+    return _maxXVal;
 }
 
 - (void)setMinArgument:(NSDate *)date{
@@ -103,7 +113,7 @@
         _maxXVal = dateSeconds;
     };
     
-    int indexValue = [value integerValue];
+    float indexValue = [value integerValue];
     if (!_minYVal || _minYVal > indexValue){
         _minYVal = indexValue;
     };

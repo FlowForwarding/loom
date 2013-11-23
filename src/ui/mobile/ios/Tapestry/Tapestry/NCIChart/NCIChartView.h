@@ -25,14 +25,14 @@
 
 //top and bottom reserve for grph Y values in persentage, default 5%
 @property(nonatomic)float topBottomReserve;
-@property(nonatomic)bool hasSlider; 
+@property(nonatomic)bool hasRangeSelector; 
 
 //Inside usage
 //All date values are in convertion to timeIntervalSince1970
 - (float)getMinValue;
 - (float)getMaxValue;
-@property (nonatomic)float maxXVal;
-@property (nonatomic)float minXVal;
+- (float)getMinArgument;
+- (float)getMaxArgument;
 //TODO make a class for point
 @property (nonatomic, strong)UILabel *selectedPoint;
 @property (nonatomic, strong)NCIMianGraphView *mainGraph;

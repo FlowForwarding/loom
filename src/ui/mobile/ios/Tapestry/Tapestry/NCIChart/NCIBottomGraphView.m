@@ -76,7 +76,7 @@
 
 - (void)redrawRanges{
     gridWidth = self.frame.size.width - 2*self.leftRightIndent;
-    gridStep = gridWidth/(self.chart.maxXVal - self.chart.minXVal);
+    gridStep = gridWidth/([self.chart getMaxArgument] - [self.chart getMinArgument]);
     float handspikeIndent = self.leftRightIndent - handspikeWidth/2;
     float gridHeigth = self.frame.size.height - self.bottomChartIndent - self.topChartIndent;
     
@@ -94,8 +94,8 @@
     };
     
     if (self.chart.minRangeDate ){
-        _xHandspikeLeft = handspikeIndent + ([self.chart.minRangeDate timeIntervalSince1970] - self.chart.minXVal)*gridStep;
-        _xHandspikeRight = handspikeIndent + ([self.chart.maxRangeDate timeIntervalSince1970] - self.chart.minXVal)*gridStep;
+        _xHandspikeLeft = handspikeIndent + ([self.chart.minRangeDate timeIntervalSince1970] - [self.chart getMinArgument])*gridStep;
+        _xHandspikeRight = handspikeIndent + ([self.chart.maxRangeDate timeIntervalSince1970] - [self.chart getMinArgument])*gridStep;
     }
     
     if (_xHandspikeLeft < handspikeIndent){
@@ -144,14 +144,14 @@ float startX = 0;
             return;
         
         self.chart.minRangeDate = [NSDate dateWithTimeIntervalSince1970:
-                                   self.chart.minXVal + (location.x - startX - self.leftRightIndent)/gridStep];
+                                   [self.chart getMinArgument] + (location.x - startX - self.leftRightIndent)/gridStep];
         [self.chart.mainGraph setNeedsLayout];
         [self.chart.mainGraph setNeedsDisplay];
      //   [self redrawRanges];
     } else if ([touch view] == handspikeRight){
         
         CGPoint location = [touch locationInView:self];
-        self.chart.maxRangeDate = [NSDate dateWithTimeIntervalSince1970:self.chart.minXVal + (location.x - startX - self.leftRightIndent)/gridStep];
+        self.chart.maxRangeDate = [NSDate dateWithTimeIntervalSince1970:[self.chart getMinArgument] + (location.x - startX - self.leftRightIndent)/gridStep];
         [self.chart.mainGraph setNeedsLayout];
         [self.chart.mainGraph setNeedsDisplay];
         //[self redrawRanges];

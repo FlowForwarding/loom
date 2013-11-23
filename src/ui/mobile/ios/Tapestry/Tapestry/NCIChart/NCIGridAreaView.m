@@ -93,8 +93,8 @@
 {
     minYVal = [chart getMinValue];
     maxYVal = [chart getMaxValue];
-    minXVal = chart.minXVal;
-    maxXVal = chart.maxXVal;
+    minXVal = [chart getMinArgument];
+    maxXVal = [chart getMaxArgument];
     
     xFork = maxXVal - minXVal;
     xStep = self.bounds.size.width/xFork;
