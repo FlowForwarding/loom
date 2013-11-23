@@ -12,10 +12,6 @@
 
 @interface NCIGraphView()<UIScrollViewDelegate>{
     NSMutableArray *yAxisLabels;
-    float minXVal;
-    float maxXVal;
-    float minYVal;
-    float maxYVal;
 }
 
 @end
@@ -34,7 +30,7 @@
         _gridScroll.delegate = self;
         [self addSubview:_gridScroll];
         _gridScroll.showsHorizontalScrollIndicator = NO;
-        _gridArea = [[NCIGridAreaView alloc] initWithChart:self.chart];
+        _gridArea = [[NCIGridAreaView alloc] initWithGraph:self];
         [_gridScroll addSubview:_gridArea];
     }
     return self;
@@ -81,43 +77,39 @@
 
 
 - (void)drawRect:(CGRect)rect {
-    minYVal = [self.chart getMinValue];
-    maxYVal = [self.chart getMaxValue];
-    minXVal = [self.chart getMinArgument];
-    maxXVal = [self.chart getMaxArgument];
+    if (self.scaleIndex > 1){
+        NSArray *vals = [self.chart getMinValInRanges];
+        _minYVal = [vals[0] floatValue];
+        _maxYVal = [vals[1] floatValue];
+    } else {
+        _minYVal = [self.chart getMinValue];
+        _maxYVal = [self.chart getMaxValue];
+    }
+    _minXVal = [self.chart getMinArgument];
+    _maxXVal = [self.chart getMaxArgument];
     
-    float yFork = maxYVal - minYVal;
-
-    UIBezierPath *path = [UIBezierPath bezierPath];
+    float yFork = _maxYVal - _minYVal;
     CGContextRef currentContext = UIGraphicsGetCurrentContext();
-    CGContextSetLineCap(currentContext, kCGLineCapRound);
     CGContextSetLineWidth(currentContext, 0.5);
-    CGContextSetLineJoin(currentContext, kCGLineJoinRound);
-    CGContextBeginPath(currentContext);
-    
-    CGContextAddPath(currentContext, path.CGPath);
-    CGContextDrawPath(currentContext, kCGPathStroke);
     [[UIColor blackColor] setStroke];
-    
-    int ind = 0;
-    
     CGFloat dashes[] = { 1, 1 };
     CGContextSetLineDash(currentContext, 0.0,  dashes , 2 );
-    if (maxYVal && minYVal){
+    
+    int ind = 0;
+    if (_maxYVal && _minYVal){
         for (ind = 0; ind < yAxisLabels.count; ind++){
             UILabel *yLabel = yAxisLabels[ind];
             if (self.hasYLabels){
-                yLabel.text = [NSString stringWithFormat:@"%.1f", maxYVal - ind * yFork/(yAxisLabels.count - 1)];
+                yLabel.text = [NSString stringWithFormat:@"%.1f", _maxYVal - ind * yFork/(yAxisLabels.count - 1)];
             }
             if (self.hasGrid || ind == yAxisLabels.count -1){
                 CGContextMoveToPoint(currentContext, yLabel.frame.origin.x + _leftRightIndent/2, yLabel.frame.origin.y);
                 CGContextAddLineToPoint(currentContext, self.frame.size.width - _leftRightIndent/2, yLabel.frame.origin.y);
-                CGContextStrokePath(currentContext);
             }
         };
+        CGContextStrokePath(currentContext);
     };
 
-    
     [_gridArea setNeedsDisplay];
     
 }

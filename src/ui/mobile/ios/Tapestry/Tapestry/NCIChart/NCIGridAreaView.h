@@ -7,11 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "NCIChartView.h"
+
+@class NCIGraphView;
 
 @interface NCIGridAreaView : UIView
 
--(id)initWithChart:(NCIChartView *)generalChart;
+-(id)initWithGraph:(NCIGraphView *)graphView;
 
 @property(nonatomic)bool hasPointSelector;
 

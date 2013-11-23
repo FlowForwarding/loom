@@ -32,4 +32,9 @@
 @property(nonatomic, strong)UIScrollView *gridScroll;
 @property(nonatomic, strong)NCIGridAreaView *gridArea;
 
+@property(nonatomic)float minXVal;
+@property(nonatomic)float maxXVal;
+@property(nonatomic)float minYVal;
+@property(nonatomic)float maxYVal;
+
 @end
