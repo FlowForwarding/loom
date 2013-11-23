@@ -21,6 +21,7 @@
     float yFork;
     float yStep;
     UILabel *selectedPoint;
+    NSDate *selectedPointDate;
 }
 
 @end
@@ -142,6 +143,7 @@
            // }
         };
     };
+    [self layoutSelectedPoint];
     
 }
 
@@ -166,20 +168,28 @@
 - (void)showPoint:(UIEvent *)event{
     UITouch *touch = [[event allTouches] anyObject];
     CGPoint location = [touch locationInView:self];
-    NSDate *date =  [NSDate dateWithTimeIntervalSince1970: location.x/xStep + graph.minXVal];
+    selectedPointDate =  [NSDate dateWithTimeIntervalSince1970: location.x/xStep + graph.minXVal];
+    [self layoutSelectedPoint];
+}
+
+- (void)layoutSelectedPoint{
+    if (!selectedPointDate)
+        return;
     int i;
     for (i =0; i < graph.chart.chartData.count; i++){
         NSArray *point = graph.chart.chartData[i];
-        if ([date compare:point[0]] == NSOrderedAscending){
+        if ([selectedPointDate compare:point[0]] == NSOrderedAscending){
             selectedPoint.hidden = NO;
             selectedPoint.center = [self pointByServerData:point];
             graph.chart.selectedPoint.text = [NSString stringWithFormat:@"NCI: %@  %@", point[1],
-                                        [dateFormatter stringFromDate:point[0]]];
+                                              [dateFormatter stringFromDate:point[0]]];
             return;
         }
     }
     graph.chart.selectedPoint.text = @"";
     selectedPoint.hidden = YES;
+    selectedPointDate = nil;
+
 }
 
 
