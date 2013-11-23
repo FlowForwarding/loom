@@ -10,7 +10,6 @@
 
 @interface NCIEditServerView : UIView
 
--(id)initWithTarget:(id)target;
 -(NSString *)getServerUrl;
 
 @end

@@ -10,7 +10,6 @@
 
 @interface NCIBottomGraphView : NCIGraphView
 
-@property(nonatomic)float xHandspikeLeft;
-@property(nonatomic)float xHandspikeRight;
+- (void)redrawRanges;
 
 @end

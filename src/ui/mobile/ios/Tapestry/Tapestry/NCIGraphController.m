@@ -7,38 +7,29 @@
 //
 
 #import "NCIGraphController.h"
-#import "SRWebSocket.h"
 #import "NCIIndexValueView.h"
 #import "NCIChartView.h"
 #import "NCIHelpView.h"
 #import "NCIEditServerView.h"
+#import "NCIPeriodSwitcherPanel.h"
+#import "NCIWebSocketConnector.h"
 
-@interface NCIGraphController() <SRWebSocketDelegate>{
-    SRWebSocket *socket;
+@interface NCIGraphController(){
     NCIIndexValueView *nciValue;
     NCIIndexValueView *nepValue;
     NCIIndexValueView *qpsValue;
-    NCIChartView *graphView;
+    NCIChartView *chartView;
     UIButton *infoButton;
     NCIHelpView *helpView;
 
     UILabel *noConnectionLabel;
-    NSDateFormatter *serverDateformatter;
     NCIEditServerView *editServerView;
+    NCIPeriodSwitcherPanel *switcherPanel;
     
     bool isShowingLandscapeView;
-    
-    int timeAdjustment;
-    
-    
-   // NSString *websocketUrl;
 }
 @end
 
-
-static NSString* websocketStartRequest = @"START_DATA";
-static NSString* websocketMoreDataRequest =
-    @"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"300\"}";
 
 @implementation NCIGraphController
 
@@ -86,15 +77,17 @@ static NSString* websocketMoreDataRequest =
     
     [self.view addSubview:nepValue];
     
-    graphView = [[NCIChartView alloc] initWithFrame:CGRectZero];
-    graphView.backgroundColor = [UIColor yellowColor];
-    [self.view addSubview:graphView];
+    switcherPanel = [[NCIPeriodSwitcherPanel alloc] initWithFrame:CGRectZero];
+    [self.view addSubview:switcherPanel];
     
-    editServerView = [[NCIEditServerView alloc] initWithTarget:self];
+    chartView = [[NCIChartView alloc] initWithFrame:CGRectZero];
+    [self.view addSubview:chartView];
+    
+    editServerView = [[NCIEditServerView alloc] initWithFrame:CGRectZero];
     [self.view addSubview:editServerView];
     
     noConnectionLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-    noConnectionLabel.text = NSLocalizedString(@"Can't connect, please try agian.", nil);
+    noConnectionLabel.text = NSLocalizedString(@"Can't connect, please try again.", nil);
     noConnectionLabel.backgroundColor = [UIColor clearColor];
     noConnectionLabel.font = [UIFont boldSystemFontOfSize:22];
     noConnectionLabel.textAlignment = NSTextAlignmentCenter;
@@ -107,11 +100,14 @@ static NSString* websocketMoreDataRequest =
     
     [self layoutSubviews];
     
-    [self reconnect];
-    
-    serverDateformatter = [[NSDateFormatter alloc] init];
-    [serverDateformatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-    [serverDateformatter setDateFormat:@"yyyy-MM-dd_HH:mm:ss"];
+    //TODO reorganize this
+    [NCIWebSocketConnector interlocutor].editServerView = editServerView;
+    [NCIWebSocketConnector interlocutor].nciValue = nciValue;
+    [NCIWebSocketConnector interlocutor].nepValue = nepValue;
+    [NCIWebSocketConnector interlocutor].qpsValue = qpsValue;
+    [NCIWebSocketConnector interlocutor].chartView = chartView;
+    [NCIWebSocketConnector interlocutor].noConnectionLabel = noConnectionLabel;
+    [[NCIWebSocketConnector interlocutor] reconnect];
     
     isShowingLandscapeView = NO;
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
@@ -121,15 +117,6 @@ static NSString* websocketMoreDataRequest =
                                                object:nil];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
-}
-
-- (void)resetData{
-    [nciValue resetData];
-    [qpsValue resetData];
-    [nepValue resetData];
-    [noConnectionLabel setHidden:YES];
-    [graphView resetChart];
-    [self reconnect];
 }
 
 - (void)showHelp{
@@ -159,100 +146,15 @@ static NSString* websocketMoreDataRequest =
     
     nepValue.frame = CGRectMake(self.view.bounds.size.width/2, indexLabelHeight + 2*topIndent, self.view.bounds.size.width/2, indexLabelHeight);
     
-    noConnectionLabel.frame = CGRectMake(0, 200, self.view.bounds.size.width, 50);
+    switcherPanel.frame  = CGRectMake(20, 200, 500, 40);
     
-    graphView.frame = CGRectMake(0, 200, self.view.bounds.size.width, 450);
+    noConnectionLabel.frame = CGRectMake(0, 250, self.view.bounds.size.width, 50);
+    
+    chartView.frame = CGRectMake(0, 250, self.view.bounds.size.width, 450);
     
     infoButton.center = CGPointMake(self.view.bounds.size.width - 50, indexLabelHeight + 30);
     
     helpView.frame = self.view.bounds;
-}
-
-- (void)reconnect
-{
-    socket.delegate = nil;
-    [socket close];
-    socket = [[SRWebSocket alloc] initWithURLRequest: [NSURLRequest requestWithURL: [NSURL URLWithString: [editServerView getServerUrl]]]];
-    socket.delegate = self;
-    [socket open];
-    
-}
-
-#pragma mark - SRWebSocketDelegate
-
-- (void)webSocketDidOpen:(SRWebSocket *)webSocket;
-{
-    NSLog(@"Websocket Connected");
-    [webSocket send:websocketStartRequest];
-}
-
-- (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
-{
-    NSLog(@"Websocket Failed With Error %@", error);
-    [noConnectionLabel setHidden:NO];
-    webSocket = nil;
-}
-
-- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message;
-{
-    NSString *messageString = ((NSString *)message);
-    NSArray *dataPieces = [[messageString substringWithRange:NSMakeRange(1, messageString.length -2) ] componentsSeparatedByString:@","];
-    if (dataPieces.count > 2){
-        int i;
-        for (i = 0; i < dataPieces.count/2; i+=2){
-            //we get such fromat data 2013-11-12T14:04:29Z
-            NSString *dateString = [dataPieces[i*2] substringWithRange:NSMakeRange(8, ((NSString *)dataPieces[i]).length - 10)];
-            dateString = [dateString stringByReplacingOccurrencesOfString:@"T" withString:@"_"];
-            NSDate *date = [serverDateformatter dateFromString:dateString];
-            NSString *nciVal = [dataPieces[2*i+1] substringFromIndex:6];
-            [graphView addPoint:date val:nciVal];
-        }
-        [graphView drawChart];
-        
-    } else {
-        NSDictionary *dataPoint = [NSJSONSerialization
-                                   JSONObjectWithData:[message dataUsingEncoding:NSUTF8StringEncoding]
-                                   options:NSJSONReadingMutableContainers error:NULL];
-    
-        NSString *nci = dataPoint[@"NCI"];
-        NSString *nep = dataPoint[@"NEP"];
-        NSString *qps = dataPoint[@"QPS"];
-        if (nci){
-            [nciValue setIndValue:nci withDate:dataPoint[@"Time"]];
-        } else if (nep) {
-            [nepValue setIndValue:nep  withDate:dataPoint[@"Time"]];
-        } else if (qps) {
-            [qpsValue setIndValue:qps withDate:dataPoint[@"Time"]];
-        }
-        //{"start_time":"2013-11-13T16:42:55Z","current_time":"2013-11-13T21:23:47Z"}
-        NSString *start_time = dataPoint[@"start_time"];
-        if (start_time){
-            NSString *current_time = dataPoint[@"current_time"];
-            current_time = [current_time stringByReplacingOccurrencesOfString:@"T" withString:@"_"];
-            NSDate *date = [serverDateformatter dateFromString:current_time];
-            timeAdjustment = [date timeIntervalSinceNow];
-            
-            NSDate *endDate = [[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
-            NSDate *startDate = [[[NSDate date] dateByAddingTimeInterval: -timeAdjustment]
-                                 dateByAddingTimeInterval: -60*60*24];
-            [graphView setMinX:startDate];
-            [graphView setMaxX:endDate];
-            [graphView setRanges:[endDate dateByAddingTimeInterval: -60*60*2] max:endDate];
-            
-            NSString *endDateString = [[serverDateformatter stringFromDate: endDate]
-                                 stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
-            NSString *startDateString = [[serverDateformatter stringFromDate:startDate]
-                                   stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
-            [webSocket send: [NSString stringWithFormat: websocketMoreDataRequest, startDateString, endDateString]];
-        }
-    }
-}
-
-- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
-{
-    NSLog(@"WebSocket closed");
-    [noConnectionLabel setHidden:NO];
-    socket = nil;
 }
 
 - (void)orientationChanged:(NSNotification *)notification

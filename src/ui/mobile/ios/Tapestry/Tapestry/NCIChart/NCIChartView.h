@@ -7,30 +7,38 @@
 //
 
 #import <UIKit/UIKit.h>
-//#import "NCIBottomGraphView.h"
-//#import "NCIGraphView.h"
-
-@class NCIGraphView;
+@class NCIMianGraphView;
 @class NCIBottomGraphView;
 
 @interface NCIChartView : UIView
 
+//API usage
 - (void)addPoint:(NSDate *)date val:(NSString *)value;
 - (void)drawChart;
 - (void)resetChart;
-- (void)setMinX:(NSDate *)date;
-- (void)setMaxX:(NSDate *)date;
 
-- (void)setRanges:(NSDate *)min max:(NSDate *)max;
+- (void)setMinArgument:(NSDate *)date;
+- (void)setMaxArgument:(NSDate *)date;
 
-@property (nonatomic, strong)NCIGraphView *mainGraph;
+@property(nonatomic, strong)NSDate *minRangeDate;
+@property(nonatomic, strong)NSDate *maxRangeDate;
+
+//top and bottom reserve for grph Y values in persentage, default 5%
+@property(nonatomic)float topBottomReserve;
+@property(nonatomic)bool hasRangeSelector; 
+
+//Inside usage
+//All date values are in convertion to timeIntervalSince1970
+- (float)getMinValue;
+- (float)getMaxValue;
+- (float)getMinArgument;
+- (float)getMaxArgument;
+//TODO make a class for point
+@property (nonatomic, strong)UILabel *selectedPoint;
+@property (nonatomic, strong)NCIMianGraphView *mainGraph;
 @property (nonatomic, strong)NCIBottomGraphView *bottomGraph;
-
 @property (atomic, strong)NSMutableArray *chartData;
-@property (nonatomic)int maxXVal;
-@property (nonatomic)int minXVal;
-@property (nonatomic)int maxYVal;
-@property (nonatomic)int minYVal;
+
 
 
 @end

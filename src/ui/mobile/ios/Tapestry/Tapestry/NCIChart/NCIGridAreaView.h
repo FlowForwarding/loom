@@ -13,4 +13,6 @@
 
 -(id)initWithChart:(NCIChartView *)generalChart;
 
+@property(nonatomic)bool hasPointSelector;
+
 @end

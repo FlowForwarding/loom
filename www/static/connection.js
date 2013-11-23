@@ -17,7 +17,9 @@ NCI.Connection.onmessage  = function (e) {
 	var data = eval("tmp = " + e.data );
 	//console.log(e.data);
 	if (data.start_time){
-		NCI.time_adjustment = new Date() - new Date(data.current_time) - new Date().getTimezoneOffset()*1000*60;
+		// to show utc time
+		// NCI.time_adjustment = new Date() - new Date(data.current_time) - new Date().getTimezoneOffset()*1000*60;
+		NCI.time_adjustment = new Date() - new Date(data.current_time);
 		if (!NCI.chart){
 			NCI.initChart(new Date(data.current_time) - NCI.time_adjustment);
 			NCI.Connection.moreData(new Date() - NCI.curChartPeriod, new Date(), NCI.numOfPoints);

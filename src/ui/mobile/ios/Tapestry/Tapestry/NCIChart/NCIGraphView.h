@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "NCIChartView.h"
+#import "NCIGridAreaView.h"
 
 @interface NCIGraphView : UIView
 
@@ -15,6 +16,7 @@
 
 @property(nonatomic) float bottomChartIndent;
 @property(nonatomic) float leftRightIndent;
+@property(nonatomic) float topChartIndent;
 
 @property(nonatomic, strong) NCIChartView* chart;
 
@@ -24,5 +26,10 @@
 
 @property(nonatomic)bool hasGrid;
 @property(nonatomic)bool hasYLabels;
+
+@property(nonatomic)float gridVerticalIndent;
+
+@property(nonatomic, strong)UIScrollView *gridScroll;
+@property(nonatomic, strong)NCIGridAreaView *gridArea;
 
 @end
