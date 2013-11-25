@@ -38,6 +38,8 @@
         graph = graphView;
         self.backgroundColor = [UIColor clearColor];
         xLabelShift = 50;
+        
+        dateFormatter = [[NSDateFormatter alloc] init];
 
     }
     return self;
@@ -70,9 +72,6 @@
         
         [xAxisLabels addObject:xLabel];
         [self addSubview:xLabel];
-        dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm"];
-        
     };
     
     for (ind = 0; ind< xAxisLabels.count; ind++){
@@ -132,9 +131,17 @@
     [[UIColor blackColor] setStroke];
     
     if (graph.maxXVal && graph.minXVal){
+        double step = xFork/(xAxisLabels.count - 1);
+        if (step < 60*60){
+          [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm"];
+        } else if (step < 60*60*24*30){
+           [dateFormatter setDateFormat:@"yyyy-MMM-dd"];
+        } else {
+            [dateFormatter setDateFormat:@"yyyy-MMM"];
+        }
         for (ind = 0; ind< xAxisLabels.count; ind++){
             UILabel *xLabel = xAxisLabels[ind];
-            NSDate *date = [NSDate dateWithTimeIntervalSince1970:(graph.minXVal + ind * xFork/(xAxisLabels.count - 1))];
+            NSDate *date = [NSDate dateWithTimeIntervalSince1970:(graph.minXVal + ind * step)];
             xLabel.text = [NSString stringWithFormat:@"%@", [dateFormatter stringFromDate: date]];
            // if (self.hasGrid || ind == 0){
                 CGContextMoveToPoint(currentContext, xLabel.frame.origin.x + xLabelShift, xLabel.frame.origin.y );
