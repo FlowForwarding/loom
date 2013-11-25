@@ -24,7 +24,7 @@ float tenYearsPeriod = 60*60*24*30*12;
 
 static NSString* websocketStartRequest = @"START_DATA";
 static NSString* websocketMoreDataRequest =
-@"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"300\"}";
+@"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"150\"}";
 
 @implementation NCIWebSocketConnector
 

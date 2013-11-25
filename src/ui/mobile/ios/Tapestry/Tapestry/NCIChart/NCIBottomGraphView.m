@@ -16,7 +16,7 @@
     UIView *rightAmputation;
     UIView *leftAmputation;
     
-    int handspikeWidth;
+    float handspikeWidth;
     float gridWidth;
     float gridStep; //number of seconds for pixel
     float handspikeIndent;
@@ -109,8 +109,13 @@
         _xHandspikeRight = gridWidth + handspikeIndent;
     }
     
-    if (_xHandspikeRight - _xHandspikeLeft < 0)
-        return;
+    if (_xHandspikeRight < handspikeIndent){
+        _xHandspikeRight = gridWidth + handspikeIndent;
+    }
+    
+    if (_xHandspikeRight - _xHandspikeLeft < 50){
+        _xHandspikeRight = _xHandspikeLeft + 50;
+    }
     
     
     handspikeLeft.frame = CGRectMake(_xHandspikeLeft, self.topChartIndent, handspikeWidth, gridHeigth);
@@ -119,44 +124,60 @@
     handspikeRight.frame = CGRectMake(_xHandspikeRight, self.topChartIndent, handspikeWidth, gridHeigth);
     rightAmputation.frame = CGRectMake(_xHandspikeRight + handspikeWidth/2, self.topChartIndent,
                                        gridWidth + handspikeIndent - _xHandspikeRight, gridHeigth);
+    [self.chart.mainGraph setNeedsLayout];
+    [self.chart.mainGraph setNeedsDisplay];
+    
     
 }
 
-float startX = 0;
+float startLeft = 0;
+float startRight = 0;
 
 -(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    UITouch *touch = [[event allTouches] anyObject];
+    if (touches.count > 1)
+        return;
     
+    UITouch *touch = [[event allTouches] anyObject];
+        
     if( [touch view] == handspikeLeft)
     {
         CGPoint location = [touch locationInView:self];
-        startX = location.x - handspikeLeft.center.x;
+        startLeft = location.x - handspikeLeft.center.x;
     } else if ([touch view] == handspikeRight){
         CGPoint location = [touch locationInView:self];
-        startX = location.x - handspikeRight.center.x;
+        startRight = location.x - handspikeRight.center.x;
     }
 }
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
+    if (touches.count > 1)
+        return;
+    
     //here we set up new min and max ranges values for chart
     UITouch *touch = [[event allTouches] anyObject];
     if( [touch view] == handspikeLeft)
     {
         CGPoint location = [touch locationInView:self];
-        if (_xHandspikeRight - (location.x - startX - self.leftRightIndent) < 35)
+        if ( (location.x - startLeft - self.leftRightIndent) < 1)
+            return;
+        if ((_xHandspikeRight - (location.x - startLeft)) < 50)
             return;
         
-        self.chart.minRangeDate = [self dateFromXPos:(location.x - startX)];
-        [self.chart.mainGraph setNeedsLayout];
-        [self.chart.mainGraph setNeedsDisplay];
-     //   [self redrawRanges];
+        self.chart.minRangeDate = [self dateFromXPos:(location.x - startLeft)];
+
+        [self redrawRanges];
     } else if ([touch view] == handspikeRight){
         CGPoint location = [touch locationInView:self];
-        self.chart.maxRangeDate = [self dateFromXPos:(location.x - startX)];
         
-        [self.chart.mainGraph setNeedsLayout];
-        [self.chart.mainGraph setNeedsDisplay];
-        //[self redrawRanges];
+        if ( (location.x - startRight + self.leftRightIndent) > self.frame.size.width)
+            return;
+        
+        if (( (location.x - startRight) - _xHandspikeLeft) < 50)
+            return;
+        
+        self.chart.maxRangeDate = [self dateFromXPos:(location.x - startRight)];
+
+        [self redrawRanges];
     }
 }
 
@@ -167,11 +188,11 @@ float startX = 0;
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
     
     if (fixedLeftVal != _xHandspikeLeft || fixedRightVal != _xHandspikeRight){
-        [self.chart.mainGraph setNeedsLayout];
-        [self.chart.mainGraph setNeedsDisplay];
-        
-        fixedLeftVal = _xHandspikeLeft ;
-        fixedRightVal = _xHandspikeRight;
+//        [self.chart.mainGraph setNeedsLayout];
+//        [self.chart.mainGraph setNeedsDisplay];
+//        
+//        fixedLeftVal = _xHandspikeLeft ;
+//        fixedRightVal = _xHandspikeRight;
     }
     
 }

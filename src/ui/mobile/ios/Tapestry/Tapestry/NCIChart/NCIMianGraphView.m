@@ -32,16 +32,28 @@
     self.scaleIndex = timePeriod/
     ([self.chart.maxRangeDate timeIntervalSince1970] - [self.chart.minRangeDate timeIntervalSince1970]);
     
+    
+    float offsetForRanges = scrollView.contentOffset.x;
+    if (scrollView.contentOffset.x < 0)
+        offsetForRanges = 0;
+    if (scrollView.contentOffset.x > (scrollView.contentSize.width - scrollView.frame.size.width))
+        offsetForRanges = scrollView.contentSize.width - scrollView.frame.size.width;
+    
+    
     self.chart.minRangeDate =  [NSDate dateWithTimeIntervalSince1970:[self.chart getMinArgument] +
-                                timePeriod*(scrollView.contentOffset.x/scrollView.frame.size.width/self.scaleIndex)];
+                                timePeriod*(offsetForRanges/scrollView.frame.size.width/self.scaleIndex)];
     
     self.chart.maxRangeDate = [NSDate dateWithTimeIntervalSince1970:[self.chart getMinArgument] +
-                               timePeriod*((scrollView.contentOffset.x + scrollView.frame.size.width)/scrollView.frame.size.width/self.scaleIndex)];
+                               timePeriod*((offsetForRanges + scrollView.frame.size.width)/scrollView.frame.size.width/self.scaleIndex)];
 
-    [self.chart.bottomGraph redrawRanges];
-    [self setNeedsDisplay];
+  
+
+     // TODO redraw only if ranges chages
+     [self.chart.bottomGraph redrawRanges];
+    //[self.chart.mainGraph setNeedsDisplay];
 
 }
+
 
 - (void)layoutSubviews{
     
@@ -63,7 +75,7 @@
         self.leftShift = ([self.chart getMaxArgument] - [self.chart.maxRangeDate timeIntervalSince1970])/gridStep;
 
         [self.gridScroll setContentOffset:CGPointMake((self.scaleIndex -1)*(self.frame.size.width - 2*self.leftRightIndent) - self.leftShift, 0)];
-        [self.chart.bottomGraph redrawRanges];
+        //[self.chart.bottomGraph redrawRanges];
     }
     
 }
