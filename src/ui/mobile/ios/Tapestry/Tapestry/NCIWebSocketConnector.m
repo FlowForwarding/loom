@@ -101,8 +101,7 @@ static NSString* websocketMoreDataRequest =
         for (i = 0; i < dataPieces.count/2; i+=2){
             //we get such fromat data 2013-11-12T14:04:29Z
             NSString *dateString = [dataPieces[i*2] substringWithRange:NSMakeRange(8, ((NSString *)dataPieces[i]).length - 10)];
-            dateString = [dateString stringByReplacingOccurrencesOfString:@"T" withString:@"_"];
-            NSDate *date = [self.serverDateformatter dateFromString:dateString];
+            NSDate *date = [self dateFromServerString: dateString];
             NSString *nciVal = [dataPieces[2*i+1] substringFromIndex:6];
             [self.chartView addPoint:date val:nciVal];
         }
@@ -122,6 +121,9 @@ static NSString* websocketMoreDataRequest =
         NSString *qps = dataPoint[@"QPS"];
         if (nci){
             [self.nciValue setIndValue:nci withDate:dataPoint[@"Time"]];
+            [self.chartView addPoint:[self dateFromServerString: dataPoint[@"Time"]] val:nci];
+            self.chartView.maxRangeDate = [NSDate date];
+            [self.chartView drawChart];
         } else if (nep) {
             [self.nepValue setIndValue:nep  withDate:dataPoint[@"Time"]];
         } else if (qps) {
@@ -130,15 +132,20 @@ static NSString* websocketMoreDataRequest =
         //{"start_time":"2013-11-13T16:42:55Z","current_time":"2013-11-13T21:23:47Z"}
         NSString *start_time = dataPoint[@"start_time"];
         if (start_time){
-            _startDate = [self.serverDateformatter dateFromString:[start_time stringByReplacingOccurrencesOfString:@"T" withString:@"_"]];
+            _startDate = [self dateFromServerString:start_time];
             NSString *current_time = dataPoint[@"current_time"];
-            current_time = [current_time stringByReplacingOccurrencesOfString:@"T" withString:@"_"];
-            NSDate *date = [self.serverDateformatter dateFromString:current_time];
+            NSDate *date = [self dateFromServerString:current_time];
             //timeAdjustment = [date timeIntervalSinceNow];
             
             [self requestLastDataForPeiodInSeconds:halfMonthPeriod];
         }
     }
+}
+
+- (NSDate *)dateFromServerString:(NSString *)str{
+    str = [str stringByReplacingOccurrencesOfString:@"T" withString:@"_"];
+    str = [str stringByReplacingOccurrencesOfString:@"Z" withString:@""];
+    return [self.serverDateformatter dateFromString:str];
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;

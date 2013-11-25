@@ -17,8 +17,8 @@
 
 @property (nonatomic)int maxYVal;
 @property (nonatomic)int minYVal;
-@property (nonatomic)float maxXVal;
-@property (nonatomic)float minXVal;
+@property (nonatomic)double maxXVal;
+@property (nonatomic)double minXVal;
 
 @end
 
