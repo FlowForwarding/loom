@@ -14,6 +14,7 @@
 
 //API usage
 - (void)addPoint:(NSDate *)date val:(NSString *)value;
+- (void)removeFirstPoint;
 - (void)drawChart;
 - (void)resetChart;
 

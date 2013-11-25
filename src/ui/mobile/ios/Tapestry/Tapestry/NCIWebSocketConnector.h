@@ -17,7 +17,7 @@
 
 - (void)reconnect;
 - (void)resetData;
-- (void)requestLastDataForPeiodInSeconds:(int) period;
+- (void)requestLastDataForPeiodInSeconds:(float) period;
 
 @property(nonatomic, strong) NCIEditServerView *editServerView;
 @property(nonatomic, strong) NCIIndexValueView *nciValue;
@@ -27,6 +27,7 @@
 @property(nonatomic, strong) UILabel *noConnectionLabel;
 
 @property(nonatomic, strong) NSDate *startDate;
-@property(nonatomic) int currentDatePeriod;
+@property(nonatomic) float currentDatePeriod;
+@property(nonatomic) float visibleDatePeriod;
 
 @end

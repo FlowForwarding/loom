@@ -127,6 +127,13 @@
     _maxYVal = 0;
 }
 
+- (void)removeFirstPoint{
+    if ( self.chartData[1]){
+        _minXVal = [self.chartData[1][0] timeIntervalSince1970];
+    }
+    [self.chartData removeObjectAtIndex:0];
+}
+
 - (void)addPoint:(NSDate *)date val:(NSString *)value{
 
     int dateSeconds = [date timeIntervalSince1970];

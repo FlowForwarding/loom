@@ -33,19 +33,21 @@ static NSString* websocketMoreDataRequest =
     
     @synchronized(self)
     {
-        if (!interlocutor)
+        if (!interlocutor){
             interlocutor = [[NCIWebSocketConnector alloc] init];
-        interlocutor.serverDateformatter = [[NSDateFormatter alloc] init];
-        [interlocutor.serverDateformatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-        [interlocutor.serverDateformatter setDateFormat:@"yyyy-MM-dd_HH:mm:ss"];
+            interlocutor.serverDateformatter = [[NSDateFormatter alloc] init];
+            [interlocutor.serverDateformatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+            [interlocutor.serverDateformatter setDateFormat:@"yyyy-MM-dd_HH:mm:ss"];
+        }
         return interlocutor;
     }
 }
 
-- (void)requestLastDataForPeiodInSeconds:(int) period{
+- (void)requestLastDataForPeiodInSeconds:(float) period{
     NSDate *endDate = [NSDate date];//[[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
     NSDate *startDate = [[NSDate date]
                          dateByAddingTimeInterval: - period];
+    _currentDatePeriod = period;
     [self.chartView resetChart];
     [self.chartView drawChart];
     
@@ -122,7 +124,10 @@ static NSString* websocketMoreDataRequest =
         if (nci){
             [self.nciValue setIndValue:nci withDate:dataPoint[@"Time"]];
             [self.chartView addPoint:[self dateFromServerString: dataPoint[@"Time"]] val:nci];
-            self.chartView.maxRangeDate = [NSDate date];
+            while ([[NSDate date] timeIntervalSince1970] - [self.chartView.chartData[0][0] timeIntervalSince1970] > _currentDatePeriod){
+                [self.chartView removeFirstPoint];
+            }
+            [self.chartView setMaxArgument:[NSDate date]];
             [self.chartView drawChart];
         } else if (nep) {
             [self.nepValue setIndValue:nep  withDate:dataPoint[@"Time"]];
