@@ -33,6 +33,8 @@
 - (float)getMaxValue;
 - (float)getMinArgument;
 - (float)getMaxArgument;
+- (NSArray *)getMinValInRanges;
+
 //TODO make a class for point
 @property (nonatomic, strong)UILabel *selectedPoint;
 @property (nonatomic, strong)NCIMianGraphView *mainGraph;

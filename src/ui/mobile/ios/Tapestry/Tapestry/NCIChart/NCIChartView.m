@@ -92,6 +92,33 @@
     _maxXVal = [date timeIntervalSince1970];
 }
 
+
+- (NSArray *)getMinValInRanges{
+    float minXVal = MAXFLOAT;
+    float maxXVal = -MAXFLOAT;
+    for(NSArray *point in self.chartData){
+        float cur = [point[1] floatValue];
+        if ( [_minRangeDate compare:point[0]] <  NSOrderedDescending &&
+            [_maxRangeDate compare:point[0]] > NSOrderedAscending ){
+            if (cur < minXVal)
+                minXVal = cur;
+            if (cur> maxXVal)
+                maxXVal = cur;
+        }
+    }
+    if (minXVal == MAXFLOAT)
+        return @[[NSNumber numberWithFloat: [self getMinValue]], [NSNumber numberWithFloat: [self getMaxValue]]];
+    float diff = maxXVal - minXVal;
+    if (diff == 0){
+        maxXVal = maxXVal + 1;
+        minXVal = minXVal - 1;
+    } else {
+        maxXVal = maxXVal + diff*_topBottomReserve/100;
+        minXVal = minXVal - diff*_topBottomReserve/100;
+    }
+    return @[[NSNumber numberWithFloat: minXVal], [NSNumber numberWithFloat: maxXVal]];
+}
+
 - (void)resetChart{
     [self.chartData removeAllObjects];
     _minXVal = MAXFLOAT;
