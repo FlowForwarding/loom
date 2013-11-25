@@ -22,7 +22,7 @@
 
 -compile([export_all]).
 
--record(state,{raw_edge_list,tap_ds,tap_client_data,query_count,time_stamp}).
+-record(state,{tap_ds,tap_client_data,query_count,time_stamp}).
 
 
 start()->
@@ -43,7 +43,7 @@ start(Time,Interval,MsgTime)->
 	     TapDS = tap_ds:start(),
 	     TCD = whereis(tap_client_data),
 	     {_Date,CurTime} = calendar:universal_time(),
-	     Pid = spawn(?MODULE,listen,[#state{raw_edge_list=[],tap_ds = TapDS,tap_client_data=TCD,query_count=0,time_stamp=calendar:time_to_seconds(CurTime)}]),
+	     Pid = spawn(?MODULE,listen,[#state{tap_ds = TapDS,tap_client_data=TCD,query_count=0,time_stamp=calendar:time_to_seconds(CurTime)}]),
 	     register(tap_aggr,Pid),
 	     [ Recv ! {subscribe, {Pid, packet_in_dns_reply}} || Recv <- Receivers ],
 	     Pid
@@ -52,13 +52,11 @@ start(Time,Interval,MsgTime)->
 listen(State)->
     receive
 	{dns_reply,Reply}->
-	    RawEdgeList = State#state.raw_edge_list,
 	    TapDS = State#state.tap_ds,
 	    LastTimeStamp = State#state.time_stamp,
 	    QueryCount = State#state.query_count,
 	    {CurDate,CurTime} = calendar:universal_time(),
 	    CurTimeStamp = calendar:time_to_seconds(CurTime),
-	    NewRawEdgeList= [Reply|RawEdgeList],
 	    OR = dns_reply_order(Reply),
 	    TapDS ! {ordered_edge,OR},
 	    Interval = CurTimeStamp - LastTimeStamp,
@@ -67,9 +65,9 @@ listen(State)->
 			       TCD = State#state.tap_client_data,
 			       QPS = QueryCount / Interval,
 			       TCD ! {qps,{QPS,{CurDate,CurTime}}},
-			       State#state{raw_edge_list = NewRawEdgeList,query_count=0,time_stamp=CurTimeStamp};
+			       State#state{query_count=0,time_stamp=CurTimeStamp};
 			   false -> 
-			       State#state{raw_edge_list = NewRawEdgeList,query_count=QueryCount+1}
+			       State#state{query_count=QueryCount+1}
 		       end,
 	    listen(NewState);
 	Msg ->

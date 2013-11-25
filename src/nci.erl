@@ -139,7 +139,7 @@ compute(EdgeList)->
     %% in the code, G2 points to the same data structure.
     
     NCI = calc_nci(G3),
-
+    digraph:delete(G),
     %% Return the NCI number.
     NCI.
 
