@@ -22,7 +22,7 @@
 
 @end
 
-static NSString* defaultWebsocketUrl = @"ws://nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
+static NSString* defaultWebsocketUrl = @"ws://epamove.herokuapp.com";
 static int editServerInputHeigth = 40;
 static int btnWidth = 100;
 static int btnHeigth = 38;

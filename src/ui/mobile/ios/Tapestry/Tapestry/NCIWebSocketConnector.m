@@ -10,6 +10,9 @@
 #import "SRWebSocket.h"
 
 //TODO seporate UI and request/responce logic
+float halfMonthPeriod = 60*60*24*15;
+float yearPeriod = 60*60*24*30*12;
+float tenYearsPeriod = 60*60*24*30*12;
 
 @interface NCIWebSocketConnector()<SRWebSocketDelegate>{
     SRWebSocket *socket;
@@ -44,10 +47,7 @@ static NSString* websocketMoreDataRequest =
     NSDate *startDate = [[NSDate date]
                          dateByAddingTimeInterval: - period];
     [self.chartView resetChart];
-    [self.chartView setMinArgument:startDate];
-    [self.chartView setMaxArgument:endDate];
-    self.chartView.minRangeDate = [endDate dateByAddingTimeInterval: - period/3];
-    self.chartView.maxRangeDate = endDate;
+    [self.chartView drawChart];
     
     NSString *endDateString = [[self.serverDateformatter stringFromDate: endDate]
                                stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
@@ -96,6 +96,7 @@ static NSString* websocketMoreDataRequest =
     NSString *messageString = ((NSString *)message);
     NSArray *dataPieces = [[messageString substringWithRange:NSMakeRange(1, messageString.length -2) ] componentsSeparatedByString:@","];
     if (dataPieces.count > 2){
+        [self.chartView resetChart];
         int i;
         for (i = 0; i < dataPieces.count/2; i+=2){
             //we get such fromat data 2013-11-12T14:04:29Z
@@ -105,6 +106,10 @@ static NSString* websocketMoreDataRequest =
             NSString *nciVal = [dataPieces[2*i+1] substringFromIndex:6];
             [self.chartView addPoint:date val:nciVal];
         }
+        _currentDatePeriod = [[NSDate date] timeIntervalSince1970] - [((NSDate *)[self.chartView.chartData firstObject][0]) timeIntervalSince1970];
+        self.chartView.minRangeDate = [[NSDate date] dateByAddingTimeInterval: - _currentDatePeriod /6.0];
+        self.chartView.maxRangeDate = [NSDate date];
+        [self.chartView setMaxArgument: [NSDate date]];
         [self.chartView drawChart];
         
     } else {
@@ -125,12 +130,13 @@ static NSString* websocketMoreDataRequest =
         //{"start_time":"2013-11-13T16:42:55Z","current_time":"2013-11-13T21:23:47Z"}
         NSString *start_time = dataPoint[@"start_time"];
         if (start_time){
+            _startDate = [self.serverDateformatter dateFromString:[start_time stringByReplacingOccurrencesOfString:@"T" withString:@"_"]];
             NSString *current_time = dataPoint[@"current_time"];
             current_time = [current_time stringByReplacingOccurrencesOfString:@"T" withString:@"_"];
             NSDate *date = [self.serverDateformatter dateFromString:current_time];
             //timeAdjustment = [date timeIntervalSinceNow];
             
-            [self requestLastDataForPeiodInSeconds:60*60*24];
+            [self requestLastDataForPeiodInSeconds:halfMonthPeriod];
         }
     }
 }

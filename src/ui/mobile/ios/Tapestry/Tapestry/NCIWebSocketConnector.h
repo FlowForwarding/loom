@@ -26,4 +26,7 @@
 @property(nonatomic, strong) NCIChartView *chartView;
 @property(nonatomic, strong) UILabel *noConnectionLabel;
 
+@property(nonatomic, strong) NSDate *startDate;
+@property(nonatomic) int currentDatePeriod;
+
 @end
