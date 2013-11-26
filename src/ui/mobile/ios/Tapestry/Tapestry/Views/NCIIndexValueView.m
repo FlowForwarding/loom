@@ -7,6 +7,7 @@
 //
 
 #import "NCIIndexValueView.h"
+#import "NCIHintView.h"
 
 @interface NCIIndexValueView(){
     UILabel *indLabel;
@@ -20,6 +21,7 @@
     NSString *indexName;
     
     NSDateFormatter *serverDateformatter;
+    NCIHintView *helpView;
 }
 @end
 
@@ -43,6 +45,7 @@
         helpBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14];
         [helpBtn setTitle:@"?" forState:UIControlStateNormal];
         helpBtn.layer.cornerRadius = 8;
+        [helpBtn addTarget:self action:@selector(showTooltip) forControlEvents:UIControlEventTouchUpInside];
         [contentView addSubview:helpBtn];
         
         indValue = [[UILabel alloc] initWithFrame:CGRectZero];
@@ -53,12 +56,20 @@
         updateLabel.backgroundColor = [UIColor clearColor];
         [contentView addSubview:updateLabel];
         
+        self.backgroundColor = [UIColor clearColor];
+        contentView.backgroundColor = [UIColor clearColor];
+        
         serverDateformatter = [[NSDateFormatter alloc] init];
         [serverDateformatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
 
     }
     return self;
 }
+
+-(void)showTooltip{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"showHint" object:self];
+}
+
 - (void)resetData{
     currentValue = 0;
     updateLabel.text = @"";
@@ -80,6 +91,10 @@
 }
 
 - (void)setTooltipText:(NSString *)text{
+    if (!helpView){
+        helpView = [[NCIHintView alloc] initWithText:text andPoint:CGPointMake(160, 20)];
+        [self addSubview:helpView];
+    }
     //TODO
 }
 

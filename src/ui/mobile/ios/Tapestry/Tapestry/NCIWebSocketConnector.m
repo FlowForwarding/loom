@@ -48,8 +48,8 @@ static NSString* websocketMoreDataRequest =
     NSDate *startDate = [[NSDate date]
                          dateByAddingTimeInterval: - period];
     _currentDatePeriod = period;
-    [self.chartView resetChart];
-    [self.chartView drawChart];
+//    [self.chartView resetChart];
+//    [self.chartView drawChart];
     
     NSString *endDateString = [[self.serverDateformatter stringFromDate: endDate]
                                stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
@@ -128,7 +128,11 @@ static NSString* websocketMoreDataRequest =
                 [self.chartView removeFirstPoint];
             }
             [self.chartView setMaxArgument:[NSDate date]];
-            [self.chartView drawChart];
+            if (self.chartView.chartData.count == 1){
+                [self.chartView setMinArgument:[NSDate date]];
+            } else {
+                [self.chartView drawChart];
+            }
         } else if (nep) {
             [self.nepValue setIndValue:nep  withDate:dataPoint[@"Time"]];
         } else if (qps) {

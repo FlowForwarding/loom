@@ -19,6 +19,7 @@
 		2AAFE566182FA1DE007BBFEA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2AAFE54E182FA1DE007BBFEA /* UIKit.framework */; };
 		2AAFE56E182FA1DE007BBFEA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2AAFE56C182FA1DE007BBFEA /* InfoPlist.strings */; };
 		2AAFE570182FA1DE007BBFEA /* TapestryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AAFE56F182FA1DE007BBFEA /* TapestryTests.m */; };
+		2ABB2D8E1843ED4500791756 /* NCIHintView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ABB2D8D1843ED4500791756 /* NCIHintView.m */; };
 		2ABE3B351830CD340046A0FC /* NCIGraphController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ABE3B341830CD340046A0FC /* NCIGraphController.m */; };
 		2ABE3B3E183128B40046A0FC /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2ABE3B3D183128B40046A0FC /* Localizable.strings */; };
 		2AD3DC0C183B9AEC003E334F /* NCIChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AD3DC0B183B9AEC003E334F /* NCIChartView.m */; };
@@ -63,6 +64,8 @@
 		2AAFE56B182FA1DE007BBFEA /* TapestryTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TapestryTests-Info.plist"; sourceTree = "<group>"; };
 		2AAFE56D182FA1DE007BBFEA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2AAFE56F182FA1DE007BBFEA /* TapestryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TapestryTests.m; sourceTree = "<group>"; };
+		2ABB2D8C1843ED4500791756 /* NCIHintView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIHintView.h; sourceTree = "<group>"; };
+		2ABB2D8D1843ED4500791756 /* NCIHintView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIHintView.m; sourceTree = "<group>"; };
 		2ABE3B331830CD340046A0FC /* NCIGraphController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIGraphController.h; sourceTree = "<group>"; };
 		2ABE3B341830CD340046A0FC /* NCIGraphController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = NCIGraphController.m; sourceTree = "<group>"; };
 		2ABE3B3D183128B40046A0FC /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
@@ -230,6 +233,8 @@
 				2AD3DC36183E2F85003E334F /* NCIPeriodSwitcher.m */,
 				2AD3DC37183E2F85003E334F /* NCIPeriodSwitcherPanel.h */,
 				2AD3DC38183E2F85003E334F /* NCIPeriodSwitcherPanel.m */,
+				2ABB2D8C1843ED4500791756 /* NCIHintView.h */,
+				2ABB2D8D1843ED4500791756 /* NCIHintView.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -369,6 +374,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2ABB2D8E1843ED4500791756 /* NCIHintView.m in Sources */,
 				2AD3DC0F183B9AFB003E334F /* NCIGraphView.m in Sources */,
 				2AD3DC3A183E2F85003E334F /* NCIHelpView.m in Sources */,
 				2AD3DC3C183E2F85003E334F /* NCIPeriodSwitcher.m in Sources */,

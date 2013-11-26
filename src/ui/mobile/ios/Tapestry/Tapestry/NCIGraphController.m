@@ -117,6 +117,13 @@
                                                object:nil];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
+    UITapGestureRecognizer *freeTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(freeTap)];
+    [self.view addGestureRecognizer:freeTap];
+    
+}
+
+- (void)freeTap{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"freeTap" object:self];
 }
 
 - (void)showHelp{
@@ -138,7 +145,8 @@
         
     }
     
-    editServerView.frame = CGRectMake(0, topIndent, self.view.bounds.size.width, 170);
+    float editHeigth = editServerView.frame.size.height == 0 ? 40 : editServerView.frame.size.height;
+    editServerView.frame = CGRectMake(0, topIndent, self.view.bounds.size.width, editHeigth);
     
     nciValue.frame = CGRectMake(0, 2*topIndent + indexLabelHeight, self.view.bounds.size.width/2, indexLabelHeight);
     
@@ -150,7 +158,7 @@
     
     noConnectionLabel.frame = CGRectMake(0, 250, self.view.bounds.size.width, 50);
     
-    chartView.frame = CGRectMake(0, 250, self.view.bounds.size.width, 450);
+    chartView.frame = CGRectMake(0, 250, self.view.bounds.size.width, 430);
     
     infoButton.center = CGPointMake(self.view.bounds.size.width - 50, indexLabelHeight + 30);
     

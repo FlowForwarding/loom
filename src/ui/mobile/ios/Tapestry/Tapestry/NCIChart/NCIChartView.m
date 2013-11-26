@@ -44,7 +44,7 @@
         [self addSubview:_bottomGraph];
         
         _selectedPoint = [[UILabel alloc] initWithFrame:CGRectZero];
-        _selectedPoint.font = [UIFont italicSystemFontOfSize:20];
+        _selectedPoint.font = [UIFont boldSystemFontOfSize:18];
         [self addSubview:_selectedPoint];
 
     }
@@ -52,11 +52,12 @@
 }
 
 - (void)layoutSubviews{
-    float bottomGraphHeight = 130;
-    _selectedPoint.frame = CGRectMake(self.bounds.size.width - 320, 0, 300, 30);
+    float bottomGraphHeight = 110;
+    float labelHeight = 20;
+    _selectedPoint.frame = CGRectMake(self.bounds.size.width - 320, 0, 300, labelHeight);
     if (_hasRangeSelector){
-        _mainGraph.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - bottomGraphHeight);
-        _bottomGraph.frame = CGRectMake(0, self.bounds.size.height - bottomGraphHeight, self.bounds.size.width, bottomGraphHeight);
+        _mainGraph.frame = CGRectMake(0, labelHeight, self.bounds.size.width, self.bounds.size.height - bottomGraphHeight - labelHeight);
+        _bottomGraph.frame = CGRectMake(0, self.bounds.size.height - bottomGraphHeight + labelHeight, self.bounds.size.width, bottomGraphHeight);
     } else {
         _mainGraph.frame = self.bounds;
     }

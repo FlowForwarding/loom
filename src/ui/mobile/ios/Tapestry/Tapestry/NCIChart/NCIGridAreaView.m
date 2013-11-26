@@ -132,7 +132,7 @@
     
     if (graph.maxXVal && graph.minXVal){
         double step = xFork/(xAxisLabels.count - 1);
-        if (step < 60*60){
+        if (step < 60*60*24){
           [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm"];
         } else if (step < 60*60*24*30){
            [dateFormatter setDateFormat:@"yyyy-MMM-dd"];
@@ -188,6 +188,7 @@
         if ([selectedPointDate compare:point[0]] == NSOrderedAscending){
             selectedPoint.hidden = NO;
             selectedPoint.center = [self pointByServerData:point];
+            [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm:ss"];
             graph.chart.selectedPoint.text = [NSString stringWithFormat:@"NCI: %@  %@", point[1],
                                               [dateFormatter stringFromDate:point[0]]];
             return;

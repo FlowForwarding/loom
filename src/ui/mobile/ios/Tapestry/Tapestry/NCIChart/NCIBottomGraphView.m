@@ -40,7 +40,7 @@
         self.chart = chartHolder;
         self.hasGrid = NO;
         self.hasYLabels = NO;
-        self.topChartIndent = 15;
+        self.topChartIndent = 0;
         
         leftAmputation = [[UIView alloc] initWithFrame:CGRectZero];
         leftAmputation.backgroundColor = [UIColor colorWithWhite:0.3 alpha:0.1];

@@ -22,7 +22,7 @@
 
 @end
 
-static NSString* defaultWebsocketUrl = @"ws://epamove.herokuapp.com";
+static NSString* defaultWebsocketUrl = @"ws://nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
 static int editServerInputHeigth = 40;
 static int btnWidth = 100;
 static int btnHeigth = 38;
@@ -80,20 +80,26 @@ static int btnHeigth = 38;
         [actionsBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         actionsBtn.backgroundColor = [UIColor colorWithWhite:0 alpha:0.8];
         [self addSubview:actionsBtn];
-        UITapGestureRecognizer *tapBg = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapBg)];
-        self.userInteractionEnabled = YES;
-        [self addGestureRecognizer:tapBg];
-        tapBg.numberOfTapsRequired = 1;
+        
+        self.backgroundColor = [UIColor colorWithWhite:0.9 alpha:0.7];
+        
+//        UITapGestureRecognizer *tapBg = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapBg)];
+//        self.userInteractionEnabled = NO;
+//        [self addGestureRecognizer:tapBg];
+//        tapBg.numberOfTapsRequired = 1;
+        
         
     }
     return self;
 }
 
-- (void)tapBg{
-    [serverUrlEdit resignFirstResponder];
-}
+
+//- (void)tapBg{
+//    [serverUrlEdit resignFirstResponder];
+//}
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"freeTap" object:self];
     textField.backgroundColor = [UIColor whiteColor];
     [self showActions];
     return YES;
@@ -121,6 +127,7 @@ static int btnHeigth = 38;
         connectUrlBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, 40 + btnHeigth/2);
         defaultBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, 80 + btnHeigth/2);
         cancelBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, 120 + btnHeigth/2);
+        self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 160);
     }];
 }
 
@@ -131,6 +138,7 @@ static int btnHeigth = 38;
         connectUrlBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, 0 + btnHeigth/2);
         defaultBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, 0 + btnHeigth/2);
         cancelBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, 0 + btnHeigth/2);
+        self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 40);
     }];
 }
 
