@@ -100,7 +100,8 @@
         for (ind = 0; ind < yAxisLabels.count; ind++){
             UILabel *yLabel = yAxisLabels[ind];
             if (self.hasYLabels){
-                yLabel.text = [NSString stringWithFormat:@"%.1f", _maxYVal - ind * yFork/(yAxisLabels.count - 1)];
+                NSString *text = self.chart.chartData.count == 0 ? @"" : [NSString stringWithFormat:@"%.1f", _maxYVal - ind * yFork/(yAxisLabels.count - 1)];
+                yLabel.text = text;
             }
             if (self.hasGrid || ind == yAxisLabels.count -1){
                 CGContextMoveToPoint(currentContext, yLabel.frame.origin.x + _leftRightIndent/2, yLabel.frame.origin.y);

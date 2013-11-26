@@ -142,7 +142,8 @@
         for (ind = 0; ind< xAxisLabels.count; ind++){
             UILabel *xLabel = xAxisLabels[ind];
             NSDate *date = [NSDate dateWithTimeIntervalSince1970:(graph.minXVal + ind * step)];
-            xLabel.text = [NSString stringWithFormat:@"%@", [dateFormatter stringFromDate: date]];
+            NSString *text = graph.chart.chartData.count == 0 ? @"" :  [NSString stringWithFormat:@"%@", [dateFormatter stringFromDate: date]];
+            xLabel.text = text;
            // if (self.hasGrid || ind == 0){
                 CGContextMoveToPoint(currentContext, xLabel.frame.origin.x + xLabelShift, xLabel.frame.origin.y );
                 CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x + xLabelShift, 0);
