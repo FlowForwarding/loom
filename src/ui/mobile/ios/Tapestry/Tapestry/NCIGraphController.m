@@ -62,6 +62,10 @@
         [self.navigationController.navigationBar setTintColor:[UIColor blackColor]];
     }
     
+    switcherPanel = [[NCIPeriodSwitcherPanel alloc] initWithFrame:CGRectZero];
+    [self.view addSubview:switcherPanel];
+    
+    
     nciValue = [[NCIIndexValueView alloc] initWithFrame:CGRectZero indName:NSLocalizedString(@"NCI", nil) indSize:22];
     [nciValue setTooltipText: NSLocalizedString(@"Network Complexity Index", nil)];
     
@@ -76,9 +80,6 @@
     [nepValue setTooltipText:NSLocalizedString(@"Number of Connected Network Elements", nil)];
     
     [self.view addSubview:nepValue];
-    
-    switcherPanel = [[NCIPeriodSwitcherPanel alloc] initWithFrame:CGRectZero];
-    [self.view addSubview:switcherPanel];
     
     chartView = [[NCIChartView alloc] initWithFrame:CGRectZero];
     [self.view addSubview:chartView];
@@ -107,6 +108,7 @@
     [NCIWebSocketConnector interlocutor].qpsValue = qpsValue;
     [NCIWebSocketConnector interlocutor].chartView = chartView;
     [NCIWebSocketConnector interlocutor].noConnectionLabel = noConnectionLabel;
+    [NCIWebSocketConnector interlocutor].periodSwitcherPanel = switcherPanel;
     [[NCIWebSocketConnector interlocutor] reconnect];
     
     isShowingLandscapeView = NO;

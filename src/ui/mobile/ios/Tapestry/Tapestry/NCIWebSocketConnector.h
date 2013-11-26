@@ -10,6 +10,7 @@
 #import "NCIIndexValueView.h"
 #import "NCIEditServerView.h"
 #import "NCIChartView.h"
+#import "NCIPeriodSwitcherPanel.h"
 
 @interface NCIWebSocketConnector : NSObject
 
@@ -24,6 +25,7 @@
 @property(nonatomic, strong) NCIIndexValueView *nepValue;
 @property(nonatomic, strong) NCIIndexValueView *qpsValue;
 @property(nonatomic, strong) NCIChartView *chartView;
+@property(nonatomic, strong) NCIPeriodSwitcherPanel *periodSwitcherPanel;
 @property(nonatomic, strong) UILabel *noConnectionLabel;
 
 @property(nonatomic, strong) NSDate *startDate;

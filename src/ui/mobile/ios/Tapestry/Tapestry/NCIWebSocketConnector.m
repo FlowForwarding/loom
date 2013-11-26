@@ -59,6 +59,7 @@ static NSString* websocketMoreDataRequest =
 }
 
 - (void)resetData{
+    [self.periodSwitcherPanel resetButtons];
     [self.nciValue resetData];
     [self.qpsValue resetData];
     [self.nepValue resetData];

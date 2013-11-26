@@ -38,13 +38,12 @@
         float btnHeight = 40;
         
         for (NSArray *switcherInfo in periods){
+            __weak NCIPeriodSwitcherPanel* weakSelf = self;
             NCIPeriodSwitcher *switcher =
             [[NCIPeriodSwitcher alloc] initWithFrame:
              CGRectMake((btnSpace + btnWidth)*btnNum, 0, btnWidth, btnHeight)
                                                label:switcherInfo[0] gap:[switcherInfo[1] intValue] andAction:^{
-                                                   for (NCIPeriodSwitcher *button in buttons){
-                                                       [button deselect];
-                                                   }
+                                                   [weakSelf resetButtons];
                                                }];
             [buttons addObject:switcher];
             [self addSubview:switcher];
@@ -54,6 +53,12 @@
         
     }
     return self;
+}
+
+-(void)resetButtons{
+    for (NCIPeriodSwitcher *button in buttons){
+        [button deselect];
+    }
 }
 
 

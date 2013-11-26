@@ -10,4 +10,6 @@
 
 @interface NCIPeriodSwitcherPanel : UIView
 
+-(void)resetButtons;
+
 @end
