@@ -44,7 +44,7 @@
         helpBtn.backgroundColor = [UIColor blackColor];
         helpBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14];
         [helpBtn setTitle:@"?" forState:UIControlStateNormal];
-        helpBtn.layer.cornerRadius = 8;
+        helpBtn.layer.cornerRadius = 10;
         [helpBtn addTarget:self action:@selector(showTooltip) forControlEvents:UIControlEventTouchUpInside];
         [contentView addSubview:helpBtn];
         
@@ -67,7 +67,8 @@
 }
 
 -(void)showTooltip{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"showHint" object:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"freeTap" object:self];
+     helpView.hidden = NO;
 }
 
 - (void)resetData{
@@ -80,7 +81,7 @@
     contentView.frame = self.bounds;
     indLabel.frame = CGRectMake(10, 0, self.frame.size.width, 30);
     CGFloat width =  [indLabel.text sizeWithFont:indLabel.font].width;
-    helpBtn.frame = CGRectMake(width + 10, 0, 16, 16);
+    helpBtn.frame = CGRectMake(width + 10, 0, 20, 20);
     indValue.frame = CGRectMake(width + 50, 0, 100, 30);
     updateLabel.frame = CGRectMake(10, 20, self.frame.size.width, 30);
 }
@@ -92,7 +93,7 @@
 
 - (void)setTooltipText:(NSString *)text{
     if (!helpView){
-        helpView = [[NCIHintView alloc] initWithText:text andPoint:CGPointMake(160, 20)];
+        helpView = [[NCIHintView alloc] initWithText:text andPoint:CGPointMake(30, 50)];
         [self addSubview:helpView];
     }
     //TODO

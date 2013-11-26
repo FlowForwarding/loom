@@ -81,12 +81,11 @@ static int btnHeigth = 38;
         actionsBtn.backgroundColor = [UIColor colorWithWhite:0 alpha:0.8];
         [self addSubview:actionsBtn];
         
-        self.backgroundColor = [UIColor colorWithWhite:0.9 alpha:0.7];
         
-//        UITapGestureRecognizer *tapBg = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapBg)];
-//        self.userInteractionEnabled = NO;
-//        [self addGestureRecognizer:tapBg];
-//        tapBg.numberOfTapsRequired = 1;
+        UITapGestureRecognizer *tapBg = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hidePanel)];
+        self.userInteractionEnabled = YES;
+        [self addGestureRecognizer:tapBg];
+        tapBg.numberOfTapsRequired = 1;
         
         
     }
@@ -94,9 +93,9 @@ static int btnHeigth = 38;
 }
 
 
-//- (void)tapBg{
-//    [serverUrlEdit resignFirstResponder];
-//}
+- (void)hidePanel{
+    [serverUrlEdit resignFirstResponder];
+}
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
     [[NSNotificationCenter defaultCenter] postNotificationName:@"freeTap" object:self];

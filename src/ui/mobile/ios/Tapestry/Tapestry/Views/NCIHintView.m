@@ -36,9 +36,6 @@
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(hideHint)
                                                      name:@"freeTap" object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(showHint)
-                                                     name:@"showHint" object:nil];
     }
     return self;
 }
