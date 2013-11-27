@@ -44,6 +44,7 @@ static int btnHeigth = 38;
         serverUrlEdit.layer.cornerRadius = 10;
         serverUrlEdit.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
         serverUrlEdit.delegate = self;
+        serverUrlEdit.returnKeyType = UIReturnKeyGo;
         UILabel *serverEditLeftView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 145, editServerInputHeigth)];
         serverEditLeftView.backgroundColor =  [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
         serverEditLeftView.text = NSLocalizedString(@"Tapestry Server:", nil);
@@ -107,6 +108,13 @@ static int btnHeigth = 38;
 - (void)textFieldDidEndEditing:(UITextField *)textField{
     textField.backgroundColor =  [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
     [self hideActions];
+}
+
+- (BOOL) textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+    [self connectlUrl];
+    return YES;
 }
 
 - (void)toggleActions{
