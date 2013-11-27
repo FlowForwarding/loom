@@ -25,6 +25,8 @@
     //values on start dragging ranges
     float fixedLeftVal;
     float fixedRightVal;
+    
+    UIView *fake;
 }
 
 @property(nonatomic)float xHandspikeLeft;
@@ -41,6 +43,10 @@
         self.hasGrid = NO;
         self.hasYLabels = NO;
         self.topChartIndent = 0;
+    
+        //fake view to enable touches in space between ranges
+        fake = [[UIView alloc] initWithFrame:CGRectZero];
+        [self addSubview:fake];
         
         leftAmputation = [[UIView alloc] initWithFrame:CGRectZero];
         leftAmputation.backgroundColor = [UIColor colorWithWhite:0.3 alpha:0.1];
@@ -57,13 +63,14 @@
         [self addSubview:handspikeRight];
         
         handspikeWidth = 32;
+        self.multipleTouchEnabled = YES;
     }
     return self;
 }
 
 - (void)layoutSubviews{
     [super layoutSubviews];
-    
+    fake.frame = self.bounds;
     gridWidth = self.frame.size.width - 2*self.leftRightIndent;
     gridStep = gridWidth/([self.chart getMaxArgument] - [self.chart getMinArgument]);
     handspikeIndent = self.leftRightIndent - handspikeWidth/2;
@@ -130,55 +137,85 @@
     
 }
 
-float startLeft = 0;
-float startRight = 0;
+float startLeft = -1;
+float startRight = -1;
 
 -(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if (touches.count > 1)
-        return;
     
-    UITouch *touch = [[event allTouches] anyObject];
-        
-    if( [touch view] == handspikeLeft)
-    {
+    __block UITouch *touch1;
+    
+    [[event allTouches] enumerateObjectsUsingBlock:^(UITouch  *touch, BOOL *stop) {
         CGPoint location = [touch locationInView:self];
-        startLeft = location.x - handspikeLeft.center.x;
-    } else if ([touch view] == handspikeRight){
-        CGPoint location = [touch locationInView:self];
-        startRight = location.x - handspikeRight.center.x;
-    }
+        if ([event allTouches].count == 2 ){
+            if (!touch1){
+                touch1 = touch;
+            } else {
+                if([touch1 locationInView:self].x < location.x){
+                    startLeft = [touch1 locationInView:self].x - handspikeLeft.center.x;
+                    startRight = location.x - handspikeRight.center.x;
+                } else {
+                    startLeft = location.x - handspikeLeft.center.x;
+                    startRight = [touch1 locationInView:self].x - handspikeRight.center.x;
+                }
+            }
+        } else {
+            if (location.x <= (_xHandspikeLeft + handspikeWidth)){
+                startLeft = location.x - handspikeLeft.center.x;
+            } else if (location.x >= (_xHandspikeRight - handspikeWidth)){
+                startRight = location.x - handspikeRight.center.x;
+            }
+        }
+    }];
+    
 }
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
-    if (touches.count > 1)
+    if (touches.count > 2)
         return;
     
+    __block UITouch *touch1;
+    
+    __block float newLeft = -1;
+    __block float newRight = -1;
+    
+    __weak NCIBottomGraphView* weakSelf = self;
     //here we set up new min and max ranges values for chart
-    UITouch *touch = [[event allTouches] anyObject];
-    if( [touch view] == handspikeLeft)
-    {
-        CGPoint location = [touch locationInView:self];
-        if ( (location.x - startLeft - self.leftRightIndent) < 1)
-            return;
-        if ((_xHandspikeRight - (location.x - startLeft)) < 50)
-            return;
+    [[event allTouches] enumerateObjectsUsingBlock:^(UITouch  *touch, BOOL *stop) {
+        CGPoint location = [touch locationInView:weakSelf];
+        if ([event allTouches].count == 2 ){
+            if (!touch1){
+                touch1 = touch;
+            } else {
+                if([touch1 locationInView:weakSelf].x < location.x){
+                    newLeft = [touch1 locationInView:weakSelf].x- startLeft;
+                    newRight = location.x - startRight;
+                } else {
+                    newLeft = location.x - startLeft;
+                    newRight = [touch1 locationInView:weakSelf].x - startRight;
+                }
+            }
+            
+        } else {
+            if (location.x <= (_xHandspikeLeft + handspikeWidth)){
+                newLeft = location.x - startLeft;
+            } else if (location.x >= (_xHandspikeRight - handspikeWidth)){
+                newRight = location.x - startRight;
+            }
+        };
         
-        self.chart.minRangeDate = [self dateFromXPos:(location.x - startLeft)];
-
-        [self redrawRanges];
-    } else if ([touch view] == handspikeRight){
-        CGPoint location = [touch locationInView:self];
-        
-        if ( (location.x - startRight + self.leftRightIndent) > self.frame.size.width)
-            return;
-        
-        if (( (location.x - startRight) - _xHandspikeLeft) < 50)
-            return;
-        
-        self.chart.maxRangeDate = [self dateFromXPos:(location.x - startRight)];
-
-        [self redrawRanges];
-    }
+    }];
+    
+    if ( (newLeft != -1 ) && ((newLeft - weakSelf.leftRightIndent) > 0)){
+        weakSelf.chart.minRangeDate = [weakSelf dateFromXPos:newLeft];
+    };
+    
+    if ((newRight != -1) && ((newRight + self.leftRightIndent) < self.frame.size.width)){
+        weakSelf.chart.maxRangeDate = [weakSelf dateFromXPos:newRight];
+    };
+    
+    [weakSelf redrawRanges];
+    
+    
 }
 
 - (NSDate *)dateFromXPos:(float)xPos{
@@ -187,13 +224,6 @@ float startRight = 0;
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
     
-    if (fixedLeftVal != _xHandspikeLeft || fixedRightVal != _xHandspikeRight){
-//        [self.chart.mainGraph setNeedsLayout];
-//        [self.chart.mainGraph setNeedsDisplay];
-//        
-//        fixedLeftVal = _xHandspikeLeft ;
-//        fixedRightVal = _xHandspikeRight;
-    }
     
 }
 
