@@ -40,9 +40,19 @@
         xLabelShift = 50;
         
         dateFormatter = [[NSDateFormatter alloc] init];
+        
+        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
+        tapRecognizer.numberOfTouchesRequired = 1;
+        [self addGestureRecognizer:tapRecognizer];
 
     }
     return self;
+}
+
+-(void)tapped:(UITapGestureRecognizer *) gesture{
+    CGPoint location = [gesture locationInView:self];
+    selectedPointDate =  [NSDate dateWithTimeIntervalSince1970: location.x/xStep + graph.minXVal];
+    [self layoutSelectedPoint];
 }
 
 - (id)initWithFrame:(CGRect)frame
