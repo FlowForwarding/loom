@@ -69,11 +69,11 @@ int btnHeight = 40;
 }
 
 - (void)gotoAbout{
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString: @"http://www.infoblox.com"]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString: @"http://www.infoblox.com/sites/infobloxcom/files/resources/infoblox-whitepaper-network-complexity.pdf"]];
 }
 
 - (void)gotoNCI{
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString: @"http://www.flowforwarding.org/nci"]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString: @"http://www.flowforwarding.org/nci-article"]];
 }
 
 - (void)gotoFlowForwarding{
