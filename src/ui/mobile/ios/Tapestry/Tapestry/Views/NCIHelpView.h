@@ -10,6 +10,7 @@
 
 @interface NCIHelpView : UIView
 
+- (id)initIndependantly;
 - (void)showHelp;
 
 @end

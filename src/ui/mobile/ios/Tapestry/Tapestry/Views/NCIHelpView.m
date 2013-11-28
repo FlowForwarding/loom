@@ -9,8 +9,6 @@
 #import "NCIHelpView.h"
 
 @interface NCIHelpView(){
-    int topViewHeigth;
-    int shadowHeigth;
     UIButton *aboutLink;
     UIButton *nciLink;
     UIButton *ffLink;
@@ -19,15 +17,19 @@
 @end
 
 int btnHeight = 40;
+int buttonWidth = 300;
 
 @implementation NCIHelpView
+
+- (id)initIndependantly{
+    self = [self initWithFrame:CGRectMake(self.superview.frame.size.width - buttonWidth, 0, buttonWidth, 0)];
+    return self;
+}
 
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
-        topViewHeigth  = 140;
-        shadowHeigth = 1;
         self.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.2];
         self.hidden = YES;
         
@@ -49,23 +51,34 @@ int btnHeight = 40;
         [ffLink addTarget:self action:@selector(gotoFlowForwarding) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:ffLink];
         
-        self.backgroundColor = [UIColor clearColor];
+        self.backgroundColor = [UIColor whiteColor];
+        
+        UITapGestureRecognizer *tapBg = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(bgTapped)];
+        self.userInteractionEnabled = YES;
+        [self addGestureRecognizer:tapBg];
+        
+        
     }
     return self;
 }
 
+- (void)bgTapped{
+    [self hideHelp];
+}
+
 - (void)makeupButton:(UIButton *)btn{
     [btn setTitleColor: [UIColor whiteColor] forState:UIControlStateNormal];
+    btn.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
     btn.backgroundColor = [UIColor colorWithWhite:0.3 alpha:1];
     [btn setImage: [UIImage imageNamed:@"external_link"] forState:UIControlStateNormal];
-    btn.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, -2*[btn.titleLabel.text sizeWithFont:btn.titleLabel.font].width - 60);
+    btn.imageEdgeInsets = UIEdgeInsetsMake(0 , [btn.titleLabel.text sizeWithFont:btn.titleLabel.font].width + 30, 0,0);
     
 }
 
 - (void)layoutSubviews{
-    aboutLink.frame = CGRectMake(0, 1, self.frame.size.width, btnHeight);
-    nciLink.frame = CGRectMake(0, btnHeight + 2, self.frame.size.width, btnHeight);
-    ffLink.frame = CGRectMake(0, 2*btnHeight + 3, self.frame.size.width, btnHeight);
+    aboutLink.frame = CGRectMake(self.frame.size.width - buttonWidth, 1, buttonWidth, btnHeight);
+    nciLink.frame = CGRectMake(self.frame.size.width - buttonWidth, btnHeight + 2, buttonWidth, btnHeight);
+    ffLink.frame = CGRectMake(self.frame.size.width - buttonWidth, 2*btnHeight + 3, buttonWidth, btnHeight);
 }
 
 - (void)gotoAbout{
@@ -82,7 +95,7 @@ int btnHeight = 40;
 
 - (void)hideHelp{
     [UIView animateWithDuration:0.3 animations:^{
-        self.frame = CGRectMake(0, -(btnHeight*3+3), self.frame.size.width, 0);
+        self.frame = CGRectMake(self.frame.origin.x, -(btnHeight*3+3), self.frame.size.width, 0);
     } completion:^(BOOL finished) {
         self.hidden = YES;
     }];
@@ -95,7 +108,7 @@ int btnHeight = 40;
     }
     [UIView animateWithDuration:0.3 animations:^{
         self.hidden = NO;
-        self.frame = CGRectMake(0, 0, self.frame.size.width, btnHeight*3+3);
+        self.frame = CGRectMake(self.superview.frame.size.width - buttonWidth, 0, buttonWidth, btnHeight*3+3);
     }];
 }
 

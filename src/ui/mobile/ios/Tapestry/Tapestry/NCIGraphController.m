@@ -96,7 +96,7 @@
     [noConnectionLabel setHidden:YES];
     [self.view addSubview:noConnectionLabel];
     
-    helpView = [[NCIHelpView alloc] initWithFrame:self.view.bounds];
+    helpView = [[NCIHelpView alloc] initIndependantly];
     [self.view addSubview:helpView];
     
     [self layoutSubviews];
@@ -164,7 +164,7 @@
     
     infoButton.center = CGPointMake(self.view.bounds.size.width - 50, indexLabelHeight + 30);
     
-    helpView.frame = self.view.bounds;
+    helpView.frame =  CGRectMake(self.view.frame.size.width - helpView.frame.size.width, 0, helpView.frame.size.width, helpView.frame.size.height);
 }
 
 - (void)orientationChanged:(NSNotification *)notification
