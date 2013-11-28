@@ -41,6 +41,7 @@
         
         dateFormatter = [[NSDateFormatter alloc] init];
         
+        //if (_hasPointSelector)
         UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
         tapRecognizer.numberOfTouchesRequired = 1;
         [self addGestureRecognizer:tapRecognizer];
@@ -170,24 +171,6 @@
     int yVal = self.frame.size.height - (([data[1] integerValue] - graph.minYVal)*yStep);
     int xVal =  ([date timeIntervalSince1970] - graph.minXVal)*xStep;
     return CGPointMake(xVal, yVal);
-}
-
--(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    if (_hasPointSelector)
-        [self showPoint:event];
-}
-
-- (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
-    if (_hasPointSelector)
-        [self showPoint:event];
-}
-
-- (void)showPoint:(UIEvent *)event{
-    UITouch *touch = [[event allTouches] anyObject];
-    CGPoint location = [touch locationInView:self];
-    selectedPointDate =  [NSDate dateWithTimeIntervalSince1970: location.x/xStep + graph.minXVal];
-    [self layoutSelectedPoint];
 }
 
 - (void)layoutSelectedPoint{

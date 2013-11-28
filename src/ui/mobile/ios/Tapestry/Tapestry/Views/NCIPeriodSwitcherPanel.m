@@ -22,8 +22,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         buttons = [[NSMutableArray alloc] init];
-        NSArray *periods = @[@[@"1h", [NSNumber numberWithInt:60*60]],
-                             @[@"1d", [NSNumber numberWithInt:60*60*24]],
+        NSArray *periods = @[@[@"1d", [NSNumber numberWithInt:60*60*24]],
                              @[@"5d", [NSNumber numberWithInt:60*60*24*5]],
                              @[@"1m", [NSNumber numberWithInt:60*60*24*30]],
                              @[@"3m", [NSNumber numberWithInt:60*60*24*30*3]],
