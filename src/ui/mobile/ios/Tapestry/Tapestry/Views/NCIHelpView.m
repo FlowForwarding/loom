@@ -8,10 +8,11 @@
 
 #import "NCIHelpView.h"
 
-@interface NCIHelpView(){
+@interface NCIHelpView()<UIDocumentInteractionControllerDelegate>{
     UIButton *aboutLink;
     UIButton *nciLink;
     UIButton *ffLink;
+    UIDocumentInteractionController *docController;
 }
 
 @end
@@ -41,13 +42,13 @@ int buttonWidth = 300;
         
         nciLink = [[UIButton alloc] initWithFrame:CGRectZero];
         [nciLink setTitle: NSLocalizedString(@"NCI – Technical paper", nil) forState:UIControlStateNormal];
-        [self makeupButton: nciLink];
+        [self makeupLinkBtn: nciLink];
         [nciLink addTarget:self action:@selector(gotoNCI) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:nciLink];
         
         ffLink = [[UIButton alloc] initWithFrame:CGRectZero];
         [ffLink setTitle: NSLocalizedString(@"About FlowForwarding.Org", nil) forState:UIControlStateNormal];
-        [self makeupButton: ffLink];
+        [self makeupLinkBtn: ffLink];
         [ffLink addTarget:self action:@selector(gotoFlowForwarding) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:ffLink];
         
@@ -70,10 +71,16 @@ int buttonWidth = 300;
     [btn setTitleColor: [UIColor whiteColor] forState:UIControlStateNormal];
     btn.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
     btn.backgroundColor = [UIColor colorWithWhite:0.3 alpha:1];
+    btn.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0);
+}
+
+- (void)makeupLinkBtn:(UIButton *)btn{
+    [self makeupButton:btn];
+    btn.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
     [btn setImage: [UIImage imageNamed:@"external_link"] forState:UIControlStateNormal];
     btn.imageEdgeInsets = UIEdgeInsetsMake(0 , [btn.titleLabel.text sizeWithFont:btn.titleLabel.font].width + 30, 0,0);
-    
 }
+
 
 - (void)layoutSubviews{
     aboutLink.frame = CGRectMake(self.frame.size.width - buttonWidth, 1, buttonWidth, btnHeight);
@@ -82,7 +89,18 @@ int buttonWidth = 300;
 }
 
 - (void)gotoAbout{
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString: @"http://www.infoblox.com/sites/infobloxcom/files/resources/infoblox-whitepaper-network-complexity.pdf"]];
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"whitepaper" ofType:@"pdf"];
+    NSURL *url = [NSURL fileURLWithPath:path];
+    //NSURL *url = [NSURL fileURLWithPath:@"http://www.infoblox.com/sites/infobloxcom/files/resources/infoblox-whitepaper-network-complexity.pdf"];
+    
+    docController.delegate = self;
+    docController = [UIDocumentInteractionController interactionControllerWithURL:url];
+    [docController presentOpenInMenuFromRect:CGRectMake(self.frame.origin.x, self.frame.origin.y, buttonWidth, btnHeight)
+                                      inView:self.superview animated:YES];
+}
+
+- (UIView *)documentInteractionControllerViewForPreview:(UIDocumentInteractionController *)controller{
+    return self.superview;
 }
 
 - (void)gotoNCI{
