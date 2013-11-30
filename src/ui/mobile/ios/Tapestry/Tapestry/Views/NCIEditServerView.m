@@ -34,6 +34,7 @@ static float iconDim = 40;
         serverUrlEdit.autocapitalizationType = UITextAutocapitalizationTypeNone;
         serverUrlEdit.layer.borderColor = [UIColor grayColor].CGColor;
         serverUrlEdit.layer.borderWidth = 0.2;
+        serverUrlEdit.placeholder = @"nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
         serverUrlEdit.text = [[NCIWebSocketConnector interlocutor] getTapestryUrl];
         serverUrlEdit.layer.cornerRadius = 10;
         serverUrlEdit.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
@@ -67,6 +68,10 @@ static float iconDim = 40;
         refreshBtn.hidden = YES;
         [self addSubview:refreshBtn];
         
+        self.backgroundColor = [UIColor clearColor];
+        UITapGestureRecognizer *freeTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cancelUrlChanges)];
+        self.userInteractionEnabled =YES;
+        [self addGestureRecognizer:freeTap];
     }
     return self;
 }
@@ -119,9 +124,9 @@ static float iconDim = 40;
 }
 
 - (void)layoutSubviews {
-    goBtn.frame = CGRectMake( self.bounds.size.width - 90, 0, iconDim, iconDim);
-    refreshBtn.frame = CGRectMake( self.bounds.size.width - 90, 0, iconDim, iconDim);
-    serverUrlEdit.frame = CGRectMake(10, 0, self.bounds.size.width - 100, editServerInputHeigth);
+    goBtn.frame = CGRectMake( self.bounds.size.width - 70, 0, iconDim, iconDim);
+    refreshBtn.frame = CGRectMake( self.bounds.size.width - 70, 0, iconDim, iconDim);
+    serverUrlEdit.frame = CGRectMake(10, 0, self.bounds.size.width - 80, editServerInputHeigth);
 }
 
 @end

@@ -125,7 +125,6 @@
 }
 
 - (void)freeTap{
-    [editServerView cancelUrlChanges];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"freeTap" object:self];
 }
 
@@ -148,8 +147,7 @@
         
     }
     
-    float editHeigth = editServerView.frame.size.height == 0 ? 40 : editServerView.frame.size.height;
-    editServerView.frame = CGRectMake(0, topIndent, self.view.bounds.size.width, editHeigth);
+    editServerView.frame = CGRectMake(0, topIndent, self.view.bounds.size.width,self.view.bounds.size.height);
     
     nciValue.frame = CGRectMake(0, 2*topIndent + indexLabelHeight, self.view.bounds.size.width/2, indexLabelHeight);
     

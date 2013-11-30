@@ -36,7 +36,7 @@ int buttonWidth = 300;
         
         aboutLink = [[UIButton alloc] initWithFrame:CGRectZero];
         [aboutLink setTitle: NSLocalizedString(@"About NCI", nil) forState:UIControlStateNormal];
-        [self makeupButton: aboutLink];
+        [self makeupLinkBtn: aboutLink];
         [aboutLink addTarget:self action:@selector(gotoAbout) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:aboutLink];
         
@@ -71,7 +71,6 @@ int buttonWidth = 300;
     [btn setTitleColor: [UIColor whiteColor] forState:UIControlStateNormal];
     btn.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
     btn.backgroundColor = [UIColor colorWithWhite:0.3 alpha:1];
-    btn.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0);
 }
 
 - (void)makeupLinkBtn:(UIButton *)btn{
@@ -89,14 +88,9 @@ int buttonWidth = 300;
 }
 
 - (void)gotoAbout{
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"whitepaper" ofType:@"pdf"];
-    NSURL *url = [NSURL fileURLWithPath:path];
-    //NSURL *url = [NSURL fileURLWithPath:@"http://www.infoblox.com/sites/infobloxcom/files/resources/infoblox-whitepaper-network-complexity.pdf"];
-    
-    docController.delegate = self;
-    docController = [UIDocumentInteractionController interactionControllerWithURL:url];
-    [docController presentOpenInMenuFromRect:CGRectMake(self.frame.origin.x, self.frame.origin.y, buttonWidth, btnHeight)
-                                      inView:self.superview animated:YES];
+    NSURL *url = [NSURL URLWithString:
+                  @"http://www.infoblox.com/sites/infobloxcom/files/resources/infoblox-whitepaper-network-complexity.pdf"];
+    [[UIApplication sharedApplication] openURL:url];
 }
 
 - (UIView *)documentInteractionControllerViewForPreview:(UIDocumentInteractionController *)controller{

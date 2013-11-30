@@ -10,6 +10,4 @@
 
 @interface NCIEditServerView : UIView
 
--(void)cancelUrlChanges;
-
 @end
