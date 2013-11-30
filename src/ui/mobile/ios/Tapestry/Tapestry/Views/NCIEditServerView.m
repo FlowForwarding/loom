@@ -10,22 +10,19 @@
 #import "NCIWebSocketConnector.h"
 
 @interface NCIEditServerView()<UITextFieldDelegate>{
-    UIButton *actionsBtn;
-    UIButton *connectUrlBtn;
-    UIButton *cancelBtn;
-    UIButton *defaultBtn;
     UITextField *serverUrlEdit;
-    
+    UIButton *clearBtn;
+    UIButton *goBtn;
+    UIButton *refreshBtn;
     NSString *savedUrl;
     bool actionsShown;
 }
 
 @end
 
-static NSString* defaultWebsocketUrl = @"ws://nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
+static NSString* defaultWebsocketUrl = @"ws://epamove.herokuapp.com";
 static int editServerInputHeigth = 40;
-static int btnWidth = 100;
-static int btnHeigth = 38;
+static float iconDim = 40;
 
 @implementation NCIEditServerView
 
@@ -38,13 +35,14 @@ static int btnHeigth = 38;
         
         serverUrlEdit = [[UITextField alloc] initWithFrame:CGRectZero];
         serverUrlEdit.backgroundColor = [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
-        serverUrlEdit.layer.borderColor = [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0].CGColor;
-        serverUrlEdit.layer.borderWidth = 1.0;
+        serverUrlEdit.layer.borderColor = [UIColor grayColor].CGColor;
+        serverUrlEdit.layer.borderWidth = 0.2;
         serverUrlEdit.text = defaultWebsocketUrl;
         serverUrlEdit.layer.cornerRadius = 10;
         serverUrlEdit.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
         serverUrlEdit.delegate = self;
         serverUrlEdit.returnKeyType = UIReturnKeyGo;
+        [serverUrlEdit addTarget:self action:@selector(didChangeText) forControlEvents:UIControlEventEditingChanged];
         UILabel *serverEditLeftView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 145, editServerInputHeigth)];
         serverEditLeftView.backgroundColor =  [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
         serverEditLeftView.text = NSLocalizedString(@"Tapestry Server:", nil);
@@ -54,118 +52,75 @@ static int btnHeigth = 38;
         serverUrlEdit.leftViewMode = UITextFieldViewModeAlways;
         [self addSubview:serverUrlEdit];
         
-        connectUrlBtn = [[UIButton alloc] initWithFrame:CGRectMake(self.bounds.size.width - 110, 0, btnWidth, btnHeigth)];
-        [connectUrlBtn setTitle: NSLocalizedString(@"Connect", nil) forState:UIControlStateNormal];
-        [connectUrlBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-        [connectUrlBtn addTarget:self action:@selector(connectlUrl) forControlEvents:UIControlEventTouchUpInside];
-        connectUrlBtn.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
-        [self addSubview:connectUrlBtn];
+        clearBtn = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, iconDim, iconDim)];
+        [clearBtn setImage:[UIImage imageNamed:@"clear_input"] forState:UIControlStateNormal];
+        [clearBtn addTarget:self action:@selector(clearInput) forControlEvents:UIControlEventTouchUpInside];
+        clearBtn.hidden = YES;
+        serverUrlEdit.rightView = clearBtn;
+        serverUrlEdit.rightViewMode =  UITextFieldViewModeAlways;
         
-        cancelBtn = [[UIButton alloc] initWithFrame:CGRectMake(self.bounds.size.width - 110, 0, btnWidth, btnHeigth)];
-        [cancelBtn setTitle: NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
-        [cancelBtn addTarget:self action:@selector(cancelUrlChanges) forControlEvents:UIControlEventTouchUpInside];
-        [cancelBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-        cancelBtn.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
-        [self addSubview:cancelBtn];
+        goBtn = [[UIButton alloc] initWithFrame:CGRectZero];
+        [goBtn setImage:[UIImage imageNamed:@"go"] forState:UIControlStateNormal];
+        [goBtn  addTarget:self action:@selector(connectUrl) forControlEvents:UIControlEventTouchUpInside];
+        goBtn.hidden = YES;
+        [self addSubview:goBtn];
         
-        defaultBtn = [[UIButton alloc] initWithFrame:CGRectMake(self.bounds.size.width - 110, 0, btnWidth, btnHeigth)];
-        [defaultBtn setTitle: NSLocalizedString(@"Default", nil) forState:UIControlStateNormal];
-        [defaultBtn addTarget:self action:@selector(setDefaultUrl) forControlEvents:UIControlEventTouchUpInside];
-        [defaultBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-        defaultBtn.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
-        [self addSubview:defaultBtn];
-        
-        actionsBtn  = [[UIButton alloc] initWithFrame:CGRectMake(self.bounds.size.width - 110, 0, btnWidth, btnHeigth)];
-        [actionsBtn setTitle: NSLocalizedString(@"Actions", nil) forState:UIControlStateNormal];
-        [actionsBtn addTarget:self action:@selector(toggleActions) forControlEvents:UIControlEventTouchUpInside];
-        [actionsBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        actionsBtn.backgroundColor = [UIColor colorWithWhite:0 alpha:0.8];
-        [self addSubview:actionsBtn];
-        
-        
-        UITapGestureRecognizer *tapBg = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hidePanel)];
-        self.userInteractionEnabled = YES;
-        [self addGestureRecognizer:tapBg];
-        tapBg.numberOfTapsRequired = 1;
-        
+        refreshBtn = [[UIButton alloc] initWithFrame:CGRectZero];
+        [refreshBtn setImage:[UIImage imageNamed:@"refresh"] forState:UIControlStateHighlighted];
+        refreshBtn.hidden = YES;
+        [self addSubview:refreshBtn];
         
     }
     return self;
 }
 
 
-- (void)hidePanel{
-    [serverUrlEdit resignFirstResponder];
-}
-
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
     [[NSNotificationCenter defaultCenter] postNotificationName:@"freeTap" object:self];
     textField.backgroundColor = [UIColor whiteColor];
-    [self showActions];
+    [self didChangeText];
+    goBtn.hidden = NO;
     return YES;
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField{
     textField.backgroundColor =  [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
-    [self hideActions];
+    clearBtn.hidden = YES;
 }
 
-- (BOOL) textFieldShouldReturn:(UITextField *)textField
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     [textField resignFirstResponder];
-    [self connectlUrl];
+    [self connectUrl];
     return YES;
 }
 
-- (void)toggleActions{
-    if (!actionsShown){
-        [self showActions];
-        if (![serverUrlEdit isFirstResponder]){
-            [serverUrlEdit  becomeFirstResponder];
-        };
+- (void)didChangeText{
+    if (serverUrlEdit.text.length == 0){
+        clearBtn.hidden = YES;
     } else {
-        [self hideActions];
+        clearBtn.hidden = NO;
     }
 }
 
-- (void)showActions{
-    actionsShown = YES;
-    [UIView animateWithDuration:0.3 animations:^{
-        connectUrlBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, 40 + btnHeigth/2);
-        defaultBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, 80 + btnHeigth/2);
-        cancelBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, 120 + btnHeigth/2);
-        self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 160);
-    }];
+- (void)clearInput{
+    serverUrlEdit.text = @"";
+    clearBtn.hidden = YES;
 }
 
-- (void)hideActions{
-    actionsShown = NO;
-    [serverUrlEdit resignFirstResponder];
-    [UIView animateWithDuration:0.3 animations:^{
-        connectUrlBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, 0 + btnHeigth/2);
-        defaultBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, 0 + btnHeigth/2);
-        cancelBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, 0 + btnHeigth/2);
-        self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 40);
-    }];
-}
-
--(void)connectlUrl{
+-(void)connectUrl{
+    goBtn.hidden = YES;
     savedUrl = serverUrlEdit.text;
     [[NCIWebSocketConnector interlocutor] resetData];
-    [self hideActions];
+    [serverUrlEdit resignFirstResponder];
 }
 
 -(void)cancelUrlChanges{
+    goBtn.hidden = YES;
     serverUrlEdit.text = savedUrl;
-    [self hideActions];
+    [serverUrlEdit resignFirstResponder];
 }
 
--(void)setDefaultUrl{
-    serverUrlEdit.text = defaultWebsocketUrl;
-    savedUrl = defaultWebsocketUrl;
-    [[NCIWebSocketConnector interlocutor] resetData];
-    [self hideActions];
-}
 
 -(NSString *)getServerUrl{
     return serverUrlEdit.text;
@@ -173,12 +128,9 @@ static int btnHeigth = 38;
 
 
 - (void)layoutSubviews {
-    serverUrlEdit.frame = CGRectMake(10, 0, self.bounds.size.width - 130, editServerInputHeigth);
-    actionsBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, actionsBtn.center.y);
-    connectUrlBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, connectUrlBtn.center.y);
-    defaultBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, defaultBtn.center.y);
-    cancelBtn.center = CGPointMake(self.bounds.size.width - 110 + btnWidth/2, cancelBtn.center.y);
-
+    goBtn.frame = CGRectMake( self.bounds.size.width - 90, 0, iconDim, iconDim);
+    refreshBtn.frame = CGRectMake( self.bounds.size.width - 90, 0, iconDim, iconDim);
+    serverUrlEdit.frame = CGRectMake(10, 0, self.bounds.size.width - 100, editServerInputHeigth);
 }
 
 

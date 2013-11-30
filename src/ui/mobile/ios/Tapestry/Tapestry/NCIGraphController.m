@@ -125,6 +125,7 @@
 }
 
 - (void)freeTap{
+    [editServerView cancelUrlChanges];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"freeTap" object:self];
 }
 

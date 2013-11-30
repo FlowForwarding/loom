@@ -11,6 +11,6 @@
 @interface NCIEditServerView : UIView
 
 -(NSString *)getServerUrl;
-- (void)hidePanel;
+-(void)cancelUrlChanges;
 
 @end
