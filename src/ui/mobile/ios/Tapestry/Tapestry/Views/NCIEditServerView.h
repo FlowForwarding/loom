@@ -10,7 +10,6 @@
 
 @interface NCIEditServerView : UIView
 
--(NSString *)getServerUrl;
 -(void)cancelUrlChanges;
 
 @end

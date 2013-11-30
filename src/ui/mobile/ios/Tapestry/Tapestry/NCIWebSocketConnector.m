@@ -19,9 +19,11 @@ float tenYearsPeriod = 60*60*24*30*12;
     //int timeAdjustment;
 }
 @property(nonatomic, strong)NSDateFormatter *serverDateformatter;
+@property(nonatomic, strong)NSString *tapestryURL;
 
 @end
 
+static NSString* defaultWebsocketUrl = @"epamove.herokuapp.com";
 static NSString* websocketStartRequest = @"START_DATA";
 static NSString* websocketMoreDataRequest =
 @"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"150\"}";
@@ -35,12 +37,22 @@ static NSString* websocketMoreDataRequest =
     {
         if (!interlocutor){
             interlocutor = [[NCIWebSocketConnector alloc] init];
+            interlocutor.tapestryURL = [[NSUserDefaults standardUserDefaults] objectForKey:@"tapestryUrl"];
             interlocutor.serverDateformatter = [[NSDateFormatter alloc] init];
             [interlocutor.serverDateformatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
             [interlocutor.serverDateformatter setDateFormat:@"yyyy-MM-dd_HH:mm:ss"];
         }
         return interlocutor;
     }
+}
+
+- (void)newTapestryUrl:(NSString *) newUrl{
+    [[NSUserDefaults standardUserDefaults] setObject:newUrl forKey:@"tapestryUrl"];
+    self.tapestryURL  = newUrl;
+}
+
+- (NSString *)getTapestryUrl{
+    return self.tapestryURL ? self.tapestryURL : defaultWebsocketUrl;
 }
 
 - (void)requestLastDataForPeiodInSeconds:(float) period{
@@ -73,7 +85,8 @@ static NSString* websocketMoreDataRequest =
 {
     socket.delegate = nil;
     [socket close];
-    socket = [[SRWebSocket alloc] initWithURLRequest: [NSURLRequest requestWithURL: [NSURL URLWithString: [self.editServerView getServerUrl]]]];
+    socket = [[SRWebSocket alloc] initWithURLRequest: [NSURLRequest requestWithURL:
+                                                       [NSURL URLWithString: [@"ws://" stringByAppendingString: [self getTapestryUrl]]]]];
     socket.delegate = self;
     [socket open];
     

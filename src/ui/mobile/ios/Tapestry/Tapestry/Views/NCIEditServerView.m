@@ -14,13 +14,10 @@
     UIButton *clearBtn;
     UIButton *goBtn;
     UIButton *refreshBtn;
-    NSString *savedUrl;
-    bool actionsShown;
 }
 
 @end
 
-static NSString* defaultWebsocketUrl = @"ws://epamove.herokuapp.com";
 static int editServerInputHeigth = 40;
 static float iconDim = 40;
 
@@ -30,22 +27,22 @@ static float iconDim = 40;
 {
     self = [super initWithFrame:frame];
     if (self) {
-        savedUrl = defaultWebsocketUrl;
-        actionsShown = NO;
         
         serverUrlEdit = [[UITextField alloc] initWithFrame:CGRectZero];
         serverUrlEdit.backgroundColor = [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
+        serverUrlEdit.autocorrectionType = UITextAutocorrectionTypeNo;
+        serverUrlEdit.autocapitalizationType = UITextAutocapitalizationTypeNone;
         serverUrlEdit.layer.borderColor = [UIColor grayColor].CGColor;
         serverUrlEdit.layer.borderWidth = 0.2;
-        serverUrlEdit.text = defaultWebsocketUrl;
+        serverUrlEdit.text = [[NCIWebSocketConnector interlocutor] getTapestryUrl];
         serverUrlEdit.layer.cornerRadius = 10;
         serverUrlEdit.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
         serverUrlEdit.delegate = self;
         serverUrlEdit.returnKeyType = UIReturnKeyGo;
         [serverUrlEdit addTarget:self action:@selector(didChangeText) forControlEvents:UIControlEventEditingChanged];
-        UILabel *serverEditLeftView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 145, editServerInputHeigth)];
+        UILabel *serverEditLeftView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 180, editServerInputHeigth)];
         serverEditLeftView.backgroundColor =  [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
-        serverEditLeftView.text = NSLocalizedString(@"Tapestry Server:", nil);
+        serverEditLeftView.text = NSLocalizedString(@"Tapestry Server:   ws://", nil);
         serverEditLeftView.font = [UIFont boldSystemFontOfSize:16];
         serverEditLeftView.textColor = [UIColor blackColor];
         serverUrlEdit.leftView = serverEditLeftView;
@@ -110,28 +107,21 @@ static float iconDim = 40;
 
 -(void)connectUrl{
     goBtn.hidden = YES;
-    savedUrl = serverUrlEdit.text;
+    [[NCIWebSocketConnector interlocutor] newTapestryUrl:serverUrlEdit.text];
     [[NCIWebSocketConnector interlocutor] resetData];
     [serverUrlEdit resignFirstResponder];
 }
 
 -(void)cancelUrlChanges{
     goBtn.hidden = YES;
-    serverUrlEdit.text = savedUrl;
+    serverUrlEdit.text = [[NCIWebSocketConnector interlocutor] getTapestryUrl];
     [serverUrlEdit resignFirstResponder];
 }
-
-
--(NSString *)getServerUrl{
-    return serverUrlEdit.text;
-}
-
 
 - (void)layoutSubviews {
     goBtn.frame = CGRectMake( self.bounds.size.width - 90, 0, iconDim, iconDim);
     refreshBtn.frame = CGRectMake( self.bounds.size.width - 90, 0, iconDim, iconDim);
     serverUrlEdit.frame = CGRectMake(10, 0, self.bounds.size.width - 100, editServerInputHeigth);
 }
-
 
 @end

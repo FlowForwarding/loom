@@ -20,6 +20,9 @@
 - (void)resetData;
 - (void)requestLastDataForPeiodInSeconds:(float) period;
 
+- (void)newTapestryUrl:(NSString *) newUrl;
+- (NSString *)getTapestryUrl;
+
 @property(nonatomic, strong) NCIEditServerView *editServerView;
 @property(nonatomic, strong) NCIIndexValueView *nciValue;
 @property(nonatomic, strong) NCIIndexValueView *nepValue;
