@@ -22,7 +22,7 @@
     UIButton *infoButton;
     NCIHelpView *helpView;
 
-    UILabel *noConnectionLabel;
+    UIImageView *noConnection;
     NCIEditServerView *editServerView;
     NCIPeriodSwitcherPanel *switcherPanel;
     
@@ -87,14 +87,10 @@
     editServerView = [[NCIEditServerView alloc] initWithFrame:CGRectZero];
     [self.view addSubview:editServerView];
     
-    noConnectionLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-    noConnectionLabel.text = NSLocalizedString(@"Can't connect, please try again.", nil);
-    noConnectionLabel.backgroundColor = [UIColor clearColor];
-    noConnectionLabel.font = [UIFont boldSystemFontOfSize:22];
-    noConnectionLabel.textAlignment = NSTextAlignmentCenter;
-    noConnectionLabel.textColor = [UIColor redColor];
-    [noConnectionLabel setHidden:YES];
-    [self.view addSubview:noConnectionLabel];
+    noConnection = [[UIImageView alloc] initWithFrame:CGRectZero];
+    noConnection.image = [UIImage imageNamed:@"unavailable"];
+    [noConnection setHidden:YES];
+    [self.view addSubview: noConnection];
     
     helpView = [[NCIHelpView alloc] initIndependantly];
     [self.view addSubview:helpView];
@@ -107,7 +103,7 @@
     [NCIWebSocketConnector interlocutor].nepValue = nepValue;
     [NCIWebSocketConnector interlocutor].qpsValue = qpsValue;
     [NCIWebSocketConnector interlocutor].chartView = chartView;
-    [NCIWebSocketConnector interlocutor].noConnectionLabel = noConnectionLabel;
+    [NCIWebSocketConnector interlocutor].noConnection =  noConnection;
     [NCIWebSocketConnector interlocutor].periodSwitcherPanel = switcherPanel;
     [[NCIWebSocketConnector interlocutor] reconnect];
     
@@ -147,7 +143,8 @@
         
     }
     
-    editServerView.frame = CGRectMake(0, topIndent, self.view.bounds.size.width,self.view.bounds.size.height);
+    float editHeigth = editServerView.frame.size.height == 0 ? 40 : editServerView.frame.size.height;
+    editServerView.frame = CGRectMake(0, topIndent, self.view.bounds.size.width, editHeigth);
     
     nciValue.frame = CGRectMake(0, 2*topIndent + indexLabelHeight, self.view.bounds.size.width/2, indexLabelHeight);
     
@@ -157,7 +154,9 @@
     
     switcherPanel.frame  = CGRectMake(20, 200, 500, 40);
     
-    noConnectionLabel.frame = CGRectMake(0, 250, self.view.bounds.size.width, 50);
+    noConnection.frame = CGRectMake((self.view.bounds.size.width - noConnection.image.size.width)/2, 250,
+                                    noConnection.image.size.height,
+                                    noConnection.image.size.width);
     
     chartView.frame = CGRectMake(0, 250, self.view.bounds.size.width, 430);
     

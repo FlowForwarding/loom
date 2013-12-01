@@ -13,7 +13,6 @@
     UITextField *serverUrlEdit;
     UIButton *clearBtn;
     UIButton *goBtn;
-    UIButton *refreshBtn;
 }
 
 @end
@@ -63,11 +62,6 @@ static float iconDim = 40;
         goBtn.hidden = YES;
         [self addSubview:goBtn];
         
-        refreshBtn = [[UIButton alloc] initWithFrame:CGRectZero];
-        [refreshBtn setImage:[UIImage imageNamed:@"refresh"] forState:UIControlStateHighlighted];
-        refreshBtn.hidden = YES;
-        [self addSubview:refreshBtn];
-        
         self.backgroundColor = [UIColor clearColor];
         UITapGestureRecognizer *freeTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cancelUrlChanges)];
         self.userInteractionEnabled =YES;
@@ -78,6 +72,7 @@ static float iconDim = 40;
 
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
+    self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, self.superview.bounds.size.height);
     [[NSNotificationCenter defaultCenter] postNotificationName:@"freeTap" object:self];
     textField.backgroundColor = [UIColor whiteColor];
     [self didChangeText];
@@ -92,7 +87,7 @@ static float iconDim = 40;
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
-    [textField resignFirstResponder];
+    [self resignFirstResponder];
     [self connectUrl];
     return YES;
 }
@@ -114,18 +109,23 @@ static float iconDim = 40;
     goBtn.hidden = YES;
     [[NCIWebSocketConnector interlocutor] newTapestryUrl:serverUrlEdit.text];
     [[NCIWebSocketConnector interlocutor] resetData];
-    [serverUrlEdit resignFirstResponder];
+    [self resignFirstResponder];
 }
 
 -(void)cancelUrlChanges{
     goBtn.hidden = YES;
     serverUrlEdit.text = [[NCIWebSocketConnector interlocutor] getTapestryUrl];
+    [self resignFirstResponder];
+}
+
+-(BOOL)resignFirstResponder{
     [serverUrlEdit resignFirstResponder];
+    self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, editServerInputHeigth);
+    return [super resignFirstResponder];
 }
 
 - (void)layoutSubviews {
     goBtn.frame = CGRectMake( self.bounds.size.width - 70, 0, iconDim, iconDim);
-    refreshBtn.frame = CGRectMake( self.bounds.size.width - 70, 0, iconDim, iconDim);
     serverUrlEdit.frame = CGRectMake(10, 0, self.bounds.size.width - 80, editServerInputHeigth);
 }
 

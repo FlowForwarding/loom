@@ -29,10 +29,12 @@
 @property(nonatomic, strong) NCIIndexValueView *qpsValue;
 @property(nonatomic, strong) NCIChartView *chartView;
 @property(nonatomic, strong) NCIPeriodSwitcherPanel *periodSwitcherPanel;
-@property(nonatomic, strong) UILabel *noConnectionLabel;
+@property(nonatomic, strong) UIImageView *noConnection;
 
 @property(nonatomic, strong) NSDate *startDate;
 @property(nonatomic) float currentDatePeriod;
 @property(nonatomic) float visibleDatePeriod;
+
+@property(nonatomic) bool notAvailbalbe;
 
 @end

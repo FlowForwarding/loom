@@ -37,6 +37,7 @@ static NSString* websocketMoreDataRequest =
     {
         if (!interlocutor){
             interlocutor = [[NCIWebSocketConnector alloc] init];
+            interlocutor.notAvailbalbe = NO;
             interlocutor.tapestryURL = [[NSUserDefaults standardUserDefaults] objectForKey:@"tapestryUrl"];
             interlocutor.serverDateformatter = [[NSDateFormatter alloc] init];
             [interlocutor.serverDateformatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
@@ -71,12 +72,14 @@ static NSString* websocketMoreDataRequest =
 }
 
 - (void)resetData{
+    self.notAvailbalbe = NO;
     [self.periodSwitcherPanel resetButtons];
     [self.nciValue resetData];
     [self.qpsValue resetData];
     [self.nepValue resetData];
-    [self.noConnectionLabel setHidden:YES];
+    [self.noConnection setHidden:YES];
     [self.chartView resetChart];
+    [self.chartView drawChart];
     [[NCIWebSocketConnector interlocutor] reconnect];
 }
 
@@ -103,7 +106,7 @@ static NSString* websocketMoreDataRequest =
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
 {
     NSLog(@"Websocket Failed With Error %@", error);
-    [self.noConnectionLabel setHidden:NO];
+    [self.noConnection setHidden:NO];
     webSocket = nil;
 }
 
@@ -174,7 +177,7 @@ static NSString* websocketMoreDataRequest =
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
 {
     NSLog(@"WebSocket closed");
-    [self.noConnectionLabel setHidden:NO];
+    [self.noConnection setHidden:NO];
     socket = nil;
 }
 
