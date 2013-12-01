@@ -28,20 +28,20 @@ static float iconDim = 40;
     if (self) {
         
         serverUrlEdit = [[UITextField alloc] initWithFrame:CGRectZero];
-        serverUrlEdit.backgroundColor = [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
+        serverUrlEdit.backgroundColor = [UIColor colorWithWhite:0.99 alpha:1];
         serverUrlEdit.autocorrectionType = UITextAutocorrectionTypeNo;
         serverUrlEdit.autocapitalizationType = UITextAutocapitalizationTypeNone;
         serverUrlEdit.layer.borderColor = [UIColor grayColor].CGColor;
         serverUrlEdit.layer.borderWidth = 0.2;
         serverUrlEdit.placeholder = @"nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
         serverUrlEdit.text = [[NCIWebSocketConnector interlocutor] getTapestryUrl];
-        serverUrlEdit.layer.cornerRadius = 10;
+        serverUrlEdit.layer.cornerRadius = 15;
         serverUrlEdit.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
         serverUrlEdit.delegate = self;
         serverUrlEdit.returnKeyType = UIReturnKeyGo;
         [serverUrlEdit addTarget:self action:@selector(didChangeText) forControlEvents:UIControlEventEditingChanged];
         UILabel *serverEditLeftView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 180, editServerInputHeigth)];
-        serverEditLeftView.backgroundColor =  [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
+        serverEditLeftView.backgroundColor = [UIColor colorWithWhite:0.99 alpha:1];
         serverEditLeftView.text = NSLocalizedString(@"Tapestry Server:   ws://", nil);
         serverEditLeftView.font = [UIFont boldSystemFontOfSize:16];
         serverEditLeftView.textColor = [UIColor blackColor];
@@ -81,7 +81,7 @@ static float iconDim = 40;
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField{
-    textField.backgroundColor =  [UIColor colorWithRed:246/255.0 green:246/255.0 blue:246/255.0 alpha:1.0];
+    textField.backgroundColor =  [UIColor colorWithWhite:0.99 alpha:1];
     clearBtn.hidden = YES;
 }
 

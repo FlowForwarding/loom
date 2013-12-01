@@ -10,8 +10,10 @@
 
 @interface NCIPeriodSwitcher : UIButton
 
--(id)initWithFrame:(CGRect)frame label:(NSString *)label gap:(int) periodGap andAction:(void (^)(void))action;
--(void)deselect;
+- (id)initWithFrame:(CGRect)frame label:(NSString *)label gap:(int) periodGap andAction:(void (^)(void))action;
+- (void)deselect;
+
+@property(nonatomic)int period;
 
 
 @end

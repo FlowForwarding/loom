@@ -37,7 +37,6 @@ static NSString* websocketMoreDataRequest =
     {
         if (!interlocutor){
             interlocutor = [[NCIWebSocketConnector alloc] init];
-            interlocutor.notAvailbalbe = NO;
             interlocutor.tapestryURL = [[NSUserDefaults standardUserDefaults] objectForKey:@"tapestryUrl"];
             interlocutor.serverDateformatter = [[NSDateFormatter alloc] init];
             [interlocutor.serverDateformatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
@@ -72,7 +71,6 @@ static NSString* websocketMoreDataRequest =
 }
 
 - (void)resetData{
-    self.notAvailbalbe = NO;
     [self.periodSwitcherPanel resetButtons];
     [self.nciValue resetData];
     [self.qpsValue resetData];
@@ -158,7 +156,7 @@ static NSString* websocketMoreDataRequest =
         //{"start_time":"2013-11-13T16:42:55Z","current_time":"2013-11-13T21:23:47Z"}
         NSString *start_time = dataPoint[@"start_time"];
         if (start_time){
-            _startDate = [self dateFromServerString:start_time];
+            self.startDate = [self dateFromServerString:start_time];
             NSString *current_time = dataPoint[@"current_time"];
             NSDate *date = [self dateFromServerString:current_time];
             //timeAdjustment = [date timeIntervalSinceNow];

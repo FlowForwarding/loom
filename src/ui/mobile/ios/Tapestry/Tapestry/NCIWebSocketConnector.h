@@ -35,6 +35,5 @@
 @property(nonatomic) float currentDatePeriod;
 @property(nonatomic) float visibleDatePeriod;
 
-@property(nonatomic) bool notAvailbalbe;
 
 @end

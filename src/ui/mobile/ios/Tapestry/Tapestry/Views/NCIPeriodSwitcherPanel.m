@@ -8,9 +8,11 @@
 
 #import "NCIPeriodSwitcherPanel.h"
 #import "NCIPeriodSwitcher.h"
+#import "NCIWebSocketConnector.h"
 
 @interface NCIPeriodSwitcherPanel (){
     NSMutableArray *buttons;
+    NSArray *periods;
 }
 
 @end
@@ -22,7 +24,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         buttons = [[NSMutableArray alloc] init];
-        NSArray *periods = @[@[@"1d", [NSNumber numberWithInt:60*60*24]],
+        periods = @[@[@"1d", [NSNumber numberWithInt:60*60*24]],
                              @[@"5d", [NSNumber numberWithInt:60*60*24*5]],
                              @[@"1m", [NSNumber numberWithInt:60*60*24*30]],
                              @[@"3m", [NSNumber numberWithInt:60*60*24*30*3]],
@@ -51,15 +53,30 @@
         };
         
     }
+    [[NCIWebSocketConnector interlocutor] addObserver:self forKeyPath:@"startDate" options:NSKeyValueObservingOptionNew context:NULL];
+    
     return self;
 }
 
--(void)resetButtons{
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change context:(void *)context{
+    double diff = [[NSDate date] timeIntervalSince1970] - [[NCIWebSocketConnector interlocutor].startDate timeIntervalSince1970];
+    NCIPeriodSwitcher *switcher;
+    for (int i=0; i< buttons.count; i ++){
+        switcher = buttons[i];
+        if (switcher.period > diff && (i != 0) && (((NCIPeriodSwitcher *)buttons[i-1]).period > diff)){
+            [switcher setEnabled:NO];
+        } else {
+            [switcher setEnabled:YES];
+        }
+    }
+}
+
+- (void)resetButtons{
     for (NCIPeriodSwitcher *button in buttons){
         [button deselect];
     }
 }
-
-
 
 @end

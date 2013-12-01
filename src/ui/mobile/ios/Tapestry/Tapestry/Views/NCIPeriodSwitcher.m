@@ -10,7 +10,6 @@
 #import "NCIWebSocketConnector.h"
 
 @interface NCIPeriodSwitcher(){
-    int period;
     void (^actionBlock)(void);
 }
 
@@ -23,7 +22,7 @@
     self = [self initWithFrame:frame];
     if (self){
         [self setTitle:label forState:UIControlStateNormal];
-        period = periodGap;
+        _period = periodGap;
         actionBlock = action;
         [self addTarget:self action:@selector(selectPeriod) forControlEvents:UIControlEventTouchUpInside];
     }
@@ -31,8 +30,22 @@
 };
 
 -(void)deselect{
-    self.backgroundColor = [UIColor whiteColor];
-    self.selected = NO;
+    if (self.enabled){
+        self.backgroundColor = [UIColor whiteColor];
+        self.selected = NO;
+        self.enabled = YES;
+    }
+}
+
+- (void)setEnabled:(BOOL)enabled{
+    [super setEnabled:enabled];
+    if (enabled){
+        self.backgroundColor = [UIColor whiteColor];
+        self.layer.borderColor = [UIColor blackColor].CGColor;
+    } else {
+        self.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1];
+        self.layer.borderColor = [UIColor grayColor].CGColor;
+    }
 }
 
 - (id)initWithFrame:(CGRect)frame
@@ -41,6 +54,7 @@
     if (self) {
         [self setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         [self setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
+        [self setTitleColor:[UIColor grayColor] forState:UIControlStateDisabled];
         self.layer.cornerRadius = 20;
         self.layer.borderWidth = 1;
         self.layer.borderColor = [UIColor blackColor].CGColor;
@@ -50,7 +64,7 @@
 
 - (void)selectPeriod{
     actionBlock();
-    [[NCIWebSocketConnector interlocutor] requestLastDataForPeiodInSeconds:period];
+    [[NCIWebSocketConnector interlocutor] requestLastDataForPeiodInSeconds:_period];
     self.backgroundColor = [UIColor grayColor];
     self.selected = YES;
 }
