@@ -27,6 +27,7 @@
     float fixedRightVal;
     
     UIView *fake;
+    float minRangesDistance;
 }
 
 @property(nonatomic)float xHandspikeLeft;
@@ -43,6 +44,7 @@
         self.hasGrid = NO;
         self.hasYLabels = NO;
         self.topChartIndent = 0;
+        minRangesDistance = 10;
     
         //fake view to enable touches in space between ranges
         fake = [[UIView alloc] initWithFrame:CGRectZero];
@@ -62,7 +64,7 @@
         handspikeRight = [[NCIHandspikeView alloc] initWithFrame:CGRectZero];
         [self addSubview:handspikeRight];
         
-        handspikeWidth = 32;
+        handspikeWidth = 4;
         self.multipleTouchEnabled = YES;
     }
     return self;
@@ -120,8 +122,8 @@
         _xHandspikeRight = gridWidth + handspikeIndent;
     }
     
-    if (_xHandspikeRight - _xHandspikeLeft < 50){
-        _xHandspikeRight = _xHandspikeLeft + 50;
+    if (_xHandspikeRight - _xHandspikeLeft < minRangesDistance){
+        _xHandspikeRight = _xHandspikeLeft + minRangesDistance;
     }
     
     
@@ -205,17 +207,17 @@ float startRight = -1;
         
     }];
     
-    if ((newLeft != -1 && newRight != -1) && (newRight - newLeft) < 50)
+    if ((newLeft != -1 && newRight != -1) && (newRight - newLeft) < minRangesDistance)
         return;
     
     if ( (newLeft != -1 ) && ((newLeft - weakSelf.leftRightIndent) > 0)){
-        if ((_xHandspikeRight - newLeft) < 50)
+        if ((_xHandspikeRight - newLeft) < minRangesDistance)
             return;
         weakSelf.chart.minRangeDate = [weakSelf dateFromXPos:newLeft];
     };
     
     if ((newRight != -1) && ((newRight + self.leftRightIndent) < self.frame.size.width)){
-        if ((newRight - _xHandspikeLeft) < 50)
+        if ((newRight - _xHandspikeLeft) < minRangesDistance)
             return;
         weakSelf.chart.maxRangeDate = [weakSelf dateFromXPos:newRight];
     };

@@ -72,18 +72,21 @@
         UILabel *yLabel = yAxisLabels[ind];
         yLabel.frame = CGRectMake(10, _topChartIndent + ind*(self.bounds.size.height - _bottomChartIndent - _topChartIndent)/(yAxisLabels.count - 1),50, 20);
     }
-    
 }
-
 
 - (void)drawRect:(CGRect)rect {
     if (self.scaleIndex > 1){
-        NSArray *vals = [self.chart getMinValInRanges];
+        NSArray *vals = [self.chart getValsInRanges];
         _minYVal = [vals[0] floatValue];
         _maxYVal = [vals[1] floatValue];
+        _minDataIndex = [vals[2] floatValue];
+        _maxDataIndex = [vals[3] floatValue];
+
     } else {
         _minYVal = [self.chart getMinValue];
         _maxYVal = [self.chart getMaxValue];
+        _minDataIndex = 0;
+        _maxDataIndex = self.chart.chartData.count - 1;
     }
     _minXVal = [self.chart getMinArgument];
     _maxXVal = [self.chart getMaxArgument];

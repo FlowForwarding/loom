@@ -34,12 +34,24 @@
         selectedPoint = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 7, 7)];
         selectedPoint.backgroundColor = [UIColor greenColor];
         selectedPoint.hidden = YES;
+        [self addSubview:selectedPoint];
         
         graph = graphView;
         self.backgroundColor = [UIColor clearColor];
         xLabelShift = 50;
         
         dateFormatter = [[NSDateFormatter alloc] init];
+        
+        int xLabelsCount  = 15;
+        xAxisLabels = [[NSMutableArray alloc] initWithCapacity:xLabelsCount];
+        for (int ind = 0; ind< xLabelsCount; ind++){
+            UILabel *xLabel = [[UILabel alloc] initWithFrame: CGRectZero];
+            xLabel.font = [UIFont italicSystemFontOfSize:14];
+            // CATransform3D transform = CATransform3DMakeRotation(M_PI/3, 0, 0, 1);
+            // xLabel.layer.transform = transform;
+            [xAxisLabels addObject:xLabel];
+            [self addSubview:xLabel];
+        };
         
         //if (_hasPointSelector)
         UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
@@ -66,35 +78,8 @@
 }
 
 - (void)layoutSubviews{
-    for (UIView *label in xAxisLabels){
-        [label removeFromSuperview];
-    }
-    [xAxisLabels removeAllObjects];
     
-    [self addSubview:selectedPoint];
-    int ind;
-    int xLabelsCount  = (self.frame.size.width - 150)/150;
-    xAxisLabels = [[NSMutableArray alloc] initWithCapacity:xLabelsCount];
-    for (ind = 0; ind< xLabelsCount; ind++){
-        UILabel *xLabel = [[UILabel alloc] initWithFrame: CGRectZero];
-        xLabel.font = [UIFont italicSystemFontOfSize:14];
-        // CATransform3D transform = CATransform3DMakeRotation(M_PI/3, 0, 0, 1);
-        // xLabel.layer.transform = transform;
-        
-        [xAxisLabels addObject:xLabel];
-        [self addSubview:xLabel];
-    };
-    
-    for (ind = 0; ind< xAxisLabels.count; ind++){
-        UILabel *xLabel = xAxisLabels[ind];
-        float xPos = (ind + 0.5)*(self.bounds.size.width)/(xAxisLabels.count - 1) - xLabelShift;
-        if (xPos <= self.frame.size.width )
-        xLabel.frame = CGRectMake(xPos,
-                                  self.bounds.size.height  + 15,
-                                  150, 20);
-    };
 }
-
 
 - (void)drawRect:(CGRect)rect
 {
@@ -107,22 +92,22 @@
     
     UIBezierPath *path = [UIBezierPath bezierPath];
     if (graph.chart.chartData.count > 0){
-        [path moveToPoint:[self pointByServerData:graph.chart.chartData[0]]];
+        [path moveToPoint:[self pointByServerData:graph.chart.chartData[graph.minDataIndex]]];
     }
     
-    int ind;
-    for (ind = 1; ind < graph.chart.chartData.count; ind++){
+    long ind;
+    for (ind = (graph.minDataIndex + 1); ind <= graph.maxDataIndex; ind++){
         [path addLineToPoint:[self pointByServerData:graph.chart.chartData[ind]]];
     };
     
     if (graph.chart.chartData.count > 1){
         NSDate *date = graph.chart.chartData[ind-1][0];
-        int yVal = self.frame.size.height - 0;
-        int xVal =  ([date timeIntervalSince1970] - graph.minXVal)*xStep;
+        double yVal = self.frame.size.height - 0;
+        double xVal =  ([date timeIntervalSince1970] - graph.minXVal)*xStep;
         [path addLineToPoint:CGPointMake(xVal, yVal)];
         
-        date = graph.chart.chartData[0][0];
-        yVal = self.frame.size.height - (([graph.chart.chartData[0][1] integerValue] - graph.minYVal)*yStep);
+        date = graph.chart.chartData[graph.minDataIndex][0];
+        yVal = self.frame.size.height - (([graph.chart.chartData[graph.minDataIndex][1] integerValue] - graph.minYVal)*yStep);
         xVal =  ([date timeIntervalSince1970] - graph.minXVal)*xStep;
         [path addLineToPoint:CGPointMake(xVal, self.frame.size.height)];
         
@@ -141,35 +126,60 @@
     CGContextSetLineDash(currentContext, 0.0,  dashes , 2 );
     [[UIColor blackColor] setStroke];
     
-    if (graph.maxXVal && graph.minXVal){
-        double step = xFork/(xAxisLabels.count - 1);
-        if (step < 60*60*24){
-          [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm"];
-        } else if (step < 60*60*24*30){
-           [dateFormatter setDateFormat:@"yyyy-MMM-dd"];
-        } else {
-            [dateFormatter setDateFormat:@"yyyy-MMM"];
-        }
+    
+     long xImplicitLabelsCount  = (self.frame.size.width - 150)/150;
+    double step = xFork/(xImplicitLabelsCount - 1);
+    if (step < 60*60*24){
+        [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm"];
+    } else if (step < 60*60*24*30){
+        [dateFormatter setDateFormat:@"yyyy-MMM-dd"];
+    } else {
+        [dateFormatter setDateFormat:@"yyyy-MMM"];
+    }
+
+    if (graph.maxXVal && graph.minXVal && graph.chart.chartData.count > 0 && graph.scaleIndex > 1){
+        int curRealIndex = 0;
+        for (ind = 0; ind< xImplicitLabelsCount; ind++){
+            long timeInterval = graph.minXVal + ind * step;
+            if (timeInterval >= [((NSDate *)((NSArray *)graph.chart.chartData[graph.minDataIndex])[0]) timeIntervalSince1970]  &&
+                timeInterval <= [((NSDate *)((NSArray *)graph.chart.chartData[graph.maxDataIndex])[0]) timeIntervalSince1970]){
+                
+                NSDate *date = [NSDate dateWithTimeIntervalSince1970:timeInterval];
+                UILabel *xLabel = xAxisLabels[curRealIndex];
+                NSString *text = graph.chart.chartData.count == 0 ? @"" :  [NSString stringWithFormat:@"%@", [dateFormatter stringFromDate: date]];
+                xLabel.text = text;
+                float xPos = (ind + 0.5)*(self.bounds.size.width)/(xImplicitLabelsCount - 1) - xLabelShift;
+                if (xPos <= self.frame.size.width )
+                    xLabel.frame = CGRectMake(xPos,
+                                              self.bounds.size.height  + 15,
+                                              150, 20);
+                curRealIndex ++;
+            }
+        };
+        
+        for (ind = curRealIndex; ind < xAxisLabels.count; ind++){
+             UILabel *xLabel = xAxisLabels[ind];
+             xLabel.text = @"";
+        };
+        
         for (ind = 0; ind< xAxisLabels.count; ind++){
             UILabel *xLabel = xAxisLabels[ind];
-            NSDate *date = [NSDate dateWithTimeIntervalSince1970:(graph.minXVal + ind * step)];
-            NSString *text = graph.chart.chartData.count == 0 ? @"" :  [NSString stringWithFormat:@"%@", [dateFormatter stringFromDate: date]];
-            xLabel.text = text;
-           // if (self.hasGrid || ind == 0){
-                CGContextMoveToPoint(currentContext, xLabel.frame.origin.x + xLabelShift, xLabel.frame.origin.y );
-                CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x + xLabelShift, 0);
-                CGContextStrokePath(currentContext);
-           // }
+            // if (self.hasGrid || ind == 0){
+            CGContextMoveToPoint(currentContext, xLabel.frame.origin.x + xLabelShift, xLabel.frame.origin.y );
+            CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x + xLabelShift, 0);
+            // }
         };
     };
+    
+    CGContextStrokePath(currentContext);
     [self layoutSelectedPoint];
     
 }
 
 - (CGPoint)pointByServerData:(NSArray *)data{
     NSDate *date = data[0];
-    int yVal = self.frame.size.height - (([data[1] integerValue] - graph.minYVal)*yStep);
-    int xVal =  ([date timeIntervalSince1970] - graph.minXVal)*xStep;
+    float yVal = self.frame.size.height - (([data[1] integerValue] - graph.minYVal)*yStep);
+    float xVal =  ([date timeIntervalSince1970] - graph.minXVal)*xStep;
     return CGPointMake(xVal, yVal);
 }
 

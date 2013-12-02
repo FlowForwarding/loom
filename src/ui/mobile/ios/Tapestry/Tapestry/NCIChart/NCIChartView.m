@@ -93,22 +93,41 @@
     _maxXVal = [date timeIntervalSince1970];
 }
 
-
-- (NSArray *)getMinValInRanges{
+- (NSArray *)getValsInRanges{
     float minXVal = MAXFLOAT;
     float maxXVal = -MAXFLOAT;
-    for(NSArray *point in self.chartData){
+    long firstDataIndex = self.chartData.count;
+    long lastChartIndex = 0;
+    long index;
+    for(index = 0; index < self.chartData.count; index++){
+        NSArray *point = self.chartData[index];
         float cur = [point[1] floatValue];
         if ( [_minRangeDate compare:point[0]] <  NSOrderedDescending &&
             [_maxRangeDate compare:point[0]] > NSOrderedAscending ){
+            if (firstDataIndex > index){
+                firstDataIndex = index;
+            }
+            if (lastChartIndex < index){
+                lastChartIndex = index;
+            }
             if (cur < minXVal)
                 minXVal = cur;
             if (cur> maxXVal)
                 maxXVal = cur;
         }
     }
+    firstDataIndex = firstDataIndex - 2;
+    if (firstDataIndex < 0)
+        firstDataIndex = 0;
+    lastChartIndex =  lastChartIndex + 2;
+    if (lastChartIndex  > (self.chartData.count - 1)){
+        lastChartIndex = self.chartData.count - 1;
+    };
     if (minXVal == MAXFLOAT)
-        return @[[NSNumber numberWithFloat: [self getMinValue]], [NSNumber numberWithFloat: [self getMaxValue]]];
+        return @[[NSNumber numberWithFloat: [self getMinValue]],
+                 [NSNumber numberWithFloat: [self getMaxValue]],
+                 [NSNumber numberWithLong: 0],
+                 [NSNumber numberWithLong: self.chartData.count]];
     float diff = maxXVal - minXVal;
     if (diff == 0){
         maxXVal = maxXVal + 1;
@@ -117,7 +136,10 @@
         maxXVal = maxXVal + diff*_topBottomReserve/100;
         minXVal = minXVal - diff*_topBottomReserve/100;
     }
-    return @[[NSNumber numberWithFloat: minXVal], [NSNumber numberWithFloat: maxXVal]];
+    return @[[NSNumber numberWithFloat: minXVal],
+             [NSNumber numberWithFloat: maxXVal],
+             [NSNumber numberWithLong:firstDataIndex],
+             [NSNumber numberWithLong:lastChartIndex]];
 }
 
 - (void)resetChart{

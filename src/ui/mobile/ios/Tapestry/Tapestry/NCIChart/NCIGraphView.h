@@ -37,4 +37,7 @@
 @property(nonatomic)float minYVal;
 @property(nonatomic)float maxYVal;
 
+@property(nonatomic)long minDataIndex;
+@property(nonatomic)long maxDataIndex;
+
 @end

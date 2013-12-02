@@ -34,7 +34,7 @@
 - (float)getMaxValue;
 - (float)getMinArgument;
 - (float)getMaxArgument;
-- (NSArray *)getMinValInRanges;
+- (NSArray *)getValsInRanges;
 
 //TODO make a class for point
 @property (nonatomic, strong)UILabel *selectedPoint;

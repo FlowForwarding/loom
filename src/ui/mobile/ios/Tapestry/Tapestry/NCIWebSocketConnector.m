@@ -10,9 +10,8 @@
 #import "SRWebSocket.h"
 
 //TODO seporate UI and request/responce logic
-float halfMonthPeriod = 60*60*24*15;
-float yearPeriod = 60*60*24*30*12;
-float tenYearsPeriod = 60*60*24*30*12;
+float twoYearsPeriod = 60*60*24*30*12*2;
+float tenYearsPeriod = 60*60*24*30*12*10;
 
 @interface NCIWebSocketConnector()<SRWebSocketDelegate>{
     SRWebSocket *socket;
@@ -26,7 +25,7 @@ float tenYearsPeriod = 60*60*24*30*12;
 static NSString* defaultWebsocketUrl = @"epamove.herokuapp.com";
 static NSString* websocketStartRequest = @"START_DATA";
 static NSString* websocketMoreDataRequest =
-@"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"150\"}";
+@"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"800\"}";
 
 @implementation NCIWebSocketConnector
 
@@ -56,18 +55,25 @@ static NSString* websocketMoreDataRequest =
 }
 
 - (void)requestLastDataForPeiodInSeconds:(float) period{
-    NSDate *endDate = [NSDate date];//[[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
-    NSDate *startDate = [[NSDate date]
-                         dateByAddingTimeInterval: - period];
-    _currentDatePeriod = period;
-//    [self.chartView resetChart];
-//    [self.chartView drawChart];
-    
-    NSString *endDateString = [[self.serverDateformatter stringFromDate: endDate]
-                               stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
-    NSString *startDateString = [[self.serverDateformatter stringFromDate:startDate]
-                                 stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
-    [socket send: [NSString stringWithFormat: websocketMoreDataRequest, startDateString, endDateString]];
+    _visibleDatePeriod = period;
+    if (_currentDatePeriod && ((_currentDatePeriod == twoYearsPeriod && period <= twoYearsPeriod) ||
+        (_currentDatePeriod == tenYearsPeriod && period > twoYearsPeriod))){
+        //todo just redraw
+    } else {
+        period = (period <= twoYearsPeriod) ? twoYearsPeriod : tenYearsPeriod;
+        NSDate *endDate = [NSDate date];//[[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
+        NSDate *startDate = [[NSDate date]
+                             dateByAddingTimeInterval: - period];
+        _currentDatePeriod = period;
+        //    [self.chartView resetChart];
+        //    [self.chartView drawChart];
+        
+        NSString *endDateString = [[self.serverDateformatter stringFromDate: endDate]
+                                   stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
+        NSString *startDateString = [[self.serverDateformatter stringFromDate:startDate]
+                                     stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
+        [socket send: [NSString stringWithFormat: websocketMoreDataRequest, startDateString, endDateString]];
+    }
 }
 
 - (void)resetData{
@@ -157,11 +163,14 @@ static NSString* websocketMoreDataRequest =
         NSString *start_time = dataPoint[@"start_time"];
         if (start_time){
             self.startDate = [self dateFromServerString:start_time];
-            NSString *current_time = dataPoint[@"current_time"];
-            NSDate *date = [self dateFromServerString:current_time];
-            //timeAdjustment = [date timeIntervalSinceNow];
-            
-            [self requestLastDataForPeiodInSeconds:halfMonthPeriod];
+//            NSString *current_time = dataPoint[@"current_time"];
+//            NSDate *date = [self dateFromServerString:current_time];
+//            timeAdjustment = [date timeIntervalSinceNow];
+            double askPeriod = [[NSDate date] timeIntervalSince1970] - [self.startDate timeIntervalSince1970];
+            if (askPeriod > twoYearsPeriod){
+                askPeriod = twoYearsPeriod;
+            }
+            [self requestLastDataForPeiodInSeconds:askPeriod];
         }
     }
 }
