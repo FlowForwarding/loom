@@ -59,7 +59,7 @@ NCI.Connection.onmessage  = function (e) {
 				
 				//check if chart selected area right border is in the beginning of chart ,
 				//then automaticaly move selection area to the beginning (error ~ one minute)
-				if (parseInt(NCI.chart.xAxisExtremes()[1] - NCI.chart.xAxisRange()[1]) < NCI.chartPeriods.minute && NCI.chart){
+				if (parseInt(NCI.chart.xAxisExtremes()[1] - NCI.chart.xAxisRange()[1]) < NCI.chartPeriods.minute && NCI.chart &&  NCI.chart.dateWindow_){
 					var diff = NCI.chart.dateWindow_[1] - NCI.chart.dateWindow_[0];
 					NCI.chart.updateOptions({
 						file: NCI.chartData,
