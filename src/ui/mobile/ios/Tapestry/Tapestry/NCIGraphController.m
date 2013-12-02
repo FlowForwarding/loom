@@ -47,7 +47,7 @@
     [super viewDidLoad];
     
     self.title = NSLocalizedString(@"Tapestry: A Network Complexity Analyzer", nil);
-    UIBarButtonItem* editButton = [[UIBarButtonItem alloc]  initWithImage:[UIImage imageNamed:@"actionsarrow"]
+    UIBarButtonItem* editButton = [[UIBarButtonItem alloc]  initWithImage:[UIImage imageNamed:@"info"]
                                                                     style:UIBarButtonItemStyleBordered target:self action:@selector(showHelp)];
     [[self navigationItem] setRightBarButtonItem: editButton ];
     [self.navigationItem.rightBarButtonItem setTintColor:[UIColor whiteColor]];
