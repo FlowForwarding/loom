@@ -26,6 +26,7 @@ NCI.Connection.onmessage  = function (e) {
 			NCI.zoomLinks.setTimePeriod(curTime - NCI.start_time);
 			NCI.initChart(curTime - NCI.time_adjustment);
 			
+			NCI.curChartPeriod = (NCI.chartPeriods.twoyears - (curTime - NCI.start_time) < 0) ? NCI.chartPeriods.twoyears : (curTime - NCI.start_time);
 			NCI.Connection.moreData(new Date() - NCI.curChartPeriod, new Date(), NCI.numOfPoints);
 		};
 		return;
@@ -100,6 +101,8 @@ NCI.Connection.onmessage  = function (e) {
 		newData.push([new Date(new Date() - NCI.time_adjustment).getTime() , null]);
 		NCI.chartData = newData;
 	 	NCI.chart.updateOptions({
+			dateWindow: [new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod/10).getTime(),  
+				new Date(new Date() - NCI.time_adjustment).getTime()],
 			connectSeparatedPoints: true,
 			file: NCI.chartData
 	 	});

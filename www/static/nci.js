@@ -66,9 +66,12 @@ NCI.zoomLinks = (function(){
 	var me = $('.zoom-panel a');
 	
 	me.setTimePeriod = function(period){
+		var foundDisabled = false;
 		$.each(me, function(index, link){
 			if (period - link.dataset.time < 0){
-				$(link).addClass('disabled');
+				if (foundDisabled)
+					$(link).addClass('disabled');
+				foundDisabled = true;	
 			}
 		});
 	};
