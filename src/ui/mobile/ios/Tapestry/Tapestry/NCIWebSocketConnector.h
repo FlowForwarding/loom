@@ -33,7 +33,6 @@
 
 @property(nonatomic, strong) NSDate *startDate;
 @property(nonatomic) float currentDatePeriod;
-@property(nonatomic) float visibleDatePeriod;
 
 
 @end
