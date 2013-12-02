@@ -137,15 +137,17 @@ static NSString* websocketMoreDataRequest =
         NSString *qps = dataPoint[@"QPS"];
         if (nci){
             [self.nciValue setIndValue:nci withDate:dataPoint[@"Time"]];
-            [self.chartView addPoint:[self dateFromServerString: dataPoint[@"Time"]] val:nci];
-            while ([[NSDate date] timeIntervalSince1970] - [self.chartView.chartData[0][0] timeIntervalSince1970] > _currentDatePeriod){
-                [self.chartView removeFirstPoint];
-            }
-            [self.chartView setMaxArgument:[NSDate date]];
-            if (self.chartView.chartData.count == 1){
-                [self.chartView setMinArgument:[NSDate date]];
-            } else {
-                [self.chartView drawChart];
+            if (_currentDatePeriod == twoYearsPeriod){
+                [self.chartView addPoint:[self dateFromServerString: dataPoint[@"Time"]] val:nci];
+                while ([[NSDate date] timeIntervalSince1970] - [self.chartView.chartData[0][0] timeIntervalSince1970] > _currentDatePeriod){
+                    [self.chartView removeFirstPoint];
+                }
+                [self.chartView setMaxArgument:[NSDate date]];
+                if (self.chartView.chartData.count == 1){
+                    [self.chartView setMinArgument:[NSDate date]];
+                } else {
+                    [self.chartView drawChart];
+                }
             }
         } else if (nep) {
             [self.nepValue setIndValue:nep  withDate:dataPoint[@"Time"]];
