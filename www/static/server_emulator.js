@@ -7,7 +7,7 @@ if (typeof NCI === 'undefined')
    NCI = {};
    
 NCI.Emulator = {};  
-NCI.Emulator.liveDataFrequency = 500; //in mseconds
+NCI.Emulator.liveDataFrequency = 50000; //in mseconds ( 5 second updates)
 NCI.Emulator.dataAvailablePeriod = NCI.chartPeriods.oneyear;  //in mseconds
 NCI.Emulator.serverResponceDelay = 1500;  //in mseconds
 
@@ -31,7 +31,7 @@ NCI.Connection.startData = function() {
 	event.data = JSON.stringify({start_time: new Date(new Date() - NCI.Emulator.dataAvailablePeriod), 
 		current_time:  new Date()});
 	NCI.Connection.onmessage(event);
-	setInterval(NCI.Emulator.liveNCIData, NCI.Emulator.liveDataFrequency) 
+	setInterval(NCI.Emulator.liveNCIData, NCI.Emulator.liveDataFrequency) ;
 }; 
 
 NCI.Connection.moreData = function(startTime, endTime, pointsNum) {
@@ -48,19 +48,19 @@ NCI.Connection.moreData = function(startTime, endTime, pointsNum) {
 	
 	if (NCI.Emulator.startData - NCI.Emulator.dataAvailablePeriod > startTime){
 		startTime = NCI.Emulator.startData - NCI.Emulator.dataAvailablePeriod;
-	};
+	}
 	
     var event = {};
 	event.data = '{';
 	var dateGap = (endTime - startTime) / pointsNum;
 	if (startTime < endTime) {
 		for (var i=0; i <= pointsNum; i++ ){
-			event.data += '"Time":"' +  new Date(startTime + dateGap*i)
-			+ '","NCI":' + Math.floor((Math.random()*3)+5) +',';
-		};
+			event.data += '"Time":"' +  new Date(startTime + dateGap*i) +
+			'","NCI":' + Math.floor((Math.random()*3)+5) +',';
+		}
 		event.data = event.data.replace(/,$/,'}');
 		setTimeout(NCI.Connection.onmessage, NCI.Emulator.serverResponceDelay, event);
-	};
+	}
 	
 };   
 
