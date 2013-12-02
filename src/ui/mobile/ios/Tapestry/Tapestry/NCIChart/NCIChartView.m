@@ -63,6 +63,15 @@
     }
 }
 
+- (void)setMinRangeDate:(NSDate *)minRangeDate{
+    NSDate *minDate = (NSDate *)self.chartData[0][0];
+    if ([_minRangeDate compare:minDate] == NSOrderedAscending){
+         _minRangeDate = minDate;
+    } else {
+         _minRangeDate = minRangeDate;
+    }
+}
+
 - (float)getMinValue{
     float diff = _maxYVal - _minYVal;
     if (diff == 0)
