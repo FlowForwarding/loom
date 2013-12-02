@@ -9,7 +9,7 @@
 #import "NCIPeriodSwitcher.h"
 #import "NCIWebSocketConnector.h"
 
-static float twoYearsPeriod = 60*60*24*30*12*2;
+static float twoMonthPeriod = 60*60*24*30*2;
 static float tenYearsPeriod = 60*60*24*30*12*10;
 
 @interface NCIPeriodSwitcher(){
@@ -68,12 +68,15 @@ static float tenYearsPeriod = 60*60*24*30*12*10;
 - (void)selectPeriod{
     actionBlock();
     
-    if (([NCIWebSocketConnector interlocutor].currentDatePeriod == twoYearsPeriod) ){
+    if (([NCIWebSocketConnector interlocutor].currentDatePeriod == twoMonthPeriod && _period <= twoMonthPeriod) ||
+        ([NCIWebSocketConnector interlocutor].currentDatePeriod == tenYearsPeriod && _period > twoMonthPeriod)){
         [NCIWebSocketConnector interlocutor].chartView.minRangeDate = [NSDate dateWithTimeIntervalSince1970:[[NSDate date] timeIntervalSince1970] - _period];
         [NCIWebSocketConnector interlocutor].chartView.maxRangeDate = [NSDate date];
         [[NCIWebSocketConnector interlocutor].chartView drawChart];
     } else {
-        long period = (_period <= twoYearsPeriod) ? twoYearsPeriod : tenYearsPeriod;
+        [[NCIWebSocketConnector interlocutor].chartView resetChart];
+        [[NCIWebSocketConnector interlocutor].chartView drawChart];
+        long period = (_period <= twoMonthPeriod) ? twoMonthPeriod : tenYearsPeriod;
         [[NCIWebSocketConnector interlocutor] requestLastDataForPeiodInSeconds:period];
     }
     self.backgroundColor = [UIColor grayColor];

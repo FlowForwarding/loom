@@ -42,7 +42,7 @@
         
         dateFormatter = [[NSDateFormatter alloc] init];
         
-        int xLabelsCount  = 15;
+        int xLabelsCount  = 20;
         xAxisLabels = [[NSMutableArray alloc] initWithCapacity:xLabelsCount];
         for (int ind = 0; ind< xLabelsCount; ind++){
             UILabel *xLabel = [[UILabel alloc] initWithFrame: CGRectZero];
@@ -127,7 +127,7 @@
     [[UIColor blackColor] setStroke];
     
     
-     long xImplicitLabelsCount  = (self.frame.size.width - 150)/150;
+    long xImplicitLabelsCount  = (self.frame.size.width - 150)/150;
     double step = xFork/(xImplicitLabelsCount - 1);
     if (step < 60*60*24){
         [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm"];
@@ -137,9 +137,9 @@
         [dateFormatter setDateFormat:@"yyyy-MMM"];
     }
 
-    if (graph.maxXVal && graph.minXVal && graph.chart.chartData.count > 0 && graph.scaleIndex > 1){
+    if (graph.maxXVal && graph.minXVal && graph.chart.chartData.count > 0){
         int curRealIndex = 0;
-        for (ind = 0; ind< xImplicitLabelsCount; ind++){
+        for (ind = 0; ind< (xImplicitLabelsCount+1); ind++){
             long timeInterval = graph.minXVal + ind * step;
             if (timeInterval >= [((NSDate *)((NSArray *)graph.chart.chartData[graph.minDataIndex])[0]) timeIntervalSince1970]  &&
                 timeInterval <= [((NSDate *)((NSArray *)graph.chart.chartData[graph.maxDataIndex])[0]) timeIntervalSince1970]){
@@ -148,7 +148,7 @@
                 UILabel *xLabel = xAxisLabels[curRealIndex];
                 NSString *text = graph.chart.chartData.count == 0 ? @"" :  [NSString stringWithFormat:@"%@", [dateFormatter stringFromDate: date]];
                 xLabel.text = text;
-                float xPos = (ind + 0.5)*(self.bounds.size.width)/(xImplicitLabelsCount - 1) - xLabelShift;
+                float xPos = (ind + 0.5)*(self.bounds.size.width)/(xImplicitLabelsCount) - xLabelShift;
                 if (xPos <= self.frame.size.width )
                     xLabel.frame = CGRectMake(xPos,
                                               self.bounds.size.height  + 15,
