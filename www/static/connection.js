@@ -5,7 +5,7 @@ NCI.start_time; // no data exists on the server before
 NCI.time_adjustment = 0; //difference between client and server time in milliseconds
 NCI.numOfPoints = 200;
 
-NCI.Connection = new WebSocket("ws://" + location.host + "/clientsock.yaws");
+NCI.Connection = new WebSocket("ws://" + "nci.ilabs.inca.infoblox.com:28080" + "/clientsock.yaws");
 NCI.Connection.onopen = function () {
 	NCI.Connection.startData();
 };
@@ -40,9 +40,8 @@ NCI.Connection.onmessage  = function (e) {
 			if (!NCI.chart){
 				 NCI.initChart(new Date(data.Time) - NCI.time_adjustment);
 			} else {
-				//next expression check that minimum required time passed from last time graph was redrawed
-				//for half month period (current chart period) - is 3 seconds, for month - 6 seconds and then encreases linerar
-				if (new Date() - NCI.lastRedrawTimeVal < NCI.curChartPeriod/NCI.chartPeriods.halfmnth*3000)
+				//update chart not faster then once in 3 seconds and only for case when we are in 2 years mode
+				if (new Date() - NCI.lastRedrawTimeVal < 3000  && NCI.curChartPeriod <= NCI.chartPeriods.twoyears )
 					return;
 
 				NCI.chartData.push([new Date(dateVal - NCI.time_adjustment).getTime(), data.NCI]);
@@ -100,8 +99,13 @@ NCI.Connection.onmessage  = function (e) {
 		
 		newData.push([new Date(new Date() - NCI.time_adjustment).getTime() , null]);
 		NCI.chartData = newData;
+		
+		NCI.detailedChartPeriod = NCI.detailedChartPeriod ? NCI.detailedChartPeriod : NCI.curChartPeriod/10;
+		if (NCI.detailedChartPeriod > (new Date().getTime() - NCI.chartData[0][0])){
+			NCI.detailedChartPeriod = new Date().getTime() - NCI.chartData[0][0];
+		};
 	 	NCI.chart.updateOptions({
-			dateWindow: [new Date(new Date() - NCI.time_adjustment - NCI.curChartPeriod/10).getTime(),  
+			dateWindow: [new Date(new Date() - NCI.time_adjustment - NCI.detailedChartPeriod).getTime(),  
 				new Date(new Date() - NCI.time_adjustment).getTime()],
 			connectSeparatedPoints: true,
 			file: NCI.chartData

@@ -82,14 +82,24 @@ NCI.zoomLinks = (function(){
 		NCI.zoomLinks.removeClass('selected');
 		var min = new Date().getTime() - NCI.time_adjustment - parseInt(this.dataset.time);
 		var max = new Date().getTime() - NCI.time_adjustment;
-		//NCI.chart.updateDataset(min, max);
-	
-		if (min < NCI.chartData[0][0])
-			min = NCI.chartData[0][0]
-	
-		NCI.chart.updateOptions({
-			dateWindow: [ min,  max]
-		});
+		
+		if ((NCI.curChartPeriod <= NCI.chartPeriods.twoyears && this.dataset.time <= NCI.chartPeriods.twoyears) ||
+			(NCI.curChartPeriod  > NCI.chartPeriods.tenyears && this.dataset.time > NCI.chartPeriods.tenyears)){
+				
+			if (min < NCI.chartData[0][0])
+				min = NCI.chartData[0][0]
+				
+			NCI.chart.updateOptions({
+				dateWindow: [ min,  max]
+			});
+		} else {
+			NCI.chartData = [];
+			NCI.chart.updateOptions({file: NCI.chartData});
+			NCI.curChartPeriod =  this.dataset.time <= NCI.chartPeriods.twoyears ? NCI.chartPeriods.twoyears : NCI.chartPeriods.tenyears;
+			NCI.detailedChartPeriod = this.dataset.time;
+			NCI.Connection.moreData(new Date() - NCI.curChartPeriod, new Date(), NCI.numOfPoints);
+		};
+
 		$(this).addClass('selected');
 	});
 	

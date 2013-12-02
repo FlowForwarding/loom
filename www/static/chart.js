@@ -41,8 +41,6 @@ NCI.chartPeriods = {
     tenyears: 1000*60*60*24*30*12*10
 };
 
-NCI.curChartPeriod = NCI.chartPeriods.halfmnth;
-NCI.detailedChartPeriod = NCI.chartPeriods.threehours;
 NCI.rangeStartDate = $("#range-start-date");
 NCI.rangeMiddleDate = $("#range-middle-date");
 
@@ -77,8 +75,6 @@ NCI.dateForThirdRangePeriod = function(period){
 	return date.getFullYear();
 };
 
-
-
 NCI.initChart = function(date){
 	NCI.chartData = [];
 	NCI.chart = new Dygraph(
@@ -86,7 +82,6 @@ NCI.initChart = function(date){
 		 NCI.chartData,
 		 {
 			 labels : ['NCI', 'NCI'],
-			 dateWindow: [(new Date(new Date(date) - NCI.detailedChartPeriod)).getTime(),  new Date(date).getTime()],
 			 zoomCallback: function(minDate, maxDate, yRanges){
 				 NCI.zoomLinks.removeClass('selected');	 
 			 },
