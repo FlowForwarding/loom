@@ -19,9 +19,13 @@ NCI.Connection.onmessage  = function (e) {
 	if (data.start_time){
 		// to show utc time
 		// NCI.time_adjustment = new Date() - new Date(data.current_time) - new Date().getTimezoneOffset()*1000*60;
-		NCI.time_adjustment = new Date() - new Date(data.current_time);
+		var curTime = new Date(data.current_time);
+		NCI.time_adjustment = new Date() - curTime;
 		if (!NCI.chart){
-			NCI.initChart(new Date(data.current_time) - NCI.time_adjustment);
+			NCI.start_time = new Date(data.start_time);
+			NCI.zoomLinks.setTimePeriod(curTime - NCI.start_time);
+			NCI.initChart(curTime - NCI.time_adjustment);
+			
 			NCI.Connection.moreData(new Date() - NCI.curChartPeriod, new Date(), NCI.numOfPoints);
 		};
 		return;

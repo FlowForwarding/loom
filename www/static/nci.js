@@ -62,22 +62,37 @@ $('.round-info').on('touchend', function(){
 	$('.round-info').trigger('click');
 })
 
-NCI.zoomLinks = $('.zoom-panel a');
-
-NCI.zoomLinks.on('click', function(){
-	NCI.zoomLinks.removeClass('selected');
-	var min = new Date().getTime() - NCI.time_adjustment - parseInt(this.dataset.time);
-	var max = new Date().getTime() - NCI.time_adjustment;
-	NCI.chart.updateDataset(min, max);
+NCI.zoomLinks = (function(){
+	var me = $('.zoom-panel a');
 	
-	if (min < NCI.chartData[0][0])
-		min = NCI.chartData[0][0]
+	me.setTimePeriod = function(period){
+		$.each(me, function(index, link){
+			if (period - link.dataset.time < 0){
+				$(link).addClass('disabled');
+			}
+		});
+	};
 	
-	NCI.chart.updateOptions({
-		dateWindow: [ min,  max]
+	me.on('click', function(){
+		if ($(this).hasClass('disabled'))
+			return;
+		NCI.zoomLinks.removeClass('selected');
+		var min = new Date().getTime() - NCI.time_adjustment - parseInt(this.dataset.time);
+		var max = new Date().getTime() - NCI.time_adjustment;
+		//NCI.chart.updateDataset(min, max);
+	
+		if (min < NCI.chartData[0][0])
+			min = NCI.chartData[0][0]
+	
+		NCI.chart.updateOptions({
+			dateWindow: [ min,  max]
+		});
+		$(this).addClass('selected');
 	});
-	$(this).addClass('selected');
-});
+	
+	return me;
+}());
+
 
 $('body').on('touchend', function(){
 	$('.tooltip').hide();

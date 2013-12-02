@@ -87,8 +87,7 @@ NCI.initChart = function(date){
 			 labels : ['NCI', 'NCI'],
 			 dateWindow: [(new Date(new Date(date) - NCI.detailedChartPeriod)).getTime(),  new Date(date).getTime()],
 			 zoomCallback: function(minDate, maxDate, yRanges){
-				 NCI.zoomLinks.removeClass('selected');
-				 NCI.chart.updateDataset(minDate, maxDate, yRanges);		 
+				 NCI.zoomLinks.removeClass('selected');	 
 			 },
 			 xValueFormatter: Dygraph.dateString_,
 			 fillGraph: true,
@@ -108,58 +107,4 @@ NCI.initChart = function(date){
 			 showRangeSelector: true
 		 }
 	 );	
- 	 NCI.chart.updateDataset = function(minDate, maxDate, yRanges) {
-		 //if it is first period for not scaled chart ( half month ) 
-		 //and range becomes more then 10 days we make jump
-		 //to increase range chart period to 1 year
-		 var timeUp = false;
-		 if (NCI.curChartPeriod == NCI.chartPeriods.halfmnth && (maxDate - minDate) > NCI.chartPeriods.sixdays){
-			 NCI.curChartPeriod = NCI.chartPeriods.oneyear;
-			 timeUp = true;
-		 //if it is second period for not scaled chart ( one year ) 
-		 //and range becomes more then 8 month we make jump
-		 //to increase range chart period to 10 years
-		 } else  if (NCI.curChartPeriod == NCI.chartPeriods.oneyear && (maxDate - minDate) > NCI.chartPeriods.tenmnth) {
-			 NCI.curChartPeriod = NCI.chartPeriods.tenyears;
-			 timeUp = true;
-		 };
-		 
-		 if (timeUp) {
-			console.log("up");
-			
-			NCI.Connection.moreData(new Date() - NCI.curChartPeriod, new Date(), NCI.numOfPoints);
-			return;
-		 };
-		 
-		 var timeDown = false;
-		 //if it is second period for not scaled chart ( one year ) 
-		 //and range becomes less then 6 days we make jump
-		 //to decrease range chart period to half month
-		 if (NCI.curChartPeriod == NCI.chartPeriods.oneyear && (maxDate - minDate) < NCI.chartPeriods.sixdays){
-			 NCI.curChartPeriod = NCI.chartPeriods.halfmnth;
-			 timeDown = true;
-		//if it is thirdperiod for not scaled chart ( 10 years ) 
-		//and range becomes less then 5 years we make jump
-		//to decrease range chart period to one year			 
-		 } else if (NCI.curChartPeriod == NCI.chartPeriods.tenyears && (maxDate - minDate) < NCI.chartPeriods.fiveyears) {
-			 NCI.curChartPeriod = NCI.chartPeriods.oneyear;
-		 	 timeDown = true;
-		 };
-		 
-		if (timeDown){
-			console.log("down");
-			var newChartData = [];
-			$.each(NCI.chartData, function(ind, val){
-				if (val[0] > ( new Date() - NCI.time_adjustment - NCI.curChartPeriod)){
-					newChartData.push(val);
-				};
-			});
-			NCI.chartData = newChartData;
-			NCI.chart.updateOptions({
-				file: NCI.chartData
-			});
-			NCI.Connection.moreData(new Date() - NCI.curChartPeriod, new Date(), NCI.numOfPoints);
-			return;
-		};	
-	};
 };
