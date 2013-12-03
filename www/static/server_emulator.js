@@ -7,8 +7,9 @@ if (typeof NCI === 'undefined')
    NCI = {};
    
 NCI.Emulator = {};  
-NCI.Emulator.liveDataFrequency = 50000; //in mseconds ( 5 second updates)
-NCI.Emulator.dataAvailablePeriod = NCI.chartPeriods.oneyear;  //in mseconds
+NCI.Emulator.liveDataFrequency = 5000; //in mseconds ( 5 second updates)
+NCI.Emulator.dataAvailablePeriod = NCI.chartPeriods.threeyears;  //in mseconds
+NCI.Emulator.dataAvailableTill = NCI.chartPeriods.sixmnth; //time from now in mseconds - last nci value update
 NCI.Emulator.serverResponceDelay = 1500;  //in mseconds
 
 NCI.Emulator.startData = new Date();
@@ -45,6 +46,9 @@ NCI.Connection.moreData = function(startTime, endTime, pointsNum) {
 	// .......
 	// "Time":"2013-11-04T12:32:20Z","NCI":5,
 	// "Time":"2013-11-04T13:33:13Z","NCI":5} 
+	
+	if (new Date().getTime() - NCI.Emulator.dataAvailableTill < endTime)
+		endTime = new Date().getTime() - NCI.Emulator.dataAvailableTill;
 	
 	if (NCI.Emulator.startData - NCI.Emulator.dataAvailablePeriod > startTime){
 		startTime = NCI.Emulator.startData - NCI.Emulator.dataAvailablePeriod;

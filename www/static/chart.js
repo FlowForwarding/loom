@@ -85,8 +85,8 @@ NCI.initChart = function(date){
 			 zoomCallback: function(minDate, maxDate, yRanges){
 				 NCI.zoomLinks.removeClass('selected');	 
 			 },
-			 xValueFormatter: Dygraph.dateString_,
 			 fillGraph: true,
+			 gridLineWidth: 0.1,
 			 axisLabelFontSize: 10,
 			 xAxisLabelWidth: 60,
 			 logscale: true,
@@ -94,7 +94,9 @@ NCI.initChart = function(date){
 			 axes : { x : 
 				 {
 					 axisLabelFormatter: Dygraph.dateString_, 
-					 ticker : Dygraph.dateTicker 
+					 valueFormatter: Dygraph.dateString_,
+					 ticker : Dygraph.dateTicker,
+					 pixelsPerLabel: 100
 				 } 
 			 },
 			 ylabel: 'NCI',

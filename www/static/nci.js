@@ -80,17 +80,12 @@ NCI.zoomLinks = (function(){
 		if ($(this).hasClass('disabled'))
 			return;
 		NCI.zoomLinks.removeClass('selected');
-		var min = new Date().getTime() - NCI.time_adjustment - parseInt(this.dataset.time);
-		var max = new Date().getTime() - NCI.time_adjustment;
 		
 		if ((NCI.curChartPeriod <= NCI.chartPeriods.twoyears && this.dataset.time <= NCI.chartPeriods.twoyears) ||
 			(NCI.curChartPeriod  > NCI.chartPeriods.tenyears && this.dataset.time > NCI.chartPeriods.tenyears)){
-				
-			if (min < NCI.chartData[0][0])
-				min = NCI.chartData[0][0]
-				
+			var ranges = NCI.DetectRangesForPeiod( this.dataset.time, NCI.chartData);		
 			NCI.chart.updateOptions({
-				dateWindow: [ min,  max]
+				dateWindow: [ ranges[0],  ranges[1]]
 			});
 		} else {
 			NCI.chartData = [];

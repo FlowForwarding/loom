@@ -97,21 +97,56 @@ NCI.Connection.onmessage  = function (e) {
 		
 		NCI.setBottomChartDates(new Date(new Date() - NCI.time_adjustment).getTime() - newData[0][0]);
 		
+		NCI.detailedChartPeriod = NCI.detailedChartPeriod ? NCI.detailedChartPeriod : NCI.curChartPeriod/10;
+		if (NCI.detailedChartPeriod > (new Date().getTime() - newData[0][0])){
+			NCI.detailedChartPeriod = new Date().getTime() - newData[0][0];
+		};
+		
+		
+		var ranges = NCI.DetectRangesForPeiod( NCI.detailedChartPeriod, newData);
+		//var endRangeDate = newData[newData.length - 1][0];
+		// var firstDate = newData[0][0];
+		// if (endRangeDate - NCI.detailedChartPeriod < firstDate){
+		// 	var startRangeDate = firstDate;
+		// 	if (startRangeDate +  NCI.detailedChartPeriod < new Date().getTime()){
+		// 		endRangeDate = startRangeDate +  NCI.detailedChartPeriod;
+		// 	} else {
+		// 		endRangeDate = new Date().getTime();
+		// 	};
+		// } else {
+		// 	var startRangeDate = endRangeDate - NCI.detailedChartPeriod;
+		// };
+		// 
 		newData.push([new Date(new Date() - NCI.time_adjustment).getTime() , null]);
 		NCI.chartData = newData;
 		
-		NCI.detailedChartPeriod = NCI.detailedChartPeriod ? NCI.detailedChartPeriod : NCI.curChartPeriod/10;
-		if (NCI.detailedChartPeriod > (new Date().getTime() - NCI.chartData[0][0])){
-			NCI.detailedChartPeriod = new Date().getTime() - NCI.chartData[0][0];
-		};
 	 	NCI.chart.updateOptions({
-			dateWindow: [new Date(new Date() - NCI.time_adjustment - NCI.detailedChartPeriod).getTime(),  
-				new Date(new Date() - NCI.time_adjustment).getTime()],
+			dateWindow: [ranges[0] - NCI.time_adjustment, ranges[1] - NCI.time_adjustment],
 			connectSeparatedPoints: true,
 			file: NCI.chartData
 	 	});
 	};
 	
+};
+
+NCI.DetectRangesForPeiod = function(detailedChartPeriod, chartData){
+	if (chartData.length < 2)
+		return [0,0];
+	var endRangeDate = chartData[chartData.length - 1][0];
+	if (!chartData[chartData.length - 1][1])
+		endRangeDate = chartData[chartData.length - 2][0];
+	var firstDate = chartData[0][0];
+	if (endRangeDate - detailedChartPeriod < firstDate){
+		var startRangeDate = firstDate;
+		if (startRangeDate +  detailedChartPeriod < new Date().getTime()){
+			endRangeDate = startRangeDate +  detailedChartPeriod;
+		} else {
+			endRangeDate = new Date().getTime();
+		};
+	} else {
+		var startRangeDate = endRangeDate - detailedChartPeriod;
+	};
+	return [startRangeDate, endRangeDate];
 };
 
 NCI.Connection.startData = function() {
