@@ -8,6 +8,7 @@
 
 #import "NCIGridAreaView.h"
 #import "NCIGraphView.h"
+#import "NCIBottomGraphView.h"
 
 @interface NCIGridAreaView(){
     NCIGraphView *graph;
@@ -135,7 +136,7 @@
         [dateFormatter setDateFormat:@"yyyy-MMM"];
     }
 
-    if (graph.maxXVal && graph.minXVal && graph.chart.chartData.count > 0 && graph.scaleIndex > 1){
+    if (graph.maxXVal && graph.minXVal && graph.chart.chartData.count > 0){
         int curRealIndex = 0;
         for (ind = 0; ind< xImplicitLabelsCount; ind++){
             long timeInterval = graph.minXVal + ind * step;

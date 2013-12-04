@@ -191,9 +191,6 @@
 - (void)drawChart{
     [_bottomGraph setNeedsLayout];
     [_mainGraph setNeedsLayout];
-    //[_mainGraph setNeedsDisplay];
-    //   [_mainGraph correctScrollOffset];
-    //    [_bottomGraph setNeedsDisplay];
 }
 
 @end

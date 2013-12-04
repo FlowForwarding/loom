@@ -139,27 +139,23 @@
     
 }
 
-float startLeft = -1;
-float startRight = -1;
+static float startLeft = -1;
+static float startLeftRange = -1;
+static float startRight = -1;
+static float startRightRange = -1;
 
 -(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    
     __block UITouch *touch1;
+    __weak NCIBottomGraphView *weakSelf = self;
     
     [[event allTouches] enumerateObjectsUsingBlock:^(UITouch  *touch, BOOL *stop) {
-        CGPoint location = [touch locationInView:self];
+        CGPoint location = [touch locationInView:weakSelf];
         if ([event allTouches].count == 2 ){
             if (!touch1){
                 touch1 = touch;
             } else {
-                if([touch1 locationInView:self].x < location.x){
-                    startLeft = [touch1 locationInView:self].x - handspikeLeft.center.x;
-                    startRight = location.x - handspikeRight.center.x;
-                } else {
-                    startLeft = location.x - handspikeLeft.center.x;
-                    startRight = [touch1 locationInView:self].x - handspikeRight.center.x;
-                }
+                [weakSelf startMoveWithPoint:[touch1 locationInView:weakSelf] andPoint:location];
             }
         } else {
             if (location.x <= (_xHandspikeLeft + handspikeWidth)){
@@ -172,8 +168,6 @@ float startRight = -1;
     
 }
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
-    if (touches.count > 2)
-        return;
     
     __block UITouch *touch1;
     
@@ -188,13 +182,9 @@ float startRight = -1;
             if (!touch1){
                 touch1 = touch;
             } else {
-                if([touch1 locationInView:weakSelf].x < location.x){
-                    newLeft = [touch1 locationInView:weakSelf].x- startLeft;
-                    newRight = location.x - startRight;
-                } else {
-                    newLeft = location.x - startLeft;
-                    newRight = [touch1 locationInView:weakSelf].x - startRight;
-                }
+                NSArray *newXPos = [weakSelf detectNewXPosFrom:[touch1 locationInView:weakSelf] and:location];
+                newLeft = [(NSNumber *)newXPos[0] doubleValue];
+                newRight = [(NSNumber *)newXPos[1] doubleValue];
             }
             
         } else {
@@ -207,33 +197,68 @@ float startRight = -1;
         
     }];
     
+    [self moveRangesFollowingNewLeft:newLeft newRight:newRight];
+}
+
+- (void)startMoveWithPoint:(CGPoint) point1 andPoint:(CGPoint) point2{
+    startLeftRange = handspikeLeft.center.x;
+    startRightRange = handspikeRight.center.x;
+    if(point1.x < point2.x){
+        startLeft = point1.x - handspikeLeft.center.x;
+        startRight = point2.x - handspikeRight.center.x;
+    } else {
+        startLeft = point2.x - handspikeLeft.center.x;
+        startRight = point1.x - handspikeRight.center.x;
+    }
+}
+
+- (NSArray *)detectNewXPosFrom:(CGPoint)location1 and:(CGPoint) location2{
+    if (location1.x < location2.x){
+        return @[[NSNumber numberWithDouble:location1.x - startLeft], [NSNumber numberWithDouble:location2.x - startRight]];
+    } else {
+        return @[[NSNumber numberWithDouble:location2.x - startLeft], [NSNumber numberWithDouble:location1.x - startRight]];
+    }
+}
+
+- (void)moveRangesFollowingNewLeft:(double)newLeft newRight:(double)newRight {
     if ((newLeft != -1 && newRight != -1) && (newRight - newLeft) < minRangesDistance)
         return;
     
-    if ( (newLeft != -1 ) && ((newLeft - weakSelf.leftRightIndent) > 0)){
+    if ( (newLeft != -1 ) && ((newLeft - self.leftRightIndent) > 0)){
         if ((_xHandspikeRight - newLeft) < minRangesDistance)
             return;
-        weakSelf.chart.minRangeDate = [weakSelf dateFromXPos:newLeft];
+        self.chart.minRangeDate = [self dateFromXPos:newLeft];
     };
     
     if ((newRight != -1) && ((newRight + self.leftRightIndent) < self.frame.size.width)){
         if ((newRight - _xHandspikeLeft) < minRangesDistance)
             return;
-        weakSelf.chart.maxRangeDate = [weakSelf dateFromXPos:newRight];
+        self.chart.maxRangeDate = [self dateFromXPos:newRight];
     };
     
-    [weakSelf redrawRanges];
-    
-    
+    [self redrawRanges];
 }
+
+//these 2 reverse methods are for Main Graph pinch gesures
+- (void)moveReverseRangesWithPoint:(CGPoint) point1 andPoint:(CGPoint) point2{
+    NSArray *newXPos = [self detectNewReverseXPosFrom:point1 and:point2];
+    [self moveRangesFollowingNewLeft:[(NSNumber *)newXPos[0] doubleValue] newRight:[(NSNumber *)newXPos[1] doubleValue]];
+}
+
+- (NSArray *)detectNewReverseXPosFrom:(CGPoint)location1 and:(CGPoint) location2{
+    if (location1.x < location2.x){
+        return @[[NSNumber numberWithDouble:startLeftRange - ( (location1.x - startLeft) - startLeftRange )], [NSNumber numberWithDouble:startRightRange + (startRightRange -(location2.x - startRight))]];
+    } else {
+        return @[[NSNumber numberWithDouble:startLeftRange - ( (location2.x - startLeft) - startLeftRange)], [NSNumber numberWithDouble:startRightRange + (startRightRange - (location1.x - startRight))]];
+    }
+}
+
 
 - (NSDate *)dateFromXPos:(float)xPos{
     return [NSDate dateWithTimeIntervalSince1970:[self.chart getMinArgument] + (xPos - self.leftRightIndent)/gridStep];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
-    
-    
 }
 
 
