@@ -44,7 +44,7 @@
         self.hasGrid = NO;
         self.hasYLabels = NO;
         self.topChartIndent = 0;
-        minRangesDistance = 10;
+        minRangesDistance = 5;
     
         //fake view to enable touches in space between ranges
         fake = [[UIView alloc] initWithFrame:CGRectZero];

@@ -147,8 +147,8 @@
     }
     return @[[NSNumber numberWithFloat: minXVal],
              [NSNumber numberWithFloat: maxXVal],
-             [NSNumber numberWithLong:firstDataIndex],
-             [NSNumber numberWithLong:lastChartIndex]];
+             [NSNumber numberWithLong:  firstDataIndex],
+             [NSNumber numberWithLong:  lastChartIndex]];
 }
 
 - (void)resetChart{
@@ -189,10 +189,11 @@
 
 
 - (void)drawChart{
-    [_mainGraph setNeedsLayout];
-    [_mainGraph setNeedsDisplay];
-    [_bottomGraph setNeedsDisplay];
     [_bottomGraph setNeedsLayout];
+    [_mainGraph setNeedsLayout];
+    //[_mainGraph setNeedsDisplay];
+    //   [_mainGraph correctScrollOffset];
+    //    [_bottomGraph setNeedsDisplay];
 }
 
 @end

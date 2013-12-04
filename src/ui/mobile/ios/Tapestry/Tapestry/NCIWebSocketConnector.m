@@ -10,7 +10,7 @@
 #import "SRWebSocket.h"
 
 //TODO seporate UI and request/responce logic
-static float twoMonthPeriod = 60*60*24*30*2;
+static float oneYearPeriod = 60*60*24*30*12;
 static float tenYearsPeriod = 60*60*24*30*12*10;
 
 @interface NCIWebSocketConnector()<SRWebSocketDelegate>{
@@ -22,7 +22,7 @@ static float tenYearsPeriod = 60*60*24*30*12*10;
 
 @end
 
-static NSString* defaultWebsocketUrl = @"epamove.herokuapp.com";
+static NSString* defaultWebsocketUrl = @"nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
 static NSString* websocketStartRequest = @"START_DATA";
 static NSString* websocketMoreDataRequest =
 @"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"800\"}";
@@ -137,7 +137,7 @@ static NSString* websocketMoreDataRequest =
         NSString *qps = dataPoint[@"QPS"];
         if (nci){
             [self.nciValue setIndValue:nci withDate:dataPoint[@"Time"]];
-            if (_currentDatePeriod == twoMonthPeriod){
+            if (_currentDatePeriod == oneYearPeriod){
                 [self.chartView addPoint:[self dateFromServerString: dataPoint[@"Time"]] val:nci];
                 while ([[NSDate date] timeIntervalSince1970] - [self.chartView.chartData[0][0] timeIntervalSince1970] > _currentDatePeriod){
                     [self.chartView removeFirstPoint];
@@ -162,9 +162,9 @@ static NSString* websocketMoreDataRequest =
 //            NSDate *date = [self dateFromServerString:current_time];
 //            timeAdjustment = [date timeIntervalSinceNow];
             double askPeriod = [[NSDate date] timeIntervalSince1970] - [self.startDate timeIntervalSince1970];
-            if (askPeriod > twoMonthPeriod){
-                askPeriod = twoMonthPeriod;
-                _currentDatePeriod = twoMonthPeriod;
+            if (askPeriod > oneYearPeriod){
+                askPeriod = oneYearPeriod;
+                _currentDatePeriod = oneYearPeriod;
             }
             [self requestLastDataForPeiodInSeconds:askPeriod];
         }

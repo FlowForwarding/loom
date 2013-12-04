@@ -83,20 +83,19 @@
 
 - (void)drawRect:(CGRect)rect
 {
-    
     xFork = graph.maxXVal - graph.minXVal;
-    xStep = self.bounds.size.width/xFork;
+    xStep = graph.gridScroll.contentSize.width/xFork;
     
     yFork = graph.maxYVal - graph.minYVal;
     yStep = self.bounds.size.height/yFork;
     
     UIBezierPath *path = [UIBezierPath bezierPath];
     if (graph.chart.chartData.count > 0){
-        [path moveToPoint:[self pointByServerData:graph.chart.chartData[graph.minDataIndex]]];
+        [path moveToPoint:CGPointMake(0, self.bounds.size.height)];
     }
     
     long ind;
-    for (ind = (graph.minDataIndex + 1); ind <= graph.maxDataIndex; ind++){
+    for (ind = graph.minDataIndex; ind < graph.maxDataIndex; ind++){
         [path addLineToPoint:[self pointByServerData:graph.chart.chartData[ind]]];
     };
     
@@ -126,9 +125,8 @@
     CGContextSetLineDash(currentContext, 0.0,  dashes , 2 );
     [[UIColor blackColor] setStroke];
     
-    
-    long xImplicitLabelsCount  = (self.frame.size.width - 150)/150;
-    double step = xFork/(xImplicitLabelsCount - 1);
+    long xImplicitLabelsCount  = (graph.gridScroll.contentSize.width - 150)/150;
+    double step = xFork/(xImplicitLabelsCount + 1);
     if (step < 60*60*24){
         [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm"];
     } else if (step < 60*60*24*30){
@@ -137,18 +135,19 @@
         [dateFormatter setDateFormat:@"yyyy-MMM"];
     }
 
-    if (graph.maxXVal && graph.minXVal && graph.chart.chartData.count > 0){
+    if (graph.maxXVal && graph.minXVal && graph.chart.chartData.count > 0 && graph.scaleIndex > 1){
         int curRealIndex = 0;
-        for (ind = 0; ind< (xImplicitLabelsCount+1); ind++){
+        for (ind = 0; ind< xImplicitLabelsCount; ind++){
             long timeInterval = graph.minXVal + ind * step;
-            if (timeInterval >= [((NSDate *)((NSArray *)graph.chart.chartData[graph.minDataIndex])[0]) timeIntervalSince1970]  &&
-                timeInterval <= [((NSDate *)((NSArray *)graph.chart.chartData[graph.maxDataIndex])[0]) timeIntervalSince1970]){
+            if (timeInterval >= [graph.chart.minRangeDate timeIntervalSince1970]  &&
+                timeInterval <= [graph.chart.maxRangeDate timeIntervalSince1970]){
                 
                 NSDate *date = [NSDate dateWithTimeIntervalSince1970:timeInterval];
                 UILabel *xLabel = xAxisLabels[curRealIndex];
                 NSString *text = graph.chart.chartData.count == 0 ? @"" :  [NSString stringWithFormat:@"%@", [dateFormatter stringFromDate: date]];
                 xLabel.text = text;
-                float xPos = (ind + 0.5)*(self.bounds.size.width)/(xImplicitLabelsCount) - xLabelShift;
+                float xPosImplicit = (ind + 0.5)*(graph.gridScroll.contentSize.width)/(xImplicitLabelsCount) - xLabelShift;
+                float xPos = xPosImplicit - self.frame.origin.x;
                 if (xPos <= self.frame.size.width )
                     xLabel.frame = CGRectMake(xPos,
                                               self.bounds.size.height  + 15,
@@ -179,7 +178,11 @@
 - (CGPoint)pointByServerData:(NSArray *)data{
     NSDate *date = data[0];
     float yVal = self.frame.size.height - (([data[1] integerValue] - graph.minYVal)*yStep);
+    
     float xVal =  ([date timeIntervalSince1970] - graph.minXVal)*xStep;
+    if (graph.scaleIndex > 1){
+        xVal =  ([date timeIntervalSince1970] - [graph.chart.minRangeDate timeIntervalSince1970])*xStep;
+    }
     return CGPointMake(xVal, yVal);
 }
 
