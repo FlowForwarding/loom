@@ -162,7 +162,7 @@
     
     infoButton.center = CGPointMake(self.view.bounds.size.width - 50, indexLabelHeight + 30);
     
-    helpView.frame =  CGRectMake(self.view.frame.size.width - helpView.frame.size.width, 0, helpView.frame.size.width, helpView.frame.size.height);
+    helpView.frame =  CGRectMake(0, helpView.frame.origin.y, self.view.frame.size.width, helpView.frame.size.height);
 }
 
 - (void)orientationChanged:(NSNotification *)notification

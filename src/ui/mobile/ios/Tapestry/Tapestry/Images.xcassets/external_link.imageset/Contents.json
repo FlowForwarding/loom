@@ -3,12 +3,12 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "external_link.png"
+      "filename" : "Tapestry-linkicon-20x20.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "external_link@2x.png"
+      "filename" : "Tapestry-linkicon-40x40.png"
     }
   ],
   "info" : {

@@ -23,7 +23,7 @@ int buttonWidth = 300;
 @implementation NCIHelpView
 
 - (id)initIndependantly{
-    self = [self initWithFrame:CGRectMake(self.superview.frame.size.width - buttonWidth, 0, buttonWidth, 0)];
+    self = [self initWithFrame:CGRectMake(0,  0, self.superview.frame.size.width, 0)];
     return self;
 }
 
@@ -32,27 +32,27 @@ int buttonWidth = 300;
     self = [super initWithFrame:frame];
     if (self) {
         self.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.2];
-        self.hidden = YES;
         
-        aboutLink = [[UIButton alloc] initWithFrame:CGRectZero];
+        aboutLink = [[UIButton alloc] init];
         [aboutLink setTitle: NSLocalizedString(@"About NCI", nil) forState:UIControlStateNormal];
         [self makeupLinkBtn: aboutLink];
         [aboutLink addTarget:self action:@selector(gotoAbout) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:aboutLink];
         
-        nciLink = [[UIButton alloc] initWithFrame:CGRectZero];
+        nciLink = [[UIButton alloc] init];
         [nciLink setTitle: NSLocalizedString(@"NCI – Technical paper", nil) forState:UIControlStateNormal];
         [self makeupLinkBtn: nciLink];
         [nciLink addTarget:self action:@selector(gotoNCI) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:nciLink];
         
-        ffLink = [[UIButton alloc] initWithFrame:CGRectZero];
+        ffLink = [[UIButton alloc] init];
         [ffLink setTitle: NSLocalizedString(@"About FlowForwarding.Org", nil) forState:UIControlStateNormal];
         [self makeupLinkBtn: ffLink];
         [ffLink addTarget:self action:@selector(gotoFlowForwarding) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:ffLink];
         
-        self.backgroundColor = [UIColor whiteColor];
+        self.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.2];
+        [self initBittonFrames];
         
         UITapGestureRecognizer *tapBg = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(bgTapped)];
         self.userInteractionEnabled = YES;
@@ -82,9 +82,12 @@ int buttonWidth = 300;
 
 
 - (void)layoutSubviews{
-    aboutLink.frame = CGRectMake(self.frame.size.width - buttonWidth, 1, buttonWidth, btnHeight);
-    nciLink.frame = CGRectMake(self.frame.size.width - buttonWidth, btnHeight + 2, buttonWidth, btnHeight);
-    ffLink.frame = CGRectMake(self.frame.size.width - buttonWidth, 2*btnHeight + 3, buttonWidth, btnHeight);
+    aboutLink.frame = CGRectMake(self.frame.size.width - buttonWidth,
+                                 aboutLink.frame.origin.y, buttonWidth, aboutLink.frame.size.height);
+    nciLink.frame = CGRectMake(self.frame.size.width - buttonWidth,
+                               nciLink.frame.origin.y, buttonWidth, nciLink.frame.size.height);
+    ffLink.frame = CGRectMake(self.frame.size.width - buttonWidth,
+                              ffLink.frame.origin.y, buttonWidth, ffLink.frame.size.height);
 }
 
 - (void)gotoAbout{
@@ -107,20 +110,30 @@ int buttonWidth = 300;
 
 - (void)hideHelp{
     [UIView animateWithDuration:0.3 animations:^{
-        self.frame = CGRectMake(self.frame.origin.x, -(btnHeight*3+3), self.frame.size.width, 0);
+        [self initBittonFrames];
     } completion:^(BOOL finished) {
-        self.hidden = YES;
+        self.frame = CGRectMake(self.frame.origin.x, 0, self.frame.size.width, 0);
     }];
 }
 
+- (void)initBittonFrames{
+    aboutLink.frame = CGRectMake(self.frame.size.width - buttonWidth, -3*btnHeight + 3, buttonWidth, 0);
+    nciLink.frame = CGRectMake(self.frame.size.width - buttonWidth, -2*btnHeight + 2, buttonWidth, 0);
+    ffLink.frame = CGRectMake(self.frame.size.width - buttonWidth, -btnHeight, buttonWidth, 0);
+}
+
 - (void)showHelp{
-    if (!self.hidden){
+    if (self.frame.size.height != 0){
         [self hideHelp];
         return;
-    }
+    };
+    self.frame = self.superview.bounds;
     [UIView animateWithDuration:0.3 animations:^{
-        self.hidden = NO;
-        self.frame = CGRectMake(self.superview.frame.size.width - buttonWidth, 0, buttonWidth, btnHeight*3+3);
+        aboutLink.frame = CGRectMake(self.frame.size.width - buttonWidth, 1, buttonWidth, btnHeight);
+        nciLink.frame = CGRectMake(self.frame.size.width - buttonWidth, btnHeight + 2, buttonWidth, btnHeight);
+        ffLink.frame = CGRectMake(self.frame.size.width - buttonWidth, 2*btnHeight + 3, buttonWidth, btnHeight);
+    } completion:^(BOOL finished) {
+        
     }];
 }
 
