@@ -3,12 +3,12 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "clear_input.png"
+      "filename" : "Tapestry-clearicon-30x30.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "clear_input@2x.png"
+      "filename" : "Tapestry-clearicon-60x60.png"
     }
   ],
   "info" : {

@@ -3,12 +3,12 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "go.png"
+      "filename" : "Tapestry-goicon-30x30.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "go@2x.png"
+      "filename" : "Tapestry-goicon-60x60.png"
     }
   ],
   "info" : {
