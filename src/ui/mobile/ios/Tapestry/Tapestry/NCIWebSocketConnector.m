@@ -114,11 +114,11 @@ static NSString* websocketMoreDataRequest =
     if (dataPieces.count > 2){
         [self.chartView resetChart];
         int i;
-        for (i = 0; i < dataPieces.count/2; i+=2){
+        for (i = 0; i < dataPieces.count; i+=2){
             //we get such fromat data 2013-11-12T14:04:29Z
-            NSString *dateString = [dataPieces[i*2] substringWithRange:NSMakeRange(8, ((NSString *)dataPieces[i]).length - 10)];
+            NSString *dateString = [dataPieces[i] substringWithRange:NSMakeRange(8, ((NSString *)dataPieces[i]).length - 10)];
             NSDate *date = [self dateFromServerString: dateString];
-            NSString *nciVal = [dataPieces[2*i+1] substringFromIndex:6];
+            NSString *nciVal = [dataPieces[i+1] substringFromIndex:6];
             [self.chartView addPoint:date val:nciVal];
         }
         long period = [[NSDate date] timeIntervalSince1970] - [((NSDate *)[self.chartView.chartData firstObject][0]) timeIntervalSince1970];

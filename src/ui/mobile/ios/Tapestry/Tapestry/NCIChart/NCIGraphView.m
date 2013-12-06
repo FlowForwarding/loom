@@ -86,7 +86,7 @@
         _minYVal = [self.chart getMinValue];
         _maxYVal = [self.chart getMaxValue];
         _minDataIndex = 0;
-        _maxDataIndex = self.chart.chartData.count - 1;
+        _maxDataIndex = self.chart.chartData.count;
     }
     _minXVal = [self.chart getMinArgument];
     _maxXVal = [self.chart getMaxArgument];
