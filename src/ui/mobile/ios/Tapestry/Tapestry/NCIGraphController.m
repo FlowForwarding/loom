@@ -22,7 +22,8 @@
     UIButton *infoButton;
     NCIHelpView *helpView;
 
-    UIImageView *noConnection;
+    UIImage *unavailableImage;
+    UIButton *noConnection;
     NCIEditServerView *editServerView;
     NCIPeriodSwitcherPanel *switcherPanel;
     
@@ -87,9 +88,11 @@
     editServerView = [[NCIEditServerView alloc] initWithFrame:CGRectZero];
     [self.view addSubview:editServerView];
     
-    noConnection = [[UIImageView alloc] initWithFrame:CGRectZero];
-    noConnection.image = [UIImage imageNamed:@"unavailable"];
+    noConnection = [[UIButton alloc] initWithFrame:CGRectZero];
+    unavailableImage = [UIImage imageNamed:@"unavailable"];
+    [noConnection setImage:unavailableImage forState:UIControlStateNormal];
     [noConnection setHidden:YES];
+    [noConnection addTarget:self action:@selector(reconnect) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview: noConnection];
     
     helpView = [[NCIHelpView alloc] initIndependantly];
@@ -118,6 +121,10 @@
     UITapGestureRecognizer *freeTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(freeTap)];
     [self.view addGestureRecognizer:freeTap];
     
+}
+
+- (void)reconnect{
+    [[NCIWebSocketConnector interlocutor] resetData];
 }
 
 - (void)freeTap{
@@ -154,9 +161,9 @@
     
     switcherPanel.frame  = CGRectMake(20, 200, 500, 40);
     
-    noConnection.frame = CGRectMake((self.view.bounds.size.width - noConnection.image.size.width)/2, 250,
-                                    noConnection.image.size.height,
-                                    noConnection.image.size.width);
+    noConnection.frame = CGRectMake((self.view.bounds.size.width - unavailableImage.size.width)/2, 250,
+                                    unavailableImage.size.width,
+                                    unavailableImage.size.height);
     
     chartView.frame = CGRectMake(0, 250, self.view.bounds.size.width, 430);
     
