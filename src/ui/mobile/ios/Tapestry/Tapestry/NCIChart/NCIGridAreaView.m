@@ -92,23 +92,31 @@
     
     UIBezierPath *path = [UIBezierPath bezierPath];
     if (graph.chart.chartData.count > 0){
-        [path moveToPoint:CGPointMake(0, self.bounds.size.height)];
+        [path moveToPoint:[self pointByServerData:graph.chart.chartData[graph.minDataIndex]]];
     }
     
     long ind;
-    for (ind = graph.minDataIndex; ind < graph.maxDataIndex; ind++){
-        [path addLineToPoint:[self pointByServerData:graph.chart.chartData[ind]]];
-    };
+    if (graph.chart.chartData.count > 0){
+        for (ind = graph.minDataIndex; ind <= graph.maxDataIndex; ind++){
+            [path addLineToPoint:[self pointByServerData:graph.chart.chartData[ind]]];
+        };
+    }
     
     if (graph.chart.chartData.count > 1){
         NSDate *date = graph.chart.chartData[ind-1][0];
         double yVal = self.frame.size.height - 0;
         double xVal =  ([date timeIntervalSince1970] - graph.minXVal)*xStep;
+        if (graph.scaleIndex > 1){
+            xVal =  ([date timeIntervalSince1970] - [graph.chart.minRangeDate timeIntervalSince1970])*xStep;
+        }
         [path addLineToPoint:CGPointMake(xVal, yVal)];
         
         date = graph.chart.chartData[graph.minDataIndex][0];
         yVal = self.frame.size.height - (([graph.chart.chartData[graph.minDataIndex][1] integerValue] - graph.minYVal)*yStep);
         xVal =  ([date timeIntervalSince1970] - graph.minXVal)*xStep;
+        if (graph.scaleIndex > 1){
+            xVal =  ([date timeIntervalSince1970] - [graph.chart.minRangeDate timeIntervalSince1970])*xStep;
+        }
         [path addLineToPoint:CGPointMake(xVal, self.frame.size.height)];
         
         [[[UIColor blueColor] colorWithAlphaComponent:0.1] setFill];

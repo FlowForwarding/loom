@@ -109,10 +109,22 @@
     long lastChartIndex = 0;
     long index;
     for(index = 0; index < self.chartData.count; index++){
+        NSArray *prevPoint;
+        if (index == 0) {
+            prevPoint = self.chartData[index];
+        } else {
+            prevPoint = self.chartData[index - 1];
+        };
         NSArray *point = self.chartData[index];
+        NSArray *nextPoint;
+        if (index == (self.chartData.count - 1)){
+            nextPoint = self.chartData[index];
+        } else {
+            nextPoint = self.chartData[index + 1];
+        }
         float cur = [point[1] floatValue];
-        if ( [_minRangeDate compare:point[0]] <  NSOrderedDescending &&
-            [_maxRangeDate compare:point[0]] > NSOrderedAscending ){
+        if ( [_minRangeDate compare:prevPoint[0]] <  NSOrderedDescending ||
+            [_maxRangeDate compare:nextPoint[0]] > NSOrderedAscending ){
             if (firstDataIndex > index){
                 firstDataIndex = index;
             }
@@ -125,18 +137,11 @@
                 maxXVal = cur;
         }
     }
-    firstDataIndex = firstDataIndex - 2;
-    if (firstDataIndex < 0)
-        firstDataIndex = 0;
-    lastChartIndex =  lastChartIndex + 2;
-    if (lastChartIndex  > (self.chartData.count - 1)){
-        lastChartIndex = self.chartData.count - 1;
-    };
     if (minXVal == MAXFLOAT)
         return @[[NSNumber numberWithFloat: [self getMinValue]],
                  [NSNumber numberWithFloat: [self getMaxValue]],
                  [NSNumber numberWithLong: 0],
-                 [NSNumber numberWithLong: self.chartData.count]];
+                 [NSNumber numberWithLong: self.chartData.count - 1]];
     float diff = maxXVal - minXVal;
     if (diff == 0){
         maxXVal = maxXVal + 1;
