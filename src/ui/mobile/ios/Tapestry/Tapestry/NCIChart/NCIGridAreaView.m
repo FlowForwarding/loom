@@ -65,7 +65,7 @@
 
 -(void)tapped:(UITapGestureRecognizer *) gesture{
     CGPoint location = [gesture locationInView:self];
-    selectedPointDate =  [NSDate dateWithTimeIntervalSince1970: location.x/xStep + graph.minXVal];
+    selectedPointDate =  [NSDate dateWithTimeIntervalSince1970: location.x/xStep + [graph.chart.minRangeDate timeIntervalSince1970]];
     [self layoutSelectedPoint];
 }
 
