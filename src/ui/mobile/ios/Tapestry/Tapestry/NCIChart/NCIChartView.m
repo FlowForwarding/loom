@@ -103,55 +103,59 @@
 }
 
 - (NSArray *)getValsInRanges{
-    float minXVal = MAXFLOAT;
-    float maxXVal = -MAXFLOAT;
+    float minYVal = MAXFLOAT;
+    float maxYVal = -MAXFLOAT;
     long firstDataIndex = self.chartData.count;
     long lastChartIndex = 0;
     long index;
-    for(index = 0; index < self.chartData.count; index++){
-        NSArray *prevPoint;
-        if (index == 0) {
-            prevPoint = self.chartData[index];
-        } else {
-            prevPoint = self.chartData[index - 1];
-        };
+    for(index = 1; index < (self.chartData.count - 1); index++){
+        NSArray * prevPoint = self.chartData[index - 1];
         NSArray *point = self.chartData[index];
-        NSArray *nextPoint;
-        if (index == (self.chartData.count - 1)){
-            nextPoint = self.chartData[index];
+        NSArray * nextPoint = self.chartData[index + 1];
+
+        float curMax = [prevPoint[1] floatValue];
+        float curMin = [prevPoint[1] floatValue];
+        if ([point[1] floatValue] > [prevPoint[1] floatValue]){
+            curMax = [point[1] floatValue];
         } else {
-            nextPoint = self.chartData[index + 1];
+            curMin= [point[1] floatValue];
         }
-        float cur = [point[1] floatValue];
-        if ( [_minRangeDate compare:prevPoint[0]] <  NSOrderedDescending ||
-            [_maxRangeDate compare:nextPoint[0]] > NSOrderedAscending ){
-            if (firstDataIndex > index){
-                firstDataIndex = index;
+        if ( curMax < [nextPoint[1] floatValue]){
+            curMax = [nextPoint[1] floatValue];
+        }
+        if ( curMin > [nextPoint[1] floatValue]){
+            curMin = [nextPoint[1] floatValue];
+        }
+        
+        if ( [_minRangeDate compare:point[0]] <=  NSOrderedSame &&
+            [_maxRangeDate compare:point[0]] >= NSOrderedSame ){
+            if (firstDataIndex > (index - 1)){
+                firstDataIndex = (index - 1);
             }
-            if (lastChartIndex < index){
-                lastChartIndex = index;
+            if (lastChartIndex < (index + 1)){
+                lastChartIndex = (index + 1);
             }
-            if (cur < minXVal)
-                minXVal = cur;
-            if (cur> maxXVal)
-                maxXVal = cur;
+            if (curMin < minYVal)
+                minYVal = curMin;
+            if (curMax > maxYVal)
+                maxYVal = curMax;
         }
     }
-    if (minXVal == MAXFLOAT)
+    if (minYVal == MAXFLOAT)
         return @[[NSNumber numberWithFloat: [self getMinValue]],
                  [NSNumber numberWithFloat: [self getMaxValue]],
                  [NSNumber numberWithLong: 0],
                  [NSNumber numberWithLong: self.chartData.count - 1]];
-    float diff = maxXVal - minXVal;
+    float diff = maxYVal - minYVal;
     if (diff == 0){
-        maxXVal = maxXVal + 1;
-        minXVal = minXVal - 1;
+        maxYVal = maxYVal + 1;
+        minYVal = minYVal - 1;
     } else {
-        maxXVal = maxXVal + diff*_topBottomReserve/100;
-        minXVal = minXVal - diff*_topBottomReserve/100;
+        maxYVal = maxYVal + diff*_topBottomReserve/100;
+        minYVal = minYVal - diff*_topBottomReserve/100;
     }
-    return @[[NSNumber numberWithFloat: minXVal],
-             [NSNumber numberWithFloat: maxXVal],
+    return @[[NSNumber numberWithFloat: minYVal],
+             [NSNumber numberWithFloat: maxYVal],
              [NSNumber numberWithLong:  firstDataIndex],
              [NSNumber numberWithLong:  lastChartIndex]];
 }

@@ -148,8 +148,8 @@
         int curRealIndex = 0;
         for (ind = 0; ind< xImplicitLabelsCount; ind++){
             long timeInterval = graph.minXVal + ind * step;
-            if (timeInterval >= [graph.chart.minRangeDate timeIntervalSince1970]  &&
-                timeInterval <= [graph.chart.maxRangeDate timeIntervalSince1970]){
+            if ((graph.scaleIndex == 1) || (timeInterval >= [graph.chart.minRangeDate timeIntervalSince1970]  &&
+                timeInterval <= [graph.chart.maxRangeDate timeIntervalSince1970])){
                 
                 NSDate *date = [NSDate dateWithTimeIntervalSince1970:timeInterval];
                 UILabel *xLabel = xAxisLabels[curRealIndex];
