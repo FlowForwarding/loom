@@ -41,10 +41,7 @@
         [contentView addSubview:indLabel];
         
         helpBtn = [[UIButton alloc] initWithFrame:CGRectZero];
-        helpBtn.backgroundColor = [UIColor blackColor];
-        helpBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14];
-        [helpBtn setTitle:@"?" forState:UIControlStateNormal];
-        helpBtn.layer.cornerRadius = 10;
+        [helpBtn setImage:[UIImage imageNamed:@"question"] forState:UIControlStateNormal];
         [helpBtn addTarget:self action:@selector(showTooltip) forControlEvents:UIControlEventTouchUpInside];
         [contentView addSubview:helpBtn];
         
@@ -61,6 +58,11 @@
         
         serverDateformatter = [[NSDateFormatter alloc] init];
         [serverDateformatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+        
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showTooltip)];
+        tap.numberOfTapsRequired = 1;
+        indLabel.userInteractionEnabled = YES;
+        [indLabel addGestureRecognizer:tap];
 
     }
     return self;
@@ -79,7 +81,7 @@
 
 - (void)layoutSubviews{
     contentView.frame = self.bounds;
-    indLabel.frame = CGRectMake(10, 0, self.frame.size.width, 30);
+    indLabel.frame = CGRectMake(10, 5, self.frame.size.width, 30);
     CGFloat width =  [indLabel.text sizeWithFont:indLabel.font].width;
     helpBtn.frame = CGRectMake(width + 10, 0, 20, 20);
     indValue.frame = CGRectMake(width + 50, 0, 100, 30);
