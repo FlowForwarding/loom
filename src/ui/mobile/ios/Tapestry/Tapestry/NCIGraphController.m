@@ -85,15 +85,15 @@
     chartView = [[NCIChartView alloc] initWithFrame:CGRectZero];
     [self.view addSubview:chartView];
     
-    editServerView = [[NCIEditServerView alloc] initWithFrame:CGRectZero];
-    [self.view addSubview:editServerView];
-    
     noConnection = [[UIButton alloc] initWithFrame:CGRectZero];
     unavailableImage = [UIImage imageNamed:@"unavailable"];
     [noConnection setImage:unavailableImage forState:UIControlStateNormal];
     [noConnection setHidden:YES];
     [noConnection addTarget:self action:@selector(reconnect) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview: noConnection];
+    
+    editServerView = [[NCIEditServerView alloc] initWithFrame:CGRectZero];
+    [self.view addSubview:editServerView];
     
     helpView = [[NCIHelpView alloc] initIndependantly];
     [self.view addSubview:helpView];
@@ -150,14 +150,14 @@
         
     }
     
-    float editHeigth = editServerView.frame.size.height == 0 ? 40 : editServerView.frame.size.height;
-    editServerView.frame = CGRectMake(0, topIndent, self.view.bounds.size.width, editHeigth);
+    float editHeigth = editServerView.frame.size.height == 0 ? 50 : editServerView.frame.size.height;
+    editServerView.frame = CGRectMake(0, 0, self.view.bounds.size.width, editHeigth);
     
-    nciValue.frame = CGRectMake(0, 2*topIndent + indexLabelHeight, self.view.bounds.size.width/2, indexLabelHeight);
+    nciValue.frame = CGRectMake(0, topIndent + indexLabelHeight, self.view.bounds.size.width/2, indexLabelHeight);
     
-    qpsValue.frame = CGRectMake(self.view.bounds.size.width/2, 2*topIndent + 2*indexLabelHeight + 25, self.view.bounds.size.width/2, indexLabelHeight);
+    qpsValue.frame = CGRectMake(self.view.bounds.size.width/2, topIndent + 2*indexLabelHeight + 25, self.view.bounds.size.width/2, indexLabelHeight);
     
-    nepValue.frame = CGRectMake(self.view.bounds.size.width/2, indexLabelHeight + 2*topIndent, self.view.bounds.size.width/2, indexLabelHeight);
+    nepValue.frame = CGRectMake(self.view.bounds.size.width/2, indexLabelHeight + topIndent, self.view.bounds.size.width/2, indexLabelHeight);
     
     switcherPanel.frame  = CGRectMake(20, 200, 500, 40);
     

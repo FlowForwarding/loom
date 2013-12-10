@@ -9,10 +9,11 @@
 #import "NCIEditServerView.h"
 #import "NCIWebSocketConnector.h"
 
-@interface NCIEditServerView()<UITextFieldDelegate>{
+@interface NCIEditServerView()<UITextFieldDelegate, UITableViewDataSource>{
     UITextField *serverUrlEdit;
     UIButton *clearBtn;
     UIButton *goBtn;
+    UITableView *bookmarksTable;
 }
 
 @end
@@ -20,12 +21,26 @@
 static int editServerInputHeigth = 40;
 static float iconDim = 40;
 
+static float bookmarkRowHeigth = 44;
+static int bookmarkVisibleRowsCount = 7;
+
+static float leftIndent = 10;
+static float topIndent = 10;
+static float rightIndent = 80;
+
 @implementation NCIEditServerView
 
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
+        
+        bookmarksTable = [[UITableView alloc] initWithFrame:CGRectMake(leftIndent,
+                                                                       editServerInputHeigth,
+                                                                       self.bounds.size.width - rightIndent,
+                                                                       0)];
+        bookmarksTable.dataSource = self;
+        [self addSubview:bookmarksTable];
         
         serverUrlEdit = [[UITextField alloc] initWithFrame:CGRectZero];
         serverUrlEdit.backgroundColor = [UIColor colorWithWhite:0.99 alpha:1];
@@ -73,10 +88,22 @@ static float iconDim = 40;
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
     self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, self.superview.bounds.size.height);
+    self.backgroundColor = [UIColor colorWithWhite:0.8 alpha:0.1];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"freeTap" object:self];
     textField.backgroundColor = [UIColor whiteColor];
     [self didChangeText];
     goBtn.hidden = NO;
+    
+    long rowCount = [NCIWebSocketConnector interlocutor].tapestryURLs.count;
+    if (rowCount > bookmarkVisibleRowsCount){
+        rowCount = bookmarkVisibleRowsCount;
+    }
+    
+    bookmarksTable.frame = CGRectMake(leftIndent,
+                                      editServerInputHeigth,
+                                      self.bounds.size.width - rightIndent,
+                                      rowCount *bookmarkRowHeigth);
+    
     return YES;
 }
 
@@ -108,6 +135,7 @@ static float iconDim = 40;
 -(void)connectUrl{
     goBtn.hidden = YES;
     [[NCIWebSocketConnector interlocutor] newTapestryUrl:serverUrlEdit.text];
+    [bookmarksTable reloadData];
     [[NCIWebSocketConnector interlocutor] resetData];
     [self resignFirstResponder];
 }
@@ -120,13 +148,42 @@ static float iconDim = 40;
 
 -(BOOL)resignFirstResponder{
     [serverUrlEdit resignFirstResponder];
-    self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, editServerInputHeigth);
+    self.backgroundColor = [UIColor clearColor];
+    self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, editServerInputHeigth + topIndent);
+    bookmarksTable.frame = CGRectMake(leftIndent,
+                                      bookmarksTable.frame.origin.y,
+                                      self.bounds.size.width - rightIndent, 0);
     return [super resignFirstResponder];
 }
 
 - (void)layoutSubviews {
-    goBtn.frame = CGRectMake( self.bounds.size.width - 70, 0, iconDim, iconDim);
-    serverUrlEdit.frame = CGRectMake(10, 0, self.bounds.size.width - 80, editServerInputHeigth);
+    goBtn.frame = CGRectMake( self.bounds.size.width - 70, topIndent, iconDim, iconDim);
+    serverUrlEdit.frame = CGRectMake(leftIndent, topIndent, self.bounds.size.width - rightIndent, editServerInputHeigth);
+    bookmarksTable.frame = CGRectMake(leftIndent,
+                                      editServerInputHeigth + topIndent + 2,
+                                      self.bounds.size.width - rightIndent,
+                                      bookmarksTable.frame.size.height);
+}
+
+#pragma table view data source
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return [NCIWebSocketConnector interlocutor].tapestryURLs.count;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return bookmarkRowHeigth;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"BookMarkCell"];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"BookMarkCell"];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.textLabel.font = [UIFont systemFontOfSize:14];
+    }
+    cell.textLabel.text = [NCIWebSocketConnector interlocutor].tapestryURLs[indexPath.row];
+    return cell;
 }
 
 @end

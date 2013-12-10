@@ -11,18 +11,17 @@
 
 //TODO seporate UI and request/responce logic
 static float oneYearPeriod = 60*60*24*30*12;
-static float tenYearsPeriod = 60*60*24*30*12*10;
+static int bookmarkMaxRowsCount = 20;
 
 @interface NCIWebSocketConnector()<SRWebSocketDelegate>{
     SRWebSocket *socket;
     //int timeAdjustment;
 }
 @property(nonatomic, strong)NSDateFormatter *serverDateformatter;
-@property(nonatomic, strong)NSString *tapestryURL;
 
 @end
 
-static NSString* defaultWebsocketUrl = @"nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
+static NSString* defaultWebsocketUrl = @"epamove.herokuapp.com";
 static NSString* websocketStartRequest = @"START_DATA";
 static NSString* websocketMoreDataRequest =
 @"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"800\"}";
@@ -36,7 +35,10 @@ static NSString* websocketMoreDataRequest =
     {
         if (!interlocutor){
             interlocutor = [[NCIWebSocketConnector alloc] init];
-            interlocutor.tapestryURL = [[NSUserDefaults standardUserDefaults] objectForKey:@"tapestryUrl"];
+            interlocutor.tapestryURLs = [[NSUserDefaults standardUserDefaults] objectForKey:@"tapestryUrls"];
+            if (!interlocutor.tapestryURLs){
+                interlocutor.tapestryURLs = [[NSMutableArray alloc] initWithArray:@[defaultWebsocketUrl]];
+            }
             interlocutor.serverDateformatter = [[NSDateFormatter alloc] init];
             [interlocutor.serverDateformatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
             [interlocutor.serverDateformatter setDateFormat:@"yyyy-MM-dd_HH:mm:ss"];
@@ -46,19 +48,23 @@ static NSString* websocketMoreDataRequest =
 }
 
 - (void)newTapestryUrl:(NSString *) newUrl{
-    [[NSUserDefaults standardUserDefaults] setObject:newUrl forKey:@"tapestryUrl"];
-    self.tapestryURL  = newUrl;
+    [self.tapestryURLs insertObject:newUrl atIndex:0];
+    if (self.tapestryURLs.count >  bookmarkMaxRowsCount){
+        [self.tapestryURLs removeLastObject];
+    }
+    [[NSUserDefaults standardUserDefaults] setObject:self.tapestryURLs forKey:@"tapestryUrls"];
+  //  self.tapestryURL  = newUrl;
 }
 
+
 - (NSString *)getTapestryUrl{
-    return self.tapestryURL ? self.tapestryURL : defaultWebsocketUrl;
+    return self.tapestryURLs[0];
 }
 
 - (void)requestLastDataForPeiodInSeconds:(float) period{
         NSDate *endDate = [NSDate date];//[[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
         NSDate *startDate = [[NSDate date]
                              dateByAddingTimeInterval: - period];
-        _currentDatePeriod = period;
         //    [self.chartView resetChart];
         //    [self.chartView drawChart];
         
@@ -164,8 +170,8 @@ static NSString* websocketMoreDataRequest =
             double askPeriod = [[NSDate date] timeIntervalSince1970] - [self.startDate timeIntervalSince1970];
             if (askPeriod > oneYearPeriod){
                 askPeriod = oneYearPeriod;
-                _currentDatePeriod = oneYearPeriod;
             }
+            _currentDatePeriod = oneYearPeriod;
             [self requestLastDataForPeiodInSeconds:askPeriod];
         }
     }
