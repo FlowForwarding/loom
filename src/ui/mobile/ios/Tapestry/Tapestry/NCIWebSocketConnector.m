@@ -125,6 +125,9 @@ static NSString* websocketMoreDataRequest =
 - (void)generateDemoData{
     float demoDatePeriod = oneYearPeriod/4.0;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        int trendMiddle = 6;
+        int trendStepCounter = 0;
+        
         NSDictionary *response = @{@"start_time": [self formatDataForServer:[[NSDate date] dateByAddingTimeInterval: -demoDatePeriod]],
                                    @"current_time": [self formatDataForServer:[NSDate date]]};
         [self sendDemoData:response];
@@ -134,22 +137,39 @@ static NSString* websocketMoreDataRequest =
         float step = demoDatePeriod/(800 - 1);
         int ind;
         for (ind = 0; ind < numOfPoints; ind ++){
+            if (trendStepCounter > 5){
+                trendStepCounter = 0;
+                trendMiddle += 1;
+            }
+            trendStepCounter += 1;
+            int complexity = trendMiddle + arc4random() % 5;
             moreResponse = [NSString stringWithFormat:@"%@\"Time\":\"%@\",\"NCI\":%d,",
                             moreResponse,
                             [self formatDataForServer:[[NSDate date] dateByAddingTimeInterval: (-demoDatePeriod + step*ind)]],
-                            10];
+                            complexity];
         }
         moreResponse = [moreResponse stringByReplacingCharactersInRange:NSMakeRange(moreResponse.length - 1, 1) withString:@"}"];
         [self sendDemoString:moreResponse];
         
         while (demoMode){
-            [NSThread sleepForTimeInterval:3.0f];
-            NSDictionary *response = @{@"NCI":@"5", @"Time": [self formatDataForServer: [NSDate date]]};
+            if (trendStepCounter > 5){
+                trendStepCounter = 0;
+                trendMiddle += 1;
+            }
+            trendStepCounter += 1;
+            int complexity = trendMiddle + arc4random() % 5;
+            NSDictionary *response = @{@"NCI":[NSString stringWithFormat: @"%d", complexity]
+                                       , @"Time": [self formatDataForServer: [NSDate date]]};
             [self sendDemoData:response];
-            NSDictionary *response2 = @{@"NEP":@"5", @"Time": [self formatDataForServer: [NSDate date]]};
+            int endpoints = 310 + arc4random() % 5;
+            NSDictionary *response2 = @{@"NEP": [NSString stringWithFormat: @"%d", endpoints],
+                                        @"Time": [self formatDataForServer: [NSDate date]]};
             [self sendDemoData:response2];
-            NSDictionary *response3 = @{@"QPS":@"5", @"Time": [self formatDataForServer: [NSDate date]]};
+            int quieries  = 230 + arc4random() % 5;
+            NSDictionary *response3 = @{@"QPS":[NSString stringWithFormat: @"%d", quieries],
+                                        @"Time": [self formatDataForServer: [NSDate date]]};
             [self sendDemoData:response3];
+            [NSThread sleepForTimeInterval:3.0f];
         }
     });
 }
