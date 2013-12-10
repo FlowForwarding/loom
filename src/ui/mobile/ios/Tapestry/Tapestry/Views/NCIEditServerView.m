@@ -99,7 +99,7 @@ static float rightIndent = 80;
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
     self.active = YES;
     self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, self.superview.bounds.size.height);
-    self.backgroundColor = [UIColor colorWithWhite:0.8 alpha:0.1];
+    self.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.1];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"freeTap" object:self];
     textField.backgroundColor = [UIColor whiteColor];
     [self didChangeText];
@@ -193,15 +193,37 @@ static float rightIndent = 80;
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"BookMarkCell"];
         cell.selectionStyle = UITableViewCellSelectionStyleGray;
         cell.textLabel.font = [UIFont systemFontOfSize:14];
+        UIButton *accessory = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+        [accessory setImage:[UIImage imageNamed:@"delete_icon"] forState:UIControlStateNormal];
+        [accessory addTarget:self action:@selector(checkButtonTapped:event:) forControlEvents:UIControlEventTouchUpInside];
+        cell.accessoryView = accessory;
+        [cell setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
     }
+    [cell.accessoryView setHidden:(indexPath.row == 0)];
     cell.textLabel.text = [NCIWebSocketConnector interlocutor].tapestryURLs[indexPath.row];
     return cell;
 }
 
+- (void)checkButtonTapped:(id)sender event:(id)event{
+    NSSet *touches = [event allTouches];
+    UITouch *touch = [touches anyObject];
+    CGPoint currentTouchPosition = [touch locationInView:bookmarksTable];
+    NSIndexPath *indexPath = [bookmarksTable indexPathForRowAtPoint: currentTouchPosition];
+    if (indexPath != nil){
+        [self tableView: bookmarksTable accessoryButtonTappedForRowWithIndexPath: indexPath];
+    }
+}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     serverUrlEdit.text = [NCIWebSocketConnector interlocutor].tapestryURLs[indexPath.row];
     [self connectUrl];
+}
+
+- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath{
+    if (indexPath.row != 0){
+        [[NCIWebSocketConnector interlocutor] removeURLAtIndex:indexPath.row];
+        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
+    }
 }
 
 @end

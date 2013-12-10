@@ -69,6 +69,11 @@ static NSString* websocketMoreDataRequest =
     return self.tapestryURLs[0];
 }
 
+- (void)removeURLAtIndex:(long)index{
+    [_tapestryURLs removeObjectAtIndex:index];
+    [[NSUserDefaults standardUserDefaults] setObject:self.tapestryURLs forKey:@"tapestryUrls"];
+}
+
 - (void)requestLastDataForPeiodInSeconds:(float) period{
         NSDate *endDate = [NSDate date];//[[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
         NSDate *startDate = [[NSDate date]

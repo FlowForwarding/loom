@@ -22,6 +22,7 @@
 
 - (void)newTapestryUrl:(NSString *) newUrl;
 - (NSString *)getTapestryUrl;
+- (void)removeURLAtIndex:(long)index;
 
 @property(nonatomic, strong) NCIEditServerView *editServerView;
 @property(nonatomic, strong) NCIIndexValueView *nciValue;
@@ -35,6 +36,7 @@
 @property(nonatomic) float currentDatePeriod;
 
 @property(nonatomic, strong) NSMutableArray *tapestryURLs;
+
 
 
 @end
