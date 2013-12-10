@@ -18,6 +18,7 @@ static int bookmarkMaxRowsCount = 20;
     //int timeAdjustment;
 }
 @property(nonatomic, strong)NSDateFormatter *serverDateformatter;
+@property(nonatomic, strong)NSString *currentUrl;
 
 @end
 
@@ -37,7 +38,12 @@ static NSString* websocketMoreDataRequest =
             interlocutor = [[NCIWebSocketConnector alloc] init];
             interlocutor.tapestryURLs = [[NSUserDefaults standardUserDefaults] objectForKey:@"tapestryUrls"];
             if (!interlocutor.tapestryURLs){
-                interlocutor.tapestryURLs = [[NSMutableArray alloc] initWithArray:@[defaultWebsocketUrl]];
+                interlocutor.tapestryURLs = [[NSMutableArray alloc] init];
+            }
+            if (interlocutor.tapestryURLs.count == 0){
+                interlocutor.currentUrl = demoUrl;
+            } else {
+                interlocutor.currentUrl = interlocutor.tapestryURLs[0];
             }
             interlocutor.serverDateformatter = [[NSDateFormatter alloc] init];
             [interlocutor.serverDateformatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
@@ -49,6 +55,7 @@ static NSString* websocketMoreDataRequest =
 
 - (void)newTapestryUrl:(NSString *) newUrl{
     int ind;
+    _currentUrl = newUrl;
     NSString *url;
     for (ind = 0; ind < self.tapestryURLs.count; ind++){
         url = self.tapestryURLs[ind];
@@ -66,7 +73,7 @@ static NSString* websocketMoreDataRequest =
 
 
 - (NSString *)getTapestryUrl{
-    return self.tapestryURLs[0];
+    return _currentUrl;
 }
 
 - (void)removeURLAtIndex:(long)index{
@@ -104,11 +111,14 @@ static NSString* websocketMoreDataRequest =
 {
     socket.delegate = nil;
     [socket close];
-    socket = [[SRWebSocket alloc] initWithURLRequest: [NSURLRequest requestWithURL:
-                                                       [NSURL URLWithString: [@"ws://" stringByAppendingString: [self getTapestryUrl]]]]];
-    socket.delegate = self;
-    [socket open];
-    
+    if([[self getTapestryUrl] isEqualToString:demoUrl]){
+        
+    } else {
+        socket = [[SRWebSocket alloc] initWithURLRequest: [NSURLRequest requestWithURL:
+                                                           [NSURL URLWithString: [@"ws://" stringByAppendingString: [self getTapestryUrl]]]]];
+        socket.delegate = self;
+        [socket open];
+    }
 }
 
 #pragma mark - SRWebSocketDelegate

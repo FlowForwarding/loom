@@ -105,11 +105,10 @@ static float rightIndent = 80;
     [self didChangeText];
     goBtn.hidden = NO;
     
-    long rowCount = [NCIWebSocketConnector interlocutor].tapestryURLs.count;
+    long rowCount = [NCIWebSocketConnector interlocutor].tapestryURLs.count + 1;
     if (rowCount > bookmarkVisibleRowsCount){
         rowCount = bookmarkVisibleRowsCount;
     }
-    
     bookmarksTable.frame = CGRectMake(leftIndent,
                                       editServerInputHeigth,
                                       self.bounds.size.width - rightIndent,
@@ -180,7 +179,7 @@ static float rightIndent = 80;
 #pragma table view data source
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return [NCIWebSocketConnector interlocutor].tapestryURLs.count;
+    return [NCIWebSocketConnector interlocutor].tapestryURLs.count + 1;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -200,7 +199,12 @@ static float rightIndent = 80;
         [cell setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
     }
     [cell.accessoryView setHidden:(indexPath.row == 0)];
-    cell.textLabel.text = [NCIWebSocketConnector interlocutor].tapestryURLs[indexPath.row];
+    if (indexPath.row == 0){
+        cell.textLabel.text = demoUrl;
+    } else {
+        cell.textLabel.text = [NCIWebSocketConnector interlocutor].tapestryURLs[indexPath.row - 1];
+    }
+
     return cell;
 }
 
@@ -215,13 +219,17 @@ static float rightIndent = 80;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    serverUrlEdit.text = [NCIWebSocketConnector interlocutor].tapestryURLs[indexPath.row];
+    if (indexPath.row != 0){
+        serverUrlEdit.text = [NCIWebSocketConnector interlocutor].tapestryURLs[indexPath.row - 1];
+    } else {
+        serverUrlEdit.text = demoUrl;
+    }
     [self connectUrl];
 }
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath{
     if (indexPath.row != 0){
-        [[NCIWebSocketConnector interlocutor] removeURLAtIndex:indexPath.row];
+        [[NCIWebSocketConnector interlocutor] removeURLAtIndex:indexPath.row - 1];
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
     }
 }
