@@ -48,12 +48,20 @@ static NSString* websocketMoreDataRequest =
 }
 
 - (void)newTapestryUrl:(NSString *) newUrl{
+    int ind;
+    NSString *url;
+    for (ind = 0; ind < self.tapestryURLs.count; ind++){
+        url = self.tapestryURLs[ind];
+        if ([url isEqualToString:newUrl]){
+            [self.tapestryURLs removeObjectAtIndex:ind];
+            break;
+        }
+    }
     [self.tapestryURLs insertObject:newUrl atIndex:0];
     if (self.tapestryURLs.count >  bookmarkMaxRowsCount){
         [self.tapestryURLs removeLastObject];
     }
     [[NSUserDefaults standardUserDefaults] setObject:self.tapestryURLs forKey:@"tapestryUrls"];
-  //  self.tapestryURL  = newUrl;
 }
 
 

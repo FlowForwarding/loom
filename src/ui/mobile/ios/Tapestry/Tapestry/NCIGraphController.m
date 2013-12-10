@@ -14,7 +14,7 @@
 #import "NCIPeriodSwitcherPanel.h"
 #import "NCIWebSocketConnector.h"
 
-@interface NCIGraphController(){
+@interface NCIGraphController() <UIGestureRecognizerDelegate>{
     NCIIndexValueView *nciValue;
     NCIIndexValueView *nepValue;
     NCIIndexValueView *qpsValue;
@@ -119,8 +119,16 @@
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
     UITapGestureRecognizer *freeTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(freeTap)];
+    freeTap.delegate = self;
     [self.view addGestureRecognizer:freeTap];
     
+}
+
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
+    if (editServerView.active) {
+        return NO;
+    }
+    return YES;
 }
 
 - (void)reconnect{

@@ -10,4 +10,6 @@
 
 @interface NCIEditServerView : UIView
 
+@property(nonatomic)bool active;
+
 @end

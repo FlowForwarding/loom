@@ -9,7 +9,7 @@
 #import "NCIEditServerView.h"
 #import "NCIWebSocketConnector.h"
 
-@interface NCIEditServerView()<UITextFieldDelegate, UITableViewDataSource>{
+@interface NCIEditServerView()<UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate> {
     UITextField *serverUrlEdit;
     UIButton *clearBtn;
     UIButton *goBtn;
@@ -40,6 +40,7 @@ static float rightIndent = 80;
                                                                        self.bounds.size.width - rightIndent,
                                                                        0)];
         bookmarksTable.dataSource = self;
+        bookmarksTable.delegate = self;
         [self addSubview:bookmarksTable];
         
         serverUrlEdit = [[UITextField alloc] initWithFrame:CGRectZero];
@@ -79,14 +80,24 @@ static float rightIndent = 80;
         
         self.backgroundColor = [UIColor clearColor];
         UITapGestureRecognizer *freeTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cancelUrlChanges)];
-        self.userInteractionEnabled =YES;
+        self.userInteractionEnabled = YES;
+        freeTap.numberOfTapsRequired = 1;
+        freeTap.delegate = self;
         [self addGestureRecognizer:freeTap];
     }
     return self;
 }
 
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch{
+    if ([touch.view isDescendantOfView:bookmarksTable]) {
+        return NO;
+    }
+    return YES;
+}
+
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
+    self.active = YES;
     self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, self.superview.bounds.size.height);
     self.backgroundColor = [UIColor colorWithWhite:0.8 alpha:0.1];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"freeTap" object:self];
@@ -147,6 +158,7 @@ static float rightIndent = 80;
 }
 
 -(BOOL)resignFirstResponder{
+    self.active = NO;
     [serverUrlEdit resignFirstResponder];
     self.backgroundColor = [UIColor clearColor];
     self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, editServerInputHeigth + topIndent);
@@ -179,11 +191,17 @@ static float rightIndent = 80;
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"BookMarkCell"];
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"BookMarkCell"];
-        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.selectionStyle = UITableViewCellSelectionStyleGray;
         cell.textLabel.font = [UIFont systemFontOfSize:14];
     }
     cell.textLabel.text = [NCIWebSocketConnector interlocutor].tapestryURLs[indexPath.row];
     return cell;
+}
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    serverUrlEdit.text = [NCIWebSocketConnector interlocutor].tapestryURLs[indexPath.row];
+    [self connectUrl];
 }
 
 @end
