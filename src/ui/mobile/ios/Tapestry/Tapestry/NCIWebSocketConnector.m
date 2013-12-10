@@ -15,6 +15,7 @@ static int bookmarkMaxRowsCount = 20;
 
 @interface NCIWebSocketConnector()<SRWebSocketDelegate>{
     SRWebSocket *socket;
+    bool demoMode;
     //int timeAdjustment;
 }
 @property(nonatomic, strong)NSDateFormatter *serverDateformatter;
@@ -82,17 +83,15 @@ static NSString* websocketMoreDataRequest =
 }
 
 - (void)requestLastDataForPeiodInSeconds:(float) period{
-        NSDate *endDate = [NSDate date];//[[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
-        NSDate *startDate = [[NSDate date]
-                             dateByAddingTimeInterval: - period];
-        //    [self.chartView resetChart];
-        //    [self.chartView drawChart];
-        
-        NSString *endDateString = [[self.serverDateformatter stringFromDate: endDate]
-                                   stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
-        NSString *startDateString = [[self.serverDateformatter stringFromDate:startDate]
-                                     stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
-        [socket send: [NSString stringWithFormat: websocketMoreDataRequest, startDateString, endDateString]];
+    NSDate *endDate = [NSDate date];//[[NSDate date] dateByAddingTimeInterval: -timeAdjustment];
+    NSDate *startDate = [[NSDate date]
+                         dateByAddingTimeInterval: - period];
+    //    [self.chartView resetChart];
+    //    [self.chartView drawChart];
+    
+    NSString *endDateString = [self formatDataForServer: endDate];
+    NSString *startDateString = [self formatDataForServer:startDate];
+    [socket send: [NSString stringWithFormat: websocketMoreDataRequest, startDateString, endDateString]];
 }
 
 - (void)resetData{
@@ -112,14 +111,67 @@ static NSString* websocketMoreDataRequest =
     socket.delegate = nil;
     [socket close];
     if([[self getTapestryUrl] isEqualToString:demoUrl]){
-        
+        demoMode = YES;
+        [self generateDemoData];
     } else {
+        demoMode = NO;
         socket = [[SRWebSocket alloc] initWithURLRequest: [NSURLRequest requestWithURL:
                                                            [NSURL URLWithString: [@"ws://" stringByAppendingString: [self getTapestryUrl]]]]];
         socket.delegate = self;
         [socket open];
     }
 }
+
+- (void)generateDemoData{
+    float demoDatePeriod = oneYearPeriod/4.0;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSDictionary *response = @{@"start_time": [self formatDataForServer:[[NSDate date] dateByAddingTimeInterval: -demoDatePeriod]],
+                                   @"current_time": [self formatDataForServer:[NSDate date]]};
+        [self sendDemoData:response];
+        
+        NSString *moreResponse = @"{";
+        float numOfPoints = 800;
+        float step = demoDatePeriod/(800 - 1);
+        int ind;
+        for (ind = 0; ind < numOfPoints; ind ++){
+            moreResponse = [NSString stringWithFormat:@"%@\"Time\":\"%@\",\"NCI\":%d,",
+                            moreResponse,
+                            [self formatDataForServer:[[NSDate date] dateByAddingTimeInterval: (-demoDatePeriod + step*ind)]],
+                            10];
+        }
+        moreResponse = [moreResponse stringByReplacingCharactersInRange:NSMakeRange(moreResponse.length - 1, 1) withString:@"}"];
+        [self sendDemoString:moreResponse];
+        
+        while (demoMode){
+            [NSThread sleepForTimeInterval:3.0f];
+            NSDictionary *response = @{@"NCI":@"5", @"Time": [self formatDataForServer: [NSDate date]]};
+            [self sendDemoData:response];
+            NSDictionary *response2 = @{@"NEP":@"5", @"Time": [self formatDataForServer: [NSDate date]]};
+            [self sendDemoData:response2];
+            NSDictionary *response3 = @{@"QPS":@"5", @"Time": [self formatDataForServer: [NSDate date]]};
+            [self sendDemoData:response3];
+        }
+    });
+}
+
+- (void)sendDemoString:(NSString* )dataString{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self webSocket:nil didReceiveMessage: dataString];
+    });
+}
+
+- (void)sendDemoData:(NSDictionary *)dataDict{
+    NSData *responseData = [NSJSONSerialization dataWithJSONObject:dataDict options:0 error:nil];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self webSocket:nil didReceiveMessage: [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding]];
+    });
+}
+
+- (NSString *)formatDataForServer:(NSDate *)date{
+    return [[self.serverDateformatter stringFromDate: date ]
+            stringByReplacingOccurrencesOfString:@"_" withString:@"T"];
+}
+
 
 #pragma mark - SRWebSocketDelegate
 

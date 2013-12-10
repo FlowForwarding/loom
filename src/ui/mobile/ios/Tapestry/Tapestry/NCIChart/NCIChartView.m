@@ -82,7 +82,7 @@
 - (float)getMaxValue{
     float diff = _maxYVal - _minYVal;
     if (diff == 0)
-        return _maxYVal -1;
+        return _maxYVal +1;
     return _maxYVal + diff*_topBottomReserve/100;
 }
 
