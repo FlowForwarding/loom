@@ -9,6 +9,7 @@
 #import "NCIBottomGraphView.h"
 #import "NCIHandspikeView.h"
 #import "NCIMianGraphView.h"
+#import "NCIWebSocketConnector.h"
 
 @interface NCIBottomGraphView(){
     NCIHandspikeView *handspikeLeft;
@@ -94,6 +95,8 @@
     if (self.chart.chartData.count < 1)
         return;
     
+    gridWidth = self.frame.size.width - 2*self.leftRightIndent;
+    
     if (!_xHandspikeLeft){
         _xHandspikeLeft = handspikeIndent;
         fixedLeftVal = _xHandspikeLeft;
@@ -113,18 +116,17 @@
         _xHandspikeLeft = handspikeIndent;
     }
     
-    if (_xHandspikeRight > gridWidth + handspikeIndent){
+    if (_xHandspikeRight > (gridWidth + handspikeIndent)){
         _xHandspikeRight = gridWidth + handspikeIndent;
     }
     
-    if (_xHandspikeRight < handspikeIndent){
-        _xHandspikeRight = gridWidth + handspikeIndent;
+    if (_xHandspikeRight < (handspikeIndent +  minRangesDistance)){
+        _xHandspikeRight = (handspikeIndent +  minRangesDistance);
     }
     
-    if (_xHandspikeRight - _xHandspikeLeft < minRangesDistance){
+    if ((_xHandspikeRight - _xHandspikeLeft) < minRangesDistance){
         _xHandspikeRight = _xHandspikeLeft + minRangesDistance;
     }
-    
     
     handspikeLeft.frame = CGRectMake(_xHandspikeLeft, self.topChartIndent, handspikeWidth, gridHeigth);
     leftAmputation.frame = CGRectMake(self.leftRightIndent, self.topChartIndent, _xHandspikeLeft - handspikeIndent, gridHeigth);
@@ -134,7 +136,6 @@
                                        gridWidth + handspikeIndent - _xHandspikeRight, gridHeigth);
     [self.chart.mainGraph setNeedsLayout];
     [self.chart.mainGraph setNeedsDisplay];
-    
     
 }
 
@@ -197,6 +198,7 @@ static float startRightRange = -1;
     }];
     
     [self moveRangesFollowingNewLeft:newLeft newRight:newRight];
+    [[NCIWebSocketConnector interlocutor].periodSwitcherPanel resetButtons];
 }
 
 - (void)startMoveWithPoint:(CGPoint) point1 andPoint:(CGPoint) point2{
@@ -209,6 +211,7 @@ static float startRightRange = -1;
         startLeft = point2.x - handspikeLeft.center.x;
         startRight = point1.x - handspikeRight.center.x;
     }
+    [[NCIWebSocketConnector interlocutor].periodSwitcherPanel resetButtons];
 }
 
 - (NSArray *)detectNewXPosFrom:(CGPoint)location1 and:(CGPoint) location2{
