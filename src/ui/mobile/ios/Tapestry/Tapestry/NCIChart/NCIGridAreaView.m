@@ -134,8 +134,8 @@
     CGContextSetLineDash(currentContext, 0.0,  dashes , 2 );
     [[UIColor blackColor] setStroke];
     
-    long xImplicitLabelsCount  = (graph.gridScroll.contentSize.width - 150)/150;
-    double step = xFork/(xImplicitLabelsCount + 1);
+    long xImplicitLabelsCount  = graph.gridScroll.contentSize.width/180 + 1;
+    double step = xFork/(xImplicitLabelsCount);
     if (step < 60*60*24){
         [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm"];
     } else if (step < 60*60*24*30){
@@ -147,7 +147,7 @@
     if (graph.maxXVal && graph.minXVal){
         int curRealIndex = 0;
         for (ind = 0; ind< xImplicitLabelsCount; ind++){
-            long timeInterval = graph.minXVal + ind * step;
+            long timeInterval = graph.minXVal + (ind + 0.5) * step;
             if ((graph.scaleIndex == 1) || (timeInterval >= [graph.chart.minRangeDate timeIntervalSince1970]  &&
                 timeInterval <= [graph.chart.maxRangeDate timeIntervalSince1970])){
                 
@@ -170,7 +170,7 @@
              xLabel.text = @"";
         };
         
-        for (ind = 0; ind< xAxisLabels.count; ind++){
+        for (ind = 0; ind< curRealIndex; ind++){
             UILabel *xLabel = xAxisLabels[ind];
             // if (self.hasGrid || ind == 0){
             CGContextMoveToPoint(currentContext, xLabel.frame.origin.x + xLabelShift, xLabel.frame.origin.y );

@@ -246,9 +246,11 @@ static float startRightRange = -1;
 
 - (NSArray *)detectNewReverseXPosFrom:(CGPoint)location1 and:(CGPoint) location2{
     if (location1.x < location2.x){
-        return @[[NSNumber numberWithDouble:startLeftRange - ( (location1.x - startLeft) - startLeftRange )], [NSNumber numberWithDouble:startRightRange + (startRightRange -(location2.x - startRight))]];
+        return @[[NSNumber numberWithDouble:startLeftRange - ( (location1.x - startLeft) - startLeftRange )],
+                 [NSNumber numberWithDouble:startRightRange + (startRightRange -(location2.x - startRight))]];
     } else {
-        return @[[NSNumber numberWithDouble:startLeftRange - ( (location2.x - startLeft) - startLeftRange)], [NSNumber numberWithDouble:startRightRange + (startRightRange - (location1.x - startRight))]];
+        return @[[NSNumber numberWithDouble:startLeftRange - ( (location2.x - startLeft) - startLeftRange)],
+                 [NSNumber numberWithDouble:startRightRange + (startRightRange - (location1.x - startRight))]];
     }
 }
 

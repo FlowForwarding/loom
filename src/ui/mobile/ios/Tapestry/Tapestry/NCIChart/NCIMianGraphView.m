@@ -54,26 +54,20 @@
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView{
     timePeriod = [self.chart getMaxArgument] - [self.chart getMinArgument];
-    self.scaleIndex = timePeriod/
-    ([self.chart.maxRangeDate timeIntervalSince1970] - [self.chart.minRangeDate timeIntervalSince1970]);
-    
+    double rangesDiff = [self.chart.maxRangeDate timeIntervalSince1970] - [self.chart.minRangeDate timeIntervalSince1970];
+    self.scaleIndex = timePeriod/rangesDiff;
     
     float offsetForRanges = scrollView.contentOffset.x;
-    if (scrollView.contentOffset.x < 0)
+    if (offsetForRanges < 0)
         offsetForRanges = 0;
-    if (scrollView.contentOffset.x > (scrollView.contentSize.width - scrollView.frame.size.width))
+    if (offsetForRanges > (scrollView.contentSize.width - scrollView.frame.size.width))
         offsetForRanges = scrollView.contentSize.width - scrollView.frame.size.width;
-    
-    
-    self.chart.minRangeDate =  [NSDate dateWithTimeIntervalSince1970:[self.chart getMinArgument] +
-                                timePeriod*(offsetForRanges/scrollView.frame.size.width/self.scaleIndex)];
-    
-    self.chart.maxRangeDate = [NSDate dateWithTimeIntervalSince1970:[self.chart getMinArgument] +
-                               timePeriod*((offsetForRanges + scrollView.frame.size.width)/scrollView.frame.size.width/self.scaleIndex)];
 
-     // TODO redraw only if ranges chages
-     [self.chart.bottomGraph redrawRanges];
-    //[self.chart.mainGraph setNeedsDisplay];
+    double newMinRange = [self.chart getMinArgument] + timePeriod*(offsetForRanges/scrollView.frame.size.width/self.scaleIndex);
+    self.chart.minRangeDate =  [NSDate dateWithTimeIntervalSince1970:newMinRange];
+    self.chart.maxRangeDate = [NSDate dateWithTimeIntervalSince1970:newMinRange + rangesDiff];
+    
+    [self.chart.bottomGraph redrawRanges];
 
 }
 
