@@ -199,7 +199,9 @@
 
 - (void)drawChart{
     [_bottomGraph setNeedsLayout];
+    [_bottomGraph setNeedsDisplay];
     [_mainGraph setNeedsLayout];
+    [_mainGraph setNeedsDisplay];
 }
 
 @end

@@ -85,7 +85,6 @@
     CGSizeMake((self.frame.size.width - 2*self.leftRightIndent)*self.scaleIndex, self.frame.size.height - self.topChartIndent - self.bottomChartIndent);
     self.gridArea.frame = CGRectMake(0, 0, (self.frame.size.width - 2*self.leftRightIndent)*self.scaleIndex, self.frame.size.height - self.topChartIndent - self.bottomChartIndent);
     [self.gridScroll setContentOffset:CGPointMake((self.scaleIndex -1)*(self.frame.size.width - 2*self.leftRightIndent - self.leftShift*self.scaleIndex), 0)];
-    [self setNeedsDisplay];
     [self redrawRanges];
 
 }

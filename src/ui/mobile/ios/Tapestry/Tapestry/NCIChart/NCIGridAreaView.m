@@ -144,7 +144,7 @@
         [dateFormatter setDateFormat:@"yyyy-MMM"];
     }
 
-    if (graph.maxXVal && graph.minXVal && graph.chart.chartData.count > 0){
+    if (graph.maxXVal && graph.minXVal){
         int curRealIndex = 0;
         for (ind = 0; ind< xImplicitLabelsCount; ind++){
             long timeInterval = graph.minXVal + ind * step;
