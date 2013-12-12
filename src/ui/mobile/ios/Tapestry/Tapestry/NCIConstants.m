@@ -11,5 +11,6 @@
 @implementation NCIConstants
 
 NSString *const demoUrl = @"demo";
+NSString *const sampleUrl = @"nci.example.com:28080/clientsock.yaws";
 
 @end

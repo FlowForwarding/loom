@@ -105,7 +105,7 @@ static float rightIndent = 80;
     [self didChangeText];
     goBtn.hidden = NO;
     
-    long rowCount = [NCIWebSocketConnector interlocutor].tapestryURLs.count + 1;
+    long rowCount = [NCIWebSocketConnector interlocutor].tapestryURLs.count + 2;
     if (rowCount > bookmarkVisibleRowsCount){
         rowCount = bookmarkVisibleRowsCount;
     }
@@ -143,6 +143,11 @@ static float rightIndent = 80;
 }
 
 -(void)connectUrl{
+    NSString *escapedUrl = [serverUrlEdit.text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    if (![serverUrlEdit.text isEqualToString:escapedUrl]){
+        [[NCIWebSocketConnector interlocutor].noConnection setHidden:NO];
+        return;
+    }
     goBtn.hidden = YES;
     [[NCIWebSocketConnector interlocutor] newTapestryUrl:serverUrlEdit.text];
     [bookmarksTable reloadData];
@@ -179,7 +184,7 @@ static float rightIndent = 80;
 #pragma table view data source
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return [NCIWebSocketConnector interlocutor].tapestryURLs.count + 1;
+    return [NCIWebSocketConnector interlocutor].tapestryURLs.count + 2;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -198,11 +203,13 @@ static float rightIndent = 80;
         cell.accessoryView = accessory;
         [cell setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
     }
-    [cell.accessoryView setHidden:(indexPath.row == 0)];
+    [cell.accessoryView setHidden:(indexPath.row < 2)];
     if (indexPath.row == 0){
         cell.textLabel.text = demoUrl;
+    } else  if (indexPath.row == 1){
+        cell.textLabel.text = sampleUrl;
     } else {
-        cell.textLabel.text = [NCIWebSocketConnector interlocutor].tapestryURLs[indexPath.row - 1];
+        cell.textLabel.text = [NCIWebSocketConnector interlocutor].tapestryURLs[indexPath.row - 2];
     }
 
     return cell;
@@ -219,17 +226,20 @@ static float rightIndent = 80;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    if (indexPath.row != 0){
-        serverUrlEdit.text = [NCIWebSocketConnector interlocutor].tapestryURLs[indexPath.row - 1];
+    if (indexPath.row  > 1){
+        serverUrlEdit.text = [NCIWebSocketConnector interlocutor].tapestryURLs[indexPath.row - 2];
+        [self connectUrl];
+    } else if (indexPath.row  == 1){
+        serverUrlEdit.text = sampleUrl;
     } else {
         serverUrlEdit.text = demoUrl;
+        [self connectUrl];
     }
-    [self connectUrl];
 }
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath{
-    if (indexPath.row != 0){
-        [[NCIWebSocketConnector interlocutor] removeURLAtIndex:indexPath.row - 1];
+    if (indexPath.row > 1){
+        [[NCIWebSocketConnector interlocutor] removeURLAtIndex:indexPath.row - 2];
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
     }
 }

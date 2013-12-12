@@ -11,5 +11,6 @@
 @interface NCIConstants : NSObject
 
 extern NSString *const demoUrl;
+extern NSString *const sampleUrl;
 
 @end
