@@ -152,7 +152,9 @@ static float rightIndent = 80;
     [[NCIWebSocketConnector interlocutor] newTapestryUrl:serverUrlEdit.text];
     [bookmarksTable reloadData];
     //reset min date to reset all ranges
-    [NCIWebSocketConnector interlocutor].chartView.minRangeDate = nil;
+    //reset min date to reset all ranges
+    if ([NCIWebSocketConnector interlocutor].chartView.minRangeDate)
+        [NCIWebSocketConnector interlocutor].chartView.minRangeDate = nil;
     [[NCIWebSocketConnector interlocutor] resetData];
     [self resignFirstResponder];
 }
