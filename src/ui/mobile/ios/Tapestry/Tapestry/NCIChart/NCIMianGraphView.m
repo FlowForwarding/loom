@@ -53,6 +53,8 @@
 
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    if (self.chart.chartData.count < 2)
+        return;
     timePeriod = [self.chart getMaxArgument] - [self.chart getMinArgument];
     double rangesDiff = [self.chart.maxRangeDate timeIntervalSince1970] - [self.chart.minRangeDate timeIntervalSince1970];
     self.scaleIndex = timePeriod/rangesDiff;
