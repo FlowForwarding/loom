@@ -200,7 +200,7 @@
 - (void)drawChart{
     [_mainGraph setNeedsLayout];
     [_mainGraph setNeedsDisplay];
-   // [_bottomGraph setNeedsLayout];
+    [_bottomGraph setNeedsLayout];
     [_bottomGraph setNeedsDisplay];
 
 }

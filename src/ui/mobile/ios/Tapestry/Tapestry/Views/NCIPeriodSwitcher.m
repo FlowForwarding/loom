@@ -10,7 +10,6 @@
 #import "NCIWebSocketConnector.h"
 #import "NCIBottomGraphView.h"
 
-static float oneYearPeriod = 60*60*24*30*12;
 static float tenYearsPeriod = 60*60*24*30*12*10;
 
 @interface NCIPeriodSwitcher(){
@@ -72,19 +71,24 @@ static float tenYearsPeriod = 60*60*24*30*12*10;
     
     actionBlock();
     
-    if (([NCIWebSocketConnector interlocutor].currentDatePeriod == oneYearPeriod && _period <= oneYearPeriod) ||
-        ([NCIWebSocketConnector interlocutor].currentDatePeriod == tenYearsPeriod && _period > oneYearPeriod)){
-        [NCIWebSocketConnector interlocutor].chartView.maxRangeDate = [[NCIWebSocketConnector interlocutor].chartView.chartData lastObject][0];
-        double newMin = [[NCIWebSocketConnector interlocutor].chartView.maxRangeDate timeIntervalSince1970] - _period ;
+    [NCIWebSocketConnector interlocutor].chartView.maxRangeDate = [[NCIWebSocketConnector interlocutor].chartView.chartData lastObject][0];
+    double newMin = [[NCIWebSocketConnector interlocutor].chartView.maxRangeDate timeIntervalSince1970] - _period ;
+    if (([NCIWebSocketConnector interlocutor].currentDatePeriod == twoYearPeriod && _period <= twoYearPeriod) ||
+        ([NCIWebSocketConnector interlocutor].currentDatePeriod == tenYearsPeriod && _period > twoYearPeriod)){
         if (newMin < [[NCIWebSocketConnector interlocutor].chartView getMinArgument]){
             newMin = [[NCIWebSocketConnector interlocutor].chartView getMinArgument];
         }
         [NCIWebSocketConnector interlocutor].chartView.minRangeDate =  [NSDate dateWithTimeIntervalSince1970:newMin];
         [[NCIWebSocketConnector interlocutor].chartView.bottomGraph redrawRanges];
     } else {
+        if (newMin < [[NCIWebSocketConnector interlocutor].startDate timeIntervalSince1970]){
+            newMin = [[NCIWebSocketConnector interlocutor].startDate timeIntervalSince1970];
+        }
+        [NCIWebSocketConnector interlocutor].chartView.minRangeDate =  [NSDate dateWithTimeIntervalSince1970:newMin];
         [[NCIWebSocketConnector interlocutor].chartView resetChart];
         [[NCIWebSocketConnector interlocutor].chartView drawChart];
-        long period = (_period <= oneYearPeriod) ? oneYearPeriod : tenYearsPeriod;
+        long period = (_period <= twoYearPeriod) ? twoYearPeriod : tenYearsPeriod;
+        [NCIWebSocketConnector interlocutor].currentDatePeriod = period;
         [[NCIWebSocketConnector interlocutor] requestLastDataForPeiodInSeconds:period];
     }
     self.backgroundColor = [UIColor grayColor];

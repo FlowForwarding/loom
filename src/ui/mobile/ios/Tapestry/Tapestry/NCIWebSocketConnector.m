@@ -10,7 +10,6 @@
 #import "SRWebSocket.h"
 
 //TODO seporate UI and request/responce logic
-static float oneYearPeriod = 60*60*24*30*12;
 static int bookmarkMaxRowsCount = 20;
 
 @interface NCIWebSocketConnector()<SRWebSocketDelegate>{
@@ -123,7 +122,7 @@ static NSString* websocketMoreDataRequest =
 }
 
 - (void)generateDemoData{
-    float demoDatePeriod = oneYearPeriod/4.0;
+    float demoDatePeriod = twoYearPeriod/4.0;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         int trendMiddle = 6;
         int trendStepCounter = 0;
@@ -222,9 +221,11 @@ static NSString* websocketMoreDataRequest =
             NSString *nciVal = [dataPieces[i+1] substringFromIndex:6];
             [self.chartView addPoint:date val:nciVal];
         }
-        long period = [[NSDate date] timeIntervalSince1970] - [((NSDate *)[self.chartView.chartData firstObject][0]) timeIntervalSince1970];
-        self.chartView.minRangeDate = [[NSDate date] dateByAddingTimeInterval: - period /10.0];
-        self.chartView.maxRangeDate = [NSDate date];
+        if (!self.chartView.minRangeDate){
+            long period = [[NSDate date] timeIntervalSince1970] - [((NSDate *)[self.chartView.chartData firstObject][0]) timeIntervalSince1970];
+            self.chartView.minRangeDate = [[NSDate date] dateByAddingTimeInterval: - period /10.0];
+            self.chartView.maxRangeDate = [NSDate date];
+        }
         [self.chartView setMaxArgument: [NSDate date]];
         [self.chartView drawChart];
         
@@ -238,7 +239,7 @@ static NSString* websocketMoreDataRequest =
         NSString *qps = dataPoint[@"QPS"];
         if (nci){
             [self.nciValue setIndValue:nci withDate:dataPoint[@"Time"]];
-            if (_currentDatePeriod == oneYearPeriod){
+            if (_currentDatePeriod == twoYearPeriod){
                 [self.chartView addPoint:[self dateFromServerString: dataPoint[@"Time"]] val:nci];
                 while ([[NSDate date] timeIntervalSince1970] - [self.chartView.chartData[0][0] timeIntervalSince1970] > _currentDatePeriod){
                     [self.chartView removeFirstPoint];
@@ -263,10 +264,10 @@ static NSString* websocketMoreDataRequest =
 //            NSDate *date = [self dateFromServerString:current_time];
 //            timeAdjustment = [date timeIntervalSinceNow];
             double askPeriod = [[NSDate date] timeIntervalSince1970] - [self.startDate timeIntervalSince1970];
-            if (askPeriod > oneYearPeriod){
-                askPeriod = oneYearPeriod;
+            if (askPeriod > twoYearPeriod){
+                askPeriod = twoYearPeriod;
             }
-            _currentDatePeriod = oneYearPeriod;
+            _currentDatePeriod = twoYearPeriod;
             [self requestLastDataForPeiodInSeconds:askPeriod];
         }
     }
