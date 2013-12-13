@@ -168,7 +168,8 @@ static float startRightRange = -1;
     
 }
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
-    
+    if (self.chart.chartData.count < 2)
+        return;
     __block UITouch *touch1;
     
     __block float newLeft = -1;

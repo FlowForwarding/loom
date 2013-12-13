@@ -198,10 +198,11 @@
 
 
 - (void)drawChart{
-    [_bottomGraph setNeedsLayout];
-    [_bottomGraph setNeedsDisplay];
     [_mainGraph setNeedsLayout];
     [_mainGraph setNeedsDisplay];
+   // [_bottomGraph setNeedsLayout];
+    [_bottomGraph setNeedsDisplay];
+
 }
 
 @end

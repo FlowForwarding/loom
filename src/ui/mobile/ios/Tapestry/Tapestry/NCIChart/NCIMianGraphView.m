@@ -32,6 +32,8 @@
 
 -(void)croperViewScale:(id)sender
 {
+    if (self.chart.chartData.count < 2)
+        return;
     if([(UIPinchGestureRecognizer *)sender state]==UIGestureRecognizerStateBegan)
     {
         
