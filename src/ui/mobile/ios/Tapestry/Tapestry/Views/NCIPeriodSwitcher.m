@@ -67,6 +67,9 @@ static float tenYearsPeriod = 60*60*24*30*12*10;
 }
 
 - (void)selectPeriod{
+    if ([NCIWebSocketConnector interlocutor].chartView.chartData.count < 2 )
+        return;
+    
     actionBlock();
     
     if (([NCIWebSocketConnector interlocutor].currentDatePeriod == oneYearPeriod && _period <= oneYearPeriod) ||
