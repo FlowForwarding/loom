@@ -2,8 +2,10 @@
 //  NCIEditServerView.m
 //  Tapestry
 //
-//  Created by Ira on 11/18/13.
-//  Copyright (c) 2013 Truststix. All rights reserved.
+//  Created by Infoblox Inc on 11/18/13.
+//  Copyright (c) 2013 FlowForwarding.Org. All rights reserved.
+//  Licensed under the Apache License, Version 2.0 
+//  http://www.apache.org/licenses/LICENSE-2.0
 //
 
 #import "NCIEditServerView.h"
@@ -49,7 +51,7 @@ static float rightIndent = 80;
         serverUrlEdit.autocapitalizationType = UITextAutocapitalizationTypeNone;
         serverUrlEdit.layer.borderColor = [UIColor grayColor].CGColor;
         serverUrlEdit.layer.borderWidth = 0.2;
-        serverUrlEdit.placeholder = @"nci.ilabs.inca.infoblox.com:28080/clientsock.yaws";
+        serverUrlEdit.placeholder = sampleUrl;
         serverUrlEdit.text = [[NCIWebSocketConnector interlocutor] getTapestryUrl];
         serverUrlEdit.layer.cornerRadius = 15;
         serverUrlEdit.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
