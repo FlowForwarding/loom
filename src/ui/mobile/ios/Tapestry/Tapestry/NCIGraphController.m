@@ -28,6 +28,7 @@
     UIButton *noConnection;
     NCIEditServerView *editServerView;
     NCIPeriodSwitcherPanel *switcherPanel;
+    UILabel *progressLabel;
     
     bool isShowingLandscapeView;
 }
@@ -100,6 +101,15 @@
     helpView = [[NCIHelpView alloc] initIndependantly];
     [self.view addSubview:helpView];
     
+    progressLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+    progressLabel.textColor = [UIColor tapestryDarkBlue];
+    progressLabel.backgroundColor = [UIColor clearColor];
+    progressLabel.textAlignment = NSTextAlignmentCenter;
+    progressLabel.font = [UIFont boldSystemFontOfSize:20];
+    progressLabel.hidden = YES;
+    [progressLabel setText:NSLocalizedString(@"Loading...", nil)];
+    [self.view addSubview:progressLabel];
+    
     [self layoutSubviews];
     
     //TODO reorganize this
@@ -110,6 +120,7 @@
     [NCIWebSocketConnector interlocutor].chartView = chartView;
     [NCIWebSocketConnector interlocutor].noConnection =  noConnection;
     [NCIWebSocketConnector interlocutor].periodSwitcherPanel = switcherPanel;
+    [NCIWebSocketConnector interlocutor].progressLabel = progressLabel;
     [[NCIWebSocketConnector interlocutor] reconnect];
     
     isShowingLandscapeView = NO;
@@ -180,6 +191,8 @@
     infoButton.center = CGPointMake(self.view.bounds.size.width - 50, indexLabelHeight + 30);
     
     helpView.frame =  CGRectMake(0, helpView.frame.origin.y, self.view.frame.size.width, helpView.frame.size.height);
+    
+    progressLabel.frame = CGRectMake(0, 330, self.view.frame.size.width, 25);
 }
 
 - (void)orientationChanged:(NSNotification *)notification

@@ -109,6 +109,7 @@ static NSString* websocketMoreDataRequest =
 
 - (void)reconnect
 {
+    self.progressLabel.hidden = NO;
     socket.delegate = nil;
     [socket close];
     if([[self getTapestryUrl] isEqualToString:demoUrl]){
@@ -204,6 +205,7 @@ static NSString* websocketMoreDataRequest =
 
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
 {
+    self.progressLabel.hidden = YES;
     NSLog(@"Websocket Failed With Error %@", error);
     [self.noConnection setHidden:NO];
     webSocket = nil;
@@ -214,6 +216,7 @@ static NSString* websocketMoreDataRequest =
     NSString *messageString = ((NSString *)message);
     NSArray *dataPieces = [[messageString substringWithRange:NSMakeRange(1, messageString.length -2) ] componentsSeparatedByString:@","];
     if (dataPieces.count > 2){
+        self.progressLabel.hidden = YES;
         [self.chartView resetChart];
         int i;
         for (i = 0; i < dataPieces.count; i+=2){

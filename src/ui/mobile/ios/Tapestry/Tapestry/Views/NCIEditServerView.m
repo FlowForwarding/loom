@@ -58,7 +58,7 @@ static float rightIndent = 80;
         serverUrlEdit.delegate = self;
         serverUrlEdit.returnKeyType = UIReturnKeyGo;
         [serverUrlEdit addTarget:self action:@selector(didChangeText) forControlEvents:UIControlEventEditingChanged];
-        UILabel *serverEditLeftView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 180, editServerInputHeigth)];
+        UILabel *serverEditLeftView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 190, editServerInputHeigth)];
         serverEditLeftView.backgroundColor = [UIColor colorWithWhite:0.99 alpha:1];
         serverEditLeftView.text = NSLocalizedString(@"Tapestry Server:   ws://", nil);
         serverEditLeftView.font = [UIFont boldSystemFontOfSize:16];

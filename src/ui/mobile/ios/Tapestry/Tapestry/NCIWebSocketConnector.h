@@ -33,6 +33,7 @@
 @property(nonatomic, strong) NCIChartView *chartView;
 @property(nonatomic, strong) NCIPeriodSwitcherPanel *periodSwitcherPanel;
 @property(nonatomic, strong) UIButton *noConnection;
+@property(nonatomic, strong) UILabel *progressLabel;
 
 @property(nonatomic, strong) NSDate *startDate;
 @property(nonatomic) float currentDatePeriod;

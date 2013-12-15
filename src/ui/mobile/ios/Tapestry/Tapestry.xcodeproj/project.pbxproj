@@ -35,6 +35,7 @@
 		2A02D07F1844F2210065B0E9 /* NCIWebSocketConnector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D07D1844F2210065B0E9 /* NCIWebSocketConnector.m */; };
 		2A3BBB0D18576EBF006ECC2B /* NCIConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3BBB0C18576EBF006ECC2B /* NCIConstants.m */; };
 		2A846CFF18465ABC000CAA2F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2A846CFE18465ABC000CAA2F /* Localizable.strings */; };
+		2AF134E0185E31E50087D685 /* UIColor+WithHex.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AF134DF185E31E50087D685 /* UIColor+WithHex.m */; };
 		BF1E73678289457C8D232F84 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06D5AAF19A074DA0BABE9A8B /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -97,6 +98,8 @@
 		2A3BBB0B18576EBF006ECC2B /* NCIConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIConstants.h; sourceTree = "<group>"; };
 		2A3BBB0C18576EBF006ECC2B /* NCIConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIConstants.m; sourceTree = "<group>"; };
 		2A846CFE18465ABC000CAA2F /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		2AF134DE185E31E50087D685 /* UIColor+WithHex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+WithHex.h"; sourceTree = "<group>"; };
+		2AF134DF185E31E50087D685 /* UIColor+WithHex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+WithHex.m"; sourceTree = "<group>"; };
 		873D91FA5DF341DBB1741EE2 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -172,6 +175,8 @@
 				2A3BBB0C18576EBF006ECC2B /* NCIConstants.m */,
 				2A02D0181844F16C0065B0E9 /* Images.xcassets */,
 				2A02D00D1844F16C0065B0E9 /* Supporting Files */,
+				2AF134DE185E31E50087D685 /* UIColor+WithHex.h */,
+				2AF134DF185E31E50087D685 /* UIColor+WithHex.m */,
 			);
 			path = Tapestry;
 			sourceTree = "<group>";
@@ -382,6 +387,7 @@
 				2A02D07F1844F2210065B0E9 /* NCIWebSocketConnector.m in Sources */,
 				2A02D07E1844F2210065B0E9 /* NCIGraphController.m in Sources */,
 				2A02D0571844F1BF0065B0E9 /* NCIHintView.m in Sources */,
+				2AF134E0185E31E50087D685 /* UIColor+WithHex.m in Sources */,
 				2A02D0731844F1F30065B0E9 /* NCIMianGraphView.m in Sources */,
 				2A3BBB0D18576EBF006ECC2B /* NCIConstants.m in Sources */,
 				2A02D0721844F1F30065B0E9 /* NCIHandspikeView.m in Sources */,
