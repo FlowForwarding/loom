@@ -1,0 +1,14 @@
+{application, loom,
+ [
+  {description, "Loom"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  ofs_handler,
+                  of_driver
+                 ]},
+  {mod, { loom_app, []}},
+  {env, []}
+ ]}.
