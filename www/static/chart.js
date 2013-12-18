@@ -86,6 +86,9 @@ NCI.initChart = function(date){
 				 NCI.zoomLinks.removeClass('selected');	 
 			 },
 			 fillGraph: true,
+			 connectSeparatedPoints: true,
+			 xRangePad: 5,
+			 yRangePad: 10,
 			 gridLineWidth: 0.1,
 			 axisLabelFontSize: 10,
 			 xAxisLabelWidth: 60,
