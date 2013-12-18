@@ -75,6 +75,23 @@ NCI.dateForThirdRangePeriod = function(period){
 	return date.getFullYear();
 };
 
+NCI.dateString_ = function(date) {
+	var d = new Date(date);
+	
+	// Get the year:
+	var year = "" + d.getFullYear();
+	// Get a 0 padded month string
+	var month = NCI.months[d.getMonth()];  //months are 0-offset, sigh
+	// Get a 0 padded day string
+	var day = Dygraph.zeropad(d.getDate());
+	
+	var ret = "";
+	var frac = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+	if (frac) ret = " " + Dygraph.hmsString_(date);
+	
+	return year + "-" + month + "-" + day + ret;
+};
+
 NCI.initChart = function(date){
 	NCI.chartData = [];
 	NCI.chart = new Dygraph(
@@ -87,16 +104,15 @@ NCI.initChart = function(date){
 			 },
 			 fillGraph: true,
 			 connectSeparatedPoints: true,
-			 xRangePad: 5,
 			 yRangePad: 10,
 			 gridLineWidth: 0.1,
 			 axisLabelFontSize: 10,
-			 xAxisLabelWidth: 60,
+			 xAxisLabelWidth: 70,
 			 logscale: true,
 			 axes : { x : 
 				 {
-					 axisLabelFormatter: Dygraph.dateString_, 
-					 valueFormatter: Dygraph.dateString_,
+					 axisLabelFormatter: NCI.dateString_, 
+					 valueFormatter: NCI.dateString_,
 					 ticker : Dygraph.dateTicker,
 					 pixelsPerLabel: 100
 				 } 
