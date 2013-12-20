@@ -7,7 +7,8 @@
                   kernel,
                   stdlib,
                   ofs_handler,
-                  of_driver
+                  of_driver,
+                  of_msg_lib
                  ]},
   {mod, { loom_app, []}},
   {env, []}
