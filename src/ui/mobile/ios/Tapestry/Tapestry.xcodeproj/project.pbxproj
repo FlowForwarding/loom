@@ -25,15 +25,10 @@
 		2A02D0581844F1BF0065B0E9 /* NCIIndexValueView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D0501844F1BF0065B0E9 /* NCIIndexValueView.m */; };
 		2A02D0591844F1BF0065B0E9 /* NCIPeriodSwitcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D0521844F1BF0065B0E9 /* NCIPeriodSwitcher.m */; };
 		2A02D05A1844F1BF0065B0E9 /* NCIPeriodSwitcherPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D0541844F1BF0065B0E9 /* NCIPeriodSwitcherPanel.m */; };
-		2A02D06E1844F1F30065B0E9 /* NCIBottomGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D0631844F1F30065B0E9 /* NCIBottomGraphView.m */; };
-		2A02D06F1844F1F30065B0E9 /* NCIChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D0651844F1F30065B0E9 /* NCIChartView.m */; };
-		2A02D0701844F1F30065B0E9 /* NCIGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D0671844F1F30065B0E9 /* NCIGraphView.m */; };
-		2A02D0711844F1F30065B0E9 /* NCIGridAreaView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D0691844F1F30065B0E9 /* NCIGridAreaView.m */; };
-		2A02D0721844F1F30065B0E9 /* NCIHandspikeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D06B1844F1F30065B0E9 /* NCIHandspikeView.m */; };
-		2A02D0731844F1F30065B0E9 /* NCIMianGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D06D1844F1F30065B0E9 /* NCIMianGraphView.m */; };
 		2A02D07E1844F2210065B0E9 /* NCIGraphController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D07B1844F2210065B0E9 /* NCIGraphController.m */; };
 		2A02D07F1844F2210065B0E9 /* NCIWebSocketConnector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D07D1844F2210065B0E9 /* NCIWebSocketConnector.m */; };
 		2A3BBB0D18576EBF006ECC2B /* NCIConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3BBB0C18576EBF006ECC2B /* NCIConstants.m */; };
+		2A6DDE0B1864523B0013D202 /* libNCIChart.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6DDE0A1864523B0013D202 /* libNCIChart.a */; };
 		2A846CFF18465ABC000CAA2F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2A846CFE18465ABC000CAA2F /* Localizable.strings */; };
 		2AF134E0185E31E50087D685 /* UIColor+WithHex.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AF134DF185E31E50087D685 /* UIColor+WithHex.m */; };
 		BF1E73678289457C8D232F84 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06D5AAF19A074DA0BABE9A8B /* libPods.a */; };
@@ -79,24 +74,14 @@
 		2A02D0521844F1BF0065B0E9 /* NCIPeriodSwitcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIPeriodSwitcher.m; sourceTree = "<group>"; };
 		2A02D0531844F1BF0065B0E9 /* NCIPeriodSwitcherPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIPeriodSwitcherPanel.h; sourceTree = "<group>"; };
 		2A02D0541844F1BF0065B0E9 /* NCIPeriodSwitcherPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIPeriodSwitcherPanel.m; sourceTree = "<group>"; };
-		2A02D0621844F1F30065B0E9 /* NCIBottomGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIBottomGraphView.h; sourceTree = "<group>"; };
-		2A02D0631844F1F30065B0E9 /* NCIBottomGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIBottomGraphView.m; sourceTree = "<group>"; };
-		2A02D0641844F1F30065B0E9 /* NCIChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIChartView.h; sourceTree = "<group>"; };
-		2A02D0651844F1F30065B0E9 /* NCIChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIChartView.m; sourceTree = "<group>"; };
-		2A02D0661844F1F30065B0E9 /* NCIGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIGraphView.h; sourceTree = "<group>"; };
-		2A02D0671844F1F30065B0E9 /* NCIGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIGraphView.m; sourceTree = "<group>"; };
-		2A02D0681844F1F30065B0E9 /* NCIGridAreaView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIGridAreaView.h; sourceTree = "<group>"; };
-		2A02D0691844F1F30065B0E9 /* NCIGridAreaView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIGridAreaView.m; sourceTree = "<group>"; };
-		2A02D06A1844F1F30065B0E9 /* NCIHandspikeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIHandspikeView.h; sourceTree = "<group>"; };
-		2A02D06B1844F1F30065B0E9 /* NCIHandspikeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIHandspikeView.m; sourceTree = "<group>"; };
-		2A02D06C1844F1F30065B0E9 /* NCIMianGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIMianGraphView.h; sourceTree = "<group>"; };
-		2A02D06D1844F1F30065B0E9 /* NCIMianGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIMianGraphView.m; sourceTree = "<group>"; };
 		2A02D07A1844F2210065B0E9 /* NCIGraphController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIGraphController.h; sourceTree = "<group>"; };
 		2A02D07B1844F2210065B0E9 /* NCIGraphController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIGraphController.m; sourceTree = "<group>"; };
 		2A02D07C1844F2210065B0E9 /* NCIWebSocketConnector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIWebSocketConnector.h; sourceTree = "<group>"; };
 		2A02D07D1844F2210065B0E9 /* NCIWebSocketConnector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIWebSocketConnector.m; sourceTree = "<group>"; };
 		2A3BBB0B18576EBF006ECC2B /* NCIConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIConstants.h; sourceTree = "<group>"; };
 		2A3BBB0C18576EBF006ECC2B /* NCIConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIConstants.m; sourceTree = "<group>"; };
+		2A6DDE0618637A420013D202 /* libNCIChart.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libNCIChart.a; path = "NCIChart/build/Debug-iphoneos/libNCIChart.a"; sourceTree = "<group>"; };
+		2A6DDE0A1864523B0013D202 /* libNCIChart.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libNCIChart.a; path = "NCIChart/build/Debug-iphoneos/libNCIChart.a"; sourceTree = "<group>"; };
 		2A846CFE18465ABC000CAA2F /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		2AF134DE185E31E50087D685 /* UIColor+WithHex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+WithHex.h"; sourceTree = "<group>"; };
 		2AF134DF185E31E50087D685 /* UIColor+WithHex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+WithHex.m"; sourceTree = "<group>"; };
@@ -108,6 +93,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A6DDE0B1864523B0013D202 /* libNCIChart.a in Frameworks */,
 				2A02D0091844F16C0065B0E9 /* CoreGraphics.framework in Frameworks */,
 				2A02D00B1844F16C0065B0E9 /* UIKit.framework in Frameworks */,
 				2A02D0071844F16C0065B0E9 /* Foundation.framework in Frameworks */,
@@ -151,6 +137,8 @@
 		2A02D0051844F16B0065B0E9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2A6DDE0A1864523B0013D202 /* libNCIChart.a */,
+				2A6DDE0618637A420013D202 /* libNCIChart.a */,
 				2A02D0061844F16C0065B0E9 /* Foundation.framework */,
 				2A02D0081844F16C0065B0E9 /* CoreGraphics.framework */,
 				2A02D00A1844F16C0065B0E9 /* UIKit.framework */,
@@ -163,7 +151,6 @@
 		2A02D00C1844F16C0065B0E9 /* Tapestry */ = {
 			isa = PBXGroup;
 			children = (
-				2A02D0611844F1F30065B0E9 /* NCIChart */,
 				2A02D0481844F1BF0065B0E9 /* Views */,
 				2A02D0151844F16C0065B0E9 /* NCIAppDelegate.h */,
 				2A02D0161844F16C0065B0E9 /* NCIAppDelegate.m */,
@@ -228,25 +215,6 @@
 				2A02D0541844F1BF0065B0E9 /* NCIPeriodSwitcherPanel.m */,
 			);
 			path = Views;
-			sourceTree = "<group>";
-		};
-		2A02D0611844F1F30065B0E9 /* NCIChart */ = {
-			isa = PBXGroup;
-			children = (
-				2A02D0621844F1F30065B0E9 /* NCIBottomGraphView.h */,
-				2A02D0631844F1F30065B0E9 /* NCIBottomGraphView.m */,
-				2A02D0641844F1F30065B0E9 /* NCIChartView.h */,
-				2A02D0651844F1F30065B0E9 /* NCIChartView.m */,
-				2A02D0661844F1F30065B0E9 /* NCIGraphView.h */,
-				2A02D0671844F1F30065B0E9 /* NCIGraphView.m */,
-				2A02D0681844F1F30065B0E9 /* NCIGridAreaView.h */,
-				2A02D0691844F1F30065B0E9 /* NCIGridAreaView.m */,
-				2A02D06A1844F1F30065B0E9 /* NCIHandspikeView.h */,
-				2A02D06B1844F1F30065B0E9 /* NCIHandspikeView.m */,
-				2A02D06C1844F1F30065B0E9 /* NCIMianGraphView.h */,
-				2A02D06D1844F1F30065B0E9 /* NCIMianGraphView.m */,
-			);
-			path = NCIChart;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -388,20 +356,14 @@
 				2A02D07E1844F2210065B0E9 /* NCIGraphController.m in Sources */,
 				2A02D0571844F1BF0065B0E9 /* NCIHintView.m in Sources */,
 				2AF134E0185E31E50087D685 /* UIColor+WithHex.m in Sources */,
-				2A02D0731844F1F30065B0E9 /* NCIMianGraphView.m in Sources */,
 				2A3BBB0D18576EBF006ECC2B /* NCIConstants.m in Sources */,
-				2A02D0721844F1F30065B0E9 /* NCIHandspikeView.m in Sources */,
 				2A02D0591844F1BF0065B0E9 /* NCIPeriodSwitcher.m in Sources */,
-				2A02D06F1844F1F30065B0E9 /* NCIChartView.m in Sources */,
 				2A02D05A1844F1BF0065B0E9 /* NCIPeriodSwitcherPanel.m in Sources */,
 				2A02D0561844F1BF0065B0E9 /* NCIHelpView.m in Sources */,
 				2A02D0581844F1BF0065B0E9 /* NCIIndexValueView.m in Sources */,
 				2A02D0131844F16C0065B0E9 /* main.m in Sources */,
-				2A02D06E1844F1F30065B0E9 /* NCIBottomGraphView.m in Sources */,
-				2A02D0711844F1F30065B0E9 /* NCIGridAreaView.m in Sources */,
 				2A02D0551844F1BF0065B0E9 /* NCIEditServerView.m in Sources */,
 				2A02D0171844F16C0065B0E9 /* NCIAppDelegate.m in Sources */,
-				2A02D0701844F1F30065B0E9 /* NCIGraphView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -476,6 +438,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/OSX10.8.xctoolchain/usr/include,
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -510,6 +476,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/OSX10.8.xctoolchain/usr/include,
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -526,6 +496,11 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tapestry/Tapestry-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"\"${PODS_ROOT}/Headers\"",
+					"\"${PODS_ROOT}/Headers/SocketRocket\"",
+					"\"${SRCROOT}/NCIChart/NCIChart/views\"",
+				);
 				INFOPLIST_FILE = "Tapestry/Tapestry-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -543,6 +518,11 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tapestry/Tapestry-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"\"${PODS_ROOT}/Headers\"",
+					"\"${PODS_ROOT}/Headers/SocketRocket\"",
+					"\"${SRCROOT}/NCIChart/NCIChart/views\"",
+				);
 				INFOPLIST_FILE = "Tapestry/Tapestry-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";

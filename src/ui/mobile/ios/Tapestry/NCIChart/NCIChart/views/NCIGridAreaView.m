@@ -35,7 +35,7 @@
     self = [self initWithFrame:CGRectZero];
     if (self){
         selectedPoint = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 8, 8)];
-        selectedPoint.backgroundColor = [UIColor tapestryDarkBlue];
+        selectedPoint.backgroundColor = [UIColor blueColor];//[UIColor tapestryDarkBlue];
         selectedPoint.layer.cornerRadius = 4;
         selectedPoint.hidden = YES;
         [self addSubview:selectedPoint];
