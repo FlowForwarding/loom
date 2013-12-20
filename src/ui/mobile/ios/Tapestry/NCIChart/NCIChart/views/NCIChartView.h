@@ -44,6 +44,9 @@
 @property (nonatomic, strong)NCIBottomGraphView *bottomGraph;
 @property (atomic, strong)NSMutableArray *chartData;
 
+//callbacks
+@property (nonatomic, copy) void (^rangesMoved)(void);
+
 
 
 @end

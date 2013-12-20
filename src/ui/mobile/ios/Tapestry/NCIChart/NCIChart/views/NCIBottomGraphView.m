@@ -11,7 +11,6 @@
 #import "NCIBottomGraphView.h"
 #import "NCIHandspikeView.h"
 #import "NCIMianGraphView.h"
-#import "NCIWebSocketConnector.h"
 
 @interface NCIBottomGraphView(){
     NCIHandspikeView *handspikeLeft;
@@ -201,7 +200,7 @@ static float startRightRange = -1;
     }];
     
     [self moveRangesFollowingNewLeft:newLeft newRight:newRight];
-    [[NCIWebSocketConnector interlocutor].periodSwitcherPanel resetButtons];
+    self.chart.rangesMoved();
 }
 
 - (void)startMoveWithPoint:(CGPoint) point1 andPoint:(CGPoint) point2{
@@ -214,7 +213,7 @@ static float startRightRange = -1;
         startLeft = point2.x - handspikeLeft.center.x;
         startRight = point1.x - handspikeRight.center.x;
     }
-    [[NCIWebSocketConnector interlocutor].periodSwitcherPanel resetButtons];
+    self.chart.rangesMoved();
 }
 
 - (NSArray *)detectNewXPosFrom:(CGPoint)location1 and:(CGPoint) location2{

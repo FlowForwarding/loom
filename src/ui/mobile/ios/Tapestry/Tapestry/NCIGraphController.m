@@ -86,6 +86,9 @@
     [self.view addSubview:nepValue];
     
     chartView = [[NCIChartView alloc] initWithFrame:CGRectZero];
+    chartView.rangesMoved = ^(){
+        [[NCIWebSocketConnector interlocutor].periodSwitcherPanel resetButtons];
+    };
     [self.view addSubview:chartView];
     
     noConnection = [[UIButton alloc] initWithFrame:CGRectZero];

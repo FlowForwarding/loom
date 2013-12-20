@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:NCIChart/NCIChart.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:Tapestry.xcodeproj">
    </FileRef>
    <FileRef
