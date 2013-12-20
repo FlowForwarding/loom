@@ -146,7 +146,7 @@ NCI.DetectRangesForPeiod = function(detailedChartPeriod, chartData){
 	} else {
 		var startRangeDate = endRangeDate - detailedChartPeriod;
 	};
-	return [startRangeDate, endRangeDate];
+	return [startRangeDate, new Date().getTime()];
 };
 
 NCI.Connection.startData = function() {
