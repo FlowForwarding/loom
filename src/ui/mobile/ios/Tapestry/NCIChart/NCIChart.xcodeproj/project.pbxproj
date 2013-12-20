@@ -20,6 +20,17 @@
 		2A6DDE0318637A1D0013D202 /* NCIGridAreaView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDDFB18637A1D0013D202 /* NCIGridAreaView.m */; };
 		2A6DDE0418637A1D0013D202 /* NCIHandspikeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDDFD18637A1D0013D202 /* NCIHandspikeView.m */; };
 		2A6DDE0518637A1D0013D202 /* NCIMianGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDDFF18637A1D0013D202 /* NCIMianGraphView.m */; };
+		2A6DDEC218647C0E0013D202 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A1E1BDA1863794D00009A3A /* Foundation.framework */; };
+		2A6DDEC318647C0E0013D202 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6DDE14186475970013D202 /* CoreGraphics.framework */; };
+		2A6DDEC418647C0E0013D202 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A1E1BEB1863794D00009A3A /* UIKit.framework */; };
+		2A6DDECA18647C0E0013D202 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2A6DDEC818647C0E0013D202 /* InfoPlist.strings */; };
+		2A6DDECC18647C0E0013D202 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDECB18647C0E0013D202 /* main.m */; };
+		2A6DDED018647C0E0013D202 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDECF18647C0E0013D202 /* AppDelegate.m */; };
+		2A6DDED318647C0E0013D202 /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2A6DDED118647C0E0013D202 /* Main_iPhone.storyboard */; };
+		2A6DDED618647C0E0013D202 /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2A6DDED418647C0E0013D202 /* Main_iPad.storyboard */; };
+		2A6DDED918647C0E0013D202 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDED818647C0E0013D202 /* ViewController.m */; };
+		2A6DDEDB18647C0E0013D202 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A6DDEDA18647C0E0013D202 /* Images.xcassets */; };
+		2A6DDEF8186481C50013D202 /* libNCIChart.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A1E1BD71863794D00009A3A /* libNCIChart.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +77,19 @@
 		2A6DDDFD18637A1D0013D202 /* NCIHandspikeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIHandspikeView.m; sourceTree = "<group>"; };
 		2A6DDDFE18637A1D0013D202 /* NCIMianGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIMianGraphView.h; sourceTree = "<group>"; };
 		2A6DDDFF18637A1D0013D202 /* NCIMianGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIMianGraphView.m; sourceTree = "<group>"; };
+		2A6DDE14186475970013D202 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		2A6DDEC118647C0E0013D202 /* NCIChartConfigurations.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NCIChartConfigurations.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2A6DDEC718647C0E0013D202 /* NCIChartConfigurations-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "NCIChartConfigurations-Info.plist"; sourceTree = "<group>"; };
+		2A6DDEC918647C0E0013D202 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		2A6DDECB18647C0E0013D202 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		2A6DDECD18647C0E0013D202 /* NCIChartConfigurations-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NCIChartConfigurations-Prefix.pch"; sourceTree = "<group>"; };
+		2A6DDECE18647C0E0013D202 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		2A6DDECF18647C0E0013D202 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		2A6DDED218647C0E0013D202 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
+		2A6DDED518647C0E0013D202 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
+		2A6DDED718647C0E0013D202 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		2A6DDED818647C0E0013D202 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		2A6DDEDA18647C0E0013D202 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +112,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2A6DDEBE18647C0E0013D202 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A6DDEF8186481C50013D202 /* libNCIChart.a in Frameworks */,
+				2A6DDEC318647C0E0013D202 /* CoreGraphics.framework in Frameworks */,
+				2A6DDEC418647C0E0013D202 /* UIKit.framework in Frameworks */,
+				2A6DDEC218647C0E0013D202 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -96,6 +131,7 @@
 			children = (
 				2A1E1BDC1863794D00009A3A /* NCIChart */,
 				2A1E1BF01863794D00009A3A /* NCIChartTests */,
+				2A6DDEC518647C0E0013D202 /* NCIChartConfigurations */,
 				2A1E1BD91863794D00009A3A /* Frameworks */,
 				2A1E1BD81863794D00009A3A /* Products */,
 			);
@@ -106,6 +142,7 @@
 			children = (
 				2A1E1BD71863794D00009A3A /* libNCIChart.a */,
 				2A1E1BE71863794D00009A3A /* NCIChartTests.xctest */,
+				2A6DDEC118647C0E0013D202 /* NCIChartConfigurations.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -116,6 +153,7 @@
 				2A1E1BDA1863794D00009A3A /* Foundation.framework */,
 				2A1E1BE81863794D00009A3A /* XCTest.framework */,
 				2A1E1BEB1863794D00009A3A /* UIKit.framework */,
+				2A6DDE14186475970013D202 /* CoreGraphics.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -174,6 +212,32 @@
 			path = views;
 			sourceTree = "<group>";
 		};
+		2A6DDEC518647C0E0013D202 /* NCIChartConfigurations */ = {
+			isa = PBXGroup;
+			children = (
+				2A6DDECE18647C0E0013D202 /* AppDelegate.h */,
+				2A6DDECF18647C0E0013D202 /* AppDelegate.m */,
+				2A6DDED118647C0E0013D202 /* Main_iPhone.storyboard */,
+				2A6DDED418647C0E0013D202 /* Main_iPad.storyboard */,
+				2A6DDED718647C0E0013D202 /* ViewController.h */,
+				2A6DDED818647C0E0013D202 /* ViewController.m */,
+				2A6DDEDA18647C0E0013D202 /* Images.xcassets */,
+				2A6DDEC618647C0E0013D202 /* Supporting Files */,
+			);
+			path = NCIChartConfigurations;
+			sourceTree = "<group>";
+		};
+		2A6DDEC618647C0E0013D202 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				2A6DDEC718647C0E0013D202 /* NCIChartConfigurations-Info.plist */,
+				2A6DDEC818647C0E0013D202 /* InfoPlist.strings */,
+				2A6DDECB18647C0E0013D202 /* main.m */,
+				2A6DDECD18647C0E0013D202 /* NCIChartConfigurations-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -212,6 +276,23 @@
 			productReference = 2A1E1BE71863794D00009A3A /* NCIChartTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		2A6DDEC018647C0E0013D202 /* NCIChartConfigurations */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2A6DDEEE18647C0F0013D202 /* Build configuration list for PBXNativeTarget "NCIChartConfigurations" */;
+			buildPhases = (
+				2A6DDEBD18647C0E0013D202 /* Sources */,
+				2A6DDEBE18647C0E0013D202 /* Frameworks */,
+				2A6DDEBF18647C0E0013D202 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NCIChartConfigurations;
+			productName = NCIChartConfigurations;
+			productReference = 2A6DDEC118647C0E0013D202 /* NCIChartConfigurations.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -220,6 +301,11 @@
 			attributes = {
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = FlowForwarding.Org;
+				TargetAttributes = {
+					2A1E1BE61863794D00009A3A = {
+						TestTargetID = 2A6DDEC018647C0E0013D202;
+					};
+				};
 			};
 			buildConfigurationList = 2A1E1BD21863794D00009A3A /* Build configuration list for PBXProject "NCIChart" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -227,6 +313,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 2A1E1BCE1863794D00009A3A;
 			productRefGroup = 2A1E1BD81863794D00009A3A /* Products */;
@@ -235,6 +322,7 @@
 			targets = (
 				2A1E1BD61863794D00009A3A /* NCIChart */,
 				2A1E1BE61863794D00009A3A /* NCIChartTests */,
+				2A6DDEC018647C0E0013D202 /* NCIChartConfigurations */,
 			);
 		};
 /* End PBXProject section */
@@ -245,6 +333,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				2A1E1BF51863794D00009A3A /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2A6DDEBF18647C0E0013D202 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A6DDED618647C0E0013D202 /* Main_iPad.storyboard in Resources */,
+				2A6DDEDB18647C0E0013D202 /* Images.xcassets in Resources */,
+				2A6DDED318647C0E0013D202 /* Main_iPhone.storyboard in Resources */,
+				2A6DDECA18647C0E0013D202 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,6 +371,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2A6DDEBD18647C0E0013D202 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A6DDED918647C0E0013D202 /* ViewController.m in Sources */,
+				2A6DDED018647C0E0013D202 /* AppDelegate.m in Sources */,
+				2A6DDECC18647C0E0013D202 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -289,6 +398,30 @@
 				2A1E1BF41863794D00009A3A /* en */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		2A6DDEC818647C0E0013D202 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2A6DDEC918647C0E0013D202 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		2A6DDED118647C0E0013D202 /* Main_iPhone.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2A6DDED218647C0E0013D202 /* Base */,
+			);
+			name = Main_iPhone.storyboard;
+			sourceTree = "<group>";
+		};
+		2A6DDED418647C0E0013D202 /* Main_iPad.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2A6DDED518647C0E0013D202 /* Base */,
+			);
+			name = Main_iPad.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -392,6 +525,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/NCIChartConfigurations.app/NCIChartConfigurations";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -405,6 +539,7 @@
 				);
 				INFOPLIST_FILE = "NCIChartTests/NCIChartTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
@@ -413,6 +548,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/NCIChartConfigurations.app/NCIChartConfigurations";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -422,7 +558,52 @@
 				GCC_PREFIX_HEADER = "NCIChart/NCIChart-Prefix.pch";
 				INFOPLIST_FILE = "NCIChartTests/NCIChartTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+		2A6DDEEF18647C0F0013D202 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "NCIChartConfigurations/NCIChartConfigurations-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "NCIChartConfigurations/NCIChartConfigurations-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		2A6DDEF018647C0F0013D202 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "NCIChartConfigurations/NCIChartConfigurations-Prefix.pch";
+				INFOPLIST_FILE = "NCIChartConfigurations/NCIChartConfigurations-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
 		};
@@ -455,6 +636,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		2A6DDEEE18647C0F0013D202 /* Build configuration list for PBXNativeTarget "NCIChartConfigurations" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A6DDEEF18647C0F0013D202 /* Debug */,
+				2A6DDEF018647C0F0013D202 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};
