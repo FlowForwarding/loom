@@ -1,5 +1,5 @@
 //
-//  NCIChartView.m
+//  NCIRangesChartView.m
 //  Tapestry
 //
 //  Created by Infoblox Inc on 11/13/13.
@@ -8,12 +8,12 @@
 //  http://www.apache.org/licenses/LICENSE-2.0
 //
 
-#import "NCIChartView.h"
+#import "NCIRangesChartView.h"
 #import "NCIGraphView.h"
 #import "NCIBottomGraphView.h"
 #import "NCIMianGraphView.h"
 
-@interface NCIChartView(){
+@interface NCIRangesChartView(){
 
 }
 
@@ -24,7 +24,7 @@
 
 @end
 
-@implementation NCIChartView
+@implementation NCIRangesChartView
 
 - (id)initWithFrame:(CGRect)frame
 {

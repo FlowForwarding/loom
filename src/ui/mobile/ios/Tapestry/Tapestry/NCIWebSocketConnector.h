@@ -11,7 +11,7 @@
 #import <Foundation/Foundation.h>
 #import "NCIIndexValueView.h"
 #import "NCIEditServerView.h"
-#import "NCIChartView.h"
+#import "NCIRangesChartView.h"
 #import "NCIPeriodSwitcherPanel.h"
 
 @interface NCIWebSocketConnector : NSObject
@@ -30,7 +30,7 @@
 @property(nonatomic, strong) NCIIndexValueView *nciValue;
 @property(nonatomic, strong) NCIIndexValueView *nepValue;
 @property(nonatomic, strong) NCIIndexValueView *qpsValue;
-@property(nonatomic, strong) NCIChartView *chartView;
+@property(nonatomic, strong) NCIRangesChartView *chartView;
 @property(nonatomic, strong) NCIPeriodSwitcherPanel *periodSwitcherPanel;
 @property(nonatomic, strong) UIButton *noConnection;
 @property(nonatomic, strong) UILabel *progressLabel;

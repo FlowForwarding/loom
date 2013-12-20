@@ -39,7 +39,7 @@
 
 @implementation NCIBottomGraphView
 
-- (id)initWithChart: (NCIChartView *)chartHolder{
+- (id)initWithChart: (NCIRangesChartView *)chartHolder{
     self = [super initWithChart:chartHolder];
     if (self){
         self.chart = chartHolder;

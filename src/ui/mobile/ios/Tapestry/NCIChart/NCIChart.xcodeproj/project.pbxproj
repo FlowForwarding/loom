@@ -15,7 +15,7 @@
 		2A1E1BF51863794D00009A3A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2A1E1BF31863794D00009A3A /* InfoPlist.strings */; };
 		2A1E1BF71863794D00009A3A /* NCIChartTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A1E1BF61863794D00009A3A /* NCIChartTests.m */; };
 		2A6DDE0018637A1D0013D202 /* NCIBottomGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDDF518637A1D0013D202 /* NCIBottomGraphView.m */; };
-		2A6DDE0118637A1D0013D202 /* NCIChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDDF718637A1D0013D202 /* NCIChartView.m */; };
+		2A6DDE0118637A1D0013D202 /* NCIRangesChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDDF718637A1D0013D202 /* NCIRangesChartView.m */; };
 		2A6DDE0218637A1D0013D202 /* NCIGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDDF918637A1D0013D202 /* NCIGraphView.m */; };
 		2A6DDE0318637A1D0013D202 /* NCIGridAreaView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDDFB18637A1D0013D202 /* NCIGridAreaView.m */; };
 		2A6DDE0418637A1D0013D202 /* NCIHandspikeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDDFD18637A1D0013D202 /* NCIHandspikeView.m */; };
@@ -31,6 +31,7 @@
 		2A6DDED918647C0E0013D202 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDED818647C0E0013D202 /* ViewController.m */; };
 		2A6DDEDB18647C0E0013D202 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A6DDEDA18647C0E0013D202 /* Images.xcassets */; };
 		2A6DDEF8186481C50013D202 /* libNCIChart.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A1E1BD71863794D00009A3A /* libNCIChart.a */; };
+		2A6DDF011864BC450013D202 /* NCIChartOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDF001864BC450013D202 /* NCIChartOptions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,8 +68,8 @@
 		2A1E1BF61863794D00009A3A /* NCIChartTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCIChartTests.m; sourceTree = "<group>"; };
 		2A6DDDF418637A1D0013D202 /* NCIBottomGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIBottomGraphView.h; sourceTree = "<group>"; };
 		2A6DDDF518637A1D0013D202 /* NCIBottomGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIBottomGraphView.m; sourceTree = "<group>"; };
-		2A6DDDF618637A1D0013D202 /* NCIChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIChartView.h; sourceTree = "<group>"; };
-		2A6DDDF718637A1D0013D202 /* NCIChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIChartView.m; sourceTree = "<group>"; };
+		2A6DDDF618637A1D0013D202 /* NCIRangesChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIRangesChartView.h; sourceTree = "<group>"; };
+		2A6DDDF718637A1D0013D202 /* NCIRangesChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIRangesChartView.m; sourceTree = "<group>"; };
 		2A6DDDF818637A1D0013D202 /* NCIGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIGraphView.h; sourceTree = "<group>"; };
 		2A6DDDF918637A1D0013D202 /* NCIGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIGraphView.m; sourceTree = "<group>"; };
 		2A6DDDFA18637A1D0013D202 /* NCIGridAreaView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIGridAreaView.h; sourceTree = "<group>"; };
@@ -90,6 +91,8 @@
 		2A6DDED718647C0E0013D202 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		2A6DDED818647C0E0013D202 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		2A6DDEDA18647C0E0013D202 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		2A6DDEFF1864BC450013D202 /* NCIChartOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NCIChartOptions.h; path = NCIChart/NCIChartOptions.h; sourceTree = SOURCE_ROOT; };
+		2A6DDF001864BC450013D202 /* NCIChartOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NCIChartOptions.m; path = NCIChart/NCIChartOptions.m; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,6 +164,8 @@
 		2A1E1BDC1863794D00009A3A /* NCIChart */ = {
 			isa = PBXGroup;
 			children = (
+				2A6DDEFF1864BC450013D202 /* NCIChartOptions.h */,
+				2A6DDF001864BC450013D202 /* NCIChartOptions.m */,
 				2A1E1C001863795F00009A3A /* views */,
 				2A1E1BDD1863794D00009A3A /* Supporting Files */,
 			);
@@ -198,8 +203,8 @@
 			children = (
 				2A6DDDF418637A1D0013D202 /* NCIBottomGraphView.h */,
 				2A6DDDF518637A1D0013D202 /* NCIBottomGraphView.m */,
-				2A6DDDF618637A1D0013D202 /* NCIChartView.h */,
-				2A6DDDF718637A1D0013D202 /* NCIChartView.m */,
+				2A6DDDF618637A1D0013D202 /* NCIRangesChartView.h */,
+				2A6DDDF718637A1D0013D202 /* NCIRangesChartView.m */,
 				2A6DDDF818637A1D0013D202 /* NCIGraphView.h */,
 				2A6DDDF918637A1D0013D202 /* NCIGraphView.m */,
 				2A6DDDFA18637A1D0013D202 /* NCIGridAreaView.h */,
@@ -359,7 +364,8 @@
 				2A6DDE0018637A1D0013D202 /* NCIBottomGraphView.m in Sources */,
 				2A6DDE0418637A1D0013D202 /* NCIHandspikeView.m in Sources */,
 				2A6DDE0318637A1D0013D202 /* NCIGridAreaView.m in Sources */,
-				2A6DDE0118637A1D0013D202 /* NCIChartView.m in Sources */,
+				2A6DDF011864BC450013D202 /* NCIChartOptions.m in Sources */,
+				2A6DDE0118637A1D0013D202 /* NCIRangesChartView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -644,6 +650,7 @@
 				2A6DDEF018647C0F0013D202 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

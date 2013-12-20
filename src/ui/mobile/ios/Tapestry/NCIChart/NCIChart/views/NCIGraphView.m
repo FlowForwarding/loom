@@ -20,7 +20,7 @@
 
 @implementation NCIGraphView
 
-- (id)initWithChart: (NCIChartView *)chartHolder{
+- (id)initWithChart: (NCIRangesChartView *)chartHolder{
     self = [self initWithFrame:CGRectZero];
     if (self){
         self.scaleIndex = 1;

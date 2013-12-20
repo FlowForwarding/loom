@@ -1,5 +1,5 @@
 //
-//  NCIChartView.h
+//  NCIRangesChartView.h
 //  Tapestry
 //
 //  Created by Infoblox Inc on 11/13/13.
@@ -12,7 +12,9 @@
 @class NCIMianGraphView;
 @class NCIBottomGraphView;
 
-@interface NCIChartView : UIView
+@interface NCIRangesChartView : UIView
+
+@property(nonatomic)bool hasRangeSelector;
 
 //API usage
 - (void)addPoint:(NSDate *)date val:(NSString *)value;
@@ -28,7 +30,6 @@
 
 //top and bottom reserve for grph Y values in persentage, default 5%
 @property(nonatomic)float topBottomReserve;
-@property(nonatomic)bool hasRangeSelector; 
 
 //Inside usage
 //All date values are in convertion to timeIntervalSince1970
@@ -46,7 +47,5 @@
 
 //callbacks
 @property (nonatomic, copy) void (^rangesMoved)(void);
-
-
 
 @end

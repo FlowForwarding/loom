@@ -7,15 +7,17 @@
 //
 
 #import "ViewController.h"
-#import "NCIChartView.h"
+#import "NCIRangesChartView.h"
 
 @interface ViewController (){
-    NCIChartView *chart;
+    UIScrollView *book;
+    NCIRangesChartView *chart;
+    NCIRangesChartView *rangesChart;
     
-    float width;
-    float heigth;
     float horisontalIndent;
     float varticalIndent;
+    
+    int numberOfPages;
     
     bool isShowingLandscapeView;
 }
@@ -28,10 +30,19 @@
 {
     [super viewDidLoad];
     horisontalIndent = 20;
-    varticalIndent = 20;
+    varticalIndent = 40;
+    numberOfPages = 2;
     
-	chart = [[NCIChartView alloc] initWithFrame:CGRectZero];
-    [self.view addSubview:chart];
+    book = [[UIScrollView alloc] initWithFrame:CGRectZero];
+    book.pagingEnabled = YES;
+    [self.view addSubview:book];
+    
+    chart = [[NCIRangesChartView alloc] initWithFrame:CGRectZero];
+    chart.hasRangeSelector = NO;
+    [book addSubview:chart];
+    
+    rangesChart = [[NCIRangesChartView alloc] initWithFrame:CGRectZero];
+    [book addSubview:rangesChart];
     
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -39,11 +50,15 @@
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     isShowingLandscapeView = NO;
+    
+    [self generateDemoData];
     [self layoutSubviews];
     
 }
 
 - (void)layoutSubviews{
+    float width;
+    float heigth;
     if (!isShowingLandscapeView){
         width = self.view.frame.size.width;
         heigth = self.view.frame.size.height;
@@ -52,11 +67,46 @@
         heigth = self.view.frame.size.width;
     }
     
+    book.frame = CGRectMake(0,  0, width, heigth);
+    book.contentSize = CGSizeMake(width*numberOfPages, heigth);
+    
     chart.frame = CGRectMake(horisontalIndent,  varticalIndent,
                              width - 2*horisontalIndent,
                              heigth - 2*horisontalIndent);
-    [chart drawChart];
     
+    rangesChart.frame = CGRectMake(width + horisontalIndent,  varticalIndent,
+                             width - 2*horisontalIndent,
+                             heigth - 2*horisontalIndent);
+
+}
+
+- (void)generateDemoData{
+    float halfYearPeriod = 60*60*24*30*6;
+    float demoDatePeriod = halfYearPeriod;
+    float numOfPoints = 800;
+    float step = demoDatePeriod/(800 - 1);
+    int trendMiddle = 6;
+    int trendStepCounter = 0;
+    int ind;
+    for (ind = 0; ind < numOfPoints; ind ++){
+        if (trendStepCounter > 5){
+            trendStepCounter = 0;
+            trendMiddle += 1;
+        }
+        trendStepCounter += 1;
+        int value = trendMiddle + arc4random() % 5;
+
+        NSDate *date = [[NSDate date] dateByAddingTimeInterval: (-demoDatePeriod + step*ind)];
+        [rangesChart addPoint:date val: @(value)];
+
+    }
+    
+    if (!rangesChart.minRangeDate){
+        long period = [[NSDate date] timeIntervalSince1970] - [((NSDate *)[rangesChart.chartData firstObject][0]) timeIntervalSince1970];
+        rangesChart.minRangeDate = [[NSDate date] dateByAddingTimeInterval: - period /10.0];
+        rangesChart.maxRangeDate = [NSDate date];
+    }
+    [rangesChart setMaxArgument: [NSDate date]];
 }
 
 - (void)orientationChanged:(NSNotification *)notification
