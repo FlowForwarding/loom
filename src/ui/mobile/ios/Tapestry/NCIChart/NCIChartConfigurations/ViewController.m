@@ -8,10 +8,11 @@
 
 #import "ViewController.h"
 #import "NCIRangesChartView.h"
+#import "NCISimpleChartView.h"
 
 @interface ViewController (){
     UIScrollView *book;
-    NCIRangesChartView *chart;
+    NCISimpleChartView *chart;
     NCIRangesChartView *rangesChart;
     
     float horisontalIndent;
@@ -37,8 +38,7 @@
     book.pagingEnabled = YES;
     [self.view addSubview:book];
     
-    chart = [[NCIRangesChartView alloc] initWithFrame:CGRectZero];
-    chart.hasRangeSelector = NO;
+    chart = [[NCISimpleChartView alloc] initWithFrame:CGRectZero];
     [book addSubview:chart];
     
     rangesChart = [[NCIRangesChartView alloc] initWithFrame:CGRectZero];
@@ -70,21 +70,21 @@
     book.frame = CGRectMake(0,  0, width, heigth);
     book.contentSize = CGSizeMake(width*numberOfPages, heigth);
     
-    chart.frame = CGRectMake(horisontalIndent,  varticalIndent,
+    chart.frame = CGRectMake(horisontalIndent, varticalIndent,
                              width - 2*horisontalIndent,
-                             heigth - 2*horisontalIndent);
+                             heigth - 2*varticalIndent);
     
     rangesChart.frame = CGRectMake(width + horisontalIndent,  varticalIndent,
                              width - 2*horisontalIndent,
-                             heigth - 2*horisontalIndent);
+                             heigth - 2*varticalIndent);
 
 }
 
 - (void)generateDemoData{
     float halfYearPeriod = 60*60*24*30*6;
     float demoDatePeriod = halfYearPeriod;
-    float numOfPoints = 800;
-    float step = demoDatePeriod/(800 - 1);
+    float numOfPoints = 10;
+    float step = demoDatePeriod/(10 - 1);
     int trendMiddle = 6;
     int trendStepCounter = 0;
     int ind;
@@ -97,7 +97,8 @@
         int value = trendMiddle + arc4random() % 5;
 
         NSDate *date = [[NSDate date] dateByAddingTimeInterval: (-demoDatePeriod + step*ind)];
-        [rangesChart addPoint:date val: @(value)];
+        [rangesChart addPoint:date val: [@(value) description]];
+        [chart addPoint:date val: [@(value) description]];
 
     }
     
@@ -106,7 +107,6 @@
         rangesChart.minRangeDate = [[NSDate date] dateByAddingTimeInterval: - period /10.0];
         rangesChart.maxRangeDate = [NSDate date];
     }
-    [rangesChart setMaxArgument: [NSDate date]];
 }
 
 - (void)orientationChanged:(NSNotification *)notification

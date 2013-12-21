@@ -9,12 +9,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "NCISimpleChartView.h"
+
 @class NCIMianGraphView;
 @class NCIBottomGraphView;
 
-@interface NCIRangesChartView : UIView
-
-@property(nonatomic)bool hasRangeSelector;
+@interface NCIRangesChartView : NCISimpleChartView
 
 //API usage
 - (void)addPoint:(NSDate *)date val:(NSString *)value;
@@ -43,7 +43,6 @@
 @property (nonatomic, strong)UILabel *selectedPoint;
 @property (nonatomic, strong)NCIMianGraphView *mainGraph;
 @property (nonatomic, strong)NCIBottomGraphView *bottomGraph;
-@property (atomic, strong)NSMutableArray *chartData;
 
 //callbacks
 @property (nonatomic, copy) void (^rangesMoved)(void);

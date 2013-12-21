@@ -30,12 +30,10 @@
 {
     self = [super initWithFrame:(CGRect)frame];
     if (self) {
-        _hasRangeSelector = YES;
         _topBottomReserve = 5;
         _minXVal = MAXFLOAT;
         _maxXVal = -MAXFLOAT;
         
-        self.chartData = [[NSMutableArray alloc] init];
         _mainGraph = [[NCIMianGraphView alloc] initWithChart:self];
         _mainGraph.backgroundColor = [UIColor whiteColor];
         _mainGraph.gridArea.hasPointSelector = YES;
@@ -57,12 +55,8 @@
     float bottomGraphHeight = 110;
     float labelHeight = 20;
     _selectedPoint.frame = CGRectMake(self.bounds.size.width - 320, 0, 300, labelHeight);
-    if (_hasRangeSelector){
-        _mainGraph.frame = CGRectMake(0, labelHeight, self.bounds.size.width, self.bounds.size.height - bottomGraphHeight - labelHeight);
-        _bottomGraph.frame = CGRectMake(0, self.bounds.size.height - bottomGraphHeight + labelHeight, self.bounds.size.width, bottomGraphHeight);
-    } else {
-        _mainGraph.frame = self.bounds;
-    }
+    _mainGraph.frame = CGRectMake(0, labelHeight, self.bounds.size.width, self.bounds.size.height - bottomGraphHeight - labelHeight);
+    _bottomGraph.frame = CGRectMake(0, self.bounds.size.height - bottomGraphHeight + labelHeight, self.bounds.size.width, bottomGraphHeight);
 }
 
 - (void)setMinRangeDate:(NSDate *)minRangeDate{
