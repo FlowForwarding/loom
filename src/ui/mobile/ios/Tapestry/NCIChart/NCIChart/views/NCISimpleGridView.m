@@ -55,12 +55,12 @@
     
     UIBezierPath *path = [UIBezierPath bezierPath];
     if (graph.chart.chartData.count > 0){
-        [path moveToPoint:[self pointByServerData:graph.chart.chartData[0]]];
+        [path moveToPoint:[graph pointByServerData:graph.chart.chartData[0]]];
     }
     
     if (graph.chart.chartData.count > 1){
         for (int ind = 1; ind < graph.chart.chartData.count; ind++){
-            [path addLineToPoint:[self pointByServerData:graph.chart.chartData[ind]]];
+            [path addLineToPoint:[graph pointByServerData:graph.chart.chartData[ind]]];
         };
     }
     
@@ -70,15 +70,5 @@
     
 }
 
-- (CGPoint)pointByServerData:(NSArray *)data{
-    NSDate *date = data[0];
-    float yVal = self.frame.size.height - (([data[1] integerValue] - graph.minYVal)*graph.yStep);
-    float xVal = [self getXValueByDate: date];
-    return CGPointMake(xVal, yVal);
-}
-
-- (float)getXValueByDate:(NSDate *)date{
-    return ([date timeIntervalSince1970] - graph.minXVal)*graph.xStep;
-}
 
 @end

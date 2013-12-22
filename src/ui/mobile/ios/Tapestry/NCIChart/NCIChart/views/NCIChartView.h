@@ -8,7 +8,18 @@
 
 #import <UIKit/UIKit.h>
 #import "NCISimpleChartView.h"
+@class NCITopChartView;
+@class NCIBtmChartView;
 
 @interface NCIChartView : NCISimpleChartView
 
+@property(nonatomic, strong) NCITopChartView *topChart;
+@property(nonatomic, strong) NCIBtmChartView *btmChart;
+
+@property(nonatomic, strong)NSDate *minRangeDate;
+@property(nonatomic, strong)NSDate *maxRangeDate;
+
+-(float)getScaleIndex;
+-(float)getTimePeriod;
+-(float)getRangesPeriod;
 @end

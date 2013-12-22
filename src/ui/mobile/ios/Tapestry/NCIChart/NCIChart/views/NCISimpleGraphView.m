@@ -7,12 +7,9 @@
 //
 
 #import "NCISimpleGraphView.h"
-#import "NCISimpleChartView.h"
-#import "NCISimpleGridView.m"
+#import "NCISimpleGridView.h"
 
 @interface NCISimpleGraphView(){
-    float gridHeigth;
-    float gridWidth;
     
 }
 
@@ -27,15 +24,18 @@
         _xLabelsDistance = 200;
         _yLabelsDistance = 50;
         _xLabelsWidth = 100;
-        _yLabelsHeigth = 20;
+        _yLabelsHeigth = 40;
         _yAxisLabels = [[NSMutableArray alloc] init];
         _xAxisLabels = [[NSMutableArray alloc] init];
         self.backgroundColor = [UIColor clearColor];
-        
-        _grid = [[NCISimpleGridView alloc] initWithGraph:self];
-        [self addSubview:_grid];
+        [self addSubviews];
     }
     return self;
+}
+
+- (void)addSubviews{
+    self.grid = [[NCISimpleGridView alloc] initWithGraph:self];
+    [self addSubview:self.grid];
 }
 
 - (id)initWithChart: (NCISimpleChartView *)chartHolder{
@@ -56,25 +56,25 @@
     [_yAxisLabels removeAllObjects];
     [_xAxisLabels removeAllObjects];
     
-    gridHeigth = self.frame.size.height- _yLabelsHeigth;
-    gridWidth = self.frame.size.width - _xLabelsWidth;
+    _gridHeigth = self.frame.size.height- _yLabelsHeigth;
+    _gridWidth = self.frame.size.width - _xLabelsWidth;
     if (_chart.chartData.count > 0){
         NSArray *yVals = [_chart getBoundaryValues];
         _minYVal = [yVals[0] floatValue];
         _maxYVal = [yVals[1] floatValue];
-        _yStep = gridHeigth/(_maxYVal - _minYVal);
+        _yStep = _gridHeigth/(_maxYVal - _minYVal);
         _minXVal = [_chart.chartData[0][0] timeIntervalSince1970];
         _maxXVal = [[_chart.chartData lastObject][0] timeIntervalSince1970];
-        _xStep = gridWidth/(_maxXVal - _minXVal);
+        _xStep = _gridWidth/(_maxXVal - _minXVal);
         
-        for(int i = 0; i<= gridHeigth/_yLabelsDistance; i++){
+        for(int i = 0; i<= _gridHeigth/_yLabelsDistance; i++){
             UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, self.frame.size.height - i*_yLabelsDistance - _yLabelsHeigth, _xLabelsWidth, 20)];
-            label.text = [@([self getDateByY: (_yLabelsHeigth + _yLabelsDistance *i)]) description];
+            label.text = [@([self getValByY: (_yLabelsHeigth + _yLabelsDistance *i)]) description];
             [_yAxisLabels addObject:label];
             [self addSubview:label];
         }
         
-        for(int i = 0; i<= gridWidth/_xLabelsDistance; i++){
+        for(int i = 0; i<= _gridWidth/_xLabelsDistance; i++){
             UILabel *label = [[UILabel alloc] initWithFrame:
                               CGRectMake(_xLabelsWidth + _xLabelsDistance *i,
                                          self.frame.size.height - _yLabelsHeigth, _xLabelsDistance,
@@ -84,7 +84,7 @@
             [self addSubview:label];
         }
     }
-    _grid.frame = CGRectMake(_xLabelsWidth, 0, gridWidth, gridHeigth);
+    _grid.frame = CGRectMake(_xLabelsWidth, 0, _gridWidth, _gridHeigth);
    // [grid setNeedsDisplay];
 }
 
@@ -93,10 +93,19 @@
     return [NSDate dateWithTimeIntervalSince1970:(_minXVal + (pointX - _xLabelsWidth)/_xStep)];
 }
 
-- (float )getDateByY:(float) pointY{
+- (float )getValByY:(float) pointY{
     return _minYVal + (pointY - _yLabelsHeigth)/_yStep;
 }
 
+- (CGPoint)pointByServerData:(NSArray *)data{
+    NSDate *date = data[0];
+    float yVal = self.frame.size.height - (([data[1] integerValue] - _minYVal)*_yStep);
+    float xVal = [self getXValueByDate: date];
+    return CGPointMake(xVal, yVal);
+}
 
+- (float)getXValueByDate:(NSDate *)date{
+    return ([date timeIntervalSince1970] - _minXVal)*_xStep;
+}
 
 @end

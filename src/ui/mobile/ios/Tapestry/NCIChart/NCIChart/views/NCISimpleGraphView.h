@@ -19,6 +19,9 @@
 @property(nonatomic, strong) NSMutableArray *yAxisLabels;
 @property(nonatomic, strong) NSMutableArray *xAxisLabels;
 
+@property(nonatomic) float gridHeigth;
+@property(nonatomic) float gridWidth;
+
 @property(nonatomic) float xLabelsDistance;
 @property(nonatomic) float yLabelsDistance;
 @property(nonatomic) float xLabelsWidth;
@@ -32,5 +35,10 @@
 @property(nonatomic) float maxXVal;
 
 - (id)initWithChart: (NCISimpleChartView *)chartHolder;
+- (void)addSubviews;
+
+- (NSDate *)getDateByX:(float) pointX;
+- (CGPoint)pointByServerData:(NSArray *)data;
+- (float)getXValueByDate:(NSDate *)date;
 
 @end

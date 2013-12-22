@@ -7,12 +7,10 @@
 //
 
 #import "NCIChartView.h"
-#import "NCISimpleChartView.h"
+#import "NCITopChartView.h"
 #import "NCIBtmChartView.h"
 
 @interface NCIChartView(){
-    NCISimpleChartView *topChart;
-    NCIBtmChartView *btmChart;
     
     float btmChartHeigth;
 }
@@ -31,18 +29,34 @@
 }
 
 - (void)addSubviews{
-    topChart = [[NCISimpleChartView alloc] initWithFrame:CGRectZero];
-    topChart.backgroundColor = [UIColor grayColor];
-    topChart.chartData = self.chartData;
-    btmChart = [[NCIBtmChartView alloc] initWithFrame:CGRectZero];
-    btmChart.chartData = self.chartData;
-    [self addSubview:topChart];
-    [self addSubview:btmChart];
+    _topChart = [[NCITopChartView alloc] initWithFrame:CGRectZero];
+    _topChart.chartData = self.chartData;
+    _topChart.nciChart = self;
+    _btmChart = [[NCIBtmChartView alloc] initWithFrame:CGRectZero];
+    _btmChart.chartData = self.chartData;
+    _btmChart.nciChart = self;
+    [self addSubview:_topChart];
+    [self addSubview:_btmChart];
 }
 
 - (void)layoutSubviews{
-    topChart.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - btmChartHeigth);
-    btmChart.frame = CGRectMake(0, self.frame.size.height - btmChartHeigth, self.frame.size.width, btmChartHeigth);
+    _topChart.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - btmChartHeigth);
+    _btmChart.frame = CGRectMake(0, self.frame.size.height - btmChartHeigth, self.frame.size.width, btmChartHeigth);
+}
+
+- (float)getScaleIndex{
+   if (self.chartData.count < 2 || !_minRangeDate || !_maxRangeDate)
+       return 1;
+    return ([[self.chartData lastObject][0] timeIntervalSince1970] - [self.chartData[0][0] timeIntervalSince1970])/
+    ([_maxRangeDate timeIntervalSince1970] - [_minRangeDate timeIntervalSince1970]);
+}
+
+-(float)getTimePeriod{
+    return [[self.chartData lastObject][0] timeIntervalSince1970] - [self.chartData[0][0] timeIntervalSince1970];
+}
+
+-(float)getRangesPeriod{
+    return [self.maxRangeDate timeIntervalSince1970] - [self.minRangeDate timeIntervalSince1970];
 }
 
 @end

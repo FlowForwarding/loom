@@ -10,6 +10,8 @@
 #import "NCIHandspikeView.h"
 #import "NCISimpleGraphView.h"
 #import "NCISimpleGridView.h"
+#import "NCIChartView.h"
+#import "NCITopChartView.h"
 
 @interface NCIBtmChartView(){
     NCIHandspikeView *handspikeLeft;
@@ -70,6 +72,8 @@
 - (void)redrawRanges{
 
     float gridHeigth =  self.graph.grid.frame.size.height;
+    _xHandspikeLeft = [self.graph getXValueByDate:self.nciChart.minRangeDate] + self.graph.xLabelsWidth;
+    _xHandspikeRight = [self.graph getXValueByDate:self.nciChart.maxRangeDate] + self.graph.xLabelsWidth;
     
     handspikeLeft.frame = CGRectMake(_xHandspikeLeft, 0, handspikeWidth, gridHeigth);
     leftAmputation.frame = CGRectMake(self.graph.xLabelsWidth, 0, _xHandspikeLeft - self.graph.xLabelsWidth, gridHeigth);
@@ -139,10 +143,8 @@ static float startRight = -1;
         } else {
             if (location.x <= (_xHandspikeLeft + handspikeWidth)){
                 newLeft = location.x - startLeft;
-                newRight = _xHandspikeRight;
             } else if (location.x >= (_xHandspikeRight - minRangesDistance)){
                 newRight = location.x - startRight;
-                newLeft = _xHandspikeLeft;
             }
         };
         
@@ -163,13 +165,18 @@ static float startRight = -1;
     if ((newLeft != -1 && newRight != -1) && (newRight - newLeft) < minRangesDistance)
         return;
     
-    if ( (newLeft != -1 ) && ((newLeft - self.graph.xLabelsWidth) > 0)){
-        _xHandspikeLeft = newLeft;
+    if (!( (newLeft != -1 ) && ((newLeft - self.graph.xLabelsWidth) > 0))){
+        newLeft = _xHandspikeLeft;
     };
     
-    if ((newRight != -1) && (newRight < self.frame.size.width)){
-        _xHandspikeRight = newRight;
+    if (!((newRight != -1) && (newRight < self.frame.size.width))){
+        newRight = _xHandspikeRight;
     };
+    
+    self.nciChart.minRangeDate = [self.graph getDateByX:newLeft];
+    self.nciChart.maxRangeDate = [self.graph getDateByX:newRight];
+
+    [self.nciChart.topChart.graph setNeedsLayout];
     [self redrawRanges];
 }
 
