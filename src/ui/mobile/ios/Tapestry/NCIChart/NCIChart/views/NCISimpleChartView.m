@@ -10,7 +10,7 @@
 #import "NCISimpleGraphView.h"
 
 @interface NCISimpleChartView(){
-    NCISimpleGraphView *graphView;
+   
 }
 
 @end
@@ -21,16 +21,21 @@
 {
     self = [super initWithFrame:(CGRect)frame];
     if (self) {
-        graphView = [[NCISimpleGraphView alloc] initWithChart:self];
-        [self addSubview:graphView];
         self.backgroundColor = [UIColor clearColor];
         self.chartData = [[NSMutableArray alloc] init];
+        [self addSubviews];
     }
     return self;
 }
 
+- (void)addSubviews{
+    _graph = [[NCISimpleGraphView alloc] initWithChart:self];
+    [self addSubview:_graph];
+}
+
 - (void)layoutSubviews{
-    graphView.frame = self.bounds;
+    _graph.frame = self.bounds;
+    [_graph layoutSubviews];
 }
 
 - (void)addPoint:(NSDate *)date val:(NSString *)value{

@@ -8,9 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
+@class NCISimpleGraphView;
+
 @interface NCISimpleChartView : UIView
 
-@property (atomic, strong)NSMutableArray *chartData;
+@property (nonatomic, strong)NCISimpleGraphView *graph;
+@property (nonatomic, strong)NSMutableArray *chartData;
+
+- (void)addSubviews;
 
 - (void)addPoint:(NSDate *)date val:(NSString *)value;
 

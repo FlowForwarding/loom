@@ -8,11 +8,11 @@
 
 #import "ViewController.h"
 #import "NCIRangesChartView.h"
-#import "NCISimpleChartView.h"
+#import "NCIChartView.h"
 
 @interface ViewController (){
     UIScrollView *book;
-    NCISimpleChartView *chart;
+    NCIChartView *chart;
     NCIRangesChartView *rangesChart;
     
     float horisontalIndent;
@@ -32,17 +32,17 @@
     [super viewDidLoad];
     horisontalIndent = 20;
     varticalIndent = 40;
-    numberOfPages = 2;
+    numberOfPages = 1;
     
     book = [[UIScrollView alloc] initWithFrame:CGRectZero];
     book.pagingEnabled = YES;
     [self.view addSubview:book];
     
-    chart = [[NCISimpleChartView alloc] initWithFrame:CGRectZero];
+    chart = [[NCIChartView alloc] initWithFrame:CGRectZero];
     [book addSubview:chart];
     
-    rangesChart = [[NCIRangesChartView alloc] initWithFrame:CGRectZero];
-    [book addSubview:rangesChart];
+//    rangesChart = [[NCIRangesChartView alloc] initWithFrame:CGRectZero];
+//    [book addSubview:rangesChart];
     
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     [[NSNotificationCenter defaultCenter] addObserver:self

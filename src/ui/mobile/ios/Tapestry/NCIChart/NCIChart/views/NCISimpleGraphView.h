@@ -9,7 +9,27 @@
 #import <UIKit/UIKit.h>
 #import "NCISimpleChartView.h"
 
+@class NCISimpleGridView;
+
 @interface NCISimpleGraphView : UIView
+
+@property(nonatomic, strong) NCISimpleGridView *grid;
+@property(nonatomic, strong) NCISimpleChartView *chart;
+
+@property(nonatomic, strong) NSMutableArray *yAxisLabels;
+@property(nonatomic, strong) NSMutableArray *xAxisLabels;
+
+@property(nonatomic) float xLabelsDistance;
+@property(nonatomic) float yLabelsDistance;
+@property(nonatomic) float xLabelsWidth;
+@property(nonatomic) float yLabelsHeigth;
+
+@property(nonatomic) float yStep;
+@property(nonatomic) float xStep;
+@property(nonatomic) float minYVal;
+@property(nonatomic) float maxYVal;
+@property(nonatomic) float minXVal;
+@property(nonatomic) float maxXVal;
 
 - (id)initWithChart: (NCISimpleChartView *)chartHolder;
 
