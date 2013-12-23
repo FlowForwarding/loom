@@ -23,6 +23,8 @@
 {
     self = [super initWithFrame:(CGRect)frame];
     if (self) {
+        _hasYLabels = YES;
+        _topBottomGridSpace = 10;
         dateFormatter = [[NSDateFormatter alloc] init];
         self.backgroundColor = [UIColor clearColor];
         self.chartData = [[NSMutableArray alloc] init];
@@ -113,7 +115,12 @@
             maxY = val;
         }
     }
-    return @[@(minY), @(maxY)];
+    float diff = (maxY - minY);
+    if (diff == 0){
+        maxY = maxY + 1;
+        minY = minY - 1;
+    }
+    return @[@(minY - diff*_topBottomGridSpace/100), @(maxY + diff*_topBottomGridSpace/100)];
 }
 
 @end

@@ -78,11 +78,11 @@
     if (diff == 0){
         maxYVal = maxYVal + 1;
         minYVal = minYVal - 1;
+    } else {
+        maxYVal = maxYVal + diff*self.topBottomGridSpace/100;
+        minYVal = minYVal - diff*self.topBottomGridSpace/100;
     }
-//    } else {
-//        maxYVal = maxYVal + diff*_topBottomReserve/100;
-//        minYVal = minYVal - diff*_topBottomReserve/100;
-//    }
+
     return @[@(minYVal),
              @(maxYVal),
              @(firstDataIndex),

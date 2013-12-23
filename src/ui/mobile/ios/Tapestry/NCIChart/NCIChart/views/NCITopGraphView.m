@@ -124,16 +124,20 @@
         [self.dateFormatter setDateFormat:@"yyyy-MMM"];
     }
     
-    for(int i = 0; i<= self.gridWidth/self.xLabelsDistance; i++){
-        UILabel *label = [[UILabel alloc] initWithFrame:
-                          CGRectMake(self.xLabelsWidth + self.xLabelsDistance *i,
-                                     self.frame.size.height - self.yLabelsHeigth, self.xLabelsDistance,
-                                     self.yLabelsHeigth)];
-        label.text = [NSString stringWithFormat:@"%@", [self.dateFormatter stringFromDate:
-                                                        [self getDateByX: (gridScroll.contentOffset.x + self.xLabelsWidth + self.xLabelsDistance *i)/scaleIndex]]];
-        
-        [self.xAxisLabels addObject:label];
-        [self addSubview:label];
+    float shift =  gridScroll.contentOffset.x - self.xLabelsDistance*((int)gridScroll.contentOffset.x / (int)self.xLabelsDistance);
+    for(int i = 0; i<= self.gridWidth/self.xLabelsDistance + 1; i++){
+        float xVal = self.xLabelsWidth + self.xLabelsDistance *i - shift;
+        if ((xVal - self.xLabelsWidth) >= 0){
+            UILabel *label = [[UILabel alloc] initWithFrame:
+                              CGRectMake(xVal - self.xLabelShift,
+                                         self.frame.size.height - self.yLabelsHeigth, self.xLabelsDistance ,
+                                         self.yLabelsHeigth)];
+            label.text = [NSString stringWithFormat:@"%@", [self.dateFormatter stringFromDate:
+                                                            [self getDateByX: (gridScroll.contentOffset.x + xVal)/scaleIndex]]];
+            
+            [self.xAxisLabels addObject:label];
+            [self addSubview:label];
+        }
     }
 }
 

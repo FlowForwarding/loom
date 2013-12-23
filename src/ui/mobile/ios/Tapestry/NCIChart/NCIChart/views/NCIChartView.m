@@ -23,7 +23,7 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        btmChartHeigth =  200;
+        btmChartHeigth =  100;
     }
     return self;
 }
@@ -35,6 +35,7 @@
     _topChart.hasSelection = YES;
     _btmChart = [[NCIBtmChartView alloc] initWithFrame:CGRectZero];
     _btmChart.chartData = self.chartData;
+    _btmChart.hasYLabels = NO;
     _btmChart.nciChart = self;
     [self addSubview:_topChart];
     [self addSubview:_btmChart];

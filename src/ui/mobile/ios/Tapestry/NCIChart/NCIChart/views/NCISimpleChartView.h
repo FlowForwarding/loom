@@ -17,6 +17,10 @@
 
 @property (nonatomic)bool hasSelection;
 @property (nonatomic, strong)UILabel *selectedLabel;
+@property (nonatomic)bool hasYLabels;
+
+//in persentage
+@property (nonatomic)float topBottomGridSpace;
 
 - (void)addSubviews;
 

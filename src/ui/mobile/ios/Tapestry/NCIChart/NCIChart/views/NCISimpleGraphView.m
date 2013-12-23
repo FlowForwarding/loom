@@ -26,9 +26,12 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
+        _xLabelShift = 50;
+        _yLabelShift = 15;
+        
         _xLabelsDistance = 200;
-        _yLabelsDistance = 50;
-        _xLabelsWidth = 100;
+        _yLabelsDistance = 80;
+        _xLabelsWidth = 50;
         _yLabelsHeigth = 40;
         _yAxisLabels = [[NSMutableArray alloc] init];
         _xAxisLabels = [[NSMutableArray alloc] init];
@@ -69,13 +72,17 @@
         _maxXVal = [[_chart.chartData lastObject][0] timeIntervalSince1970];
         _xStep = _gridWidth/(_maxXVal - _minXVal);
         [self detectRanges];
+       
         for(int i = 0; i<= _gridHeigth/_yLabelsDistance; i++){
             UILabel *label = [[UILabel alloc] initWithFrame:
-                              CGRectMake(0, self.frame.size.height - i*_yLabelsDistance - _yLabelsHeigth, _xLabelsWidth, 20)];
-            label.text = [@([self getValByY: (_yLabelsHeigth + _yLabelsDistance *i)]) description];
+                              CGRectMake(0, self.frame.size.height - i*_yLabelsDistance - _yLabelsHeigth - _yLabelShift, _xLabelsWidth, 20)];
+            if (self.chart.hasYLabels){
+                label.text = [NSString stringWithFormat:@"%.1f", [self getValByY: (_yLabelsHeigth + _yLabelsDistance *i)]];
+            }
             [_yAxisLabels addObject:label];
             [self addSubview:label];
         }
+       
         [self redrawXLabels];
     }
     _grid.frame = CGRectMake(_xLabelsWidth, 0, _gridWidth, _gridHeigth);
@@ -97,9 +104,10 @@
     } else {
         [_dateFormatter setDateFormat:@"yyyy-MMM"];
     }
+    
     for(int i = 0; i<= _gridWidth/_xLabelsDistance; i++){
         UILabel *label = [[UILabel alloc] initWithFrame:
-                          CGRectMake(_xLabelsWidth + _xLabelsDistance *i,
+                          CGRectMake(_xLabelsWidth + _xLabelsDistance *i  - _xLabelShift,
                                      self.frame.size.height - _yLabelsHeigth, _xLabelsDistance,
                                      _yLabelsHeigth)];
         label.text = [NSString stringWithFormat:@"%@", [_dateFormatter stringFromDate: [self getDateByX: (_xLabelsWidth + _xLabelsDistance *i)]]];

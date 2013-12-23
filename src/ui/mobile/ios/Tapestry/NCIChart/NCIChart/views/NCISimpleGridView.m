@@ -44,13 +44,13 @@
     CGContextSetLineDash(currentContext, 0.0,  dashes , 2 );
     
     for (UILabel *yLabel in _graph.yAxisLabels){
-        CGContextMoveToPoint(currentContext, yLabel.frame.origin.x, yLabel.frame.origin.y);
-        CGContextAddLineToPoint(currentContext, self.frame.size.width, yLabel.frame.origin.y);
+        CGContextMoveToPoint(currentContext, yLabel.frame.origin.x, yLabel.frame.origin.y + self.graph.yLabelShift);
+        CGContextAddLineToPoint(currentContext, self.frame.size.width, yLabel.frame.origin.y + self.graph.yLabelShift);
     }
     
     for (UILabel *xLabel in _graph.xAxisLabels){
-        CGContextMoveToPoint(currentContext, xLabel.frame.origin.x - _graph.xLabelsWidth, xLabel.frame.origin.y);
-        CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x - _graph.xLabelsWidth, 0);
+        CGContextMoveToPoint(currentContext, xLabel.frame.origin.x - _graph.xLabelsWidth + self.graph.xLabelShift, xLabel.frame.origin.y);
+        CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x - _graph.xLabelsWidth + self.graph.xLabelShift, 0);
     }
     CGContextStrokePath(currentContext);
     
