@@ -14,4 +14,6 @@
 
 @property(nonatomic, strong) NCIChartView* nciChart;
 
+- (NSArray *)getValsInRanges;
+
 @end

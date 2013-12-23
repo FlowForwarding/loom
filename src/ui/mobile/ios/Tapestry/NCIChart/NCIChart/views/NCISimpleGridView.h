@@ -11,6 +11,7 @@
 
 @interface NCISimpleGridView : UIView
 
+@property(nonatomic, strong) NCISimpleGraphView *graph;
 - (id)initWithGraph:(NCISimpleGraphView *) ncigraph;
 
 @end

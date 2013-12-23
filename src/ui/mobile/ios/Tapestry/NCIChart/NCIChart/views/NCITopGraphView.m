@@ -7,7 +7,7 @@
 //
 
 #import "NCITopGraphView.h"
-#import "NCISimpleGridView.m"
+#import "NCITopGridView.m"
 #import "NCITopChartView.h"
 #import "NCIBtmChartView.h"
 #import "NCIChartView.h"
@@ -32,7 +32,7 @@
     gridScroll = [[UIScrollView alloc] initWithFrame:CGRectZero];
     [self addSubview:gridScroll];
     gridScroll.delegate = self;
-    self.grid = [[NCISimpleGridView alloc] initWithGraph:self];
+    self.grid = [[NCITopGridView alloc] initWithGraph:self];
     [gridScroll addSubview:self.grid];
 }
 
@@ -56,7 +56,9 @@
     nciChart.maxRangeDate = [NSDate dateWithTimeIntervalSince1970:newMinRange + rangesPeriod];
     
      self.grid.frame = CGRectMake(gridScroll.contentOffset.x, 0, self.gridWidth, self.gridHeigth);
-    
+
+    [self setNeedsLayout];
+    [self.grid setNeedsDisplay];
     [nciChart.btmChart redrawRanges];
     
 }
@@ -80,6 +82,39 @@
     gridScroll.contentOffset = CGPointMake(timeOffest * stepX, 0);
     
     self.grid.frame = CGRectMake(timeOffest * stepX, 0, self.gridWidth, self.gridHeigth);
+}
+
+- (void)redrawXLabels{
+    float scaleIndex = [((NCITopChartView *)self.chart).nciChart getScaleIndex];
+    for(int i = 0; i<= self.gridWidth/self.xLabelsDistance; i++){
+        UILabel *label = [[UILabel alloc] initWithFrame:
+                          CGRectMake(self.xLabelsWidth + self.xLabelsDistance *i,
+                                     self.frame.size.height - self.yLabelsHeigth, self.xLabelsDistance,
+                                     self.yLabelsHeigth)];
+        label.text = [[self getDateByX: (gridScroll.contentOffset.x + self.xLabelsWidth + self.xLabelsDistance *i)/scaleIndex] description];
+        [self.xAxisLabels addObject:label];
+        [self addSubview:label];
+    }
+}
+
+- (CGPoint)pointByServerData:(NSArray *)data{
+    NSDate *date = data[0];
+    float yVal = self.frame.size.height - (([data[1] integerValue] - self.minYVal)*self.yStep) - self.yLabelsHeigth;
+    float xVal = [self getXValueByDate: date];
+    return CGPointMake(xVal, yVal);
+}
+
+- (float)getXValueByDate:(NSDate *)date{
+    float scaleIndex = [((NCITopChartView *)self.chart).nciChart getScaleIndex];
+    return ([date timeIntervalSince1970] - self.minXVal)*self.xStep * scaleIndex - gridScroll.contentOffset.x;
+}
+
+- (void)detectRanges{
+
+    NSArray *yVals = [((NCITopChartView *)self.chart) getValsInRanges];
+    self.minYVal = [yVals[0] floatValue];
+    self.maxYVal = [yVals[1] floatValue];
+    self.yStep = self.gridHeigth/(self.maxYVal - self.minYVal);
 }
 
 @end
