@@ -103,7 +103,7 @@
     return _minYVal + (pointY - _yLabelsHeigth)/_yStep;
 }
 
-- (CGPoint)pointByServerData:(NSArray *)data{
+- (CGPoint)pointByServerDataInGrid:(NSArray *)data{
     NSDate *date = data[0];
     float yVal = self.frame.size.height - (([data[1] integerValue] - _minYVal)*_yStep) - _yLabelsHeigth;
     float xVal = [self getXValueByDate: date];

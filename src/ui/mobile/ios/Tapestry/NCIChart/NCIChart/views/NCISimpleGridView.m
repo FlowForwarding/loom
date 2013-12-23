@@ -60,12 +60,12 @@
 - (void)drawGraphLine{
     UIBezierPath *path = [UIBezierPath bezierPath];
     if (_graph.chart.chartData.count > 0){
-        [path moveToPoint:[_graph pointByServerData:_graph.chart.chartData[0]]];
+        [path moveToPoint:[_graph pointByServerDataInGrid:_graph.chart.chartData[0]]];
     }
     
     if (_graph.chart.chartData.count > 1){
         for (int ind = 1; ind < _graph.chart.chartData.count; ind++){
-            [path addLineToPoint:[_graph pointByServerData:_graph.chart.chartData[ind]]];
+            [path addLineToPoint:[_graph pointByServerDataInGrid:_graph.chart.chartData[ind]]];
         };
     }
     

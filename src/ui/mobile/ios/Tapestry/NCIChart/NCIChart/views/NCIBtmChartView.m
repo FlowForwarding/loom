@@ -177,6 +177,8 @@ static float startRight = -1;
     self.nciChart.maxRangeDate = [self.graph getDateByX:newRight];
 
     [self.nciChart.topChart.graph setNeedsLayout];
+    [self.nciChart.topChart.graph setNeedsDisplay];
+    [self.nciChart.topChart layoutSelectedPoint];
     [self redrawRanges];
 }
 

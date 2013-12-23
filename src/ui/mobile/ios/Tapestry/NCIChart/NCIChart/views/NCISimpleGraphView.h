@@ -38,7 +38,8 @@
 - (void)addSubviews;
 
 - (NSDate *)getDateByX:(float) pointX;
-- (CGPoint)pointByServerData:(NSArray *)data;
+- (CGPoint)pointByServerDataInGrid:(NSArray *)data;
 - (float)getXValueByDate:(NSDate *)date;
+- (NSDate *)getDateByXValue:(float)xVal;
 
 @end

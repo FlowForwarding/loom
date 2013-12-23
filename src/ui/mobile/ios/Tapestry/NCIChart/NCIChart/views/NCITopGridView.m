@@ -8,7 +8,7 @@
 
 #import "NCITopGridView.h"
 #import "NCITopChartView.h"
-#import "NCIChartView.h"
+
 
 @implementation NCITopGridView
 
@@ -21,11 +21,11 @@
     
     UIBezierPath *path = [UIBezierPath bezierPath];
     if (self.graph.chart.chartData.count > startIndex){
-        [path moveToPoint:[self.graph pointByServerData:self.graph.chart.chartData[startIndex]]];
+        [path moveToPoint:[self.graph pointByServerDataInGrid:self.graph.chart.chartData[startIndex]]];
     }
     
     for (long ind = (startIndex + 1); ind < endIndex; ind++){
-        [path addLineToPoint:[self.graph pointByServerData:self.graph.chart.chartData[ind]]];
+        [path addLineToPoint:[self.graph pointByServerDataInGrid:self.graph.chart.chartData[ind]]];
     };
 
     

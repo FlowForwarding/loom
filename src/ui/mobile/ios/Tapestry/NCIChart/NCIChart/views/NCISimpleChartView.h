@@ -15,10 +15,15 @@
 @property (nonatomic, strong)NCISimpleGraphView *graph;
 @property (nonatomic, strong)NSMutableArray *chartData;
 
+@property (nonatomic)bool hasSelection;
+@property (nonatomic, strong)UILabel *selectedLabel;
+
 - (void)addSubviews;
 
 - (void)addPoint:(NSDate *)date val:(NSString *)value;
 
 - (NSArray *)getBoundaryValues;
+
+- (void)layoutSelectedPoint;
 
 @end

@@ -7,10 +7,10 @@
 //
 
 #import "NCITopGraphView.h"
-#import "NCITopGridView.m"
-#import "NCITopChartView.h"
+#import "NCITopGridView.h"
 #import "NCIBtmChartView.h"
 #import "NCIChartView.h"
+#import "NCITopChartView.h"
 
 @interface NCITopGraphView()<UIScrollViewDelegate>{
     UIScrollView *gridScroll;
@@ -59,6 +59,7 @@
 
     [self setNeedsLayout];
     [self.grid setNeedsDisplay];
+    [self.chart layoutSelectedPoint];
     [nciChart.btmChart redrawRanges];
     
 }
@@ -80,7 +81,7 @@
     if (timeOffest < 0)
         timeOffest = 0;
     gridScroll.contentOffset = CGPointMake(timeOffest * stepX, 0);
-    
+     [self.chart layoutSelectedPoint];
     self.grid.frame = CGRectMake(timeOffest * stepX, 0, self.gridWidth, self.gridHeigth);
 }
 
@@ -97,11 +98,9 @@
     }
 }
 
-- (CGPoint)pointByServerData:(NSArray *)data{
-    NSDate *date = data[0];
-    float yVal = self.frame.size.height - (([data[1] integerValue] - self.minYVal)*self.yStep) - self.yLabelsHeigth;
-    float xVal = [self getXValueByDate: date];
-    return CGPointMake(xVal, yVal);
+- (NSDate *)getDateByX:(float) pointX{
+    float scaleIndex = [((NCITopChartView *)self.chart).nciChart getScaleIndex];
+    return [NSDate dateWithTimeIntervalSince1970:(self.minXVal + (gridScroll.contentOffset.x + pointX - self.xLabelsWidth)/scaleIndex/self.xStep)];
 }
 
 - (float)getXValueByDate:(NSDate *)date{

@@ -32,6 +32,7 @@
     _topChart = [[NCITopChartView alloc] initWithFrame:CGRectZero];
     _topChart.chartData = self.chartData;
     _topChart.nciChart = self;
+    _topChart.hasSelection = YES;
     _btmChart = [[NCIBtmChartView alloc] initWithFrame:CGRectZero];
     _btmChart.chartData = self.chartData;
     _btmChart.nciChart = self;
