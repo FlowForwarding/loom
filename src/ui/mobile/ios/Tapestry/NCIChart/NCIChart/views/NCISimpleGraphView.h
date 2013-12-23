@@ -34,6 +34,8 @@
 @property(nonatomic) float minXVal;
 @property(nonatomic) float maxXVal;
 
+@property(nonatomic, strong) NSDateFormatter *dateFormatter;
+
 - (id)initWithChart: (NCISimpleChartView *)chartHolder;
 - (void)addSubviews;
 

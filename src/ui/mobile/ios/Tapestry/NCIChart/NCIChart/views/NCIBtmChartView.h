@@ -13,6 +13,8 @@
 @interface NCIBtmChartView : NCISimpleChartView
 
 - (void)redrawRanges;
+- (void)startMoveWithPoint:(CGPoint) point1 andPoint:(CGPoint) point2;
+- (void)moveReverseRangesWithPoint:(CGPoint) point1 andPoint:(CGPoint) point2;
 
 @property(nonatomic, strong) NCIChartView* nciChart;
 

@@ -35,7 +35,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         handspikeWidth = 2;
-        minRangesDistance = 10;
+        minRangesDistance = 5;
     }
     return self;
 }
@@ -86,7 +86,9 @@
 }
 
 static float startLeft = -1;
+static float startLeftRange = -1;
 static float startRight = -1;
+static float startRightRange = -1;
 
 -(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
@@ -112,6 +114,8 @@ static float startRight = -1;
 }
 
 - (void)startMoveWithPoint:(CGPoint) point1 andPoint:(CGPoint) point2{
+    startLeftRange = handspikeLeft.center.x;
+    startRightRange = handspikeRight.center.x;
     if(point1.x < point2.x){
         startLeft = point1.x - handspikeLeft.center.x;
         startRight = point2.x - handspikeRight.center.x;
@@ -119,6 +123,7 @@ static float startRight = -1;
         startLeft = point2.x - handspikeLeft.center.x;
         startRight = point1.x - handspikeRight.center.x;
     }
+    // self.chart.rangesMoved();
 }
 
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
@@ -153,17 +158,8 @@ static float startRight = -1;
     [self moveRangesFollowingNewLeft:newLeft newRight:newRight];
 }
 
-- (NSArray *)detectNewXPosFrom:(CGPoint)location1 and:(CGPoint) location2{
-    if (location1.x < location2.x){
-        return @[@(location1.x - startLeft), @(location2.x - startRight)];
-    } else {
-        return @[@(location2.x - startLeft), @(location1.x - startRight)];
-    }
-}
 
 - (void)moveRangesFollowingNewLeft:(double)newLeft newRight:(double)newRight {
-    if ((newLeft != -1 && newRight != -1) && (newRight - newLeft) < minRangesDistance)
-        return;
     
     if (!( (newLeft != -1 ) && ((newLeft - self.graph.xLabelsWidth) > 0))){
         newLeft = _xHandspikeLeft;
@@ -173,6 +169,9 @@ static float startRight = -1;
         newRight = _xHandspikeRight;
     };
     
+    if ((newLeft != -1 && newRight != -1) && (newRight - newLeft) < minRangesDistance)
+        return;
+    
     self.nciChart.minRangeDate = [self.graph getDateByX:newLeft];
     self.nciChart.maxRangeDate = [self.graph getDateByX:newRight];
 
@@ -180,6 +179,30 @@ static float startRight = -1;
     [self.nciChart.topChart.graph setNeedsDisplay];
     [self.nciChart.topChart layoutSelectedPoint];
     [self redrawRanges];
+}
+
+//these 2 reverse methods are for Main Graph pinch gesures
+- (void)moveReverseRangesWithPoint:(CGPoint) point1 andPoint:(CGPoint) point2{
+    NSArray *newXPos = [self detectNewReverseXPosFrom:point1 and:point2];
+    [self moveRangesFollowingNewLeft:[(NSNumber *)newXPos[0] doubleValue] newRight:[(NSNumber *)newXPos[1] doubleValue]];
+}
+
+- (NSArray *)detectNewReverseXPosFrom:(CGPoint)location1 and:(CGPoint) location2{
+    if (location1.x < location2.x){
+        return @[@(startLeftRange - ( (location1.x - startLeft) - startLeftRange )),
+                 @(startRightRange + (startRightRange -(location2.x - startRight)))];
+    } else {
+        return @[@(startLeftRange - ( (location2.x - startLeft) - startLeftRange)),
+                 @(startRightRange + (startRightRange - (location1.x - startRight)))];
+    }
+}
+
+- (NSArray *)detectNewXPosFrom:(CGPoint)location1 and:(CGPoint) location2{
+    if (location1.x < location2.x){
+        return @[@(location1.x - startLeft), @(location2.x - startRight)];
+    } else {
+        return @[@(location2.x - startLeft), @(location1.x - startRight)];
+    }
 }
 
 @end

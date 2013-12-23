@@ -17,6 +17,11 @@
 
 @implementation NCISimpleGraphView
 
+//TODO for simple chart
+- (NSDate *)getDateByXValue:(float)xVal{
+    return nil;
+}
+
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
@@ -28,6 +33,7 @@
         _yAxisLabels = [[NSMutableArray alloc] init];
         _xAxisLabels = [[NSMutableArray alloc] init];
         self.backgroundColor = [UIColor clearColor];
+        _dateFormatter = [[NSDateFormatter alloc] init];
         [self addSubviews];
     }
     return self;
@@ -84,12 +90,19 @@
 }
 
 - (void)redrawXLabels{
+    if ((1/_xStep * _xLabelsDistance) < 60*60*24){
+        [_dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm"];
+    } else if ((1/_xStep * _xLabelsDistance) < 60*60*24*30){
+        [_dateFormatter setDateFormat:@"yyyy-MMM-dd"];
+    } else {
+        [_dateFormatter setDateFormat:@"yyyy-MMM"];
+    }
     for(int i = 0; i<= _gridWidth/_xLabelsDistance; i++){
         UILabel *label = [[UILabel alloc] initWithFrame:
                           CGRectMake(_xLabelsWidth + _xLabelsDistance *i,
                                      self.frame.size.height - _yLabelsHeigth, _xLabelsDistance,
                                      _yLabelsHeigth)];
-        label.text = [[self getDateByX: (_xLabelsWidth + _xLabelsDistance *i)] description];
+        label.text = [NSString stringWithFormat:@"%@", [_dateFormatter stringFromDate: [self getDateByX: (_xLabelsWidth + _xLabelsDistance *i)]]];
         [_xAxisLabels addObject:label];
         [self addSubview:label];
     }

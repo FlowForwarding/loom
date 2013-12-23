@@ -23,13 +23,41 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        
+        UIPinchGestureRecognizer *croperViewGessture = [[UIPinchGestureRecognizer alloc]initWithTarget:self action:@selector(croperViewScale:)];
+        [self addGestureRecognizer:croperViewGessture];
+        // Initialization code
     }
     return self;
 }
 
+-(void)croperViewScale:(id)sender
+{
+    if (self.chart.chartData.count < 2)
+        return;
+    if([(UIPinchGestureRecognizer *)sender state]==UIGestureRecognizerStateBegan)
+    {
+        
+        if ([sender numberOfTouches] == 2) {
+            CGPoint point1 = [(UIPinchGestureRecognizer *)sender locationOfTouch:0 inView:self];
+            CGPoint point2 = [(UIPinchGestureRecognizer *)sender locationOfTouch:1 inView:self];
+            [((NCITopChartView *)self.chart).nciChart.btmChart startMoveWithPoint:point1 andPoint:point2];
+        }
+    }
+    if ([(UIPinchGestureRecognizer *)sender state] == UIGestureRecognizerStateChanged) {
+        if ([sender numberOfTouches] == 2) {
+            CGPoint point1 = [(UIPinchGestureRecognizer *)sender locationOfTouch:0 inView:self];
+            CGPoint point2 = [(UIPinchGestureRecognizer *)sender locationOfTouch:1 inView:self];
+            [((NCITopChartView *)self.chart).nciChart.btmChart moveReverseRangesWithPoint:point1 andPoint:point2];
+        }
+    }
+    
+}
+
+
+
 - (void)addSubviews{
     gridScroll = [[UIScrollView alloc] initWithFrame:CGRectZero];
+    [gridScroll setShowsVerticalScrollIndicator:NO];
     [self addSubview:gridScroll];
     gridScroll.delegate = self;
     self.grid = [[NCITopGridView alloc] initWithGraph:self];
@@ -87,12 +115,23 @@
 
 - (void)redrawXLabels{
     float scaleIndex = [((NCITopChartView *)self.chart).nciChart getScaleIndex];
+    
+    if ((1/self.xStep/scaleIndex * self.xLabelsDistance) < 60*60*24){
+        [self.dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm"];
+    } else if ((1/self.xStep/scaleIndex * self.xLabelsDistance) < 60*60*24*30){
+        [self.dateFormatter setDateFormat:@"yyyy-MMM-dd"];
+    } else {
+        [self.dateFormatter setDateFormat:@"yyyy-MMM"];
+    }
+    
     for(int i = 0; i<= self.gridWidth/self.xLabelsDistance; i++){
         UILabel *label = [[UILabel alloc] initWithFrame:
                           CGRectMake(self.xLabelsWidth + self.xLabelsDistance *i,
                                      self.frame.size.height - self.yLabelsHeigth, self.xLabelsDistance,
                                      self.yLabelsHeigth)];
-        label.text = [[self getDateByX: (gridScroll.contentOffset.x + self.xLabelsWidth + self.xLabelsDistance *i)/scaleIndex] description];
+        label.text = [NSString stringWithFormat:@"%@", [self.dateFormatter stringFromDate:
+                                                        [self getDateByX: (gridScroll.contentOffset.x + self.xLabelsWidth + self.xLabelsDistance *i)/scaleIndex]]];
+        
         [self.xAxisLabels addObject:label];
         [self addSubview:label];
     }
