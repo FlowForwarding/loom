@@ -13,6 +13,7 @@
 @interface NCIChartView(){
     
     float btmChartHeigth;
+    float chartsSpace;
 }
 
 @end
@@ -23,7 +24,8 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        btmChartHeigth =  100;
+        btmChartHeigth =  90;
+        chartsSpace = 30;
     }
     return self;
 }
@@ -42,7 +44,7 @@
 }
 
 - (void)layoutSubviews{
-    _topChart.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - btmChartHeigth);
+    _topChart.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - btmChartHeigth - chartsSpace);
     _btmChart.frame = CGRectMake(0, self.frame.size.height - btmChartHeigth, self.frame.size.width, btmChartHeigth);
 }
 

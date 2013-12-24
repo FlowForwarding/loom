@@ -47,10 +47,10 @@
     handspikeRight = [[NCIHandspikeView alloc] initWithFrame:CGRectZero];
     [self addSubview:handspikeRight];
     rightAmputation = [[UIView alloc] initWithFrame:CGRectZero];
-    rightAmputation.backgroundColor = [[UIColor greenColor] colorWithAlphaComponent:0.1];
+    rightAmputation.backgroundColor = [[UIColor grayColor] colorWithAlphaComponent:0.2];
     [self addSubview:rightAmputation];
     leftAmputation = [[UIView alloc] initWithFrame:CGRectZero];
-    leftAmputation.backgroundColor = [[UIColor greenColor] colorWithAlphaComponent:0.1];
+    leftAmputation.backgroundColor = [[UIColor grayColor] colorWithAlphaComponent:0.2];
     [self addSubview:leftAmputation];
 }
 

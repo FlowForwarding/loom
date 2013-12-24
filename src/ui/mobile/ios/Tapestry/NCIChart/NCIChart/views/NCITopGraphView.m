@@ -53,8 +53,6 @@
     
 }
 
-
-
 - (void)addSubviews{
     gridScroll = [[UIScrollView alloc] initWithFrame:CGRectZero];
     [gridScroll setShowsVerticalScrollIndicator:NO];
@@ -132,8 +130,9 @@
                               CGRectMake(xVal - self.xLabelShift,
                                          self.frame.size.height - self.yLabelsHeigth, self.xLabelsDistance ,
                                          self.yLabelsHeigth)];
+            label.font = [UIFont italicSystemFontOfSize:14];
             label.text = [NSString stringWithFormat:@"%@", [self.dateFormatter stringFromDate:
-                                                            [self getDateByX: (gridScroll.contentOffset.x + xVal)/scaleIndex]]];
+                                                            [self getDateByX: xVal -  self.xLabelsWidth]]];
             
             [self.xAxisLabels addObject:label];
             [self addSubview:label];
@@ -143,7 +142,7 @@
 
 - (NSDate *)getDateByX:(float) pointX{
     float scaleIndex = [((NCITopChartView *)self.chart).nciChart getScaleIndex];
-    return [NSDate dateWithTimeIntervalSince1970:(self.minXVal + (gridScroll.contentOffset.x + pointX - self.xLabelsWidth)/scaleIndex/self.xStep)];
+    return [NSDate dateWithTimeIntervalSince1970:(self.minXVal + (gridScroll.contentOffset.x + pointX)/scaleIndex/self.xStep)];
 }
 
 - (float)getXValueByDate:(NSDate *)date{

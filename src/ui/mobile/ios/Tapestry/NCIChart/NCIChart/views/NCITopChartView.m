@@ -37,7 +37,7 @@
     long firstDataIndex = self.chartData.count;
     long lastChartIndex = 0;
     long index;
-    for(index = 1; index < (self.chartData.count - 1); index++){
+    for(index = 1; index < self.chartData.count; index++){
         NSArray *point = self.chartData[index];
         if ([point[1] isKindOfClass:[NSNull class]]){
             continue;
@@ -46,9 +46,15 @@
         if ([prevPoint[1] isKindOfClass:[NSNull class]]){
             prevPoint = @[prevPoint[0], point[1]];
         }
-        NSArray * nextPoint = self.chartData[index + 1];
-        if ([nextPoint[1] isKindOfClass:[NSNull class]]){
-            nextPoint = @[nextPoint[0], point[1]];
+        
+        NSArray * nextPoint;
+        if (self.chartData.count != (index + 1)){
+            nextPoint = self.chartData[index + 1];
+            if ([nextPoint[1] isKindOfClass:[NSNull class]]){
+                nextPoint = @[nextPoint[0], point[1]];
+            }
+        } else {
+            nextPoint = point;
         }
         
         float curMax = [prevPoint[1] floatValue];
@@ -66,7 +72,8 @@
         }
         
         if ( [self.nciChart.minRangeDate compare:point[0]] <=  NSOrderedSame &&
-            [self.nciChart.maxRangeDate compare:point[0]] >= NSOrderedSame ){
+            ( minYVal == MAXFLOAT || [self.nciChart.maxRangeDate compare:point[0]] >= NSOrderedSame)){
+                
             if (firstDataIndex > (index - 1)){
                 firstDataIndex = (index - 1);
             }
@@ -91,11 +98,14 @@
         maxYVal = maxYVal + diff*self.topBottomGridSpace/100;
         minYVal = minYVal - diff*self.topBottomGridSpace/100;
     }
+    
+    if (lastChartIndex < self.chartData.count)
+        lastChartIndex = lastChartIndex + 1;
 
     return @[@(minYVal),
              @(maxYVal),
              @(firstDataIndex),
-             @(lastChartIndex + 1)];
+             @(lastChartIndex)];
 }
 
 

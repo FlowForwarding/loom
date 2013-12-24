@@ -83,7 +83,7 @@
 - (void)generateDemoData{
     float halfYearPeriod = 60*60*24*30*6;
     float demoDatePeriod = halfYearPeriod;
-    float numOfPoints = 800;
+    float numOfPoints = 4;
     float step = demoDatePeriod/(numOfPoints - 1);
     int trendMiddle = 6;
     int trendStepCounter = 0;
@@ -96,7 +96,7 @@
         trendStepCounter += 1;
         int value = trendMiddle + arc4random() % 5;
         NSDate *date = [[NSDate date] dateByAddingTimeInterval: (-demoDatePeriod + step*ind)];
-        if (trendStepCounter > 4 && trendStepCounter < 10){
+        if (trendStepCounter > 4 && trendStepCounter < 4){
             [chart addPoint:date val: nil];
         } else {
             [chart addPoint:date val: @(value)];

@@ -86,7 +86,7 @@
         [self redrawXLabels];
     }
     _grid.frame = CGRectMake(_xLabelsWidth, 0, _gridWidth, _gridHeigth);
-   // [grid setNeedsDisplay];
+   [_grid setNeedsDisplay];
 }
 
 - (void)detectRanges{
@@ -110,6 +110,7 @@
                           CGRectMake(_xLabelsWidth + _xLabelsDistance *i  - _xLabelShift,
                                      self.frame.size.height - _yLabelsHeigth, _xLabelsDistance,
                                      _yLabelsHeigth)];
+        label.font =  [UIFont italicSystemFontOfSize:14];
         label.text = [NSString stringWithFormat:@"%@", [_dateFormatter stringFromDate: [self getDateByX: (_xLabelsWidth + _xLabelsDistance *i)]]];
         [_xAxisLabels addObject:label];
         [self addSubview:label];
@@ -126,8 +127,9 @@
 
 - (CGPoint)pointByServerDataInGrid:(NSArray *)data{
     NSDate *date = data[0];
-    float dataVal =  [data[1] isKindOfClass:[NSNull class]] ? 0 :  [data[1] floatValue];
-    float yVal = self.frame.size.height - ((dataVal - _minYVal)*_yStep) - _yLabelsHeigth;
+    if ([data[1] isKindOfClass:[NSNull class]] )
+        return CGPointZero;
+    float yVal = self.frame.size.height - (([data[1] floatValue] - _minYVal)*_yStep) - _yLabelsHeigth;
     float xVal = [self getXValueByDate: date];
     return CGPointMake(xVal, yVal);
 }
