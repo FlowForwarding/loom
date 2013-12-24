@@ -99,14 +99,21 @@
     [_graph layoutSubviews];
 }
 
-- (void)addPoint:(NSDate *)date val:(NSString *)value{
-    [self.chartData addObject:@[date, value]];
+- (void)addPoint:(NSDate *)date val:(NSNumber *)value{
+    if (value == nil){
+        [self.chartData addObject:@[date, [NSNull null]]];
+    } else {
+        [self.chartData addObject:@[date, value]];
+    }
 }
 
 - (NSArray *)getBoundaryValues{
     float minY = MAXFLOAT;
     float maxY = -MAXFLOAT;
     for (NSArray *point in self.chartData){
+        if ([point[1] isKindOfClass:[NSNull class]]){
+            continue;
+        }
         float val = [point[1] floatValue];
         if (val < minY){
             minY = val;

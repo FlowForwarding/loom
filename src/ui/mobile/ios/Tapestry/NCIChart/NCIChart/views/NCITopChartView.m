@@ -38,9 +38,18 @@
     long lastChartIndex = 0;
     long index;
     for(index = 1; index < (self.chartData.count - 1); index++){
-        NSArray * prevPoint = self.chartData[index - 1];
         NSArray *point = self.chartData[index];
+        if ([point[1] isKindOfClass:[NSNull class]]){
+            continue;
+        }
+        NSArray * prevPoint = self.chartData[index - 1];
+        if ([prevPoint[1] isKindOfClass:[NSNull class]]){
+            prevPoint = @[prevPoint[0], point[1]];
+        }
         NSArray * nextPoint = self.chartData[index + 1];
+        if ([nextPoint[1] isKindOfClass:[NSNull class]]){
+            nextPoint = @[nextPoint[0], point[1]];
+        }
         
         float curMax = [prevPoint[1] floatValue];
         float curMin = [prevPoint[1] floatValue];

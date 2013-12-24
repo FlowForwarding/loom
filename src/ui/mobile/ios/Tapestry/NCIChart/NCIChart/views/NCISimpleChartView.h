@@ -24,7 +24,7 @@
 
 - (void)addSubviews;
 
-- (void)addPoint:(NSDate *)date val:(NSString *)value;
+- (void)addPoint:(NSDate *)date val:(NSNumber *)value;
 
 - (NSArray *)getBoundaryValues;
 

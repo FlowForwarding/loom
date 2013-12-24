@@ -36,6 +36,15 @@
 
 - (void)drawRect:(CGRect)rect
 {
+    
+    UIBezierPath *path = [UIBezierPath bezierPath];
+    [[UIColor blueColor] setStroke];
+    [path setLineWidth:.3];
+    [[[UIColor blueColor] colorWithAlphaComponent:0.1] setFill];
+    
+    [self drawGraphLine:path for:[self getFirstLast]];
+    
+    
     //TODO not redraw for top chart every time
     CGContextRef currentContext = UIGraphicsGetCurrentContext();
     CGContextSetLineWidth(currentContext, 0.3);
@@ -54,23 +63,41 @@
     }
     CGContextStrokePath(currentContext);
     
-    [self drawGraphLine];
 }
 
-- (void)drawGraphLine{
-    UIBezierPath *path = [UIBezierPath bezierPath];
-    if (_graph.chart.chartData.count > 0){
-        [path moveToPoint:[_graph pointByServerDataInGrid:_graph.chart.chartData[0]]];
-    }
+- (NSArray *)getFirstLast{
+    return @[@(0), @(self.graph.chart.chartData.count)];
+}
+
+- (void)drawGraphLine:(UIBezierPath *)path for:(NSArray *)firstLast{
     
-    if (_graph.chart.chartData.count > 1){
-        for (int ind = 1; ind < _graph.chart.chartData.count; ind++){
-            [path addLineToPoint:[_graph pointByServerDataInGrid:_graph.chart.chartData[ind]]];
+    bool move = YES;
+    int lastMoveInd = [firstLast[0] integerValue] - 1;
+    if (_graph.chart.chartData.count > 0){
+        for (int ind = [firstLast[0] integerValue]; ind < [firstLast[1] integerValue]; ind++){
+            NSArray *point = _graph.chart.chartData[ind];
+            if ([point[1] isKindOfClass:[NSNull class]]){
+                if (lastMoveInd != (ind -1)){
+                    [path addLineToPoint:CGPointMake( path.currentPoint.x, self.frame.size.height)];
+                }
+                [path moveToPoint: [_graph pointByServerDataInGrid:point]];
+                move = NO;
+                lastMoveInd = ind;
+            } else {
+                CGPoint pointP = [_graph pointByServerDataInGrid:point];
+                if (lastMoveInd == (ind -1)){
+                    [path moveToPoint: CGPointMake(pointP.x, self.frame.size.height)];
+                }
+                [path addLineToPoint:[_graph pointByServerDataInGrid:point]];
+            }
+            if ([point[1] isKindOfClass:[NSNull class]])
+                move = YES;
         };
     }
     
-    [[UIColor blueColor] setStroke];
-    [path setLineWidth:.5];
+    [path addLineToPoint:CGPointMake( path.currentPoint.x, self.frame.size.height)];
+    [path closePath];
+    [path fill];
     [path stroke];
 }
 

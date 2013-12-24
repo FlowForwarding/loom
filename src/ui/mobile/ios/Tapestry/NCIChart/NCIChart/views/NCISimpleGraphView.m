@@ -126,7 +126,8 @@
 
 - (CGPoint)pointByServerDataInGrid:(NSArray *)data{
     NSDate *date = data[0];
-    float yVal = self.frame.size.height - (([data[1] integerValue] - _minYVal)*_yStep) - _yLabelsHeigth;
+    float dataVal =  [data[1] isKindOfClass:[NSNull class]] ? 0 :  [data[1] floatValue];
+    float yVal = self.frame.size.height - ((dataVal - _minYVal)*_yStep) - _yLabelsHeigth;
     float xVal = [self getXValueByDate: date];
     return CGPointMake(xVal, yVal);
 }

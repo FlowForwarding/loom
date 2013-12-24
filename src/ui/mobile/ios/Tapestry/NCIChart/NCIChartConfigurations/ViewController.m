@@ -89,16 +89,18 @@
     int trendStepCounter = 0;
     int ind;
     for (ind = 0; ind < numOfPoints; ind ++){
-        if (trendStepCounter > 5){
+        if (trendStepCounter > 20){
             trendStepCounter = 0;
             trendMiddle += 1;
         }
         trendStepCounter += 1;
         int value = trendMiddle + arc4random() % 5;
-
         NSDate *date = [[NSDate date] dateByAddingTimeInterval: (-demoDatePeriod + step*ind)];
-        [rangesChart addPoint:date val: [@(value) description]];
-        [chart addPoint:date val: [@(value) description]];
+        if (trendStepCounter > 4 && trendStepCounter < 10){
+            [chart addPoint:date val: nil];
+        } else {
+            [chart addPoint:date val: @(value)];
+        }
 
     }
     
