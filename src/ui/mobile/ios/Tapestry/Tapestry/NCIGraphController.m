@@ -10,7 +10,6 @@
 
 #import "NCIGraphController.h"
 #import "NCIIndexValueView.h"
-#import "NCIRangesChartView.h"
 #import "NCIHelpView.h"
 #import "NCIEditServerView.h"
 #import "NCIPeriodSwitcherPanel.h"
@@ -20,7 +19,7 @@
     NCIIndexValueView *nciValue;
     NCIIndexValueView *nepValue;
     NCIIndexValueView *qpsValue;
-    NCIRangesChartView *chartView;
+    NCIChartView *chartView;
     UIButton *infoButton;
     NCIHelpView *helpView;
 
@@ -85,7 +84,7 @@
     
     [self.view addSubview:nepValue];
     
-    chartView = [[NCIRangesChartView alloc] initWithFrame:CGRectZero];
+    chartView = [[NCIChartView alloc] initWithFrame:CGRectZero];
     chartView.rangesMoved = ^(){
         [[NCIWebSocketConnector interlocutor].periodSwitcherPanel resetButtons];
     };
@@ -189,7 +188,7 @@
                                     unavailableImage.size.width,
                                     unavailableImage.size.height);
     
-    chartView.frame = CGRectMake(0, 250, self.view.bounds.size.width, 430);
+    chartView.frame = CGRectMake(20, 250, self.view.bounds.size.width - 40, 430);
     
     infoButton.center = CGPointMake(self.view.bounds.size.width - 50, indexLabelHeight + 30);
     

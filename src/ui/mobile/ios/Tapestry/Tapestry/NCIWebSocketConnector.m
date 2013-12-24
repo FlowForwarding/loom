@@ -224,14 +224,14 @@ static NSString* websocketMoreDataRequest =
             NSString *dateString = [dataPieces[i] substringWithRange:NSMakeRange(8, ((NSString *)dataPieces[i]).length - 10)];
             NSDate *date = [self dateFromServerString: dateString];
             NSString *nciVal = [dataPieces[i+1] substringFromIndex:6];
-            [self.chartView addPoint:date val:nciVal];
+            [self.chartView addPoint:date val:@([nciVal integerValue]) ];
         }
+        [self.chartView addPoint:[NSDate date] val:nil];
         if (!self.chartView.minRangeDate){
             long period = [[NSDate date] timeIntervalSince1970] - [((NSDate *)[self.chartView.chartData firstObject][0]) timeIntervalSince1970];
             self.chartView.minRangeDate = [[NSDate date] dateByAddingTimeInterval: - period /10.0];
             self.chartView.maxRangeDate = [NSDate date];
         }
-        [self.chartView setMaxArgument: [NSDate date]];
         [self.chartView drawChart];
         
     } else {
@@ -245,16 +245,11 @@ static NSString* websocketMoreDataRequest =
         if (nci){
             [self.nciValue setIndValue:nci withDate:dataPoint[@"Time"]];
             if (_currentDatePeriod == twoYearPeriod){
-                [self.chartView addPoint:[self dateFromServerString: dataPoint[@"Time"]] val:nci];
+                [self.chartView addPoint:[self dateFromServerString: dataPoint[@"Time"]] val:@([nci integerValue])];
                 while ([[NSDate date] timeIntervalSince1970] - [self.chartView.chartData[0][0] timeIntervalSince1970] > _currentDatePeriod){
-                    [self.chartView removeFirstPoint];
+                    [self.chartView.chartData removeObjectAtIndex:0];
                 }
-                [self.chartView setMaxArgument:[NSDate date]];
-                if (self.chartView.chartData.count == 1){
-                    [self.chartView setMinArgument:[NSDate date]];
-                } else {
-                    [self.chartView drawChart];
-                }
+                [self.chartView drawChart];
             }
         } else if (nep) {
             [self.nepValue setIndValue:nep  withDate:dataPoint[@"Time"]];

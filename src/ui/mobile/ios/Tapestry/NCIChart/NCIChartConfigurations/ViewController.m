@@ -83,7 +83,7 @@
 - (void)generateDemoData{
     float halfYearPeriod = 60*60*24*30*6;
     float demoDatePeriod = halfYearPeriod;
-    float numOfPoints = 4;
+    float numOfPoints = 2;
     float step = demoDatePeriod/(numOfPoints - 1);
     int trendMiddle = 6;
     int trendStepCounter = 0;

@@ -77,11 +77,11 @@ static float tenYearsPeriod = 60*60*24*30*12*10;
     double newMin = [[NCIWebSocketConnector interlocutor].chartView.maxRangeDate timeIntervalSince1970] - _period ;
     if (([NCIWebSocketConnector interlocutor].currentDatePeriod == twoYearPeriod && _period <= twoYearPeriod) ||
         ([NCIWebSocketConnector interlocutor].currentDatePeriod == tenYearsPeriod && _period > twoYearPeriod)){
-        if (newMin < [[NCIWebSocketConnector interlocutor].chartView getMinArgument]){
-            newMin = [[NCIWebSocketConnector interlocutor].chartView getMinArgument];
+        if (newMin < [[NCIWebSocketConnector interlocutor].chartView.chartData[0][0] timeIntervalSince1970]){
+            newMin = [[NCIWebSocketConnector interlocutor].chartView.chartData[0][0] timeIntervalSince1970];
         }
         [NCIWebSocketConnector interlocutor].chartView.minRangeDate =  [NSDate dateWithTimeIntervalSince1970:newMin];
-        [[NCIWebSocketConnector interlocutor].chartView.bottomGraph redrawRanges];
+        [[NCIWebSocketConnector interlocutor].chartView drawChart];
     } else {
         if (newMin < [[NCIWebSocketConnector interlocutor].startDate timeIntervalSince1970]){
             newMin = [[NCIWebSocketConnector interlocutor].startDate timeIntervalSince1970];

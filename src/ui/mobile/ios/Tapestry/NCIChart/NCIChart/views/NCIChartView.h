@@ -22,4 +22,10 @@
 -(float)getScaleIndex;
 -(float)getTimePeriod;
 -(float)getRangesPeriod;
+-(void)resetChart;
+-(void)drawChart;
+
+//callbacks
+@property (nonatomic, copy) void (^rangesMoved)(void);
+
 @end

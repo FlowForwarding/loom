@@ -8,6 +8,7 @@
 
 #import "NCIChartView.h"
 #import "NCITopChartView.h"
+#import "NCITopGridView.h"
 #import "NCIBtmChartView.h"
 
 @interface NCIChartView(){
@@ -41,6 +42,16 @@
     _btmChart.nciChart = self;
     [self addSubview:_topChart];
     [self addSubview:_btmChart];
+}
+
+-(void)drawChart{
+    [_topChart setNeedsLayout];
+    [_btmChart setNeedsLayout];
+
+}
+
+- (void)resetChart{
+    [self.chartData removeAllObjects];
 }
 
 - (void)layoutSubviews{

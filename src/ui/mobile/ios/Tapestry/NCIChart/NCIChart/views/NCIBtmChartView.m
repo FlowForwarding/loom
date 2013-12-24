@@ -56,17 +56,14 @@
 
 - (void)layoutSubviews{
     [super layoutSubviews];
-    if (!_xHandspikeLeft)
-        _xHandspikeLeft = self.graph.xLabelsWidth;
-    if (!_xHandspikeRight)
-        _xHandspikeRight = self.frame.size.width;
-    handspikeLeft.frame = CGRectMake(_xHandspikeLeft, 0, handspikeWidth, self.graph.grid.frame.size.height);
-    handspikeRight.frame = CGRectMake(_xHandspikeRight,
-                                      0, handspikeWidth, self.graph.grid.frame.size.height);
-    float gridHeigth =  self.graph.grid.frame.size.height;
-    handspikeRight.frame = CGRectMake(_xHandspikeRight, 0, handspikeWidth, gridHeigth);
-    rightAmputation.frame = CGRectMake(_xHandspikeRight, 0,
-                                       self.frame.size.width - _xHandspikeRight, gridHeigth);
+//    if (!_xHandspikeLeft){
+//        _xHandspikeLeft = self.graph.xLabelsWidth;
+//    } else {
+//        
+//    }
+//    if (!_xHandspikeRight)
+//        _xHandspikeRight = self.frame.size.width;
+    [self redrawRanges];
 }
 
 - (void)redrawRanges{
@@ -178,6 +175,8 @@ static float startRightRange = -1;
     [self.nciChart.topChart.graph setNeedsLayout];
     [self.nciChart.topChart.graph.grid setNeedsDisplay];
     [self.nciChart.topChart layoutSelectedPoint];
+    if (self.nciChart.rangesMoved)
+        self.nciChart.rangesMoved();
     [self redrawRanges];
 }
 

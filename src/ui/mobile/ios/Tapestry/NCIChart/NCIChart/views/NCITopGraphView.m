@@ -91,7 +91,10 @@
 }
 
 - (void)layoutSubviews{
+
     [super layoutSubviews];
+    if (self.chart.chartData.count < 2)
+            return;
     float scaleIndex = [((NCITopChartView *)self.chart).nciChart getScaleIndex];
     float contentWidth = self.gridWidth* scaleIndex;
     

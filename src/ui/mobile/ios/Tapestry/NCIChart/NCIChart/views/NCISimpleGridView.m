@@ -71,17 +71,15 @@
 
 - (void)drawGraphLine:(UIBezierPath *)path for:(NSArray *)firstLast{
     
-    bool move = YES;
     long lastMoveInd = [firstLast[0] integerValue] - 1;
-    if (_graph.chart.chartData.count > 0){
+    if (_graph.chart.chartData.count >  1){
         for (long ind = [firstLast[0] integerValue]; ind < [firstLast[1] integerValue]; ind++){
             NSArray *point = _graph.chart.chartData[ind];
-            if ([point[1] isKindOfClass:[NSNull class]]){
+            if ([point[1] isKindOfClass:[NSNull class]] ){
                 if (lastMoveInd != (ind -1)){
                     [path addLineToPoint:CGPointMake( path.currentPoint.x, self.frame.size.height)];
                 }
                 [path moveToPoint: [_graph pointByServerDataInGrid:point]];
-                move = NO;
                 lastMoveInd = ind;
             } else {
                 CGPoint pointP = [_graph pointByServerDataInGrid:point];
@@ -90,8 +88,6 @@
                 }
                 [path addLineToPoint:[_graph pointByServerDataInGrid:point]];
             }
-            if ([point[1] isKindOfClass:[NSNull class]])
-                move = YES;
         };
     }
     
