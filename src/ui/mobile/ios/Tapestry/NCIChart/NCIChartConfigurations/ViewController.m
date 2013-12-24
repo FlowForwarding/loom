@@ -7,13 +7,11 @@
 //
 
 #import "ViewController.h"
-#import "NCIRangesChartView.h"
 #import "NCIChartView.h"
 
 @interface ViewController (){
     UIScrollView *book;
     NCIChartView *chart;
-    NCIRangesChartView *rangesChart;
     
     float horisontalIndent;
     float varticalIndent;
@@ -74,16 +72,13 @@
                              width - 2*horisontalIndent,
                              heigth - 2*varticalIndent);
     
-    rangesChart.frame = CGRectMake(width + horisontalIndent,  varticalIndent,
-                             width - 2*horisontalIndent,
-                             heigth - 2*varticalIndent);
 
 }
 
 - (void)generateDemoData{
     float halfYearPeriod = 60*60*24*30*6;
     float demoDatePeriod = halfYearPeriod;
-    float numOfPoints = 2;
+    float numOfPoints = 800;
     float step = demoDatePeriod/(numOfPoints - 1);
     int trendMiddle = 6;
     int trendStepCounter = 0;
@@ -104,11 +99,6 @@
 
     }
     
-    if (!rangesChart.minRangeDate){
-        long period = [[NSDate date] timeIntervalSince1970] - [((NSDate *)[rangesChart.chartData firstObject][0]) timeIntervalSince1970];
-        rangesChart.minRangeDate = [[NSDate date] dateByAddingTimeInterval: - period /10.0];
-        rangesChart.maxRangeDate = [NSDate date];
-    }
 }
 
 - (void)orientationChanged:(NSNotification *)notification

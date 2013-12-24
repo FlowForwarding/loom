@@ -56,13 +56,16 @@
 
 - (void)layoutSubviews{
     [super layoutSubviews];
-//    if (!_xHandspikeLeft){
-//        _xHandspikeLeft = self.graph.xLabelsWidth;
-//    } else {
-//        
-//    }
-//    if (!_xHandspikeRight)
-//        _xHandspikeRight = self.frame.size.width;
+    if ( self.nciChart.chartData.count == 0)
+        return;
+    if (!self.nciChart.minRangeDate){
+        self.nciChart.minRangeDate = self.nciChart.chartData[0][0];
+    }
+    if (!self.nciChart.maxRangeDate){
+        self.nciChart.maxRangeDate = [self.nciChart.chartData lastObject][0];
+    }
+    if (!self.nciChart.maxRangeDate)
+        _xHandspikeRight = self.frame.size.width;
     [self redrawRanges];
 }
 

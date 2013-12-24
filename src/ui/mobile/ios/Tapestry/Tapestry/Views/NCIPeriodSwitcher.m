@@ -10,7 +10,6 @@
 
 #import "NCIPeriodSwitcher.h"
 #import "NCIWebSocketConnector.h"
-#import "NCIBottomGraphView.h"
 
 static float tenYearsPeriod = 60*60*24*30*12*10;
 
