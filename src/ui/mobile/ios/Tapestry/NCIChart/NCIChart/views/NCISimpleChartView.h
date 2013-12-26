@@ -15,12 +15,17 @@
 
 @property (nonatomic, strong)NCISimpleGraphView *graph;
 @property (nonatomic, strong)NSMutableArray *chartData;
-
 @property (nonatomic, strong)UILabel *selectedLabel;
 
 @property (nonatomic)bool hasYLabels;
-@property (nonatomic)bool hasSelection;
-@property (nonatomic)bool incIsFill;
+@property (nonatomic)bool nciIsFill;
+@property (nonatomic)float nciLineWidth;
+@property (nonatomic, strong)UIColor* nciLineColor;
+
+@property (nonatomic)bool nciHasSelection;
+@property (nonatomic, strong)UIColor* nciSelPointColor;
+@property (nonatomic, strong)NSString* nciSelPointImage;
+@property (nonatomic)float nciSelPointSize;
 
 //in persentage
 @property (nonatomic)float topBottomGridSpace;

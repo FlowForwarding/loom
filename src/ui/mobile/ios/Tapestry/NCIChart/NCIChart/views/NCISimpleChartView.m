@@ -26,8 +26,12 @@
     if (self) {
         labelHeight = 0;
         _hasYLabels = YES;
-        _incIsFill = YES;
+        _nciIsFill = YES;
         _topBottomGridSpace = 10;
+        _nciLineWidth = 0.3;
+        _nciLineColor = [UIColor blueColor];
+        _nciSelPointColor = [UIColor blueColor];
+        _nciSelPointSize = 8;
         dateFormatter = [[NSDateFormatter alloc] init];
         self.backgroundColor = [UIColor clearColor];
         self.chartData = [[NSMutableArray alloc] init];
@@ -39,7 +43,27 @@
 -(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts{
     self = [self initWithFrame:frame];
     if (self){
-        _incIsFill = [[opts objectForKey:nciIsFill] boolValue];
+        if ([opts objectForKey:nciIsFill])
+            _nciIsFill = [[opts objectForKey:nciIsFill] boolValue];
+        if ([opts objectForKey:nciLineColor])
+            _nciLineColor = [opts objectForKey:nciLineColor];
+        if ([opts objectForKey:nciLineWidth])
+            _nciLineWidth = [[opts objectForKey:nciLineWidth] floatValue];
+        if ([opts objectForKey:nciHasSelection])
+            _nciHasSelection = [[opts objectForKey:nciLineWidth] boolValue];
+        if ([opts objectForKey:nciSelPointColor]){
+            _nciSelPointColor = [opts objectForKey:nciSelPointColor];
+            _nciHasSelection = YES;
+        }
+        if ([opts objectForKey:nciSelPointSize]){
+            _nciSelPointSize = [[opts objectForKey:nciSelPointSize] floatValue];
+            _nciHasSelection = YES;
+        }
+        if ([opts objectForKey:nciSelPointImage]){
+            _nciSelPointImage = [opts objectForKey:nciSelPointImage];
+            _nciHasSelection = YES;
+        }
+        self.nciHasSelection = _nciHasSelection;
     }
     return self;
 }
@@ -47,18 +71,25 @@
 - (void)addSubviews{
     _graph = [[NCISimpleGraphView alloc] initWithChart:self];
     [self addSubview:_graph];
-    if (_hasSelection){
+    if (_nciHasSelection){
         [self setupSelection];
     }
 }
 
 - (void)setupSelection{
+    if (_selectedLabel)
+        return;
     _selectedLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     _selectedLabel.font = [UIFont boldSystemFontOfSize:18];
     
-    selectedPoint = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 8, 8)];
-    selectedPoint.backgroundColor = [UIColor blueColor];//[UIColor tapestryDarkBlue];
-    selectedPoint.layer.cornerRadius = 4;
+    if (_nciSelPointImage){
+        selectedPoint = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, _nciSelPointSize, _nciSelPointSize)];
+        ((UIImageView *)selectedPoint).image = [UIImage imageNamed:_nciSelPointImage];
+    } else {
+        selectedPoint = [[UIView alloc] initWithFrame:CGRectMake(0, 0, _nciSelPointSize, _nciSelPointSize)];
+        selectedPoint.backgroundColor = _nciSelPointColor;//[UIColor tapestryDarkBlue];
+        selectedPoint.layer.cornerRadius = _nciSelPointSize/2;
+    }
     selectedPoint.hidden = YES;
     [self addSubview:selectedPoint];
     
@@ -68,8 +99,8 @@
     [self.graph.grid addGestureRecognizer:gridTapped];
 }
 
-- (void)setHasSelection:(bool)hasSelection{
-    _hasSelection = YES;
+- (void)setNciHasSelection:(bool)hasSelection{
+    _nciHasSelection = YES;
     [self setupSelection];
 }
 
@@ -111,7 +142,7 @@
 
 - (void)layoutSubviews{
     labelHeight = 20;
-    if (_hasSelection){
+    if (_nciHasSelection){
         _selectedLabel.frame = CGRectMake(self.bounds.size.width - 280, 0, 280, labelHeight);
         [self layoutSelectedPoint];
         _graph.frame = CGRectMake(0, labelHeight, self.bounds.size.width, self.bounds.size.height - labelHeight) ;//self.bounds;

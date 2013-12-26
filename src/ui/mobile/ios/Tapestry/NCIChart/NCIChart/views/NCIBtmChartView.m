@@ -56,7 +56,7 @@
 
 - (void)layoutSubviews{
     [super layoutSubviews];
-    if ( self.nciChart.chartData.count == 0)
+    if ( self.nciChart.chartData.count < 2 )
         return;
     if (!self.nciChart.minRangeDate){
         self.nciChart.minRangeDate = self.nciChart.chartData[0][0];

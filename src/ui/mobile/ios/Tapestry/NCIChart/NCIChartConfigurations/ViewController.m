@@ -43,7 +43,12 @@
     nciChart = [[NCIChartView alloc] initWithFrame:CGRectZero];
     [book addSubview:nciChart];
     
-    simpleChart = [[NCISimpleChartView alloc] initWithFrame:CGRectZero andOptions:@{nciIsFill: @(NO)}];
+    simpleChart = [[NCISimpleChartView alloc] initWithFrame:CGRectZero
+                                                 andOptions:@{nciIsFill: @(NO),
+                                                              nciLineColor : [UIColor greenColor],
+                                                              nciLineWidth : @(2),
+                                                              nciSelPointImage : @"star",
+                                                              nciSelPointSize: @(20)}];
     [book addSubview:simpleChart];
     
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];

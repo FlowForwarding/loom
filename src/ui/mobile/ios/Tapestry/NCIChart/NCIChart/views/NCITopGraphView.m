@@ -97,9 +97,11 @@
             return;
     float scaleIndex = [((NCITopChartView *)self.chart).nciChart getScaleIndex];
     float contentWidth = self.gridWidth* scaleIndex;
-    
-    float stepX = contentWidth/
-    ([[self.chart.chartData lastObject][0] timeIntervalSince1970] - [self.chart.chartData[0][0] timeIntervalSince1970]);
+    float timeDiff = [[self.chart.chartData lastObject][0] timeIntervalSince1970] - [self.chart.chartData[0][0] timeIntervalSince1970];
+    if (timeDiff == 0){
+        timeDiff = contentWidth;
+    }
+    float stepX = contentWidth/timeDiff;
     
     gridScroll.frame = CGRectMake(self.xLabelsWidth, 0, self.gridWidth, self.gridHeigth);
     

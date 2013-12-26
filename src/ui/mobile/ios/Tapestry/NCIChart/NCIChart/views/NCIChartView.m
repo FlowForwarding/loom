@@ -35,7 +35,7 @@
     _topChart = [[NCITopChartView alloc] initWithFrame:CGRectZero];
     _topChart.chartData = self.chartData;
     _topChart.nciChart = self;
-    _topChart.hasSelection = YES;
+    _topChart.nciHasSelection = YES;
     _btmChart = [[NCIBtmChartView alloc] initWithFrame:CGRectZero];
     _btmChart.chartData = self.chartData;
     _btmChart.hasYLabels = NO;
@@ -60,10 +60,14 @@
 }
 
 - (float)getScaleIndex{
-   if (self.chartData.count < 2 || !_minRangeDate || !_maxRangeDate)
-       return 1;
-    return ([[self.chartData lastObject][0] timeIntervalSince1970] - [self.chartData[0][0] timeIntervalSince1970])/
-    ([_maxRangeDate timeIntervalSince1970] - [_minRangeDate timeIntervalSince1970]);
+    if (!_minRangeDate || !_maxRangeDate)
+        return 1;
+    float rangeDiff = [_maxRangeDate timeIntervalSince1970] - [_minRangeDate timeIntervalSince1970];
+    if (rangeDiff == 0){
+        return  1;
+    } else {
+        return ([[self.chartData lastObject][0] timeIntervalSince1970] - [self.chartData[0][0] timeIntervalSince1970])/rangeDiff;
+    }
 }
 
 -(float)getTimePeriod{
