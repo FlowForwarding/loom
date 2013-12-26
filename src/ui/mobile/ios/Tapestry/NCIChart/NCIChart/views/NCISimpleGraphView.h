@@ -26,6 +26,7 @@
 @property(nonatomic) float yLabelsDistance;
 @property(nonatomic) float xLabelsWidth;
 @property(nonatomic) float yLabelsHeigth;
+@property(nonatomic) float labelsFontSize;
 
 @property(nonatomic) float yStep;
 @property(nonatomic) float xStep;

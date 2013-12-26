@@ -32,6 +32,13 @@
         _nciLineColor = [UIColor blueColor];
         _nciSelPointColor = [UIColor blueColor];
         _nciSelPointSize = 8;
+        
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
+            
+        } else {
+            
+        }
+        
         dateFormatter = [[NSDateFormatter alloc] init];
         self.backgroundColor = [UIColor clearColor];
         self.chartData = [[NSMutableArray alloc] init];

@@ -31,10 +31,18 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    horisontalIndent = 20;
-    verticalIndent = 40;
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
+        horisontalIndent = 20;
+        verticalIndent = 40;
+        pagerHeigth = 100;
+    } else {
+        horisontalIndent = 10;
+        verticalIndent = 20;
+        pagerHeigth = 40;
+    }
+    
     numberOfPages = 3;
-    pagerHeigth = 100;
     
     book = [[UIScrollView alloc] initWithFrame:CGRectZero];
     book.scrollEnabled = NO;

@@ -135,7 +135,8 @@
                               CGRectMake(xVal - self.xLabelShift,
                                          self.frame.size.height - self.yLabelsHeigth, self.xLabelsDistance ,
                                          self.yLabelsHeigth)];
-            label.font = [UIFont italicSystemFontOfSize:14];
+            label.font = [UIFont italicSystemFontOfSize:self.labelsFontSize];
+            label.textAlignment = NSTextAlignmentCenter;
             label.text = [NSString stringWithFormat:@"%@", [self.dateFormatter stringFromDate:
                                                             [self getDateByX: xVal -  self.xLabelsWidth]]];
             

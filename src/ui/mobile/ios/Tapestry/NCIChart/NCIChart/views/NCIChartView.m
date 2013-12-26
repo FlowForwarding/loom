@@ -25,8 +25,14 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        btmChartHeigth =  90;
-        chartsSpace = 30;
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
+            btmChartHeigth =  90;
+            chartsSpace = 30;
+        } else {
+            btmChartHeigth =  60;
+            chartsSpace = 10;
+        }
+        
     }
     return self;
 }
