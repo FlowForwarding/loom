@@ -10,6 +10,6 @@
 
 @interface NCIChartOptions : NSObject
 
-extern BOOL HAS_RANGE_SELECTOS;
+extern NSString *const nciIsFill;
 
 @end

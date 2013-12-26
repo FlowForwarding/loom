@@ -41,9 +41,7 @@
     [[UIColor blueColor] setStroke];
     [path setLineWidth:.3];
     [[[UIColor blueColor] colorWithAlphaComponent:0.1] setFill];
-    
     [self drawGraphLine:path for:[self getFirstLast]];
-    
     
     //TODO not redraw for top chart every time
     CGContextRef currentContext = UIGraphicsGetCurrentContext();
@@ -72,19 +70,24 @@
 - (void)drawGraphLine:(UIBezierPath *)path for:(NSArray *)firstLast{
     
     long lastMoveInd = [firstLast[0] integerValue] - 1;
+    long firstInd = [firstLast[0] integerValue];
     if (_graph.chart.chartData.count >  1){
-        for (long ind = [firstLast[0] integerValue]; ind < [firstLast[1] integerValue]; ind++){
+        for (long ind = firstInd; ind < [firstLast[1] integerValue]; ind++){
             NSArray *point = _graph.chart.chartData[ind];
             if ([point[1] isKindOfClass:[NSNull class]] ){
-                if (lastMoveInd != (ind -1)){
+                if (lastMoveInd != (ind -1) && self.graph.chart.incIsFill){
                     [path addLineToPoint:CGPointMake( path.currentPoint.x, self.frame.size.height)];
+                    [path moveToPoint: [_graph pointByServerDataInGrid:point]];
                 }
-                [path moveToPoint: [_graph pointByServerDataInGrid:point]];
                 lastMoveInd = ind;
             } else {
                 CGPoint pointP = [_graph pointByServerDataInGrid:point];
                 if (lastMoveInd == (ind -1)){
-                    [path moveToPoint: CGPointMake(pointP.x, self.frame.size.height)];
+                    if (self.graph.chart.incIsFill){
+                        [path moveToPoint: CGPointMake(pointP.x, self.frame.size.height)];
+                    } else {
+                        [path moveToPoint:[_graph pointByServerDataInGrid:point]];
+                    }
                 }
                 [path addLineToPoint:[_graph pointByServerDataInGrid:point]];
             }
@@ -92,8 +95,11 @@
     }
     
     [path addLineToPoint:CGPointMake( path.currentPoint.x, self.frame.size.height)];
-    [path closePath];
-    [path fill];
+    
+    if (self.graph.chart.incIsFill){
+        [path fill];
+        [path closePath];
+    }
     [path stroke];
 }
 

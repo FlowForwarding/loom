@@ -10,6 +10,6 @@
 
 @implementation NCIChartOptions
 
-BOOL HAS_RANGE_SELECTOS = YES;
+NSString *const nciIsFill = @"nciIsFill";
 
 @end

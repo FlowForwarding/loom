@@ -11,10 +11,13 @@
 
 @interface ViewController (){
     UIScrollView *book;
-    NCIChartView *chart;
+    NCIChartView *nciChart;
+    NCISimpleChartView *simpleChart;
+    UIPageControl *pager;
     
     float horisontalIndent;
-    float varticalIndent;
+    float verticalIndent;
+    float pagerHeigth;
     
     int numberOfPages;
     
@@ -29,18 +32,19 @@
 {
     [super viewDidLoad];
     horisontalIndent = 20;
-    varticalIndent = 40;
-    numberOfPages = 1;
+    verticalIndent = 40;
+    numberOfPages = 3;
+    pagerHeigth = 100;
     
     book = [[UIScrollView alloc] initWithFrame:CGRectZero];
-    book.pagingEnabled = YES;
+    book.scrollEnabled = NO;
     [self.view addSubview:book];
     
-    chart = [[NCIChartView alloc] initWithFrame:CGRectZero];
-    [book addSubview:chart];
+    nciChart = [[NCIChartView alloc] initWithFrame:CGRectZero];
+    [book addSubview:nciChart];
     
-//    rangesChart = [[NCIRangesChartView alloc] initWithFrame:CGRectZero];
-//    [book addSubview:rangesChart];
+    simpleChart = [[NCISimpleChartView alloc] initWithFrame:CGRectZero andOptions:@{nciIsFill: @(NO)}];
+    [book addSubview:simpleChart];
     
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -50,8 +54,20 @@
     isShowingLandscapeView = NO;
     
     [self generateDemoData];
+    
+    pager = [[UIPageControl alloc] initWithFrame:CGRectZero];
+    pager.numberOfPages =  numberOfPages;
+    [pager addTarget:self action:@selector(changePage) forControlEvents:UIControlEventValueChanged];
+    [pager setPageIndicatorTintColor:[UIColor blackColor]];
+    [pager setCurrentPageIndicatorTintColor:[UIColor purpleColor]];
+    [self.view addSubview:pager];
+    
     [self layoutSubviews];
     
+}
+
+- (void)changePage{
+    [book setContentOffset:CGPointMake(pager.currentPage*book.frame.size.width, 0) animated:YES];
 }
 
 - (void)layoutSubviews{
@@ -65,12 +81,18 @@
         heigth = self.view.frame.size.width;
     }
     
-    book.frame = CGRectMake(0,  0, width, heigth);
-    book.contentSize = CGSizeMake(width*numberOfPages, heigth);
+    book.frame = CGRectMake(0,  verticalIndent, width, heigth - verticalIndent  - pagerHeigth);
+    book.contentSize = CGSizeMake(width*numberOfPages, heigth  - verticalIndent  - pagerHeigth);
     
-    chart.frame = CGRectMake(horisontalIndent, varticalIndent,
+    nciChart.frame = CGRectMake(horisontalIndent, 0,
                              width - 2*horisontalIndent,
-                             heigth - 2*varticalIndent);
+                             heigth - verticalIndent - pagerHeigth);
+    
+    simpleChart.frame = CGRectMake(horisontalIndent +  width, 0,
+                                width - 2*horisontalIndent,
+                                heigth - verticalIndent - pagerHeigth);
+    
+    pager.frame = CGRectMake(0, heigth - pagerHeigth, width, pagerHeigth);
     
 
 }
@@ -78,7 +100,7 @@
 - (void)generateDemoData{
     float halfYearPeriod = 60*60*24*30*6;
     float demoDatePeriod = halfYearPeriod;
-    float numOfPoints = 800;
+    float numOfPoints = 50;
     float step = demoDatePeriod/(numOfPoints - 1);
     int trendMiddle = 6;
     int trendStepCounter = 0;
@@ -91,10 +113,12 @@
         trendStepCounter += 1;
         int value = trendMiddle + arc4random() % 5;
         NSDate *date = [[NSDate date] dateByAddingTimeInterval: (-demoDatePeriod + step*ind)];
-        if (trendStepCounter > 4 && trendStepCounter < 4){
-            [chart addPoint:date val: nil];
+        if (trendStepCounter > 4 && trendStepCounter < 7){
+            [nciChart addPoint:date val: nil];
+            [simpleChart addPoint:date val:nil];
         } else {
-            [chart addPoint:date val: @(value)];
+            [nciChart addPoint:date val: @(value)];
+            [simpleChart addPoint:date val: @(value)];
         }
 
     }

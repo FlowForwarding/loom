@@ -26,11 +26,20 @@
     if (self) {
         labelHeight = 0;
         _hasYLabels = YES;
+        _incIsFill = YES;
         _topBottomGridSpace = 10;
         dateFormatter = [[NSDateFormatter alloc] init];
         self.backgroundColor = [UIColor clearColor];
         self.chartData = [[NSMutableArray alloc] init];
         [self addSubviews];
+    }
+    return self;
+}
+
+-(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts{
+    self = [self initWithFrame:frame];
+    if (self){
+        _incIsFill = [[opts objectForKey:nciIsFill] boolValue];
     }
     return self;
 }

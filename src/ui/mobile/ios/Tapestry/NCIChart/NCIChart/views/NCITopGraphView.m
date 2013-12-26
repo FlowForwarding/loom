@@ -128,7 +128,7 @@
     float shift =  gridScroll.contentOffset.x - self.xLabelsDistance*((int)gridScroll.contentOffset.x / (int)self.xLabelsDistance);
     for(int i = 0; i<= self.gridWidth/self.xLabelsDistance + 1; i++){
         float xVal = self.xLabelsWidth + self.xLabelsDistance *i - shift;
-        if ((xVal - self.xLabelsWidth) >= 0){
+        if ((xVal - self.xLabelsWidth) >= 0 && (xVal < self.frame.size.width) ){
             UILabel *label = [[UILabel alloc] initWithFrame:
                               CGRectMake(xVal - self.xLabelShift,
                                          self.frame.size.height - self.yLabelsHeigth, self.xLabelsDistance ,
