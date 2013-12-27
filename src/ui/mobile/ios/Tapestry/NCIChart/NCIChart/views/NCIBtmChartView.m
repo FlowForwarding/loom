@@ -108,6 +108,9 @@ static float startRightRange = -1;
                 startLeft = location.x - handspikeLeft.center.x;
             } else if (location.x >= _xHandspikeRight){
                 startRight = location.x - handspikeRight.center.x;
+            } else {
+                startLeft = location.x - handspikeLeft.center.x;
+                startRight = location.x - handspikeRight.center.x;
             }
         }
     }];
@@ -148,7 +151,10 @@ static float startRightRange = -1;
         } else {
             if (location.x <= (_xHandspikeLeft + handspikeWidth)){
                 newLeft = location.x - startLeft;
-            } else if (location.x >= (_xHandspikeRight - minRangesDistance)){
+            } else if (location.x >= _xHandspikeRight){
+                newRight = location.x - startRight;
+            } else {
+                newLeft = location.x - startLeft;
                 newRight = location.x - startRight;
             }
         };
@@ -172,8 +178,8 @@ static float startRightRange = -1;
     if ((newLeft != -1 && newRight != -1) && (newRight - newLeft) < minRangesDistance)
         return;
     
-    self.nciChart.minRangeDate = [self.graph getDateByX:newLeft];
-    self.nciChart.maxRangeDate = [self.graph getDateByX:newRight];
+    self.nciChart.minRangeDate = [self.graph getDateByX:newLeft - self.graph.xLabelsWidth];
+    self.nciChart.maxRangeDate = [self.graph getDateByX:newRight - self.graph.xLabelsWidth];
 
     [self.nciChart.topChart.graph setNeedsLayout];
     [self.nciChart.topChart.graph.grid setNeedsDisplay];

@@ -131,8 +131,9 @@
     }
 }
 
+
 - (NSDate *)getDateByX:(float) pointX{
-    return [NSDate dateWithTimeIntervalSince1970:(_minXVal + (pointX - _xLabelsWidth)/_xStep)];
+    return [NSDate dateWithTimeIntervalSince1970:(_minXVal + (pointX)/_xStep)];
 }
 
 - (float )getValByY:(float) pointY{
