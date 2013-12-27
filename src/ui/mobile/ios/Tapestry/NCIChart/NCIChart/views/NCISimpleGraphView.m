@@ -28,7 +28,6 @@
     if (self) {
 
         _yLabelShift = 15;
-        _xLabelShift = self.chart.nciXLabelsDistance/2;
         _xLabelsWidth = 50;
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
@@ -119,7 +118,7 @@
     
     for(int i = 0; i<= _gridWidth/xLabelsDistance; i++){
         UILabel *label = [[UILabel alloc] initWithFrame:
-                          CGRectMake(_xLabelsWidth + xLabelsDistance *i  - _xLabelShift,
+                          CGRectMake(_xLabelsWidth + xLabelsDistance *i  - xLabelsDistance/2,
                                      self.frame.size.height - _yLabelsHeigth, xLabelsDistance,
                                      _yLabelsHeigth)];
         label.textAlignment = NSTextAlignmentCenter;

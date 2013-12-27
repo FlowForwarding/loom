@@ -130,7 +130,7 @@
         float xVal = self.xLabelsWidth + xLabelsDistance *i - shift;
         if ((xVal - self.xLabelsWidth) >= 0 && (xVal < self.frame.size.width) ){
             UILabel *label = [[UILabel alloc] initWithFrame:
-                              CGRectMake(xVal - self.xLabelShift,
+                              CGRectMake(xVal - xLabelsDistance/2,
                                          self.frame.size.height - self.yLabelsHeigth, xLabelsDistance ,
                                          self.yLabelsHeigth)];
             label.font = self.chart.nciXLabelsFont;

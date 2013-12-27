@@ -170,13 +170,15 @@
 - (void)layoutSubviews{
     labelHeight = 20;
     if (_nciHasSelection){
-        _selectedLabel.frame = CGRectMake(self.bounds.size.width - 280, 0, 280, labelHeight);
-        [self layoutSelectedPoint];
         _graph.frame = CGRectMake(0, labelHeight, self.bounds.size.width, self.bounds.size.height - labelHeight) ;//self.bounds;
     } else {
         _graph.frame = self.bounds;
     }
     [_graph layoutSubviews];
+    if (_nciHasSelection){
+        _selectedLabel.frame = CGRectMake(self.bounds.size.width - 280, 0, 280, labelHeight);
+        [self layoutSelectedPoint];
+    }
 }
 
 - (void)addPoint:(NSDate *)date val:(NSNumber *)value{

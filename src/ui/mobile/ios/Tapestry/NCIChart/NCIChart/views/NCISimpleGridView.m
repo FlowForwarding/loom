@@ -42,7 +42,6 @@
     [path setLineWidth: self.graph.chart.nciLineWidth];
     [[self.graph.chart.nciLineColor colorWithAlphaComponent:0.1] setFill];
     [self drawGraphLine:path for:[self getFirstLast]];
-    
 
     CGContextRef currentContext = UIGraphicsGetCurrentContext();
     CGContextSetLineWidth(currentContext, 0.3);
@@ -56,8 +55,8 @@
     }
     
     for (UILabel *xLabel in _graph.xAxisLabels){
-        CGContextMoveToPoint(currentContext, xLabel.frame.origin.x - _graph.xLabelsWidth + self.graph.xLabelShift, xLabel.frame.origin.y);
-        CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x - _graph.xLabelsWidth + self.graph.xLabelShift, 0);
+        CGContextMoveToPoint(currentContext, xLabel.frame.origin.x - _graph.xLabelsWidth + self.graph.chart.nciXLabelsDistance/2, xLabel.frame.origin.y);
+        CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x - _graph.xLabelsWidth + self.graph.chart.nciXLabelsDistance/2, 0);
     }
     CGContextStrokePath(currentContext);
     
