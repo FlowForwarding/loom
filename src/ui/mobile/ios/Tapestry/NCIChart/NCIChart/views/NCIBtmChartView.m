@@ -85,6 +85,8 @@
     
 }
 
+#pragma all code below is about moving ranges
+
 static float startLeft = -1;
 static float startLeftRange = -1;
 static float startRight = -1;

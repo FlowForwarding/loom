@@ -28,20 +28,15 @@
     if (self) {
 
         _yLabelShift = 15;
-        
-        _xLabelsDistance = 200;
-        _xLabelShift = _xLabelsDistance/2;
-        _yLabelsDistance = 80;
+        _xLabelShift = self.chart.nciXLabelsDistance/2;
         _xLabelsWidth = 50;
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
             _yLabelsHeigth = 40;
             _xLabelsWidth = 50;
-            _labelsFontSize = 12;
         } else {
             _yLabelsHeigth = 20;
             _xLabelsWidth = 30;
-            _labelsFontSize = 10;
         }
         
         
@@ -79,18 +74,20 @@
     
     _gridHeigth = self.frame.size.height- _yLabelsHeigth;
     _gridWidth = self.frame.size.width - _xLabelsWidth;
+    float yLabelsDistance = self.chart.nciYLabelsDistance;
+    
     if (_chart.chartData.count > 0){
         _minXVal = [_chart.chartData[0][0] timeIntervalSince1970];
         _maxXVal = [[_chart.chartData lastObject][0] timeIntervalSince1970];
         _xStep = _gridWidth/(_maxXVal - _minXVal);
         [self detectRanges];
        
-        for(int i = 0; i<= _gridHeigth/_yLabelsDistance; i++){
+        for(int i = 0; i<= _gridHeigth/yLabelsDistance; i++){
             UILabel *label = [[UILabel alloc] initWithFrame:
-                              CGRectMake(0, self.frame.size.height - i*_yLabelsDistance - _yLabelsHeigth - _yLabelShift, _xLabelsWidth, 20)];
-            label.font =  [UIFont systemFontOfSize:_labelsFontSize];
+                              CGRectMake(0, self.frame.size.height - i*yLabelsDistance - _yLabelsHeigth - _yLabelShift, _xLabelsWidth, 20)];
+            label.font =  self.chart.nciYLabelsFont;
             if (self.chart.hasYLabels){
-                label.text = [NSString stringWithFormat:@"%.1f", [self getValByY: (_yLabelsHeigth + _yLabelsDistance *i)]];
+                label.text = [NSString stringWithFormat:@"%.1f", [self getValByY: (_yLabelsHeigth + yLabelsDistance*i)]];
             }
             [_yAxisLabels addObject:label];
             [self addSubview:label];
@@ -110,22 +107,24 @@
 }
 
 - (void)redrawXLabels{
-    if ((1/_xStep * _xLabelsDistance) < 60*60*24){
+    float xLabelsDistance = self.chart.nciXLabelsDistance;
+    
+    if ((1/_xStep * xLabelsDistance) < 60*60*24){
         [_dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm"];
-    } else if ((1/_xStep * _xLabelsDistance) < 60*60*24*30){
+    } else if ((1/_xStep * xLabelsDistance) < 60*60*24*30){
         [_dateFormatter setDateFormat:@"yyyy-MMM-dd"];
     } else {
         [_dateFormatter setDateFormat:@"yyyy-MMM"];
     }
     
-    for(int i = 0; i<= _gridWidth/_xLabelsDistance; i++){
+    for(int i = 0; i<= _gridWidth/xLabelsDistance; i++){
         UILabel *label = [[UILabel alloc] initWithFrame:
-                          CGRectMake(_xLabelsWidth + _xLabelsDistance *i  - _xLabelShift,
-                                     self.frame.size.height - _yLabelsHeigth, _xLabelsDistance,
+                          CGRectMake(_xLabelsWidth + xLabelsDistance *i  - _xLabelShift,
+                                     self.frame.size.height - _yLabelsHeigth, xLabelsDistance,
                                      _yLabelsHeigth)];
         label.textAlignment = NSTextAlignmentCenter;
-        label.font =  [UIFont italicSystemFontOfSize:_labelsFontSize];
-        label.text = [NSString stringWithFormat:@"%@", [_dateFormatter stringFromDate: [self getDateByX: (_xLabelsWidth + _xLabelsDistance *i)]]];
+        label.font = self.chart.nciXLabelsFont;
+        label.text = [NSString stringWithFormat:@"%@", [_dateFormatter stringFromDate: [self getDateByX: (_xLabelsWidth + xLabelsDistance *i)]]];
         [_xAxisLabels addObject:label];
         [self addSubview:label];
     }

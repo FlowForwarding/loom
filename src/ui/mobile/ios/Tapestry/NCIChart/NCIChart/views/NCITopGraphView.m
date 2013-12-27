@@ -66,8 +66,6 @@
     NCIChartView *nciChart = ((NCITopChartView *)self.chart).nciChart;
     float scaleIndex = [nciChart getScaleIndex];
     float timePeriod = [nciChart getTimePeriod];
-    
-    //TODO mabe this courses gap
     float rangesPeriod = [nciChart getRangesPeriod];
     
     float offsetForRanges = scrollView.contentOffset.x;
@@ -118,24 +116,24 @@
 
 - (void)redrawXLabels{
     float scaleIndex = [((NCITopChartView *)self.chart).nciChart getScaleIndex];
-    
-    if ((1/self.xStep/scaleIndex * self.xLabelsDistance) < 60*60*24){
+    float xLabelsDistance = self.chart.nciXLabelsDistance;
+    if ((1/self.xStep/scaleIndex * xLabelsDistance) < 60*60*24){
         [self.dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm"];
-    } else if ((1/self.xStep/scaleIndex * self.xLabelsDistance) < 60*60*24*30){
+    } else if ((1/self.xStep/scaleIndex * xLabelsDistance) < 60*60*24*30){
         [self.dateFormatter setDateFormat:@"yyyy-MMM-dd"];
     } else {
         [self.dateFormatter setDateFormat:@"yyyy-MMM"];
     }
     
-    float shift =  gridScroll.contentOffset.x - self.xLabelsDistance*((int)gridScroll.contentOffset.x / (int)self.xLabelsDistance);
-    for(int i = 0; i<= self.gridWidth/self.xLabelsDistance + 1; i++){
-        float xVal = self.xLabelsWidth + self.xLabelsDistance *i - shift;
+    float shift =  gridScroll.contentOffset.x - xLabelsDistance*((int)gridScroll.contentOffset.x / (int)xLabelsDistance);
+    for(int i = 0; i<= self.gridWidth/xLabelsDistance + 1; i++){
+        float xVal = self.xLabelsWidth + xLabelsDistance *i - shift;
         if ((xVal - self.xLabelsWidth) >= 0 && (xVal < self.frame.size.width) ){
             UILabel *label = [[UILabel alloc] initWithFrame:
                               CGRectMake(xVal - self.xLabelShift,
-                                         self.frame.size.height - self.yLabelsHeigth, self.xLabelsDistance ,
+                                         self.frame.size.height - self.yLabelsHeigth, xLabelsDistance ,
                                          self.yLabelsHeigth)];
-            label.font = [UIFont italicSystemFontOfSize:self.labelsFontSize];
+            label.font = self.chart.nciXLabelsFont;
             label.textAlignment = NSTextAlignmentCenter;
             label.text = [NSString stringWithFormat:@"%@", [self.dateFormatter stringFromDate:
                                                             [self getDateByX: xVal -  self.xLabelsWidth]]];

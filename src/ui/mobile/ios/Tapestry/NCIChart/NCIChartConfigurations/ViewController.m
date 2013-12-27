@@ -56,7 +56,12 @@
                                                               nciLineColor : [UIColor greenColor],
                                                               nciLineWidth : @(2),
                                                               nciSelPointImage : @"star",
-                                                              nciSelPointSize: @(20)}];
+                                                              nciSelPointSize: @(20),
+                                                              nciXLabelsFont: [UIFont fontWithName:@"MarkerFelt-Thin" size:12],
+                                                              nciYLabelsFont: [UIFont fontWithName:@"MarkerFelt-Thin" size:12],
+                                                              nciSelPointFont: [UIFont fontWithName:@"MarkerFelt-Thin" size:14],
+                                                              nciYLabelsDistance: @(50),
+                                                              nciXLabelsDistance: @(80)}];
     [book addSubview:simpleChart];
     
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
@@ -72,7 +77,7 @@
     pager.numberOfPages =  numberOfPages;
     [pager addTarget:self action:@selector(changePage) forControlEvents:UIControlEventValueChanged];
     [pager setPageIndicatorTintColor:[UIColor blackColor]];
-    [pager setCurrentPageIndicatorTintColor:[UIColor purpleColor]];
+    [pager setCurrentPageIndicatorTintColor:[UIColor redColor]];
     [self.view addSubview:pager];
     
     [self layoutSubviews];

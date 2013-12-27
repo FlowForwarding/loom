@@ -26,7 +26,12 @@
 @property (nonatomic, strong)UIColor* nciSelPointColor;
 @property (nonatomic, strong)NSString* nciSelPointImage;
 @property (nonatomic)float nciSelPointSize;
+@property (nonatomic, strong)UIFont* nciSelPointFont;
 
+@property (nonatomic, strong)UIFont* nciXLabelsFont;
+@property (nonatomic, strong)UIFont* nciYLabelsFont;
+@property(nonatomic) float nciXLabelsDistance;
+@property(nonatomic) float nciYLabelsDistance;
 //in persentage
 @property (nonatomic)float topBottomGridSpace;
 

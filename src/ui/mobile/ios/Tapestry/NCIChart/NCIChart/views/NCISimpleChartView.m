@@ -16,7 +16,9 @@
     float labelHeight;
 }
 
+
 @end
+
 
 @implementation NCISimpleChartView
 
@@ -34,9 +36,17 @@
         _nciSelPointSize = 8;
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
-            
+            _nciXLabelsFont = [UIFont italicSystemFontOfSize:12];
+            _nciYLabelsFont = [UIFont systemFontOfSize:12];
+            _nciSelPointFont = [UIFont boldSystemFontOfSize:18];
+            _nciXLabelsDistance = 200;
+            _nciYLabelsDistance = 80;
         } else {
-            
+            _nciXLabelsFont = [UIFont italicSystemFontOfSize:10];
+            _nciYLabelsFont = [UIFont systemFontOfSize:10];
+            _nciSelPointFont = [UIFont boldSystemFontOfSize:14];
+            _nciXLabelsDistance = 100;
+            _nciYLabelsDistance = 40;
         }
         
         dateFormatter = [[NSDateFormatter alloc] init];
@@ -50,12 +60,21 @@
 -(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts{
     self = [self initWithFrame:frame];
     if (self){
+        
         if ([opts objectForKey:nciIsFill])
             _nciIsFill = [[opts objectForKey:nciIsFill] boolValue];
-        if ([opts objectForKey:nciLineColor])
-            _nciLineColor = [opts objectForKey:nciLineColor];
+        
+        for (NSString* key in @[nciLineColor, nciXLabelsFont, nciYLabelsFont, nciSelPointFont]){
+            [self setValue:[opts objectForKey:key] forKey:key];
+        }
+        
         if ([opts objectForKey:nciLineWidth])
             _nciLineWidth = [[opts objectForKey:nciLineWidth] floatValue];
+        if ([opts objectForKey:nciXLabelsDistance])
+            _nciXLabelsDistance = [[opts objectForKey:nciXLabelsDistance] floatValue];
+        if ([opts objectForKey:nciYLabelsDistance])
+            _nciYLabelsDistance = [[opts objectForKey:nciYLabelsDistance] floatValue];
+        
         if ([opts objectForKey:nciHasSelection])
             _nciHasSelection = [[opts objectForKey:nciLineWidth] boolValue];
         if ([opts objectForKey:nciSelPointColor]){
@@ -71,6 +90,7 @@
             _nciHasSelection = YES;
         }
         self.nciHasSelection = _nciHasSelection;
+
     }
     return self;
 }
@@ -87,7 +107,7 @@
     if (_selectedLabel)
         return;
     _selectedLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-    _selectedLabel.font = [UIFont boldSystemFontOfSize:18];
+    _selectedLabel.font = _nciSelPointFont;
     
     if (_nciSelPointImage){
         selectedPoint = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, _nciSelPointSize, _nciSelPointSize)];
