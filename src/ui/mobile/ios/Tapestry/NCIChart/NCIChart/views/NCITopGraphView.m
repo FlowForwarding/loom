@@ -105,7 +105,7 @@
     
     gridScroll.contentSize = CGSizeMake(contentWidth, self.gridHeigth);
     
-    float timeOffest = [((NCITopChartView *)self.chart).nciChart.minRangeDate timeIntervalSince1970] -
+    double timeOffest = [((NCITopChartView *)self.chart).nciChart.minRangeDate timeIntervalSince1970] -
         [self.chart.chartData[0][0] timeIntervalSince1970];
     if (timeOffest < 0)
         timeOffest = 0;

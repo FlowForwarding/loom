@@ -19,9 +19,9 @@
 @property(nonatomic, strong)NSDate *minRangeDate;
 @property(nonatomic, strong)NSDate *maxRangeDate;
 
--(float)getScaleIndex;
--(float)getTimePeriod;
--(float)getRangesPeriod;
+-(double)getScaleIndex;
+-(double)getTimePeriod;
+-(double)getRangesPeriod;
 -(void)resetChart;
 -(void)drawChart;
 

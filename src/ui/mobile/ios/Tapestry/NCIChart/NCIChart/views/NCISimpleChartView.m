@@ -36,8 +36,8 @@
         _nciSelPointSize = 8;
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
-            _nciXLabelsFont = [UIFont italicSystemFontOfSize:12];
-            _nciYLabelsFont = [UIFont systemFontOfSize:12];
+            _nciXLabelsFont = [UIFont italicSystemFontOfSize:14];
+            _nciYLabelsFont = [UIFont systemFontOfSize:14];
             _nciSelPointFont = [UIFont boldSystemFontOfSize:18];
             _nciXLabelsDistance = 200;
             _nciYLabelsDistance = 80;

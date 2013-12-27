@@ -65,22 +65,22 @@
     _btmChart.frame = CGRectMake(0, self.frame.size.height - btmChartHeigth, self.frame.size.width, btmChartHeigth);
 }
 
-- (float)getScaleIndex{
+- (double)getScaleIndex{
     if (!_minRangeDate || !_maxRangeDate)
         return 1;
-    float rangeDiff = [_maxRangeDate timeIntervalSince1970] - [_minRangeDate timeIntervalSince1970];
+    double rangeDiff = [self getRangesPeriod];
     if (rangeDiff == 0){
         return  1;
     } else {
-        return ([[self.chartData lastObject][0] timeIntervalSince1970] - [self.chartData[0][0] timeIntervalSince1970])/rangeDiff;
+        return [self getTimePeriod]/rangeDiff;
     }
 }
 
--(float)getTimePeriod{
+-(double)getTimePeriod{
     return [[self.chartData lastObject][0] timeIntervalSince1970] - [self.chartData[0][0] timeIntervalSince1970];
 }
 
--(float)getRangesPeriod{
+-(double)getRangesPeriod{
     return [self.maxRangeDate timeIntervalSince1970] - [self.minRangeDate timeIntervalSince1970];
 }
 
