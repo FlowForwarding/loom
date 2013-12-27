@@ -29,8 +29,8 @@
 @property(nonatomic) float xStep;
 @property(nonatomic) float minYVal;
 @property(nonatomic) float maxYVal;
-@property(nonatomic) float minXVal;
-@property(nonatomic) float maxXVal;
+@property(nonatomic) double minXVal;
+@property(nonatomic) double maxXVal;
 
 @property (nonatomic)float yLabelShift;
 

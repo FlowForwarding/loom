@@ -136,7 +136,7 @@ static NSString* websocketMoreDataRequest =
         
         NSString *moreResponse = @"{";
         float numOfPoints = 800;
-        float step = demoDatePeriod/(800 - 1);
+        float step = demoDatePeriod/(numOfPoints - 1);
         int ind;
         for (ind = 0; ind < numOfPoints; ind ++){
             if (trendStepCounter > 5){
@@ -243,12 +243,16 @@ static NSString* websocketMoreDataRequest =
         NSString *nep = dataPoint[@"NEP"];
         NSString *qps = dataPoint[@"QPS"];
         if (nci){
+            self.progressLabel.hidden = YES;
             [self.nciValue setIndValue:nci withDate:dataPoint[@"Time"]];
             if (_currentDatePeriod == twoYearPeriod){
+                if (self.chartView.chartData.count > 0)
+                    [self.chartView.chartData removeLastObject];
                 [self.chartView addPoint:[self dateFromServerString: dataPoint[@"Time"]] val:@([nci integerValue])];
                 while ([[NSDate date] timeIntervalSince1970] - [self.chartView.chartData[0][0] timeIntervalSince1970] > _currentDatePeriod){
                     [self.chartView.chartData removeObjectAtIndex:0];
                 }
+                [self.chartView addPoint:[NSDate date] val:nil];
                 [self.chartView drawChart];
             }
         } else if (nep) {

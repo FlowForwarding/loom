@@ -38,7 +38,6 @@
             _xLabelsWidth = 30;
         }
         
-        
         _yAxisLabels = [[NSMutableArray alloc] init];
         _xAxisLabels = [[NSMutableArray alloc] init];
         self.backgroundColor = [UIColor clearColor];
@@ -78,6 +77,9 @@
     if (_chart.chartData.count > 0){
         _minXVal = [_chart.chartData[0][0] timeIntervalSince1970];
         _maxXVal = [[_chart.chartData lastObject][0] timeIntervalSince1970];
+//        if (_maxXVal == _minXVal){
+//            _minXVal = _minXVal - 60;
+//        }
         _xStep = _gridWidth/(_maxXVal - _minXVal);
         [self detectRanges];
        
