@@ -17,10 +17,6 @@
 
 @implementation NCISimpleGraphView
 
-//TODO for simple chart
-- (NSDate *)getDateByXValue:(float)xVal{
-    return nil;
-}
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -75,8 +71,8 @@
     float yLabelsDistance = self.chart.nciYLabelsDistance;
     
     if (_chart.chartData.count > 0){
-        _minXVal = [_chart.chartData[0][0] timeIntervalSince1970];
-        _maxXVal = [[_chart.chartData lastObject][0] timeIntervalSince1970];
+        _minXVal = [_chart.chartData[0][0] doubleValue];
+        _maxXVal = [[_chart.chartData lastObject][0] doubleValue];
 //        if (_maxXVal == _minXVal){
 //            _minXVal = _minXVal - 60;
 //        }
@@ -125,15 +121,17 @@
                                      _yLabelsHeigth)];
         label.textAlignment = NSTextAlignmentCenter;
         label.font = self.chart.nciXLabelsFont;
-        label.text = [NSString stringWithFormat:@"%@", [_dateFormatter stringFromDate: [self getDateByX: (_xLabelsWidth + xLabelsDistance *i)]]];
+        label.text = [NSString stringWithFormat:@"%@",
+                      [_dateFormatter stringFromDate:
+                       [NSDate dateWithTimeIntervalSince1970:[self getArgumentByX: (_xLabelsWidth + xLabelsDistance *i)]]]];
         [_xAxisLabels addObject:label];
         [self addSubview:label];
     }
 }
 
 
-- (NSDate *)getDateByX:(float) pointX{
-    return [NSDate dateWithTimeIntervalSince1970:(_minXVal + (pointX)/_xStep)];
+- (double)getArgumentByX:(float) pointX{
+    return (_minXVal + (pointX)/_xStep);
 }
 
 - (float )getValByY:(float) pointY{
@@ -141,16 +139,16 @@
 }
 
 - (CGPoint)pointByServerDataInGrid:(NSArray *)data{
-    NSDate *date = data[0];
+    double argument = [data[0] doubleValue];
     if ([data[1] isKindOfClass:[NSNull class]] )
         return CGPointZero;
     float yVal = self.frame.size.height - (([data[1] floatValue] - _minYVal)*_yStep) - _yLabelsHeigth;
-    float xVal = [self getXByArgument: date];
+    float xVal = [self getXByArgument: argument];
     return CGPointMake(xVal, yVal);
 }
 
-- (float)getXByArgument:(NSDate *)arg{
-    return ([arg timeIntervalSince1970] - _minXVal)*_xStep;
+- (float)getXByArgument:(double )arg{
+    return (arg  - _minXVal)*_xStep;
 }
 
 @end

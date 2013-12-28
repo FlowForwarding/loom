@@ -39,9 +39,8 @@
 - (id)initWithChart: (NCISimpleChartView *)chartHolder;
 - (void)addSubviews;
 
-- (NSDate *)getDateByX:(float) pointX;
+- (double)getArgumentByX:(float) pointX;
 - (CGPoint)pointByServerDataInGrid:(NSArray *)data;
-- (float)getXByArgument:(NSDate *) arg;
-- (NSDate *)getDateByXValue:(float)xVal;
+- (float)getXByArgument:(double) arg;
 
 @end

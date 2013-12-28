@@ -11,7 +11,7 @@
 
 @interface NCISimpleChartView(){
     NSDateFormatter* dateFormatter;
-    NSDate *selectedPointDate;
+    double selectedPointArgument;
     UIView *selectedPoint;
     float labelHeight;
 }
@@ -133,16 +133,16 @@
 
 - (void)gridTapped:(UITapGestureRecognizer *)recognizer{
     CGPoint location = [recognizer locationInView:self.graph.grid];
-    selectedPointDate = [self.graph getDateByX:location.x];
+    selectedPointArgument = [self.graph getArgumentByX:location.x];
     [self layoutSelectedPoint];
 }
 
 - (void)layoutSelectedPoint{
-    if (!selectedPointDate)
+    if (!selectedPointArgument)
         return;
     for (int i =0; i < _chartData.count; i++){
         NSArray *point = _chartData[i];
-        if ([selectedPointDate compare:point[0]] <= NSOrderedSame){
+        if (selectedPointArgument <= [point[0] doubleValue] ){
             if([point[1] isKindOfClass:[NSNull class]]){
                 return;
             }
@@ -151,7 +151,7 @@
             selectedPoint.center =  CGPointMake(pointInGrid.x + self.graph.xLabelsWidth, pointInGrid.y + labelHeight);
             [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm:ss"];
             _selectedLabel.text = [NSString stringWithFormat:@"NCI: %@  %@", point[1],
-                                   [dateFormatter stringFromDate:point[0]]];
+                                   [dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:[point[0] doubleValue]]]];
             
             if (pointInGrid.x < 0 || pointInGrid.x >= (self.graph.grid.frame.size.width + 2)){
                 selectedPoint.hidden = YES;
@@ -163,7 +163,7 @@
     }
     _selectedLabel.text = @"";
     selectedPoint.hidden = YES;
-    selectedPointDate = nil;
+    selectedPointArgument = NAN;
     
 }
 
@@ -181,11 +181,11 @@
     }
 }
 
-- (void)addPoint:(NSDate *)date val:(NSNumber *)value{
+- (void)addPoint:(double)arg val:(NSNumber *)value{
     if (value == nil){
-        [self.chartData addObject:@[date, [NSNull null]]];
+        [self.chartData addObject:@[@(arg), [NSNull null]]];
     } else {
-        [self.chartData addObject:@[date, value]];
+        [self.chartData addObject:@[@(arg), value]];
     }
 }
 

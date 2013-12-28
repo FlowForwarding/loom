@@ -74,7 +74,7 @@
     if (offsetForRanges > (scrollView.contentSize.width - scrollView.frame.size.width))
         offsetForRanges = scrollView.contentSize.width - scrollView.frame.size.width;
     
-    double newMinRange = [self.chart.chartData[0][0] timeIntervalSince1970] +
+    double newMinRange = [self.chart.chartData[0][0] doubleValue] +
         timePeriod*(offsetForRanges/scrollView.frame.size.width/scaleIndex);
     nciChart.minRangeVal = newMinRange;
     nciChart.maxRangeVal = newMinRange + rangesPeriod;
@@ -95,7 +95,7 @@
             return;
     float scaleIndex = [((NCITopChartView *)self.chart).nciChart getScaleIndex];
     float contentWidth = self.gridWidth* scaleIndex;
-    float timeDiff = [[self.chart.chartData lastObject][0] timeIntervalSince1970] - [self.chart.chartData[0][0] timeIntervalSince1970];
+    float timeDiff = [[self.chart.chartData lastObject][0] doubleValue] - [self.chart.chartData[0][0] doubleValue];
     if (timeDiff == 0){
         timeDiff = contentWidth;
     }
@@ -105,7 +105,7 @@
     
     gridScroll.contentSize = CGSizeMake(contentWidth, self.gridHeigth);
     
-    double timeOffest = ((NCITopChartView *)self.chart).nciChart.minRangeVal  -  [self.chart.chartData[0][0] timeIntervalSince1970];
+    double timeOffest = ((NCITopChartView *)self.chart).nciChart.minRangeVal  -  [self.chart.chartData[0][0] doubleValue];
     if (timeOffest < 0)
         timeOffest = 0;
     gridScroll.contentOffset = CGPointMake(timeOffest * stepX, 0);
@@ -135,7 +135,7 @@
             label.font = self.chart.nciXLabelsFont;
             label.textAlignment = NSTextAlignmentCenter;
             label.text = [NSString stringWithFormat:@"%@", [self.dateFormatter stringFromDate:
-                                                            [self getDateByX: xVal -  self.xLabelsWidth]]];
+                                                    [NSDate dateWithTimeIntervalSince1970:[self getArgumentByX: xVal -  self.xLabelsWidth]]]];
             
             [self.xAxisLabels addObject:label];
             [self addSubview:label];
@@ -143,18 +143,17 @@
     }
 }
 
-- (NSDate *)getDateByX:(float) pointX{
+- (double)getArgumentByX:(float) pointX{
     float scaleIndex = [((NCITopChartView *)self.chart).nciChart getScaleIndex];
-    return [NSDate dateWithTimeIntervalSince1970:(self.minXVal + (gridScroll.contentOffset.x + pointX)/scaleIndex/self.xStep)];
+    return self.minXVal + (gridScroll.contentOffset.x + pointX)/scaleIndex/self.xStep;
 }
 
-- (float)getXByArgument:(NSDate *)date{
+- (float)getXByArgument:(double) arg{
     float scaleIndex = [((NCITopChartView *)self.chart).nciChart getScaleIndex];
-    return ([date timeIntervalSince1970] - self.minXVal)*self.xStep * scaleIndex - gridScroll.contentOffset.x;
+    return (arg - self.minXVal)*self.xStep * scaleIndex - gridScroll.contentOffset.x;
 }
 
 - (void)detectRanges{
-
     NSArray *yVals = [((NCITopChartView *)self.chart) getValsInRanges];
     self.minYVal = [yVals[0] floatValue];
     self.maxYVal = [yVals[1] floatValue];

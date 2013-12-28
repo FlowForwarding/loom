@@ -130,13 +130,14 @@
         }
         trendStepCounter += 1;
         int value = trendMiddle + arc4random() % 5;
-        NSDate *date = [[NSDate date] dateByAddingTimeInterval: (-demoDatePeriod + step*ind)];
+        //NSDate *date = [[NSDate date] dateByAddingTimeInterval: (-demoDatePeriod + step*ind)];
+        double time = [[NSDate date] timeIntervalSince1970] - demoDatePeriod + step*ind;
         if (trendStepCounter > 4 && trendStepCounter < 7){
-            [nciChart addPoint:date val: nil];
-            [simpleChart addPoint:date val:nil];
+            [nciChart addPoint:time val: nil];
+            [simpleChart addPoint:time val:nil];
         } else {
-            [nciChart addPoint:date val: @(value)];
-            [simpleChart addPoint:date val: @(value)];
+            [nciChart addPoint:time val: @(value)];
+            [simpleChart addPoint:time val: @(value)];
         }
 
     }

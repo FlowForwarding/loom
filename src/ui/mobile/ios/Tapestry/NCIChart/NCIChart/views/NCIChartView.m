@@ -77,7 +77,7 @@
 }
 
 -(double)getTimePeriod{
-    return [[self.chartData lastObject][0] timeIntervalSince1970] - [self.chartData[0][0] timeIntervalSince1970];
+    return [[self.chartData lastObject][0] doubleValue] - [self.chartData[0][0] doubleValue];
 }
 
 -(double)getRangesPeriod{

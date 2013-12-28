@@ -224,11 +224,11 @@ static NSString* websocketMoreDataRequest =
             NSString *dateString = [dataPieces[i] substringWithRange:NSMakeRange(8, ((NSString *)dataPieces[i]).length - 10)];
             NSDate *date = [self dateFromServerString: dateString];
             NSString *nciVal = [dataPieces[i+1] substringFromIndex:6];
-            [self.chartView addPoint:date val:@([nciVal integerValue]) ];
+            [self.chartView addPoint:[date timeIntervalSince1970] val:@([nciVal integerValue]) ];
         }
-        [self.chartView addPoint:[NSDate date] val:nil];
+        [self.chartView addPoint:[[NSDate date]  timeIntervalSince1970] val:nil];
         if (!self.chartView.minRangeVal){
-            long period = [[NSDate date] timeIntervalSince1970] - [((NSDate *)[self.chartView.chartData firstObject][0]) timeIntervalSince1970];
+            long period = [[NSDate date] timeIntervalSince1970] - [[self.chartView.chartData firstObject][0] doubleValue];
             self.chartView.maxRangeVal = [[NSDate date] timeIntervalSince1970];
             self.chartView.minRangeVal = self.chartView.maxRangeVal - period /10.0;
         }
@@ -248,11 +248,11 @@ static NSString* websocketMoreDataRequest =
             if (_currentDatePeriod == twoYearPeriod){
                 if (self.chartView.chartData.count > 0)
                     [self.chartView.chartData removeLastObject];
-                [self.chartView addPoint:[self dateFromServerString: dataPoint[@"Time"]] val:@([nci integerValue])];
-                while ([[NSDate date] timeIntervalSince1970] - [self.chartView.chartData[0][0] timeIntervalSince1970] > _currentDatePeriod){
+                [self.chartView addPoint:[[self dateFromServerString: dataPoint[@"Time"]] timeIntervalSince1970] val:@([nci integerValue])];
+                while ([[NSDate date] timeIntervalSince1970] - [self.chartView.chartData[0][0] doubleValue] > _currentDatePeriod){
                     [self.chartView.chartData removeObjectAtIndex:0];
                 }
-                [self.chartView addPoint:[NSDate date] val:nil];
+                [self.chartView addPoint:[[NSDate date] timeIntervalSince1970]  val:nil];
                 [self.chartView drawChart];
             }
         } else if (nep) {

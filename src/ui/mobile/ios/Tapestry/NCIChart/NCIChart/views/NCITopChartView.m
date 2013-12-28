@@ -71,8 +71,8 @@
             curMin = [nextPoint[1] floatValue];
         }
         
-        if ( self.nciChart.minRangeVal <= [point[0] timeIntervalSince1970] &&
-            ( minYVal == MAXFLOAT || self.nciChart.maxRangeVal  >= [point[0] timeIntervalSince1970])){
+        if ( self.nciChart.minRangeVal <= [point[0] doubleValue] &&
+            ( minYVal == MAXFLOAT || self.nciChart.maxRangeVal  >= [point[0] doubleValue])){
                 
             if (firstDataIndex > (index - 1)){
                 firstDataIndex = (index - 1);

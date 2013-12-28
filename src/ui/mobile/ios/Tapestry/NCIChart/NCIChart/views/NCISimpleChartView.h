@@ -39,7 +39,7 @@
 -(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts;
 
 - (void)addSubviews;
-- (void)addPoint:(NSDate *)date val:(NSNumber *)value;
+- (void)addPoint:(double)arg val:(NSNumber *)value;
 - (NSArray *)getBoundaryValues;
 - (void)layoutSelectedPoint;
 

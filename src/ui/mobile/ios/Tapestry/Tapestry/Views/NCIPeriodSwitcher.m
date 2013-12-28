@@ -73,12 +73,12 @@ static float tenYearsPeriod = 60*60*24*30*12*10;
     actionBlock();
     
     [NCIWebSocketConnector interlocutor].chartView.maxRangeVal =
-     [[[NCIWebSocketConnector interlocutor].chartView.chartData lastObject][0] timeIntervalSince1970];
+     [[[NCIWebSocketConnector interlocutor].chartView.chartData lastObject][0] doubleValue];
     double newMin = [NCIWebSocketConnector interlocutor].chartView.maxRangeVal  - _period ;
     if (([NCIWebSocketConnector interlocutor].currentDatePeriod == twoYearPeriod && _period <= twoYearPeriod) ||
         ([NCIWebSocketConnector interlocutor].currentDatePeriod == tenYearsPeriod && _period > twoYearPeriod)){
-        if (newMin < [[NCIWebSocketConnector interlocutor].chartView.chartData[0][0] timeIntervalSince1970]){
-            newMin = [[NCIWebSocketConnector interlocutor].chartView.chartData[0][0] timeIntervalSince1970];
+        if (newMin < [[NCIWebSocketConnector interlocutor].chartView.chartData[0][0] doubleValue]){
+            newMin = [[NCIWebSocketConnector interlocutor].chartView.chartData[0][0] doubleValue];
         }
         [NCIWebSocketConnector interlocutor].chartView.minRangeVal=  newMin;
         [[NCIWebSocketConnector interlocutor].chartView drawChart];
