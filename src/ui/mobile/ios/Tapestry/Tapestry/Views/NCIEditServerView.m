@@ -155,8 +155,8 @@ static float rightIndent = 80;
     [bookmarksTable reloadData];
     //reset min date to reset all ranges
     //reset min date to reset all ranges
-    if ([NCIWebSocketConnector interlocutor].chartView.minRangeDate)
-        [NCIWebSocketConnector interlocutor].chartView.minRangeDate = nil;
+    if ([NCIWebSocketConnector interlocutor].chartView.minRangeVal)
+        [NCIWebSocketConnector interlocutor].chartView.minRangeVal = 0;
     [[NCIWebSocketConnector interlocutor] resetData];
     [self resignFirstResponder];
 }

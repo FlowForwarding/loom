@@ -66,7 +66,7 @@
 }
 
 - (double)getScaleIndex{
-    if (!_minRangeDate || !_maxRangeDate)
+    if (!_minRangeVal || !_maxRangeVal)
         return 1;
     double rangeDiff = [self getRangesPeriod];
     if (rangeDiff == 0){
@@ -81,7 +81,7 @@
 }
 
 -(double)getRangesPeriod{
-    return [self.maxRangeDate timeIntervalSince1970] - [self.minRangeDate timeIntervalSince1970];
+    return self.maxRangeVal - self.minRangeVal;
 }
 
 @end

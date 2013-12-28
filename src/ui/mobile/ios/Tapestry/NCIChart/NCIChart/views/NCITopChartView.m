@@ -71,8 +71,8 @@
             curMin = [nextPoint[1] floatValue];
         }
         
-        if ( [self.nciChart.minRangeDate compare:point[0]] <=  NSOrderedSame &&
-            ( minYVal == MAXFLOAT || [self.nciChart.maxRangeDate compare:point[0]] >= NSOrderedSame)){
+        if ( self.nciChart.minRangeVal <= [point[0] timeIntervalSince1970] &&
+            ( minYVal == MAXFLOAT || self.nciChart.maxRangeVal  >= [point[0] timeIntervalSince1970])){
                 
             if (firstDataIndex > (index - 1)){
                 firstDataIndex = (index - 1);

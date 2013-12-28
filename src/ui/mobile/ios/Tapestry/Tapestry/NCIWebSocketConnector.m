@@ -227,10 +227,10 @@ static NSString* websocketMoreDataRequest =
             [self.chartView addPoint:date val:@([nciVal integerValue]) ];
         }
         [self.chartView addPoint:[NSDate date] val:nil];
-        if (!self.chartView.minRangeDate){
+        if (!self.chartView.minRangeVal){
             long period = [[NSDate date] timeIntervalSince1970] - [((NSDate *)[self.chartView.chartData firstObject][0]) timeIntervalSince1970];
-            self.chartView.minRangeDate = [[NSDate date] dateByAddingTimeInterval: - period /10.0];
-            self.chartView.maxRangeDate = [NSDate date];
+            self.chartView.maxRangeVal = [[NSDate date] timeIntervalSince1970];
+            self.chartView.minRangeVal = self.chartView.maxRangeVal - period /10.0;
         }
         [self.chartView drawChart];
         

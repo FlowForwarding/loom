@@ -16,8 +16,8 @@
 @property(nonatomic, strong) NCITopChartView *topChart;
 @property(nonatomic, strong) NCIBtmChartView *btmChart;
 
-@property(nonatomic, strong)NSDate *minRangeDate;
-@property(nonatomic, strong)NSDate *maxRangeDate;
+@property(nonatomic)double minRangeVal;
+@property(nonatomic)double maxRangeVal;
 
 -(double)getScaleIndex;
 -(double)getTimePeriod;

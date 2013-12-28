@@ -145,12 +145,12 @@
     if ([data[1] isKindOfClass:[NSNull class]] )
         return CGPointZero;
     float yVal = self.frame.size.height - (([data[1] floatValue] - _minYVal)*_yStep) - _yLabelsHeigth;
-    float xVal = [self getXValueByDate: date];
+    float xVal = [self getXByArgument: date];
     return CGPointMake(xVal, yVal);
 }
 
-- (float)getXValueByDate:(NSDate *)date{
-    return ([date timeIntervalSince1970] - _minXVal)*_xStep;
+- (float)getXByArgument:(NSDate *)arg{
+    return ([arg timeIntervalSince1970] - _minXVal)*_xStep;
 }
 
 @end

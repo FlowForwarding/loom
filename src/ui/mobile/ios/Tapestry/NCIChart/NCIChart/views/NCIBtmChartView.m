@@ -58,13 +58,13 @@
     [super layoutSubviews];
     if ( self.nciChart.chartData.count < 2 )
         return;
-    if (!self.nciChart.minRangeDate){
-        self.nciChart.minRangeDate = self.nciChart.chartData[0][0];
+    if (!self.nciChart.minRangeVal){
+        self.nciChart.minRangeVal = [self.nciChart.chartData[0][0] timeIntervalSince1970];
     }
-    if (!self.nciChart.maxRangeDate){
-        self.nciChart.maxRangeDate = [self.nciChart.chartData lastObject][0];
+    if (!self.nciChart.maxRangeVal){
+        self.nciChart.maxRangeVal = [[self.nciChart.chartData lastObject][0] timeIntervalSince1970];
     }
-    if (!self.nciChart.maxRangeDate)
+    if (!self.nciChart.maxRangeVal)
         _xHandspikeRight = self.frame.size.width;
     [self redrawRanges];
 }
@@ -72,8 +72,8 @@
 - (void)redrawRanges{
 
     float gridHeigth =  self.graph.grid.frame.size.height;
-    _xHandspikeLeft = [self.graph getXValueByDate:self.nciChart.minRangeDate] + self.graph.xLabelsWidth;
-    _xHandspikeRight = [self.graph getXValueByDate:self.nciChart.maxRangeDate] + self.graph.xLabelsWidth;
+    _xHandspikeLeft = [self.graph getXByArgument: [NSDate dateWithTimeIntervalSince1970: self.nciChart.minRangeVal]] + self.graph.xLabelsWidth;
+    _xHandspikeRight = [self.graph getXByArgument: [NSDate dateWithTimeIntervalSince1970: self.nciChart.maxRangeVal]] + self.graph.xLabelsWidth;
     
     handspikeLeft.frame = CGRectMake(_xHandspikeLeft, 0, handspikeWidth, gridHeigth);
     leftAmputation.frame = CGRectMake(self.graph.xLabelsWidth, 0, _xHandspikeLeft - self.graph.xLabelsWidth, gridHeigth);
@@ -180,8 +180,8 @@ static float startRightRange = -1;
     if ((newLeft != -1 && newRight != -1) && (newRight - newLeft) < minRangesDistance)
         return;
     
-    self.nciChart.minRangeDate = [self.graph getDateByX:newLeft - self.graph.xLabelsWidth];
-    self.nciChart.maxRangeDate = [self.graph getDateByX:newRight - self.graph.xLabelsWidth];
+    self.nciChart.minRangeVal = [[self.graph getDateByX:newLeft - self.graph.xLabelsWidth] timeIntervalSince1970];
+    self.nciChart.maxRangeVal = [[self.graph getDateByX:newRight - self.graph.xLabelsWidth] timeIntervalSince1970];
 
     [self.nciChart.topChart.graph setNeedsLayout];
     [self.nciChart.topChart.graph.grid setNeedsDisplay];

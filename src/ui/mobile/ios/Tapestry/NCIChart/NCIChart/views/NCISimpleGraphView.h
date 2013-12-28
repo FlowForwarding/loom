@@ -41,7 +41,7 @@
 
 - (NSDate *)getDateByX:(float) pointX;
 - (CGPoint)pointByServerDataInGrid:(NSArray *)data;
-- (float)getXValueByDate:(NSDate *)date;
+- (float)getXByArgument:(NSDate *) arg;
 - (NSDate *)getDateByXValue:(float)xVal;
 
 @end
