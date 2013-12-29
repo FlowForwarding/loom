@@ -26,5 +26,9 @@ extern NSString *const nciYLabelsFont;
 extern NSString *const nciXLabelsDistance;
 extern NSString *const nciYLabelsDistance;
 
+extern NSString *const nciXLabelRenderer;
+extern NSString *const nciYLabelRenderer;
+extern NSString *const nciSelPointTextRenderer;
+extern NSString *const nciTapGridAction;
 
 @end

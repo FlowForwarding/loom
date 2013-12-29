@@ -31,7 +31,7 @@
             _xLabelsWidth = 50;
         } else {
             _yLabelsHeigth = 20;
-            _xLabelsWidth = 30;
+            _xLabelsWidth = 50;
         }
         
         _yAxisLabels = [[NSMutableArray alloc] init];
@@ -84,7 +84,12 @@
                               CGRectMake(0, self.frame.size.height - i*yLabelsDistance - _yLabelsHeigth - _yLabelShift, _xLabelsWidth, 20)];
             label.font =  self.chart.nciYLabelsFont;
             if (self.chart.hasYLabels){
-                label.text = [NSString stringWithFormat:@"%.1f", [self getValByY: (_yLabelsHeigth + yLabelsDistance*i)]];
+                double curVal = [self getValByY: (_yLabelsHeigth + yLabelsDistance*i)];
+                if (self.chart.nciYLabelRenderer){
+                    label.text = self.chart.nciYLabelRenderer(curVal);
+                } else {
+                    label.text = [NSString stringWithFormat:@"%f", curVal];
+                }
             }
             [_yAxisLabels addObject:label];
             [self addSubview:label];
@@ -105,30 +110,41 @@
 
 - (void)redrawXLabels{
     float xLabelsDistance = self.chart.nciXLabelsDistance;
-    
-    if ((1/_xStep * xLabelsDistance) < 60*60*24){
-        [_dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm"];
-    } else if ((1/_xStep * xLabelsDistance) < 60*60*24*30){
-        [_dateFormatter setDateFormat:@"yyyy-MMM-dd"];
-    } else {
-        [_dateFormatter setDateFormat:@"yyyy-MMM"];
-    }
+    [self formatDateForDistance:xLabelsDistance];
     
     for(int i = 0; i<= _gridWidth/xLabelsDistance; i++){
         UILabel *label = [[UILabel alloc] initWithFrame:
                           CGRectMake(_xLabelsWidth + xLabelsDistance *i  - xLabelsDistance/2,
                                      self.frame.size.height - _yLabelsHeigth, xLabelsDistance,
                                      _yLabelsHeigth)];
-        label.textAlignment = NSTextAlignmentCenter;
-        label.font = self.chart.nciXLabelsFont;
-        label.text = [NSString stringWithFormat:@"%@",
-                      [_dateFormatter stringFromDate:
-                       [NSDate dateWithTimeIntervalSince1970:[self getArgumentByX: (_xLabelsWidth + xLabelsDistance *i)]]]];
-        [_xAxisLabels addObject:label];
-        [self addSubview:label];
+        double curVal = [self getArgumentByX: (_xLabelsWidth + xLabelsDistance *i - xLabelsDistance/2)];
+        [self makeUpXLabel:label val:curVal];
     }
 }
 
+- (void)formatDateForDistance:(double) distance{
+    if ((1/_xStep * distance) < 60*60*24){
+        [_dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm"];
+    } else if ((1/_xStep * distance) < 60*60*24*30){
+        [_dateFormatter setDateFormat:@"yyyy-MMM-dd"];
+    } else {
+        [_dateFormatter setDateFormat:@"yyyy-MMM"];
+    }
+}
+
+- (void)makeUpXLabel:(UILabel *)label val:(double) curVal{
+    label.textAlignment = NSTextAlignmentCenter;
+    label.font = self.chart.nciXLabelsFont;
+    if (self.chart.nciXLabelRenderer){
+        label.text = self.chart.nciXLabelRenderer(curVal);
+    } else {
+        label.text = [NSString stringWithFormat:@"%@",
+                      [_dateFormatter stringFromDate: [NSDate dateWithTimeIntervalSince1970:curVal]]];
+    }
+    [_xAxisLabels addObject:label];
+    [self addSubview:label];
+
+}
 
 - (double)getArgumentByX:(float) pointX{
     return (_minXVal + (pointX)/_xStep);

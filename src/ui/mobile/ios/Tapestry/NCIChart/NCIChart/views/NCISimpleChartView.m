@@ -33,7 +33,6 @@
         _nciLineWidth = 0.3;
         _nciLineColor = [UIColor blueColor];
         _nciSelPointColor = [UIColor blueColor];
-        _nciSelPointSize = 8;
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
             _nciXLabelsFont = [UIFont italicSystemFontOfSize:14];
@@ -41,15 +40,18 @@
             _nciSelPointFont = [UIFont boldSystemFontOfSize:18];
             _nciXLabelsDistance = 200;
             _nciYLabelsDistance = 80;
+            _nciSelPointSize = 8;
         } else {
             _nciXLabelsFont = [UIFont italicSystemFontOfSize:10];
             _nciYLabelsFont = [UIFont systemFontOfSize:10];
-            _nciSelPointFont = [UIFont boldSystemFontOfSize:14];
+            _nciSelPointFont = [UIFont boldSystemFontOfSize:12];
             _nciXLabelsDistance = 100;
             _nciYLabelsDistance = 40;
+            _nciSelPointSize = 4;
         }
         
         dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm:ss"];
         self.backgroundColor = [UIColor clearColor];
         self.chartData = [[NSMutableArray alloc] init];
         [self addSubviews];
@@ -65,7 +67,9 @@
             _nciIsFill = [[opts objectForKey:nciIsFill] boolValue];
         
         for (NSString* key in @[nciLineColor, nciXLabelsFont, nciYLabelsFont, nciSelPointFont]){
-            [self setValue:[opts objectForKey:key] forKey:key];
+            if ([opts objectForKey:key]){
+                [self setValue:[opts objectForKey:key] forKey:key];
+            }
         }
         
         if ([opts objectForKey:nciLineWidth])
@@ -89,7 +93,21 @@
             _nciSelPointImage = [opts objectForKey:nciSelPointImage];
             _nciHasSelection = YES;
         }
+        if ([opts objectForKey:nciSelPointTextRenderer]){
+            _nciSelPointTextRenderer = [opts objectForKey:nciSelPointTextRenderer];
+            _nciHasSelection = YES;
+        }
         self.nciHasSelection = _nciHasSelection;
+        
+        if ([opts objectForKey:nciXLabelRenderer]){
+            _nciXLabelRenderer = [opts objectForKey:nciXLabelRenderer];
+        }
+        if ([opts objectForKey:nciYLabelRenderer]){
+            _nciYLabelRenderer = [opts objectForKey:nciYLabelRenderer];
+        }
+        if ([opts objectForKey:nciTapGridAction]){
+            _nciTapGridAction = [opts objectForKey:nciTapGridAction];
+        }
 
     }
     return self;
@@ -108,6 +126,7 @@
         return;
     _selectedLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     _selectedLabel.font = _nciSelPointFont;
+    _selectedLabel.textAlignment = NSTextAlignmentRight;
     
     if (_nciSelPointImage){
         selectedPoint = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, _nciSelPointSize, _nciSelPointSize)];
@@ -127,13 +146,16 @@
 }
 
 - (void)setNciHasSelection:(bool)hasSelection{
-    _nciHasSelection = YES;
+    _nciHasSelection = hasSelection;
     [self setupSelection];
 }
 
 - (void)gridTapped:(UITapGestureRecognizer *)recognizer{
     CGPoint location = [recognizer locationInView:self.graph.grid];
     selectedPointArgument = [self.graph getArgumentByX:location.x];
+    if (self.nciTapGridAction){
+        self.nciTapGridAction([self.graph getArgumentByX:location.x], [self.graph getValByY:location.y]);
+    }
     [self layoutSelectedPoint];
 }
 
@@ -149,10 +171,13 @@
             selectedPoint.hidden = NO;
             CGPoint pointInGrid = [self.graph pointByServerDataInGrid:point];
             selectedPoint.center =  CGPointMake(pointInGrid.x + self.graph.xLabelsWidth, pointInGrid.y + labelHeight);
-            [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm:ss"];
-            _selectedLabel.text = [NSString stringWithFormat:@"NCI: %@  %@", point[1],
-                                   [dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:[point[0] doubleValue]]]];
-            
+            if (self.nciSelPointTextRenderer){
+                _selectedLabel.text = self.nciSelPointTextRenderer([point[1] doubleValue], [point[0] doubleValue]);
+            } else {
+                _selectedLabel.text = [NSString stringWithFormat:@"y: %@  x:%@", point[1],
+                                       [dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:[point[0] doubleValue]]]];
+            }
+
             if (pointInGrid.x < 0 || pointInGrid.x >= (self.graph.grid.frame.size.width + 2)){
                 selectedPoint.hidden = YES;
             } else {

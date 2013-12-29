@@ -32,9 +32,15 @@
 @property (nonatomic, strong)UIFont* nciYLabelsFont;
 @property(nonatomic) float nciXLabelsDistance;
 @property(nonatomic) float nciYLabelsDistance;
+
+@property (nonatomic, copy) NSString* (^nciXLabelRenderer)(double);
+@property (nonatomic, copy) NSString* (^nciYLabelRenderer)(double);
+//callbacks
+@property (nonatomic, copy) NSString* (^nciSelPointTextRenderer)(double, double);
+@property (nonatomic, copy) void (^nciTapGridAction)(double, double);
+
 //in persentage
 @property (nonatomic)float topBottomGridSpace;
-
 
 -(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts;
 

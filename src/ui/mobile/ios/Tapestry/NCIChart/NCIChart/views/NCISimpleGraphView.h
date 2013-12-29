@@ -42,5 +42,10 @@
 - (double)getArgumentByX:(float) pointX;
 - (CGPoint)pointByServerDataInGrid:(NSArray *)data;
 - (float)getXByArgument:(double) arg;
+- (float )getValByY:(float) pointY;
+
+//internal
+- (void)formatDateForDistance:(double) distance;
+- (void)makeUpXLabel:(UILabel *)label val:(double) curVal;
 
 @end

@@ -116,13 +116,7 @@
 - (void)redrawXLabels{
     float scaleIndex = [((NCITopChartView *)self.chart).nciChart getScaleIndex];
     float xLabelsDistance = self.chart.nciXLabelsDistance;
-    if ((1/self.xStep/scaleIndex * xLabelsDistance) < 60*60*24){
-        [self.dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm"];
-    } else if ((1/self.xStep/scaleIndex * xLabelsDistance) < 60*60*24*30){
-        [self.dateFormatter setDateFormat:@"yyyy-MMM-dd"];
-    } else {
-        [self.dateFormatter setDateFormat:@"yyyy-MMM"];
-    }
+    [self formatDateForDistance:xLabelsDistance/scaleIndex];
     
     float shift =  gridScroll.contentOffset.x - xLabelsDistance*((int)gridScroll.contentOffset.x / (int)xLabelsDistance);
     for(int i = 0; i<= self.gridWidth/xLabelsDistance + 1; i++){
@@ -132,13 +126,8 @@
                               CGRectMake(xVal - xLabelsDistance/2,
                                          self.frame.size.height - self.yLabelsHeigth, xLabelsDistance ,
                                          self.yLabelsHeigth)];
-            label.font = self.chart.nciXLabelsFont;
-            label.textAlignment = NSTextAlignmentCenter;
-            label.text = [NSString stringWithFormat:@"%@", [self.dateFormatter stringFromDate:
-                                                    [NSDate dateWithTimeIntervalSince1970:[self getArgumentByX: xVal -  self.xLabelsWidth]]]];
-            
-            [self.xAxisLabels addObject:label];
-            [self addSubview:label];
+            double curVal = [self getArgumentByX: xVal -  self.xLabelsWidth];
+            [self makeUpXLabel:label val:curVal];
         }
     }
 }

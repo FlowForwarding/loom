@@ -26,4 +26,9 @@ NSString *const nciYLabelsFont = @"nciYLabelsFont";
 NSString *const nciXLabelsDistance = @"nciXLabelsDistance";
 NSString *const nciYLabelsDistance = @"nciYLabelsDistance";
 
+NSString *const nciXLabelRenderer = @"xLabelRenderer";
+NSString *const nciYLabelRenderer = @"yLabelRenderer";
+NSString *const nciSelPointTextRenderer = @"selPointTextRenderer";
+NSString *const nciTapGridAction = @"tapGridAction";
+
 @end
