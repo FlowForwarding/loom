@@ -153,7 +153,7 @@
 - (float )getValByY:(float) pointY{
     return _minYVal + (pointY - _yLabelsHeigth)/_yStep;
 }
-
+//TODO for points
 - (CGPoint)pointByServerDataInGrid:(NSArray *)data{
     double argument = [data[0] doubleValue];
     if ([data[1] isKindOfClass:[NSNull class]] )

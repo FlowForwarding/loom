@@ -12,7 +12,7 @@
 @interface NCISimpleChartView(){
     NSDateFormatter* dateFormatter;
     double selectedPointArgument;
-    UIView *selectedPoint;
+    NSMutableArray *selectedPoints;
     float labelHeight;
 }
 
@@ -33,6 +33,7 @@
         _nciLineWidth = 0.3;
         _nciLineColor = [UIColor blueColor];
         _nciSelPointColor = [UIColor blueColor];
+        selectedPointArgument = NAN;
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
             _nciXLabelsFont = [UIFont italicSystemFontOfSize:14];
@@ -121,13 +122,8 @@
     }
 }
 
-- (void)setupSelection{
-    if (_selectedLabel)
-        return;
-    _selectedLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-    _selectedLabel.font = _nciSelPointFont;
-    _selectedLabel.textAlignment = NSTextAlignmentRight;
-    
+-(UIView *)createSelPoint{
+    UIView *selectedPoint;
     if (_nciSelPointImage){
         selectedPoint = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, _nciSelPointSize, _nciSelPointSize)];
         ((UIImageView *)selectedPoint).image = [UIImage imageNamed:_nciSelPointImage];
@@ -138,14 +134,25 @@
     }
     selectedPoint.hidden = YES;
     [self addSubview:selectedPoint];
+    [selectedPoints addObject:selectedPoint];
+    return selectedPoint;
+}
+
+- (void)setupSelection{
+    if (_selectedLabel)
+        return;
+    _selectedLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+    _selectedLabel.font = _nciSelPointFont;
+    _selectedLabel.textAlignment = NSTextAlignmentRight;
+    selectedPoints = [[NSMutableArray alloc] init];
     
-    [self addSubview:_selectedLabel];
     UITapGestureRecognizer *gridTapped = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(gridTapped:)];
     gridTapped.numberOfTapsRequired = 1;
     [self.graph.grid addGestureRecognizer:gridTapped];
 }
 
 - (void)setNciHasSelection:(bool)hasSelection{
+    labelHeight = hasSelection ? 20 : 0;
     _nciHasSelection = hasSelection;
     [self setupSelection];
 }
@@ -160,40 +167,46 @@
 }
 
 - (void)layoutSelectedPoint{
-    if (!selectedPointArgument)
+    if (selectedPointArgument != selectedPointArgument)
         return;
     for (int i =0; i < _chartData.count; i++){
         NSArray *point = _chartData[i];
         if (selectedPointArgument <= [point[0] doubleValue] ){
-            if([point[1] isKindOfClass:[NSNull class]]){
-                return;
-            }
-            selectedPoint.hidden = NO;
-            CGPoint pointInGrid = [self.graph pointByServerDataInGrid:point];
-            selectedPoint.center =  CGPointMake(pointInGrid.x + self.graph.xLabelsWidth, pointInGrid.y + labelHeight);
-            if (self.nciSelPointTextRenderer){
-                _selectedLabel.text = self.nciSelPointTextRenderer([point[1] doubleValue], [point[0] doubleValue]);
-            } else {
-                _selectedLabel.text = [NSString stringWithFormat:@"y: %@  x:%@", point[1],
-                                       [dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:[point[0] doubleValue]]]];
-            }
-
-            if (pointInGrid.x < 0 || pointInGrid.x >= (self.graph.grid.frame.size.width + 2)){
-                selectedPoint.hidden = YES;
-            } else {
+            for (int j = 0; j < ((NSArray *)point[1]).count; j++){
+                id val = point[1][j];
+                UIView *selectedPoint;
+                if (selectedPoints.count < (j+1)){
+                    selectedPoint = [self createSelPoint];
+                } else {
+                    selectedPoint = selectedPoints[j];
+                }
                 selectedPoint.hidden = NO;
+                CGPoint pointInGrid = [self.graph pointByServerDataInGrid:@[point[0], val]];
+                selectedPoint.center =  CGPointMake(pointInGrid.x + self.graph.xLabelsWidth, pointInGrid.y + labelHeight);
+                if (pointInGrid.x < 0 || pointInGrid.x >= (self.graph.grid.frame.size.width + 2)){
+                    selectedPoint.hidden = YES;
+                } else {
+                    selectedPoint.hidden = NO;
+                }
+            }
+            
+            if (self.nciSelPointTextRenderer){
+                _selectedLabel.text = self.nciSelPointTextRenderer([point[0] doubleValue], point[1]);
+            } else {
+                _selectedLabel.text = [NSString stringWithFormat:@"y: %@  x:%@", point[0],
+                                       [dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:[point[1][0] doubleValue]]]];
             }
             return;
         }
     }
-    _selectedLabel.text = @"";
-    selectedPoint.hidden = YES;
+    for (UIView *selectedPoint in selectedPoints){
+        _selectedLabel.text = @"";
+        selectedPoint.hidden = YES;
+    }
     selectedPointArgument = NAN;
-    
 }
 
 - (void)layoutSubviews{
-    labelHeight = 20;
     if (_nciHasSelection){
         _graph.frame = CGRectMake(0, labelHeight, self.bounds.size.width, self.bounds.size.height - labelHeight) ;//self.bounds;
     } else {
@@ -206,27 +219,25 @@
     }
 }
 
-- (void)addPoint:(double)arg val:(NSNumber *)value{
-    if (value == nil){
-        [self.chartData addObject:@[@(arg), [NSNull null]]];
-    } else {
-        [self.chartData addObject:@[@(arg), value]];
-    }
+- (void)addPoint:(double)arg val:(NSArray *)values{
+    [self.chartData addObject:@[@(arg), values]];
 }
 
 - (NSArray *)getBoundaryValues{
     float minY = MAXFLOAT;
     float maxY = -MAXFLOAT;
-    for (NSArray *point in self.chartData){
-        if ([point[1] isKindOfClass:[NSNull class]]){
-            continue;
-        }
-        float val = [point[1] floatValue];
-        if (val < minY){
-            minY = val;
-        }
-        if (val > maxY){
-            maxY = val;
+    for (NSArray *points in self.chartData){
+        for (NSNumber *point in points[1]){
+            if ([point isKindOfClass:[NSNull class]]){
+                continue;
+            }
+            float val = [point floatValue];
+            if (val < minY){
+                minY = val;
+            }
+            if (val > maxY){
+                maxY = val;
+            }
         }
     }
     float diff = (maxY - minY);

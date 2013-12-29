@@ -39,36 +39,36 @@
     long index;
     for(index = 1; index < self.chartData.count; index++){
         NSArray *point = self.chartData[index];
-        if ([point[1] isKindOfClass:[NSNull class]]){
+        if ([point[1][0] isKindOfClass:[NSNull class]]){
             continue;
         }
         NSArray * prevPoint = self.chartData[index - 1];
-        if ([prevPoint[1] isKindOfClass:[NSNull class]]){
+        if ([prevPoint[1][0] isKindOfClass:[NSNull class]]){
             prevPoint = @[prevPoint[0], point[1]];
         }
         
         NSArray * nextPoint;
         if (self.chartData.count != (index + 1)){
             nextPoint = self.chartData[index + 1];
-            if ([nextPoint[1] isKindOfClass:[NSNull class]]){
+            if ([nextPoint[1][0] isKindOfClass:[NSNull class]]){
                 nextPoint = @[nextPoint[0], point[1]];
             }
         } else {
             nextPoint = point;
         }
         
-        float curMax = [prevPoint[1] floatValue];
-        float curMin = [prevPoint[1] floatValue];
-        if ([point[1] floatValue] > [prevPoint[1] floatValue]){
-            curMax = [point[1] floatValue];
+        float curMax = [prevPoint[1][0] floatValue];
+        float curMin = [prevPoint[1][0] floatValue];
+        if ([point[1][0] floatValue] > [prevPoint[1][0] floatValue]){
+            curMax = [point[1][0] floatValue];
         } else {
-            curMin= [point[1] floatValue];
+            curMin= [point[1][0] floatValue];
         }
-        if ( curMax < [nextPoint[1] floatValue]){
-            curMax = [nextPoint[1] floatValue];
+        if ( curMax < [nextPoint[1][0] floatValue]){
+            curMax = [nextPoint[1][0] floatValue];
         }
-        if ( curMin > [nextPoint[1] floatValue]){
-            curMin = [nextPoint[1] floatValue];
+        if ( curMin > [nextPoint[1][0] floatValue]){
+            curMin = [nextPoint[1][0] floatValue];
         }
         
         if ( self.nciChart.minRangeVal <= [point[0] doubleValue] &&

@@ -13,6 +13,7 @@
     UIScrollView *book;
     NCIChartView *nciChart;
     NCISimpleChartView *simpleChart;
+    NCISimpleChartView *severalLinesChart;
     UIPageControl *pager;
     
     float horisontalIndent;
@@ -51,6 +52,10 @@
     nciChart = [[NCIChartView alloc] initWithFrame:CGRectZero];
     [book addSubview:nciChart];
     
+    severalLinesChart = [[NCISimpleChartView alloc] initWithFrame:CGRectZero
+                                                       andOptions:@{nciIsFill: @(NO)}];
+    [book addSubview:severalLinesChart];
+
     simpleChart = [[NCISimpleChartView alloc] initWithFrame:CGRectZero
                                                  andOptions:@{nciIsFill: @(NO),
                                                               nciLineColor : [UIColor greenColor],
@@ -128,6 +133,10 @@
                                 width - 2*horisontalIndent,
                                 heigth - verticalIndent - pagerHeigth);
     
+    severalLinesChart.frame = CGRectMake(horisontalIndent +  2*width, 0,
+                                         width - 3*horisontalIndent,
+                                         heigth - verticalIndent - pagerHeigth);
+    
     pager.frame = CGRectMake(0, heigth - pagerHeigth, width, pagerHeigth);
     
 
@@ -151,13 +160,16 @@
         //NSDate *date = [[NSDate date] dateByAddingTimeInterval: (-demoDatePeriod + step*ind)];
         double time = [[NSDate date] timeIntervalSince1970] - demoDatePeriod + step*ind;
         if (trendStepCounter > 4 && trendStepCounter < 7){
-            [nciChart addPoint:time val: nil];
-            [simpleChart addPoint:time val:nil];
+            [nciChart addPoint:time val: @[[NSNull null]]];
+            [simpleChart addPoint:time val: @[[NSNull null]]];
         } else {
-            [nciChart addPoint:time val: @(value)];
-            [simpleChart addPoint:time val: @(value)];
+            [nciChart addPoint:time val: @[@(value)]];
+            [simpleChart addPoint:time val: @[@(value)]];
         }
-
+        int value2 = trendMiddle + arc4random() % 5;
+       // int value3 = trendMiddle + arc4random() % 5;
+        
+        [severalLinesChart addPoint:time val: @[@(value), @(value2)]];
     }
     
 }

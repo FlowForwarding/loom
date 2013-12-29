@@ -36,7 +36,7 @@
 @property (nonatomic, copy) NSString* (^nciXLabelRenderer)(double);
 @property (nonatomic, copy) NSString* (^nciYLabelRenderer)(double);
 //callbacks
-@property (nonatomic, copy) NSString* (^nciSelPointTextRenderer)(double, double);
+@property (nonatomic, copy) NSString* (^nciSelPointTextRenderer)(double, NSArray *);
 @property (nonatomic, copy) void (^nciTapGridAction)(double, double);
 
 //in persentage
@@ -45,7 +45,7 @@
 -(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts;
 
 - (void)addSubviews;
-- (void)addPoint:(double)arg val:(NSNumber *)value;
+- (void)addPoint:(double)arg val:(NSArray *)values;
 - (NSArray *)getBoundaryValues;
 - (void)layoutSelectedPoint;
 
