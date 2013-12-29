@@ -20,10 +20,10 @@
 @property (nonatomic)bool hasYLabels;
 @property (nonatomic)bool nciIsFill;
 @property (nonatomic)float nciLineWidth;
-@property (nonatomic, strong)UIColor* nciLineColor;
+@property (nonatomic, strong)NSMutableArray* nciLineColors;
 
 @property (nonatomic)bool nciHasSelection;
-@property (nonatomic, strong)UIColor* nciSelPointColor;
+@property (nonatomic, strong)NSMutableArray* nciSelPointColors;
 @property (nonatomic, strong)NSString* nciSelPointImage;
 @property (nonatomic)float nciSelPointSize;
 @property (nonatomic, strong)UIFont* nciSelPointFont;

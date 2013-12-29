@@ -74,7 +74,8 @@
                 id val = points[1][i];
                 UIBezierPath *path;
                 if (paths.count < (i + 1) ){
-                    path = [self createPath];
+                    path = [UIBezierPath bezierPath];
+                    [path setLineWidth: self.graph.chart.nciLineWidth];
                     [paths addObject:path];
                 } else {
                     path = paths[i];
@@ -100,22 +101,32 @@
         };
     }
     
-    for (UIBezierPath *path in paths){
+    for (int i= 0; i < paths.count; i++){
+        UIBezierPath *path = paths[i];
+        UIColor *color = [self getColor:i];
         if (self.graph.chart.nciIsFill && !path.empty){
-            [path addLineToPoint:CGPointMake( path.currentPoint.x, self.frame.size.height)];
+            [[color colorWithAlphaComponent:0.1] setFill];
+            if (path.currentPoint.x == path.currentPoint.x)
+                [path addLineToPoint:CGPointMake( path.currentPoint.x, self.frame.size.height)];
             [path fill];
             [path closePath];
         }
+        [color setStroke];
         [path stroke];
     }
 }
 
--(UIBezierPath *)createPath{
-    UIBezierPath *path = [UIBezierPath bezierPath];
-    [self.graph.chart.nciLineColor setStroke];
-    [path setLineWidth: self.graph.chart.nciLineWidth];
-    [[self.graph.chart.nciLineColor colorWithAlphaComponent:0.1] setFill];
-    return path;
+-(UIColor *)getColor:(int) i{
+    if (self.graph.chart.nciLineColors.count > i){
+       return self.graph.chart.nciLineColors[i];
+    } else {
+        UIColor *newColor = [UIColor colorWithRed:(arc4random() % 74)/255.0f
+                                            green:(arc4random() % 74)/255.0f
+                                             blue:(arc4random() % 74)/255.0f alpha:1.0];
+        [self.graph.chart.nciLineColors addObject:newColor];
+        [self.graph.chart.nciSelPointColors addObject:newColor];
+        return newColor;
+    }
 }
 
 @end

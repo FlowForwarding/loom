@@ -157,7 +157,7 @@
 - (CGPoint)pointByServerDataInGrid:(NSArray *)data{
     double argument = [data[0] doubleValue];
     if ([data[1] isKindOfClass:[NSNull class]] )
-        return CGPointZero;
+        return CGPointMake(NAN, NAN);
     float yVal = self.frame.size.height - (([data[1] floatValue] - _minYVal)*_yStep) - _yLabelsHeigth;
     float xVal = [self getXByArgument: argument];
     return CGPointMake(xVal, yVal);

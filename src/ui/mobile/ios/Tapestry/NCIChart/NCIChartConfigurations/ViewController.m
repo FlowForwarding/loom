@@ -53,12 +53,14 @@
     [book addSubview:nciChart];
     
     severalLinesChart = [[NCISimpleChartView alloc] initWithFrame:CGRectZero
-                                                       andOptions:@{nciIsFill: @(NO)}];
+                                                       andOptions:@{nciIsFill: @(NO),
+                                                                    nciLineWidth : @(2),
+                                                                    nciHasSelection: @(YES)}];
     [book addSubview:severalLinesChart];
 
     simpleChart = [[NCISimpleChartView alloc] initWithFrame:CGRectZero
                                                  andOptions:@{nciIsFill: @(NO),
-                                                              nciLineColor : [UIColor greenColor],
+                                                              nciLineColors : @[[UIColor greenColor]],
                                                               nciLineWidth : @(2),
                                                               nciSelPointImage : @"star",
                                                               nciSelPointSize: @(20),
@@ -78,11 +80,11 @@
                                                               nciTapGridAction: ^(double argument, double value){
         NSLog(@"custom bg tap test");
     },
-                                                              nciSelPointTextRenderer: ^(double argument, double value){
-        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateFormat:@"MMM-dd HH:mm:ss"];
-        return [NSString stringWithFormat:@"Test: %f %@", argument,
-                [dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:value]]];
+                                                              nciSelPointTextRenderer: ^(double argument, NSArray* values){
+//        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+//        [dateFormatter setDateFormat:@"MMM-dd HH:mm:ss"];
+//        return [NSString stringWithFormat:@"Test: %f %@", argument,
+//                [dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:[values[0] doubleValue]]]];
     }
                                                               }];
     [book addSubview:simpleChart];
@@ -145,7 +147,7 @@
 - (void)generateDemoData{
     float halfYearPeriod = 60*60*24*30*6;
     float demoDatePeriod = halfYearPeriod;
-    float numOfPoints = 50;
+    float numOfPoints = 20;
     float step = demoDatePeriod/(numOfPoints - 1);
     int trendMiddle = 6;
     int trendStepCounter = 0;
@@ -167,9 +169,10 @@
             [simpleChart addPoint:time val: @[@(value)]];
         }
         int value2 = trendMiddle + arc4random() % 5;
-       // int value3 = trendMiddle + arc4random() % 5;
-        
-        [severalLinesChart addPoint:time val: @[@(value), @(value2)]];
+        int value3 = trendMiddle + arc4random() % 5;
+        int value4 = trendMiddle + arc4random() % 5;
+
+        [severalLinesChart addPoint:time val: @[@(value), @(value2), @(value3), @(value4)]];
     }
     
 }

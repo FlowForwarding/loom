@@ -11,11 +11,11 @@
 @implementation NCIChartOptions
 
 NSString *const nciIsFill = @"nciIsFill";
-NSString *const nciLineColor = @"nciLineColor";
+NSString *const nciLineColors = @"nciLineColors";
 NSString *const nciLineWidth = @"nciLineWidth";
 
 NSString *const nciHasSelection = @"nciHasSelection";
-NSString *const nciSelPointColor = @"nciSelPointColor";
+NSString *const nciSelPointColors = @"nciSelPointColors";
 NSString *const nciSelPointImage = @"nciSelPointImage";
 NSString *const nciSelPointSize = @"nciSelPointSize";
 NSString *const nciSelPointFont = @"nciSelPointFont";

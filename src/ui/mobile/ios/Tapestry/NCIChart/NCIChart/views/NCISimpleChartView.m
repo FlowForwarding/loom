@@ -16,9 +16,7 @@
     float labelHeight;
 }
 
-
 @end
-
 
 @implementation NCISimpleChartView
 
@@ -31,8 +29,8 @@
         _nciIsFill = YES;
         _topBottomGridSpace = 10;
         _nciLineWidth = 0.3;
-        _nciLineColor = [UIColor blueColor];
-        _nciSelPointColor = [UIColor blueColor];
+        _nciLineColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
+        _nciSelPointColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
         selectedPointArgument = NAN;
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
@@ -67,7 +65,7 @@
         if ([opts objectForKey:nciIsFill])
             _nciIsFill = [[opts objectForKey:nciIsFill] boolValue];
         
-        for (NSString* key in @[nciLineColor, nciXLabelsFont, nciYLabelsFont, nciSelPointFont]){
+        for (NSString* key in @[nciLineColors, nciXLabelsFont, nciYLabelsFont, nciSelPointFont]){
             if ([opts objectForKey:key]){
                 [self setValue:[opts objectForKey:key] forKey:key];
             }
@@ -82,8 +80,8 @@
         
         if ([opts objectForKey:nciHasSelection])
             _nciHasSelection = [[opts objectForKey:nciLineWidth] boolValue];
-        if ([opts objectForKey:nciSelPointColor]){
-            _nciSelPointColor = [opts objectForKey:nciSelPointColor];
+        if ([opts objectForKey:nciSelPointColors]){
+            _nciSelPointColors = [opts objectForKey:nciSelPointColors];
             _nciHasSelection = YES;
         }
         if ([opts objectForKey:nciSelPointSize]){
@@ -129,7 +127,6 @@
         ((UIImageView *)selectedPoint).image = [UIImage imageNamed:_nciSelPointImage];
     } else {
         selectedPoint = [[UIView alloc] initWithFrame:CGRectMake(0, 0, _nciSelPointSize, _nciSelPointSize)];
-        selectedPoint.backgroundColor = _nciSelPointColor;//[UIColor tapestryDarkBlue];
         selectedPoint.layer.cornerRadius = _nciSelPointSize/2;
     }
     selectedPoint.hidden = YES;
@@ -144,6 +141,8 @@
     _selectedLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     _selectedLabel.font = _nciSelPointFont;
     _selectedLabel.textAlignment = NSTextAlignmentRight;
+    _selectedLabel.numberOfLines = 0;
+    [self addSubview:_selectedLabel];
     selectedPoints = [[NSMutableArray alloc] init];
     
     UITapGestureRecognizer *gridTapped = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(gridTapped:)];
@@ -174,9 +173,13 @@
         if (selectedPointArgument <= [point[0] doubleValue] ){
             for (int j = 0; j < ((NSArray *)point[1]).count; j++){
                 id val = point[1][j];
+                if ([val isKindOfClass:[NSNull class]])
+                    continue;
                 UIView *selectedPoint;
                 if (selectedPoints.count < (j+1)){
                     selectedPoint = [self createSelPoint];
+                    if (!_nciSelPointImage)
+                        selectedPoint.backgroundColor =  _nciSelPointColors[j];//[UIColor tapestryDarkBlue];
                 } else {
                     selectedPoint = selectedPoints[j];
                 }
@@ -193,8 +196,15 @@
             if (self.nciSelPointTextRenderer){
                 _selectedLabel.text = self.nciSelPointTextRenderer([point[0] doubleValue], point[1]);
             } else {
-                _selectedLabel.text = [NSString stringWithFormat:@"y: %@  x:%@", point[0],
-                                       [dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:[point[1][0] doubleValue]]]];
+                NSMutableString *values = [[NSMutableString alloc] init];
+                for (id val in point[1]){
+                    if (![val isKindOfClass:[NSNull class]]){
+                        [values appendString:[val description]];
+                        [values appendString:@","];
+                    }
+                }
+                _selectedLabel.text = [NSString stringWithFormat:@"x: %@  y:%@", values,
+                                       [dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:[point[0] doubleValue]]]];
             }
             return;
         }
@@ -214,7 +224,7 @@
     }
     [_graph layoutSubviews];
     if (_nciHasSelection){
-        _selectedLabel.frame = CGRectMake(self.bounds.size.width - 280, 0, 280, labelHeight);
+        _selectedLabel.frame = CGRectMake(0, 0, self.bounds.size.width, labelHeight);;
         [self layoutSelectedPoint];
     }
 }
