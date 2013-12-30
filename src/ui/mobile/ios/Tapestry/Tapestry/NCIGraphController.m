@@ -84,7 +84,16 @@
     
     [self.view addSubview:nepValue];
     
-    chartView = [[NCIChartView alloc] initWithFrame:CGRectZero];
+    chartView = [[NCIChartView alloc] initWithFrame:
+                 CGRectZero andOptions:@{nciTopGraphOptions:@{
+                                                 nciSelPointColors: @[[UIColor tapestryDarkBlue]],
+                                                 nciSelPointTextRenderer: ^(double argument , NSArray *values){
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm:ss"];
+        return  [NSString stringWithFormat:@"NCI:%@ %@", values[0],
+                 [dateFormatter stringFromDate: [NSDate dateWithTimeIntervalSince1970:argument]]];
+    }
+                                                 }}];
     chartView.rangesMoved = ^(){
         [[NCIWebSocketConnector interlocutor].periodSwitcherPanel resetButtons];
     };

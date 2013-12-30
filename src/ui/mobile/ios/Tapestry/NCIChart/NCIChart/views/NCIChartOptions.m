@@ -28,7 +28,10 @@ NSString *const nciYLabelsDistance = @"nciYLabelsDistance";
 
 NSString *const nciXLabelRenderer = @"xLabelRenderer";
 NSString *const nciYLabelRenderer = @"yLabelRenderer";
-NSString *const nciSelPointTextRenderer = @"selPointTextRenderer";
-NSString *const nciTapGridAction = @"tapGridAction";
+NSString *const nciSelPointTextRenderer = @"nciSelPointTextRenderer";
+NSString *const nciTapGridAction = @"nciTapGridAction";
+
+NSString *const nciTopGraphOptions = @"nciTopGraphOptions";
+NSString *const nciBottomGraphOptions = @"nciBottomGraphOptions";
 
 @end

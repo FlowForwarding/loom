@@ -153,10 +153,8 @@ static float rightIndent = 80;
     goBtn.hidden = YES;
     [[NCIWebSocketConnector interlocutor] newTapestryUrl:serverUrlEdit.text];
     [bookmarksTable reloadData];
-    //reset min date to reset all ranges
-    //reset min date to reset all ranges
-    if ([NCIWebSocketConnector interlocutor].chartView.minRangeVal)
-        [NCIWebSocketConnector interlocutor].chartView.minRangeVal = 0;
+    [NCIWebSocketConnector interlocutor].chartView.minRangeVal = NAN;
+    [NCIWebSocketConnector interlocutor].chartView.maxRangeVal = NAN;
     [[NCIWebSocketConnector interlocutor] resetData];
     [self resignFirstResponder];
 }

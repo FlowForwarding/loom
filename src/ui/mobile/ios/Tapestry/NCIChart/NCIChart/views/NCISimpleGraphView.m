@@ -88,7 +88,7 @@
                 if (self.chart.nciYLabelRenderer){
                     label.text = self.chart.nciYLabelRenderer(curVal);
                 } else {
-                    label.text = [NSString stringWithFormat:@"%f", curVal];
+                    label.text = [NSString stringWithFormat:@"%0.1f", curVal];
                 }
             }
             [_yAxisLabels addObject:label];

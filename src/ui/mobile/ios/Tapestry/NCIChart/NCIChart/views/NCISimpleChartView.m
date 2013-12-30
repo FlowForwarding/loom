@@ -151,7 +151,13 @@
 }
 
 - (void)setNciHasSelection:(bool)hasSelection{
-    labelHeight = hasSelection ? 20 : 0;
+    if (hasSelection){
+        labelHeight = 20;
+        _selectedLabel.hidden = NO;
+    } else {
+        labelHeight = 0;
+        _selectedLabel.hidden = YES;
+    }
     _nciHasSelection = hasSelection;
     [self setupSelection];
 }
@@ -179,7 +185,7 @@
                 if (selectedPoints.count < (j+1)){
                     selectedPoint = [self createSelPoint];
                     if (!_nciSelPointImage)
-                        selectedPoint.backgroundColor =  _nciSelPointColors[j];//[UIColor tapestryDarkBlue];
+                        selectedPoint.backgroundColor =  _nciSelPointColors[j];
                 } else {
                     selectedPoint = selectedPoints[j];
                 }

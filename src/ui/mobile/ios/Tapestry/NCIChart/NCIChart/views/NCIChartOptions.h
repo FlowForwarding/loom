@@ -31,4 +31,7 @@ extern NSString *const nciYLabelRenderer;
 extern NSString *const nciSelPointTextRenderer;
 extern NSString *const nciTapGridAction;
 
+extern NSString *const nciTopGraphOptions;
+extern NSString *const nciBottomGraphOptions;
+
 @end

@@ -12,9 +12,10 @@
 #import "NCIBtmChartView.h"
 
 @interface NCIChartView(){
-    
     float btmChartHeigth;
     float chartsSpace;
+    NSDictionary *topOptions;
+    NSDictionary *bottomOptions;
 }
 
 @end
@@ -32,17 +33,32 @@
             btmChartHeigth =  60;
             chartsSpace = 10;
         }
+        _minRangeVal = NAN;
+        _maxRangeVal = NAN;
         
     }
     return self;
 }
 
+-(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts{
+    if ([opts objectForKey:nciTopGraphOptions]){
+        topOptions = [opts objectForKey:nciTopGraphOptions];
+    }
+    if ([opts objectForKey:nciBottomGraphOptions]){
+        bottomOptions = [opts objectForKey:nciBottomGraphOptions];
+    }
+    self = [self initWithFrame:frame];
+    if (self) {
+    }
+    return self;
+}
+
 - (void)addSubviews{
-    _topChart = [[NCITopChartView alloc] initWithFrame:CGRectZero];
+    _topChart = [[NCITopChartView alloc] initWithFrame:CGRectZero andOptions:topOptions];
     _topChart.chartData = self.chartData;
     _topChart.nciChart = self;
     _topChart.nciHasSelection = YES;
-    _btmChart = [[NCIBtmChartView alloc] initWithFrame:CGRectZero];
+    _btmChart = [[NCIBtmChartView alloc] initWithFrame:CGRectZero andOptions:bottomOptions];
     _btmChart.chartData = self.chartData;
     _btmChart.hasYLabels = NO;
     _btmChart.nciChart = self;
@@ -66,7 +82,7 @@
 }
 
 - (double)getScaleIndex{
-    if (!_minRangeVal || !_maxRangeVal)
+    if (_minRangeVal != _minRangeVal || _maxRangeVal != _maxRangeVal)
         return 1;
     double rangeDiff = [self getRangesPeriod];
     if (rangeDiff == 0){
@@ -77,6 +93,8 @@
 }
 
 -(double)getTimePeriod{
+    if (self.chartData.count == 0)
+        return 0;
     return [[self.chartData lastObject][0] doubleValue] - [self.chartData[0][0] doubleValue];
 }
 

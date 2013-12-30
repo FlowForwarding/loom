@@ -32,7 +32,7 @@
 
 -(void)croperViewScale:(id)sender
 {
-    if (self.chart.chartData.count < 2)
+    if (self.chart.chartData.count == 0)
         return;
     if([(UIPinchGestureRecognizer *)sender state]==UIGestureRecognizerStateBegan)
     {
@@ -63,6 +63,8 @@
 }
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    if (self.chart.chartData.count == 0)
+        return;
     NCIChartView *nciChart = ((NCITopChartView *)self.chart).nciChart;
     float scaleIndex = [nciChart getScaleIndex];
     float timePeriod = [nciChart getTimePeriod];
@@ -91,7 +93,7 @@
 - (void)layoutSubviews{
 
     [super layoutSubviews];
-    if (self.chart.chartData.count < 2)
+    if (self.chart.chartData.count == 0)
             return;
     float scaleIndex = [((NCITopChartView *)self.chart).nciChart getScaleIndex];
     float contentWidth = self.gridWidth* scaleIndex;
@@ -118,7 +120,7 @@
     float xLabelsDistance = self.chart.nciXLabelsDistance;
     [self formatDateForDistance:xLabelsDistance/scaleIndex];
     
-    float shift =  gridScroll.contentOffset.x - xLabelsDistance*((int)gridScroll.contentOffset.x / (int)xLabelsDistance);
+    float shift = gridScroll.contentOffset.x - xLabelsDistance*((int)gridScroll.contentOffset.x / (int)xLabelsDistance);
     for(int i = 0; i<= self.gridWidth/xLabelsDistance + 1; i++){
         float xVal = self.xLabelsWidth + xLabelsDistance *i - shift;
         if ((xVal - self.xLabelsWidth) >= 0 && (xVal < self.frame.size.width) ){

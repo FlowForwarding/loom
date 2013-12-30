@@ -19,13 +19,15 @@
 @property(nonatomic)double minRangeVal;
 @property(nonatomic)double maxRangeVal;
 
+//callbacks
+@property (nonatomic, copy) void (^rangesMoved)(void);
+
+-(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts;
+
 -(double)getScaleIndex;
 -(double)getTimePeriod;
 -(double)getRangesPeriod;
 -(void)resetChart;
 -(void)drawChart;
-
-//callbacks
-@property (nonatomic, copy) void (^rangesMoved)(void);
 
 @end
