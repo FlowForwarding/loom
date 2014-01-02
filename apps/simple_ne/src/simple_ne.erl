@@ -20,4 +20,4 @@ grant_ipaddr(IpAddr) ->
     ok = of_driver:grant_ipaddr(IpAddr).
 
 revoke_ipaddr(IpAddr) ->
-    ok = revoke_ipaddr(IpAddr).
+    ok = of_driver:revoke_ipaddr(IpAddr).
