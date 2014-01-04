@@ -28,7 +28,6 @@
 		2A02D07E1844F2210065B0E9 /* NCIGraphController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D07B1844F2210065B0E9 /* NCIGraphController.m */; };
 		2A02D07F1844F2210065B0E9 /* NCIWebSocketConnector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D07D1844F2210065B0E9 /* NCIWebSocketConnector.m */; };
 		2A3BBB0D18576EBF006ECC2B /* NCIConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3BBB0C18576EBF006ECC2B /* NCIConstants.m */; };
-		2A6DDE0B1864523B0013D202 /* libNCIChart.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6DDE0A1864523B0013D202 /* libNCIChart.a */; };
 		2A846CFF18465ABC000CAA2F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2A846CFE18465ABC000CAA2F /* Localizable.strings */; };
 		2AF134E0185E31E50087D685 /* UIColor+WithHex.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AF134DF185E31E50087D685 /* UIColor+WithHex.m */; };
 		BF1E73678289457C8D232F84 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06D5AAF19A074DA0BABE9A8B /* libPods.a */; };
@@ -93,7 +92,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2A6DDE0B1864523B0013D202 /* libNCIChart.a in Frameworks */,
 				2A02D0091844F16C0065B0E9 /* CoreGraphics.framework in Frameworks */,
 				2A02D00B1844F16C0065B0E9 /* UIKit.framework in Frameworks */,
 				2A02D0071844F16C0065B0E9 /* Foundation.framework in Frameworks */,
