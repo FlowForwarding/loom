@@ -1,9 +1,21 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:icon="@drawable/infoicon" >
 
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/about_nci"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/action_settings"/>
+        android:title="@string/about_nci"/>
 
+    <item
+        android:id="@+id/nci_technical_paper"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/nci_technical_paper"/>
+    
+    <item
+        android:id="@+id/about_flowforwarding"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/about_flowforwarding"/>
 </menu>

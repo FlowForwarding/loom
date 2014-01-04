@@ -2,7 +2,11 @@
 <resources>
 
     <string name="app_name">Tapestry</string>
-    <string name="action_settings">Settings</string>
+    
+    <string name="about_nci">About NCI</string>
+    <string name="nci_technical_paper">NCI - Technical paper</string>
+    <string name="about_flowforwarding">About FlowForwarding.Org</string>
+    
     <string name="hello_world">Hello world!</string>
 
 </resources>
