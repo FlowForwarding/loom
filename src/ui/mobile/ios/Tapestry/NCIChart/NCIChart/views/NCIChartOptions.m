@@ -16,8 +16,8 @@ NSString *const nciLineWidth = @"nciLineWidth";
 
 NSString *const nciHasSelection = @"nciHasSelection";
 NSString *const nciSelPointColors = @"nciSelPointColors";
-NSString *const nciSelPointImage = @"nciSelPointImage";
-NSString *const nciSelPointSize = @"nciSelPointSize";
+NSString *const nciSelPointImages = @"nciSelPointImages";
+NSString *const nciSelPointSizes = @"nciSelPointSizes";
 NSString *const nciSelPointFont = @"nciSelPointFont";
 
 NSString *const nciXLabelsFont = @"nciXLabelsFont";

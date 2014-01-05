@@ -59,7 +59,8 @@
                                                        andOptions:@{nciIsFill: @(NO),
                                                                     nciXLabelsDistance: @(ylabelsdis),
                                                                     nciLineWidth : @(2),
-                                                                    nciSelPointSize: @(8),
+                                                                    nciSelPointSize: @(20),
+                                                                    nciSelPointImages : @[@"star", @"star"],
                                                                     nciHasSelection: @(YES),
                                                                     nciXLabelRenderer:^(double argument){
         return [NSString stringWithFormat:@"%.1f",argument];
@@ -70,7 +71,7 @@
                                                  andOptions:@{nciIsFill: @(NO),
                                                               nciLineColors : @[[UIColor greenColor]],
                                                               nciLineWidth : @(2),
-                                                              nciSelPointImage : @"star",
+                                                              nciSelPointImages : @[@"star"],
                                                               nciSelPointSize: @(20),
                                                               nciXLabelsFont: [UIFont fontWithName:@"MarkerFelt-Thin" size:12],
                                                               nciYLabelsFont: [UIFont fontWithName:@"MarkerFelt-Thin" size:12],
@@ -135,11 +136,11 @@
     book.frame = CGRectMake(0,  verticalIndent, width, heigth - verticalIndent  - pagerHeigth);
     book.contentSize = CGSizeMake(width*numberOfPages, heigth  - verticalIndent  - pagerHeigth);
     
-    nciChart.frame = CGRectMake(horisontalIndent, 0,
+    simpleChart.frame = CGRectMake(horisontalIndent, 0,
                              width - 2*horisontalIndent,
                              heigth - verticalIndent - pagerHeigth);
     
-    simpleChart.frame = CGRectMake(horisontalIndent +  width, 0,
+    nciChart.frame = CGRectMake(horisontalIndent +  width, 0,
                                 width - 2*horisontalIndent,
                                 heigth - verticalIndent - pagerHeigth);
     
@@ -155,7 +156,7 @@
 - (void)generateDemoData{
     float halfYearPeriod = 60*60*24*30*6;
     float demoDatePeriod = halfYearPeriod;
-    float numOfPoints = 20;
+    float numOfPoints = 40;
     float step = demoDatePeriod/(numOfPoints - 1);
     int trendMiddle = 6;
     int trendStepCounter = 0;

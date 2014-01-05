@@ -88,8 +88,8 @@
             _nciSelPointSize = [[opts objectForKey:nciSelPointSize] floatValue];
             _nciHasSelection = YES;
         }
-        if ([opts objectForKey:nciSelPointImage]){
-            _nciSelPointImage = [opts objectForKey:nciSelPointImage];
+        if ([opts objectForKey:nciSelPointImages]){
+            _nciSelPointImages = [opts objectForKey:nciSelPointImages];
             _nciHasSelection = YES;
         }
         if ([opts objectForKey:nciSelPointTextRenderer]){
@@ -120,11 +120,11 @@
     }
 }
 
--(UIView *)createSelPoint{
+-(UIView *)createSelPoint:(int) num{
     UIView *selectedPoint;
-    if (_nciSelPointImage){
+    if (_nciSelPointImages && _nciSelPointImages.count >= (num+1)){
         selectedPoint = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, _nciSelPointSize, _nciSelPointSize)];
-        ((UIImageView *)selectedPoint).image = [UIImage imageNamed:_nciSelPointImage];
+        ((UIImageView *)selectedPoint).image = [UIImage imageNamed:_nciSelPointImages[num]];
     } else {
         selectedPoint = [[UIView alloc] initWithFrame:CGRectMake(0, 0, _nciSelPointSize, _nciSelPointSize)];
         selectedPoint.layer.cornerRadius = _nciSelPointSize/2;
@@ -183,8 +183,8 @@
                     continue;
                 UIView *selectedPoint;
                 if (selectedPoints.count < (j+1)){
-                    selectedPoint = [self createSelPoint];
-                    if (!_nciSelPointImage)
+                    selectedPoint = [self createSelPoint:j];
+                    if (!_nciSelPointImages || _nciSelPointImages.count < (j+1))
                         selectedPoint.backgroundColor =  _nciSelPointColors[j];
                 } else {
                     selectedPoint = selectedPoints[j];

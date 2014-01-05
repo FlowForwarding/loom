@@ -24,8 +24,8 @@
 
 @property (nonatomic)bool nciHasSelection;
 @property (nonatomic, strong)NSMutableArray* nciSelPointColors;
-@property (nonatomic, strong)NSString* nciSelPointImage;
-@property (nonatomic)float nciSelPointSize;
+@property (nonatomic, strong)NSMutableArray* nciSelPointImages;
+@property (nonatomic)NSMutableArray* nciSelPointSizes;
 @property (nonatomic, strong)UIFont* nciSelPointFont;
 
 @property (nonatomic, strong)UIFont* nciXLabelsFont;
