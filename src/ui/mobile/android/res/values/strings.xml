@@ -3,10 +3,16 @@
 
     <string name="app_name">Tapestry</string>
     
+    <string name="title">Tapestry: A Network Complexity Analyzer</string>
+    
     <string name="about_nci">About NCI</string>
     <string name="nci_technical_paper">NCI - Technical paper</string>
     <string name="about_flowforwarding">About FlowForwarding.Org</string>
     
-    <string name="hello_world">Hello world!</string>
-
+    <string name="about_nci_url">http://www.infoblox.com/sites/infobloxcom/files/resources/infoblox-whitepaper-network-complexity.pdf</string>
+    <string name="nci_technical_paper_url">http://www.flowforwarding.org/nci-article</string>
+    <string name="about_flowforwarding_url">http://www.flowforwarding.org/about-us</string>
+    
+    <!-- images -->
+    <string name="info">info</string>
 </resources>

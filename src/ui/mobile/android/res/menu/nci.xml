@@ -1,12 +1,12 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    android:icon="@drawable/infoicon" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
         android:id="@+id/about_nci"
         android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="@string/about_nci"/>
-
+        android:showAsAction="always"
+        android:actionViewClass =""
+        android:title="@string/about_nci"
+        android:icon="@drawable/link"/>
     <item
         android:id="@+id/nci_technical_paper"
         android:orderInCategory="100"

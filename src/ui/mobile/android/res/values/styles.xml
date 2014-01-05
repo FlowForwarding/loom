@@ -5,15 +5,12 @@
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
     <style name="AppBaseTheme" parent="android:Theme.Light">
-        <item name="android:actionBarStyle">@style/ActionBar</item>
     </style>
-    <style name="ActionBar" parent="@android:style/Theme.Holo">
-    	<item name="android:src">@drawable/infoicon</item>
-	</style>
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
-    	<item name="android:actionOverflowButtonStyle">@style/ActionBar</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
 </resources>
