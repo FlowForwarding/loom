@@ -29,25 +29,25 @@ public final class R {
         public static final int top_bar_height=0x7f050002;
     }
     public static final class drawable {
-        public static final int ic_launcher=0x7f020000;
-        public static final int infoicon=0x7f020001;
-        public static final int link=0x7f020002;
+        public static final int clearicon=0x7f020000;
+        public static final int goicon=0x7f020001;
+        public static final int ic_launcher=0x7f020002;
+        public static final int infoicon=0x7f020003;
+        public static final int link=0x7f020004;
     }
     public static final class id {
-        public static final int about_flowforwarding=0x7f090006;
-        public static final int about_nci=0x7f090004;
-        public static final int infoaction=0x7f090002;
-        public static final int infolist=0x7f090003;
-        public static final int infotext=0x7f090001;
-        public static final int nci_technical_paper=0x7f090005;
-        public static final int top_bar=0x7f090000;
+        public static final int clearaction=0x7f080005;
+        public static final int goaction=0x7f080006;
+        public static final int infoaction=0x7f080003;
+        public static final int infolist=0x7f080007;
+        public static final int infotext=0x7f080002;
+        public static final int nci_layout=0x7f080000;
+        public static final int tapesty_url=0x7f080004;
+        public static final int top_bar=0x7f080001;
     }
     public static final class layout {
         public static final int activity_nci=0x7f030000;
         public static final int infoitem=0x7f030001;
-    }
-    public static final class menu {
-        public static final int nci=0x7f080000;
     }
     public static final class string {
         public static final int about_flowforwarding=0x7f060004;
@@ -55,11 +55,11 @@ public final class R {
         public static final int about_nci=0x7f060002;
         public static final int about_nci_url=0x7f060005;
         public static final int app_name=0x7f060000;
-        /**  images 
-         */
-        public static final int info=0x7f060008;
+        public static final int demo=0x7f060009;
         public static final int nci_technical_paper=0x7f060003;
         public static final int nci_technical_paper_url=0x7f060006;
+        public static final int nciexamplecom28080clientsockyaws=0x7f060008;
+        public static final int tapestry_server_ws=0x7f06000a;
         public static final int title=0x7f060001;
     }
     public static final class style {
