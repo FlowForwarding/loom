@@ -41,20 +41,20 @@ public final class R {
     public static final class id {
         public static final int clearaction=0x7f080006;
         public static final int deleteicon=0x7f080014;
-        public static final int endpointsHelp=0x7f08000d;
         public static final int endpointsUpdated=0x7f08000f;
         public static final int endpointsValue=0x7f08000e;
+        public static final int endpointsarea=0x7f08000d;
         public static final int goaction=0x7f080007;
+        public static final int hintView=0x7f08000a;
         public static final int infoaction=0x7f080003;
         public static final int infolist=0x7f080009;
         public static final int infotext=0x7f080002;
-        public static final int nciHelp=0x7f08000a;
         public static final int nciUpdated=0x7f08000c;
         public static final int nciValue=0x7f08000b;
         public static final int nci_layout=0x7f080000;
-        public static final int qpsHelp=0x7f080010;
         public static final int qpsUpdated=0x7f080012;
         public static final int qpsValue=0x7f080011;
+        public static final int qpsarea=0x7f080010;
         public static final int serverurlarea=0x7f080004;
         public static final int tapestryurl=0x7f080013;
         public static final int tapesty_url=0x7f080005;
@@ -107,5 +107,8 @@ public final class R {
         /**  Application theme. 
          */
         public static final int AppTheme=0x7f070001;
+        public static final int help_icon=0x7f070004;
+        public static final int hintView=0x7f070002;
+        public static final int updatedText=0x7f070003;
     }
 }

@@ -22,7 +22,7 @@
     <string name="endpoints">Endpoints</string>
     <string name="queriesPerSecond">Queries per Second</string>
     <string name="networkComplexityIndex">Network Complexity Index</string>
-    <string name="numberOfConnectedNetworkElements">Number of Connected Network Elements</string>
-    <string name="successfulDNSQueryResponsesPerSecond">Successful DNS Query Responses per Second</string>
+    <string name="numberOfConnectedNetworkElements">Number of Connected\nNetwork Elements</string>
+    <string name="successfulDNSQueryResponsesPerSecond">Successful DNS Query\nResponses per Second</string>
     
 </resources>

@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +31,7 @@ public class NCIActivity extends Activity {
     EditText tapesty_url;
     ArrayList<String> tapestryUrls;
     ListView urlslist;
+    TextView helpView;
     static String PREFS_NAME = "tapestryPrefs";
     static String PREFS_URLS = "tapestryUrls";
 
@@ -37,6 +39,9 @@ public class NCIActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nci);
+        
+        helpView = (TextView) findViewById(R.id.hintView);
+        
         final ListView infoList = (ListView) findViewById(R.id.infolist);
         final Resources res = getResources();
         
@@ -74,6 +79,7 @@ public class NCIActivity extends Activity {
                     clearaction.setVisibility(View.VISIBLE);
                     infoList.setVisibility(View.INVISIBLE);
                     goaction.setVisibility(View.VISIBLE);
+                    helpView.setVisibility(View.GONE);
                 } else {
                     urlslist.setVisibility(View.GONE);
                     clearaction.setVisibility(View.INVISIBLE);
@@ -90,6 +96,7 @@ public class NCIActivity extends Activity {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     infoList.setVisibility(View.INVISIBLE);
                     tapesty_url.clearFocus();
+                    helpView.setVisibility(View.GONE);
                     InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE); 
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 }
@@ -159,5 +166,28 @@ public class NCIActivity extends Activity {
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(PREFS_URLS, new JSONArray(urls).toString());
         editor.commit();
+    }
+    
+    public void showEndpointsHelp(View v) {
+        setupHelpView(v);
+        helpView.setText(R.string.numberOfConnectedNetworkElements);
+    }
+    
+    public void showNciHelp(View v) {
+        setupHelpView(v);
+        helpView.setText(R.string.networkComplexityIndex);
+    }
+    
+    public void showQpsHelp(View v) {
+        setupHelpView(v);
+        helpView.setText(R.string.successfulDNSQueryResponsesPerSecond);
+    }
+    
+    private void setupHelpView(View v){
+        int[] loc = new int[2];
+        v.getLocationOnScreen(loc);
+        helpView.setX(loc[0] + 30);
+        helpView.setY(loc[1] + 70); 
+        helpView.setVisibility(View.VISIBLE);
     }
 }

@@ -16,6 +16,7 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:onClick="showNciHelp"
             android:orientation="horizontal">
         
  			<TextView
@@ -25,12 +26,7 @@
             	android:textStyle="bold"
             	android:textSize="24sp"/>
  			
- 			<ImageView
- 			    android:id="@+id/nciHelp"
- 			    android:layout_width="wrap_content"
- 			    android:layout_height="wrap_content"
- 			    android:onClick=""
- 			    android:src="@drawable/questionicon"/>
+ 			 <ImageView style="@style/help_icon"/>
  			
  			<TextView
  			    android:id="@+id/nciValue"
@@ -43,24 +39,20 @@
         
         <TextView
             android:id="@+id/nciUpdated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="italic"
-            android:textSize="16sp"
-            android:typeface="monospace"/>
-    
+            style="@style/updatedText"/>
     </LinearLayout>
     
     
-    <LinearLayout
+    <RelativeLayout
         android:layout_height="wrap_content"
         android:layout_weight=".5"
-        android:orientation="vertical"
         android:layout_width="0dip">
         
         <LinearLayout
+            android:id="@+id/endpointsarea"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:onClick="showEndpointsHelp"
             android:orientation="horizontal">      
             <TextView
                 android:layout_width="wrap_content"
@@ -68,12 +60,9 @@
                 android:text="@string/endpoints"
                 android:textStyle="bold"
                 android:textSize="18sp"/>
-            <ImageView
- 			    android:id="@+id/endpointsHelp"
- 			    android:layout_width="wrap_content"
- 			    android:layout_height="wrap_content"
- 			    android:onClick=""
- 			    android:src="@drawable/questionicon"/>
+            
+            <ImageView style="@style/help_icon"/>
+            
             <TextView
  			    android:id="@+id/endpointsValue"
             	android:layout_width="wrap_content"
@@ -84,18 +73,17 @@
         </LinearLayout>   
         
         <TextView
+            android:layout_below="@id/endpointsarea"
             android:id="@+id/endpointsUpdated"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:typeface="monospace"
-            android:textStyle="italic"/>
-        
+            style="@style/updatedText"/>
         
         <LinearLayout
+            android:id="@+id/qpsarea"
+            android:layout_below="@id/endpointsarea"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="50dp"
+            android:onClick="showQpsHelp"
             android:orientation="horizontal">
             
             <TextView
@@ -104,12 +92,9 @@
                 android:text="@string/queriesPerSecond"
                 android:textStyle="bold"
                 android:textSize="18sp"/>
-            <ImageView
- 			    android:id="@+id/qpsHelp"
- 			    android:layout_width="wrap_content"
- 			    android:layout_height="wrap_content"
- 			    android:onClick=""
- 			    android:src="@drawable/questionicon"/>
+            
+            <ImageView style="@style/help_icon"/>
+            
             <TextView
  			    android:id="@+id/qpsValue"
             	android:layout_width="wrap_content"
@@ -121,13 +106,9 @@
         
         <TextView
             android:id="@+id/qpsUpdated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:typeface="monospace"
-            android:textStyle="italic"/>
-        
-    </LinearLayout>
-    
+            android:layout_below="@id/qpsarea"
+            style="@style/updatedText"/>
+       
+    </RelativeLayout>
 
 </LinearLayout>

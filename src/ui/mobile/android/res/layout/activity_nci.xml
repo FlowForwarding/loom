@@ -102,5 +102,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:background="@color/tapestrygrey" /> 
+        
+	<TextView
+        android:id="@+id/hintView"
+        style="@style/hintView"/>
 
 </RelativeLayout>
