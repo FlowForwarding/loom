@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:textSize="20sp"
-        android:paddingLeft="5dp"
+        android:paddingLeft="15dp"
         android:textColor="@color/white">
     </TextView>
  

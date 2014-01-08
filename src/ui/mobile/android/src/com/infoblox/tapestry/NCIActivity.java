@@ -1,5 +1,8 @@
 package com.infoblox.tapestry;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -18,6 +21,10 @@ import android.content.Intent;
 import android.content.res.Resources;
 
 public class NCIActivity extends Activity {
+    
+    EditText tapesty_url;
+    ArrayList<String> tapestryUrls;
+    ListView urlslist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +37,7 @@ public class NCIActivity extends Activity {
                 res.getString(R.string.nci_technical_paper),
                 res.getString(R.string.about_flowforwarding)};
         
-        final String[] urls = {res.getString(R.string.about_nci_url),
+        final String[] helpUrls = {res.getString(R.string.about_nci_url),
                 res.getString(R.string.nci_technical_paper_url),
                 res.getString(R.string.about_flowforwarding_url)};
         
@@ -41,24 +48,27 @@ public class NCIActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> arg0, View view, int position,
                     long id) {
-               String url = urls[position];
+               String url = helpUrls[position];
                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                startActivity(browserIntent);
             } 
             
         });
         
-        final EditText tapesty_url = (EditText) findViewById(R.id.tapesty_url);
+        urlslist = (ListView) findViewById(R.id.urlslist);
+        tapesty_url = (EditText) findViewById(R.id.tapesty_url);
         final ImageView goaction = (ImageView) findViewById(R.id.goaction);
         final ImageView clearaction = (ImageView) findViewById(R.id.clearaction);
         tapesty_url.setOnFocusChangeListener(new OnFocusChangeListener(){
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus){
+                    urlslist.setVisibility(View.VISIBLE);
                     clearaction.setVisibility(View.VISIBLE);
                     infoList.setVisibility(View.INVISIBLE);
                     goaction.setVisibility(View.VISIBLE);
                 } else {
+                    urlslist.setVisibility(View.GONE);
                     clearaction.setVisibility(View.INVISIBLE);
                     goaction.setVisibility(View.INVISIBLE);
                 }      
@@ -80,6 +90,22 @@ public class NCIActivity extends Activity {
             }
             
         });
+        String[] urls = {res.getString(R.string.demo),
+                res.getString(R.string.nciexamplecom28080clientsockyaws)};
+        tapestryUrls = new ArrayList<String>(Arrays.asList(urls));
+        TapestryUrlsAdapter urlsAdapter = new TapestryUrlsAdapter(this, tapestryUrls);
+        urlslist.setAdapter(urlsAdapter);
+        urlslist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+                    long arg3) {
+                // TODO Auto-generated method stub
+                
+            }
+            
+        });
+     
     }
 
     public void toggleInfoMenu(View v) {
@@ -92,11 +118,16 @@ public class NCIActivity extends Activity {
     }
     
     public void clearTapestryUrl(View v){
-        EditText tapesty_url = (EditText) findViewById(R.id.tapesty_url); 
         tapesty_url.setText("");
     }
     
     public void connectTapestry(View v) {
-    
+        String url = tapesty_url.getText().toString();
+        int existsPos = tapestryUrls.indexOf(url);
+        if (existsPos > 1){
+            tapestryUrls.remove(existsPos);
+        }
+        tapestryUrls.add(2, url);
+        urlslist.invalidateViews();
     }
 }

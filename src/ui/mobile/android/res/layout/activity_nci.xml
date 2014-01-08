@@ -35,6 +35,7 @@
     </RelativeLayout>
     
     <RelativeLayout
+        android:id="@+id/serverurlarea"
         android:layout_below="@id/top_bar"
         android:layout_width="fill_parent"
         android:layout_marginTop="20dp"
@@ -79,8 +80,18 @@
             android:layout_marginRight="15dp"
             android:visibility="invisible"
             android:src="@drawable/goicon"/>
+        
     </RelativeLayout>
-   
+    
+    
+    <ListView 
+        android:id="@+id/urlslist"
+        android:layout_below="@id/serverurlarea"
+        android:layout_marginLeft="220dp"
+        android:layout_marginRight="60dp"
+        android:layout_width="fill_parent"
+        android:visibility="gone"
+        android:layout_height="190dp"/>
 
     <ListView 
         android:id="@+id/infolist"

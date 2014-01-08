@@ -9,20 +9,19 @@ import android.widget.TextView;
 
 public class InfoListAdapter extends ArrayAdapter<String> {
 
-    private final Context context;
     private final String[] itemsArrayList;
+    private LayoutInflater inflater;
 
     public InfoListAdapter(Context context, String[] itemsArrayList) {
         super(context, R.layout.infoitem, itemsArrayList);
-        this.context = context;
         this.itemsArrayList = itemsArrayList;
+        this.inflater = (LayoutInflater) context
+        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.infoitem, parent, false);
+        View rowView = this.inflater.inflate(R.layout.infoitem, parent, false);
         TextView labelView = (TextView) rowView.findViewById(R.id.infotext);
         labelView.setText(itemsArrayList[position]);
         return rowView;

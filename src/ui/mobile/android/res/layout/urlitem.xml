@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="@dimen/info_menuitem_heigth">
+ 
+    <TextView
+        android:id="@+id/tapestryurl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:textSize="20sp"
+        android:paddingLeft="5dp">
+    </TextView>
+ 
+     <ImageView
+        android:id="@+id/deleteicon"
+        android:src="@drawable/deleteicon"
+        android:layout_gravity="center_vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:paddingRight="20dp"/>
+ 
+</RelativeLayout>
