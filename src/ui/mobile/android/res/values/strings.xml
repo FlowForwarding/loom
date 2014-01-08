@@ -17,4 +17,12 @@
     <string name="demo">demo</string>
   
     <string name="tapestry_server_ws">Tapestry Server:  ws://</string>
+    
+    <string name="NCI">NCI</string>
+    <string name="endpoints">Endpoints</string>
+    <string name="queriesPerSecond">Queries per Second</string>
+    <string name="networkComplexityIndex">Network Complexity Index</string>
+    <string name="numberOfConnectedNetworkElements">Number of Connected Network Elements</string>
+    <string name="successfulDNSQueryResponsesPerSecond">Successful DNS Query Responses per Second</string>
+    
 </resources>

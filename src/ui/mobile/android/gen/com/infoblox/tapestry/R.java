@@ -30,22 +30,33 @@ public final class R {
     }
     public static final class drawable {
         public static final int clearicon=0x7f020000;
-        public static final int deleteicon=0x7f020001;
-        public static final int goicon=0x7f020002;
-        public static final int ic_launcher=0x7f020003;
-        public static final int infoicon=0x7f020004;
-        public static final int link=0x7f020005;
+        public static final int connectimage=0x7f020001;
+        public static final int deleteicon=0x7f020002;
+        public static final int goicon=0x7f020003;
+        public static final int ic_launcher=0x7f020004;
+        public static final int infoicon=0x7f020005;
+        public static final int link=0x7f020006;
+        public static final int questionicon=0x7f020007;
     }
     public static final class id {
         public static final int clearaction=0x7f080006;
-        public static final int deleteicon=0x7f08000b;
+        public static final int deleteicon=0x7f080014;
+        public static final int endpointsHelp=0x7f08000d;
+        public static final int endpointsUpdated=0x7f08000f;
+        public static final int endpointsValue=0x7f08000e;
         public static final int goaction=0x7f080007;
         public static final int infoaction=0x7f080003;
         public static final int infolist=0x7f080009;
         public static final int infotext=0x7f080002;
+        public static final int nciHelp=0x7f08000a;
+        public static final int nciUpdated=0x7f08000c;
+        public static final int nciValue=0x7f08000b;
         public static final int nci_layout=0x7f080000;
+        public static final int qpsHelp=0x7f080010;
+        public static final int qpsUpdated=0x7f080012;
+        public static final int qpsValue=0x7f080011;
         public static final int serverurlarea=0x7f080004;
-        public static final int tapestryurl=0x7f08000a;
+        public static final int tapestryurl=0x7f080013;
         public static final int tapesty_url=0x7f080005;
         public static final int top_bar=0x7f080001;
         public static final int urlslist=0x7f080008;
@@ -53,18 +64,25 @@ public final class R {
     public static final class layout {
         public static final int activity_nci=0x7f030000;
         public static final int infoitem=0x7f030001;
-        public static final int urlitem=0x7f030002;
+        public static final int nci_indexes=0x7f030002;
+        public static final int urlitem=0x7f030003;
     }
     public static final class string {
+        public static final int NCI=0x7f06000b;
         public static final int about_flowforwarding=0x7f060004;
         public static final int about_flowforwarding_url=0x7f060007;
         public static final int about_nci=0x7f060002;
         public static final int about_nci_url=0x7f060005;
         public static final int app_name=0x7f060000;
         public static final int demo=0x7f060009;
+        public static final int endpoints=0x7f06000c;
         public static final int nci_technical_paper=0x7f060003;
         public static final int nci_technical_paper_url=0x7f060006;
         public static final int nciexamplecom28080clientsockyaws=0x7f060008;
+        public static final int networkComplexityIndex=0x7f06000e;
+        public static final int numberOfConnectedNetworkElements=0x7f06000f;
+        public static final int queriesPerSecond=0x7f06000d;
+        public static final int successfulDNSQueryResponsesPerSecond=0x7f060010;
         public static final int tapestry_server_ws=0x7f06000a;
         public static final int title=0x7f060001;
     }
