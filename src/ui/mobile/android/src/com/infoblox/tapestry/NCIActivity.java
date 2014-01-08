@@ -3,6 +3,10 @@ package com.infoblox.tapestry;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -18,6 +22,7 @@ import android.widget.RelativeLayout;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 
 public class NCIActivity extends Activity {
@@ -25,6 +30,8 @@ public class NCIActivity extends Activity {
     EditText tapesty_url;
     ArrayList<String> tapestryUrls;
     ListView urlslist;
+    static String PREFS_NAME = "tapestryPrefs";
+    static String PREFS_URLS = "tapestryUrls";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +99,22 @@ public class NCIActivity extends Activity {
         });
         String[] urls = {res.getString(R.string.demo),
                 res.getString(R.string.nciexamplecom28080clientsockyaws)};
-        tapestryUrls = new ArrayList<String>(Arrays.asList(urls));
+        SharedPreferences urlsPrefs = getSharedPreferences(PREFS_NAME, 0);
+        String  tapestryUrlsString =  urlsPrefs.getString(PREFS_URLS, null);
+        if ( null == tapestryUrlsString ){
+            tapestryUrls = new ArrayList<String>(Arrays.asList(urls));
+        } else { 
+            try {
+                tapestryUrls = new ArrayList<String>();
+                JSONArray jsonUrls = new JSONArray(tapestryUrlsString);
+                for (int i=0; i<jsonUrls.length(); i++) {
+                    tapestryUrls.add( jsonUrls.getString(i) );
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         TapestryUrlsAdapter urlsAdapter = new TapestryUrlsAdapter(this, tapestryUrls);
         urlslist.setAdapter(urlsAdapter);
         urlslist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -123,11 +145,19 @@ public class NCIActivity extends Activity {
     
     public void connectTapestry(View v) {
         String url = tapesty_url.getText().toString();
-        int existsPos = tapestryUrls.indexOf(url);
+        int existsPos = tapestryUrls.lastIndexOf(url);
         if (existsPos > 1){
             tapestryUrls.remove(existsPos);
         }
         tapestryUrls.add(2, url);
         urlslist.invalidateViews();
+        saveTapestryUrls(this, tapestryUrls);
+    }
+    
+    public static void saveTapestryUrls(Context context, ArrayList<String> urls){
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(PREFS_URLS, new JSONArray(urls).toString());
+        editor.commit();
     }
 }

@@ -15,11 +15,13 @@ public class TapestryUrlsAdapter extends ArrayAdapter<String>{
     
     private final ArrayList<String> itemsArrayList;
     private LayoutInflater inflater;
+    private Context context;
     
     public TapestryUrlsAdapter (Context context, ArrayList<String> itemsArrayList) {
         super(context, R.layout.urlitem, itemsArrayList);
         this.inflater =  (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.context = context;
         this.itemsArrayList = itemsArrayList;
     }
     
@@ -39,6 +41,7 @@ public class TapestryUrlsAdapter extends ArrayAdapter<String>{
             public void onClick(View v) {           
                 itemsArrayList.remove(position);
                 thisAdapter.notifyDataSetChanged();
+                NCIActivity.saveTapestryUrls(thisAdapter.context, itemsArrayList);
             }
             
         });
