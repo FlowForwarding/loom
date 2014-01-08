@@ -5,7 +5,6 @@ import java.util.Arrays;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,6 +33,7 @@ public class NCIActivity extends Activity {
     TextView helpView;
     static String PREFS_NAME = "tapestryPrefs";
     static String PREFS_URLS = "tapestryUrls";
+    TapestryConnector tapestryConnector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,6 +135,8 @@ public class NCIActivity extends Activity {
             
         });
      
+        tapestryConnector = new TapestryConnector(this);
+        tapestryConnector.connectTapestry("ws://epamove.herokuapp.com");
     }
 
     public void toggleInfoMenu(View v) {
