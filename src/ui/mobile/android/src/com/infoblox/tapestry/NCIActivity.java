@@ -136,7 +136,7 @@ public class NCIActivity extends Activity {
         });
      
         tapestryConnector = new TapestryConnector(this);
-        tapestryConnector.connectTapestry("ws://epamove.herokuapp.com");
+        tapestryConnector.connectTapestry("ws://" + "epamove.herokuapp.com");
     }
 
     public void toggleInfoMenu(View v) {

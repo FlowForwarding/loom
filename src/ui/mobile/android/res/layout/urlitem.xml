@@ -8,7 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:textSize="20sp"
+        android:textSize="@dimen/urlfont"
         android:paddingLeft="5dp">
     </TextView>
  

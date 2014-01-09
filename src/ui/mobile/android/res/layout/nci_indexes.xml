@@ -24,7 +24,7 @@
             	android:layout_height="wrap_content"
             	android:text="@string/NCI"
             	android:textStyle="bold"
-            	android:textSize="24sp"/>
+            	android:textSize="@dimen/nci_font"/>
  			
  			 <ImageView style="@style/help_icon"/>
  			
@@ -33,7 +33,7 @@
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
             	android:layout_marginLeft="20dp"
-            	android:textSize="26sp"
+            	android:textSize="@dimen/nci_font_value"
             	android:textStyle="bold"/>
         </LinearLayout>
         
@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/endpoints"
                 android:textStyle="bold"
-                android:textSize="18sp"/>
+                android:textSize="@dimen/index_font"/>
             
             <ImageView style="@style/help_icon"/>
             
@@ -68,7 +68,7 @@
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
             	android:layout_marginLeft="20dp"
-            	android:textSize="22sp"
+            	android:textSize="@dimen/index_font_value"
             	android:textStyle="bold"/>
         </LinearLayout>   
         
@@ -82,7 +82,7 @@
             android:layout_below="@id/endpointsarea"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="@dimen/indexarea_margin"
             android:onClick="showQpsHelp"
             android:orientation="horizontal">
             
@@ -91,7 +91,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/queriesPerSecond"
                 android:textStyle="bold"
-                android:textSize="18sp"/>
+                android:textSize="@dimen/index_font"/>
             
             <ImageView style="@style/help_icon"/>
             
@@ -100,7 +100,7 @@
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
             	android:layout_marginLeft="20dp"
-            	android:textSize="22sp"
+            	android:textSize="@dimen/index_font_value"
             	android:textStyle="bold"/>
         </LinearLayout> 
         

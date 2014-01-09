@@ -4,5 +4,27 @@
          Customize dimensions originally defined in res/values/dimens.xml (such as
          screen margins) for sw600dp devices (e.g. 7" tablets) here.
     -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    
+    <dimen name="title_font">22sp</dimen>
+    <dimen name="top_bar_height">60dp</dimen>
+    
+    <dimen name="info_menu_width">350dp</dimen>
+    <dimen name="infolink_font">20sp</dimen>
+    
+    <dimen name="urlfont">20sp</dimen>
+    
+    <dimen name="nci_font">24sp</dimen>
+    <dimen name="nci_font_value">26sp</dimen>
+    <dimen name="index_font">18sp</dimen>
+    <dimen name="index_font_value">22sp</dimen>
+    <dimen name="undated_font">18sp</dimen>
+    <dimen name="indexarea_margin">50dp</dimen>
+    
+    <dimen name="url_prefix_font">20sp</dimen>
+    <dimen name="url_prefix_width">220dp</dimen>
+    <dimen name="url_postfix_width">60dp</dimen>
+    
+    <dimen name="hint_font">18sp</dimen>
 
 </resources>

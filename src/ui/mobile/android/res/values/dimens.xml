@@ -1,11 +1,40 @@
 <resources>
 
     <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="top_bar_height">60dp</dimen>
+    <dimen name="title_font">14sp</dimen>
+    <dimen name="top_bar_height">50dp</dimen>
     
-    <dimen name="info_menu_width">350dp</dimen>
+    <dimen name="info_menu_width">250dp</dimen>
+    <dimen name="infolink_font">12sp</dimen>
+    
+    <dimen name="url_prefix_font">10sp</dimen>
+    <dimen name="url_prefix_width">100dp</dimen>
+    <dimen name="url_postfix_width">30dp</dimen>
+    
+    <dimen name="urlfont">12sp</dimen>
+    
+    <dimen name="nci_font">16sp</dimen>
+    <dimen name="nci_font_value">18sp</dimen>
+    <dimen name="index_font">10sp</dimen>
+    <dimen name="index_font_value">12sp</dimen>
+    <dimen name="undated_font">10sp</dimen>
+    <dimen name="indexarea_margin">20dp</dimen>
+    
+    <dimen name="hint_font">12sp</dimen>
+    
+    
+    <dimen name="activity_horizontal_margin">6dp</dimen>
+    <dimen name="activity_vertical_margin">6dp</dimen>
+   
+    
+    
     <dimen name="info_menuitem_heigth">40dp</dimen>
+    
+   
+    <dimen name="title_font_size">20dp</dimen>
+    <dimen name="domain_label_font_size">13dp</dimen>
+    <dimen name="range_label_font_size">13dp</dimen>
+    <dimen name="range_tick_label_font_size">15dp</dimen>
+    <dimen name="domain_tick_label_font_size">15dp</dimen>
 
 </resources>
