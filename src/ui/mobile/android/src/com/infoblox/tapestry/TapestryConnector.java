@@ -1,10 +1,10 @@
 package com.infoblox.tapestry;
 
 import java.net.URI;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.TimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +17,7 @@ import android.widget.TextView;
 import com.androidplot.xy.LineAndPointFormatter;
 import com.androidplot.xy.SimpleXYSeries;
 import com.androidplot.xy.XYPlot;
-import com.androidplot.xy.XYSeries;
+import java.text.*;
 import com.codebutler.android_websockets.WebSocketClient;
 
 public class TapestryConnector {
@@ -28,39 +28,46 @@ public class TapestryConnector {
     private String websocketMoreData1 = "{\"request\":\"more_data\",\"start\": \"";
     private String websocketMoreData2 = "Z\",\"end\": \"";
     private String websocketMoreData3 = "Z\",\"max_items\": \"5\"}";
+    List<Long> values;
+    List<Long> dates;
     
     private XYPlot plot;
+    SimpleXYSeries plotSeries;
 
     public TapestryConnector(Activity activity){
         this.activity = activity;
-
+        values = new LinkedList<Long>();
+        dates = new LinkedList<Long>();
+        paintGraph();
+    }
+    
+    public void paintGraph(){
         plot = (XYPlot) activity.findViewById(R.id.mySimpleXYPlot);
         plot.getLegendWidget().setVisible(false);
-        plot.getBackgroundPaint().setColor(Color.TRANSPARENT);
-        plot.getGraphWidget().getBackgroundPaint().setColor(Color.TRANSPARENT);
-        plot.getGraphWidget().getGridBackgroundPaint().setColor(Color.TRANSPARENT);
-        plot.setBorderStyle(XYPlot.BorderStyle.NONE, null, null);
-        
-        // Create a couple arrays of y-values to plot:
-        Number[] series1Numbers = {1, 8, 5, 2, 7, 4};
-   
- 
-        // Turn the above arrays into XYSeries':
-        XYSeries series1 = new SimpleXYSeries(
-                Arrays.asList(series1Numbers),          // SimpleXYSeries takes a List so turn our array into a List
-                SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, // Y_VALS_ONLY means use the element index as the x value
-                null);                             // Set the display title of the series
- 
+//        plot.getBackgroundPaint().setColor(Color.TRANSPARENT);
+//        plot.getGraphWidget().getBackgroundPaint().setColor(Color.TRANSPARENT);
+//        plot.getGraphWidget().getGridBackgroundPaint().setColor(Color.TRANSPARENT);
+//        plot.setBorderStyle(XYPlot.BorderStyle.NONE, null, null);
+        plot.setDomainValueFormat(new Format() {
+            private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss");
+
+            @Override
+            public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
+                long timestamp = ((Number) obj).longValue();
+                Date date = new Date(timestamp);
+                return dateFormat.format(date, toAppendTo, pos);
+            }
+
+            @Override
+            public Object parseObject(String source, ParsePosition pos) {
+                return null;
+
+            }
+        });
         LineAndPointFormatter  series1Format = new LineAndPointFormatter(Color.rgb(0, 0, 255), 
-                Color.rgb(0, 0, 255), 
-                Color.argb(25, 0, 0, 255), null);
- 
-        // add a new series' to the xyplot:
-        plot.addSeries(series1, series1Format);
- 
-        // reduce the number of range labels
-        plot.setTicksPerRangeLabel(3);
- 
+                Color.rgb(0, 0, 255),  Color.argb(25, 0, 0, 255), null);        
+        plotSeries = new SimpleXYSeries(dates, values, null);                           
+        plot.addSeries(plotSeries, series1Format);
     }
     
     public void connectTapestry(String url) {
@@ -102,8 +109,9 @@ public class TapestryConnector {
                     if (jsonObj.has("start_time")){
                         jsonObj.get("start_time");
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        dateFormat.setTimeZone(TimeZone.getTimeZone("GTM"));
                         Date now = new Date(System.currentTimeMillis());
-                        Date start = new Date(System.currentTimeMillis() - 1000*60*60*24);
+                        Date start = new Date(System.currentTimeMillis() - 1000*60);
                         clientWss.send(websocketMoreData1 + dateFormat.format(start).replace(" ", "T") +
                                 websocketMoreData2 + dateFormat.format(now).replace(" ", "T") +
                                 websocketMoreData3);
@@ -115,25 +123,29 @@ public class TapestryConnector {
                                         String timeString = items[i*2].substring(8, items[i*2].length()-2).replace("T", " ");
                                         String valueString = items[i*2 + 1].substring(6, items[i*2 + 1].length());
                                         Date time = dateFormat.parse(timeString);
-                                        timeString.charAt(0);
+                                        plotSeries.addLast(time.getTime(), Long.parseLong(valueString));
                                     }
-//"Time":"2014-01-08T20:40:10Z"
-//"NCI":12
+                                    plot.redraw();
                                 } else {
                                     String time = "updated " + jsonObj.getString("Time").replace("T", " ").replace("Z", "");
                                     if (jsonObj.has("NCI")) {
-                                        setLabel(nciValue, jsonObj.getString("NCI"));
+                                        String valueString = jsonObj.getString("NCI");
+                                        setLabel(nciValue, valueString);
                                         setLabel(nciValueTime, time);
+                                        String timeString = jsonObj.getString("Time").replace("T", " ").replace("Z", "");
+                                        Date dateTime = dateFormat.parse(timeString);
+                                        if (plotSeries.size()>0){
+                                            plotSeries.addLast(dateTime.getTime(), Long.parseLong(valueString));
+                                            plot.redraw();
+                                        }
                                     } else if (jsonObj.has("QPS")) {
                                         setLabel(qpsValue, jsonObj.getString("QPS"));
                                         setLabel(qpsValueTime, time);
                                     } else if (jsonObj.has("NEP")) {
                                         setLabel(endpointsValue, jsonObj.getString("NEP"));
                                         setLabel(endpointsValueTime, time);
-                                    }
-                                    ;
-                                }
-                                ;
+                                    };
+                                };
                     };
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block
