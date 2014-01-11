@@ -26,10 +26,13 @@ public class GraphModel implements OnTouchListener{
     private Activity activity;
     public XYPlot plot;
     private SimpleXYSeries plotSeries;
+    private LineAndPointFormatter topSeriesFormat;
+    
     private RangesViewModel rangesViewModel;
     
     public XYPlot bottomPlot;
-    public SimpleXYSeries bottomSeries;
+    private SimpleXYSeries bottomPlotSeries;
+    private LineAndPointFormatter bottomSeriesFormat;
     
     public GraphModel(Activity activity, RangesViewModel rangesViewModel){
         this.activity = activity;
@@ -38,18 +41,17 @@ public class GraphModel implements OnTouchListener{
         bottomPlot = (XYPlot) activity.findViewById(R.id.bottomXYPlot);
         bottomPlot.setRangeStepValue(1);
         makeUpChart(bottomPlot);
-        LineAndPointFormatter  bottomSeriesFormat = new LineAndPointFormatter(Color.rgb(0, 0, 255), 
+        bottomSeriesFormat = new LineAndPointFormatter(Color.rgb(0, 0, 255), 
                 Color.rgb(0, 0, 255),  Color.argb(25, 0, 0, 255), null);
-        bottomSeries  = new SimpleXYSeries(new LinkedList<Long>(), new LinkedList<Long>(), null); 
-        bottomPlot.addSeries(bottomSeries, bottomSeriesFormat);
-        
+        bottomPlotSeries  = new SimpleXYSeries(new LinkedList<Long>(), new LinkedList<Long>(), null); 
+        bottomPlot.addSeries(bottomPlotSeries, bottomSeriesFormat);    
         
         plot = (XYPlot) activity.findViewById(R.id.simpleXYPlot);
         makeUpChart(plot);
-        LineAndPointFormatter  series1Format = new LineAndPointFormatter(Color.rgb(0, 0, 255), 
+        topSeriesFormat = new LineAndPointFormatter(Color.rgb(0, 0, 255), 
                 Color.rgb(0, 0, 255),  Color.argb(25, 0, 0, 255), null);        
         plotSeries = new SimpleXYSeries(new LinkedList<Long>(), new LinkedList<Long>(), null);                           
-        plot.addSeries(plotSeries, series1Format);
+        plot.addSeries(plotSeries, topSeriesFormat);
         
         plot.setOnTouchListener(this);
     }
@@ -85,10 +87,10 @@ public class GraphModel implements OnTouchListener{
     public void addLast(float argument, float value){
         if (plotSeries.size() == 1 && plotSeries.getX(0).floatValue() > argument) {
             plotSeries.removeFirst();
-            bottomSeries.removeFirst();
+            bottomPlotSeries.removeFirst();
         }
         plotSeries.addLast(argument, value);
-        bottomSeries.addLast(argument, value);
+        bottomPlotSeries.addLast(argument, value);
         
         if (plotSeries.size()>1){
             plot.calculateMinMaxVals();
@@ -200,6 +202,18 @@ public class GraphModel implements OnTouchListener{
         maxXY.x = newMaxX;
         plot.setDomainBoundaries(newMinX, newMaxX, BoundaryMode.FIXED);
         plot.redraw();
+    }
+    
+    public void clearData(){
+        plot.removeSeries(plotSeries);
+        plotSeries = new SimpleXYSeries(new LinkedList<Long>(), new LinkedList<Long>(), null);   
+        plot.addSeries(plotSeries, topSeriesFormat);
+        plot.redraw();
+        
+        bottomPlot.removeSeries(bottomPlotSeries);
+        bottomPlotSeries = new SimpleXYSeries(new LinkedList<Long>(), new LinkedList<Long>(), null);   
+        bottomPlot.addSeries(bottomPlotSeries, bottomSeriesFormat);
+        bottomPlot.redraw();
     }
 
 }

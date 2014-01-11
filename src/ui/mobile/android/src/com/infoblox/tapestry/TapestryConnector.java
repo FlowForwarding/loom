@@ -31,6 +31,8 @@ public class TapestryConnector {
     }
     
     public void connectTapestry(String url) {
+        graphModel.clearData();
+        
         final TextView nciValue = (TextView) activity.findViewById(R.id.nciValue);
         final TextView qpsValue = (TextView) activity.findViewById(R.id.qpsValue);
         final TextView endpointsValue = (TextView) activity.findViewById(R.id.endpointsValue);

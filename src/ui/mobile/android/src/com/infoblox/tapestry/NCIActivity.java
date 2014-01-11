@@ -141,7 +141,15 @@ public class NCIActivity extends Activity{
         graphModel = new GraphModel(this, rangesViewModel);
         rangesViewModel.setGraphModel(graphModel);
         tapestryConnector = new TapestryConnector(this, graphModel);
-        tapestryConnector.connectTapestry("ws://" + "epamove.herokuapp.com");
+        
+        String urlToConnect;
+        if (tapestryUrls.size() < 3){
+            urlToConnect =  tapestryUrls.get(0);
+        } else {
+            urlToConnect =  tapestryUrls.get(2);
+        }
+        tapestryConnector.connectTapestry("ws://" + urlToConnect);
+        tapesty_url.setText(urlToConnect);
     }
     
 
@@ -167,6 +175,10 @@ public class NCIActivity extends Activity{
         tapestryUrls.add(2, url);
         urlslist.invalidateViews();
         saveTapestryUrls(this, tapestryUrls);
+        tapesty_url.clearFocus();
+        InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE); 
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+        tapestryConnector.connectTapestry("ws://" + url);
     }
     
     public static void saveTapestryUrls(Context context, ArrayList<String> urls){
