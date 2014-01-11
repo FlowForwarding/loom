@@ -64,32 +64,33 @@ public final class R {
     }
     public static final class id {
         public static final int clearaction=0x7f080006;
-        public static final int deleteicon=0x7f08001a;
-        public static final int endpointsUpdated=0x7f080015;
-        public static final int endpointsValue=0x7f080014;
-        public static final int endpointsarea=0x7f080013;
+        public static final int deleteicon=0x7f08001b;
+        public static final int endpointsUpdated=0x7f080016;
+        public static final int endpointsValue=0x7f080015;
+        public static final int endpointsarea=0x7f080014;
         public static final int goaction=0x7f080007;
-        public static final int hintView=0x7f080010;
+        public static final int hintView=0x7f080011;
         public static final int indexesarea=0x7f080008;
         public static final int infoaction=0x7f080003;
-        public static final int infolist=0x7f08000f;
+        public static final int infolist=0x7f080010;
         public static final int infotext=0x7f080002;
-        public static final int leftAmputation=0x7f08000a;
-        public static final int leftRange=0x7f08000b;
-        public static final int nciUpdated=0x7f080012;
-        public static final int nciValue=0x7f080011;
+        public static final int leftAmputation=0x7f08000b;
+        public static final int leftRange=0x7f08000c;
+        public static final int nciUpdated=0x7f080013;
+        public static final int nciValue=0x7f080012;
         public static final int nci_layout=0x7f080000;
-        public static final int qpsUpdated=0x7f080018;
-        public static final int qpsValue=0x7f080017;
-        public static final int qpsarea=0x7f080016;
-        public static final int rightAmputation=0x7f08000d;
-        public static final int rightRange=0x7f08000c;
+        public static final int qpsUpdated=0x7f080019;
+        public static final int qpsValue=0x7f080018;
+        public static final int qpsarea=0x7f080017;
+        public static final int rangesView=0x7f08000a;
+        public static final int rightAmputation=0x7f08000e;
+        public static final int rightRange=0x7f08000d;
         public static final int serverurlarea=0x7f080004;
         public static final int simpleXYPlot=0x7f080009;
-        public static final int tapestryurl=0x7f080019;
+        public static final int tapestryurl=0x7f08001a;
         public static final int tapesty_url=0x7f080005;
         public static final int top_bar=0x7f080001;
-        public static final int urlslist=0x7f08000e;
+        public static final int urlslist=0x7f08000f;
     }
     public static final class layout {
         public static final int activity_nci=0x7f030000;

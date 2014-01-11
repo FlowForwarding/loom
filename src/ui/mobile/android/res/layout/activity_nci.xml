@@ -96,7 +96,8 @@
             androidPlot.graphWidget.marginTop="0dp"
             androidPlot.graphWidget.gridLinePaint.color="@color/black"/>
     
-     <RelativeLayout
+    <RelativeLayout
+        android:id="@+id/rangesView"
         android:layout_below="@id/simpleXYPlot"
         android:layout_width="fill_parent"
         android:background="@color/tapestryblue"
