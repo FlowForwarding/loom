@@ -24,27 +24,35 @@ public class TapestryConnector {
     private String websocketMoreData3 = "Z\",\"max_items\": \"5\"}";
     
     private GraphModel graphModel;
+    
+    final TextView nciValue;
+    final TextView qpsValue;
+    final TextView endpointsValue;
+    final TextView nciValueTime;
+    final TextView qpsValueTime;
+    final TextView endpointsValueTime;
 
     public TapestryConnector(Activity activity, GraphModel graphModel){
         this.graphModel = graphModel;
         this.activity = activity;
+        nciValue = (TextView) activity.findViewById(R.id.nciValue);
+        qpsValue = (TextView) activity.findViewById(R.id.qpsValue);
+        endpointsValue = (TextView) activity.findViewById(R.id.endpointsValue);
+        nciValueTime = (TextView) activity.findViewById(R.id.nciUpdated);
+        qpsValueTime = (TextView) activity.findViewById(R.id.qpsUpdated);
+        endpointsValueTime  = (TextView) activity.findViewById(R.id.endpointsUpdated);
     }
     
     public void connectTapestry(String url) {
         graphModel.clearData();
         
-        final TextView nciValue = (TextView) activity.findViewById(R.id.nciValue);
-        final TextView qpsValue = (TextView) activity.findViewById(R.id.qpsValue);
-        final TextView endpointsValue = (TextView) activity.findViewById(R.id.endpointsValue);
-        final TextView nciValueTime = (TextView) activity.findViewById(R.id.nciUpdated);
-        final TextView qpsValueTime = (TextView) activity.findViewById(R.id.qpsUpdated);
-        final TextView endpointsValueTime  = (TextView) activity.findViewById(R.id.endpointsUpdated);
-        
         if (null != clientWss){
             clientWss.disconnect();
         }
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GTM"));
+        finishDemo();
+        if (url.equals("ws://demo")){
+            startDemo();
+        }
         
         clientWss = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
 
@@ -68,52 +76,7 @@ public class TapestryConnector {
 
             @Override
             public void onMessage(String arg0) {
-                try {
-                    JSONObject jsonObj = new JSONObject(arg0);
-                    if (jsonObj.has("start_time")){
-                        jsonObj.get("start_time");
-                        Date now = new Date(System.currentTimeMillis());
-                        Date start = new Date(System.currentTimeMillis() - 1000*60);
-                        clientWss.send(websocketMoreData1 + dateFormat.format(start).replace(" ", "T") +
-                                websocketMoreData2 + dateFormat.format(now).replace(" ", "T") +
-                                websocketMoreData3);
-                            } else {
-                                String[] items = arg0.substring(1, arg0.length() -1) .split(",");
-                                if (items.length > 2) {
-                                    for (int i = 0; i < items.length/2; i++){
-                                        String timeString = items[i*2].substring(8, items[i*2].length()-2).replace("T", " ");
-                                        String valueString = items[i*2 + 1].substring(6, items[i*2 + 1].length());
-                                        Date time = dateFormat.parse(timeString);
-                                        graphModel.addLast(time.getTime()/1000 - 1389000000, Long.parseLong(valueString));
-                                    }
-                                    graphModel.redraw();
-                                } else {
-                                    String time = "updated " + jsonObj.getString("Time").replace("T", " ").replace("Z", "");
-                                    if (jsonObj.has("NCI")) {
-                                        String valueString = jsonObj.getString("NCI");
-                                        setLabel(nciValue, valueString);
-                                        setLabel(nciValueTime, time);
-                                        String timeString = jsonObj.getString("Time").replace("T", " ").replace("Z", "");
-                                        Date dateTime = dateFormat.parse(timeString);
-                                      //  graphModel.addLast(dateTime.getTime()/1000 - 1389000000, Long.parseLong(valueString));
-                                      //  graphModel.redraw();
-                                    } else if (jsonObj.has("QPS")) {
-                                        setLabel(qpsValue, jsonObj.getString("QPS"));
-                                        setLabel(qpsValueTime, time);
-                                    } else if (jsonObj.has("NEP")) {
-                                        setLabel(endpointsValue, jsonObj.getString("NEP"));
-                                        setLabel(endpointsValueTime, time);
-                                    };
-                                };
-                    };
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
+                parseResponse(arg0);
             }
 
             @Override
@@ -126,6 +89,57 @@ public class TapestryConnector {
         clientWss.connect();
     }
     
+    public void parseResponse(String responseString){
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GTM"));
+        try {
+            JSONObject jsonObj = new JSONObject(responseString);
+            if (jsonObj.has("start_time")){
+                jsonObj.get("start_time");
+                Date now = new Date(System.currentTimeMillis());
+                Date start = new Date(System.currentTimeMillis() - 1000*60);
+                clientWss.send(websocketMoreData1 + dateFormat.format(start).replace(" ", "T") +
+                        websocketMoreData2 + dateFormat.format(now).replace(" ", "T") +
+                        websocketMoreData3);
+                    } else {
+                        String[] items = responseString.substring(1, responseString.length() -1) .split(",");
+                        if (items.length > 2) {
+                            for (int i = 0; i < items.length/2; i++){
+                                String timeString = items[i*2].substring(8, items[i*2].length()-2).replace("T", " ");
+                                String valueString = items[i*2 + 1].substring(6, items[i*2 + 1].length());
+                                Date time = dateFormat.parse(timeString);
+                                graphModel.addLast(time.getTime()/1000 - 1389000000, Long.parseLong(valueString));
+                            }
+                            graphModel.redraw();
+                        } else {
+                            String time = "updated " + jsonObj.getString("Time").replace("T", " ").replace("Z", "");
+                            if (jsonObj.has("NCI")) {
+                                String valueString = jsonObj.getString("NCI");
+                                setLabel(nciValue, valueString);
+                                setLabel(nciValueTime, time);
+                                String timeString = jsonObj.getString("Time").replace("T", " ").replace("Z", "");
+                                Date dateTime = dateFormat.parse(timeString);
+                              //  graphModel.addLast(dateTime.getTime()/1000 - 1389000000, Long.parseLong(valueString));
+                              //  graphModel.redraw();
+                            } else if (jsonObj.has("QPS")) {
+                                setLabel(qpsValue, jsonObj.getString("QPS"));
+                                setLabel(qpsValueTime, time);
+                            } else if (jsonObj.has("NEP")) {
+                                setLabel(endpointsValue, jsonObj.getString("NEP"));
+                                setLabel(endpointsValueTime, time);
+                            };
+                        };
+            };
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+    
     public void setLabel(final TextView label,final String text){
         activity.runOnUiThread(new Runnable(){
             public void run() {
@@ -133,5 +147,49 @@ public class TapestryConnector {
             }         
         });
     }
+    
+    private boolean isDemoMode = false;
+    
+    private void finishDemo(){
+        isDemoMode = false;
+    }
+    
+    private void startDemo(){
+        isDemoMode = true;
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GTM"));
+        StringBuffer responseText = new StringBuffer("{");
+        int numberOfPoints = 10;
+        int timePeriod = 1000*60*60*12;
+        int dateStep = timePeriod/numberOfPoints;
+        for (int i = 0; i < numberOfPoints; i++){
+            Date curDate = new Date(System.currentTimeMillis() - timePeriod + dateStep*i);
+            String dateString = dateFormat.format(curDate).replace(" ", "T");
+            responseText.append( "\"Time\":\"" + dateString + "Z" + "\",\"NCI\":" +  (int)(Math.random()*5) + ",");
+        }
+        responseText.replace(responseText.length() - 1, responseText.length(), "}");
+        parseResponse(responseText.toString());
+        
+        Runnable r = new Runnable() {
+            public void run() {
+                while (isDemoMode){
+                    try {
+                        Date curDate = new Date(System.currentTimeMillis());
+                        String dateString = dateFormat.format(curDate).replace(" ", "T");
+                        String responseString = "{\"NCI\":"+ (int)(Math.random()*5) + ",\"Time\":\"" + dateString + "Z\"}";
+                        parseResponse(responseString);
+                        responseString = "{\"NEP\":"+ (int)(Math.random()*5) + ",\"Time\":\"" + dateString + "Z\"}";
+                        parseResponse(responseString);
+                        responseString = "{\"QPS\":"+ (int)(Math.random()*5) + ",\"Time\":\"" + dateString + "Z\"}";
+                        parseResponse(responseString);
+                        Thread.sleep(5*1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
 
+        new Thread(r).start();
+    }
 }

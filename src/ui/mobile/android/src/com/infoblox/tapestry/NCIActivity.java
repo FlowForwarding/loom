@@ -152,7 +152,6 @@ public class NCIActivity extends Activity{
         tapesty_url.setText(urlToConnect);
     }
     
-
     public void toggleInfoMenu(View v) {
         View list = findViewById(R.id.infolist);
         if (list.getVisibility() == View.VISIBLE){

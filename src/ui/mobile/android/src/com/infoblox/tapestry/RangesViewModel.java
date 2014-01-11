@@ -35,14 +35,17 @@ public class RangesViewModel implements OnTouchListener{
     public void updateDimensions(){
         minXVal = graphModel.plot.getCalculatedMinX().floatValue();
         maxXVal = graphModel.plot.getCalculatedMaxX().floatValue();
-        if  (graphWidth == -1){
+    }
+    
+    public void setGraphWidth(){
+        if  (graphWidth == -1 && null != graphModel.plot.getGraphWidget().getGridRect()){
             graphWidth = graphModel.plot.getGraphWidget().getGridRect().width();
             activity.runOnUiThread(new Runnable(){
                 public void run() {
                     leftRange.setX(graphModel.plot.getGraphWidget().getGridRect().left);
                     rightRange.setX(leftRange.getX() + graphWidth);     
                 }
-            });
+            }); 
         }
     }
 
@@ -84,7 +87,6 @@ public class RangesViewModel implements OnTouchListener{
                 leftRange.setX(leftRange.getX() + diff);
                 rightRange.setX(rightRange.getX() + diff);
             }
-            
             float newMinVal = leftRange.getX()*(maxXVal - minXVal)/graphWidth + minXVal;
             float newMaxVal = (rightRange.getX() - graphWidth)/graphWidth*(maxXVal - minXVal) + maxXVal;
             graphModel.setNewRanges(newMinVal, newMaxVal);

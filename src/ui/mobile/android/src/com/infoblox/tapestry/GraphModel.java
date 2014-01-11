@@ -15,6 +15,7 @@ import android.util.FloatMath;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.View.OnLayoutChangeListener;
 
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
@@ -34,7 +35,7 @@ public class GraphModel implements OnTouchListener{
     private SimpleXYSeries bottomPlotSeries;
     private LineAndPointFormatter bottomSeriesFormat;
     
-    public GraphModel(Activity activity, RangesViewModel rangesViewModel){
+    public GraphModel(Activity activity, final RangesViewModel rangesViewModel){
         this.activity = activity;
         this.rangesViewModel = rangesViewModel;
         
@@ -44,15 +45,25 @@ public class GraphModel implements OnTouchListener{
         bottomSeriesFormat = new LineAndPointFormatter(Color.rgb(0, 0, 255), 
                 Color.rgb(0, 0, 255),  Color.argb(25, 0, 0, 255), null);
         bottomPlotSeries  = new SimpleXYSeries(new LinkedList<Long>(), new LinkedList<Long>(), null); 
-        bottomPlot.addSeries(bottomPlotSeries, bottomSeriesFormat);    
+        bottomPlot.addSeries(bottomPlotSeries, bottomSeriesFormat);
         
+        bottomPlot.addOnLayoutChangeListener(new OnLayoutChangeListener() {
+
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right,
+                    int bottom, int oldLeft, int oldTop, int oldRight,
+                    int oldBottom) {
+                rangesViewModel.setGraphWidth();
+            }
+            
+        });
+       
         plot = (XYPlot) activity.findViewById(R.id.simpleXYPlot);
         makeUpChart(plot);
         topSeriesFormat = new LineAndPointFormatter(Color.rgb(0, 0, 255), 
                 Color.rgb(0, 0, 255),  Color.argb(25, 0, 0, 255), null);        
         plotSeries = new SimpleXYSeries(new LinkedList<Long>(), new LinkedList<Long>(), null);                           
         plot.addSeries(plotSeries, topSeriesFormat);
-        
         plot.setOnTouchListener(this);
     }
     
@@ -62,6 +73,7 @@ public class GraphModel implements OnTouchListener{
         plot.getGraphWidget().getBackgroundPaint().setColor(Color.TRANSPARENT);
         plot.getGraphWidget().getGridBackgroundPaint().setColor(Color.TRANSPARENT);
         plot.setBorderStyle(XYPlot.BorderStyle.NONE, null, null);
+        
         float w = activity.getWindowManager().getDefaultDisplay().getWidth();
         float r = w/200;
         plot.setDomainStepValue(r);
@@ -150,7 +162,7 @@ public class GraphModel implements OnTouchListener{
                 redrawChart();
  
             } else if (mode == TWO_FINGERS_DRAG) {
-                float oldDist  =distBetweenFingers; 
+                float oldDist = distBetweenFingers; 
                 distBetweenFingers = spacing(event);
                 if (distBetweenFingers > 0){
                     lastZooming = oldDist/distBetweenFingers;
