@@ -87,14 +87,45 @@
         layout="@layout/nci_indexes"/>
     
     <com.androidplot.xy.XYPlot
-            android:id="@+id/mySimpleXYPlot"
+            android:id="@+id/simpleXYPlot"
             android:layout_below="@id/indexesarea"
             android:layout_width="fill_parent"
             android:layout_height="300dp"
             androidPlot.domainLabelWidget.labelPaint.textSize="@dimen/domain_label_font_size"
             androidPlot.rangeLabelWidget.labelPaint.textSize="@dimen/range_label_font_size"
-            androidPlot.graphWidget.marginTop="20dp"
+            androidPlot.graphWidget.marginTop="0dp"
             androidPlot.graphWidget.gridLinePaint.color="@color/black"/>
+    
+     <RelativeLayout
+        android:layout_below="@id/simpleXYPlot"
+        android:layout_width="fill_parent"
+        android:background="@color/tapestryblue"
+        android:layout_height="60dp">
+        <View
+            android:id="@+id/leftAmputation"
+            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_alignParentLeft="true"
+            android:background="@color/tapestrygrey"/>
+        <View
+            android:id="@+id/leftRange"
+            android:layout_height="fill_parent"
+            android:layout_width="2dp"
+            android:layout_alignParentLeft="true"
+            android:background="@color/black"/>      
+        <View
+            android:id="@+id/rightRange"
+            android:layout_height="fill_parent"
+            android:layout_width="2dp"
+            android:layout_alignParentRight="true"
+            android:background="@color/black"/>
+        <View
+            android:id="@+id/rightAmputation"
+            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_alignParentRight="true"
+            android:background="@color/tapestrygrey"/>        
+     </RelativeLayout>       
     
     <ListView 
         android:id="@+id/urlslist"

@@ -52,6 +52,11 @@ public class NCIActivity extends Activity implements OnTouchListener{
     
     static String PREFS_NAME = "tapestryPrefs";
     static String PREFS_URLS = "tapestryUrls";
+    
+    private View leftRange;
+    private View rightRange;
+    private View leftAmputation;
+    private View rightAmputation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,10 +160,15 @@ public class NCIActivity extends Activity implements OnTouchListener{
         paintGraph();
         tapestryConnector = new TapestryConnector(this, plot, plotSeries);
         tapestryConnector.connectTapestry("ws://" + "epamove.herokuapp.com");
+        
+        leftRange = findViewById(R.id.leftRange);
+        rightRange = findViewById(R.id.rightRange);
+        leftAmputation = findViewById(R.id.leftAmputation);
+        rightAmputation = findViewById(R.id.rightAmputation);
     }
     
     public void paintGraph(){
-        plot = (XYPlot) findViewById(R.id.mySimpleXYPlot);
+        plot = (XYPlot) findViewById(R.id.simpleXYPlot);
         plot.getLegendWidget().setVisible(false);
         plot.getBackgroundPaint().setColor(Color.TRANSPARENT);
         plot.getGraphWidget().getBackgroundPaint().setColor(Color.TRANSPARENT);
@@ -195,6 +205,13 @@ public class NCIActivity extends Activity implements OnTouchListener{
         
     }
     
+    public float minXVal;
+    public float maxXVal;
+    public float graphWidth;
+    
+//    public void onStart(){
+//        graphWidth = plot.getGraphWidget().getGridRect().width();
+//    }
 
     public void toggleInfoMenu(View v) {
         View list = findViewById(R.id.infolist);
@@ -269,6 +286,10 @@ public class NCIActivity extends Activity implements OnTouchListener{
     public boolean onTouch(View v, MotionEvent event) {
         if (null == minXY){
             plot.calculateMinMaxVals();
+            minXVal = plot.getCalculatedMinX().floatValue();
+            maxXVal = plot.getCalculatedMaxX().floatValue();
+            graphWidth = plot.getGraphWidget().getGridRect().width();
+            
             minXY=new PointF(plot.getCalculatedMinX().floatValue(), plot.getCalculatedMinY().floatValue());
             maxXY=new PointF(plot.getCalculatedMaxX().floatValue(), plot.getCalculatedMaxY().floatValue());
         }
@@ -296,24 +317,30 @@ public class NCIActivity extends Activity implements OnTouchListener{
                     lastZooming=1/(1-lastZooming);
                 else
                     lastZooming+=1;
-                zoom(lastZooming);
-                plot.setDomainBoundaries(minXY.x, maxXY.x, BoundaryMode.FIXED);
-                plot.redraw();
+                redrawChart();
  
             } else if (mode == TWO_FINGERS_DRAG) {
                 float oldDist =distBetweenFingers; 
                 distBetweenFingers=spacing(event);
                 if (distBetweenFingers > 0){
                     lastZooming = oldDist/distBetweenFingers;
-                    zoom(lastZooming);
-                    plot.setDomainBoundaries(minXY.x, maxXY.x, BoundaryMode.FIXED);
-                    plot.redraw();
+                    redrawChart();
                 }
             }
             break;
         }
         return true;
     
+    }
+    
+    private void redrawChart(){
+        zoom(lastZooming);
+       // if (minXVal <= minXY.x &&  maxXVal >= maxXY.x ){
+            plot.setDomainBoundaries(minXY.x, maxXY.x, BoundaryMode.FIXED);
+            leftRange.setX ((minXY.x- minXVal)*graphWidth/(maxXVal - minXVal));
+            rightRange.setX (graphWidth - (maxXVal - maxXY.x)*graphWidth/(maxXVal - minXVal));
+            plot.redraw();
+      //  }
     }
     
     private void zoom(float scale) {

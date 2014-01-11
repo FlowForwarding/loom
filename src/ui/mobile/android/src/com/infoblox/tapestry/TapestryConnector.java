@@ -3,6 +3,7 @@ package com.infoblox.tapestry;
 import java.net.URI;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,7 +23,7 @@ public class TapestryConnector {
     private WebSocketClient clientWss;
     private String websocketMoreData1 = "{\"request\":\"more_data\",\"start\": \"";
     private String websocketMoreData2 = "Z\",\"end\": \"";
-    private String websocketMoreData3 = "Z\",\"max_items\": \"100\"}";
+    private String websocketMoreData3 = "Z\",\"max_items\": \"5\"}";
     
     private XYPlot plot;
     private SimpleXYSeries plotSeries;
@@ -44,8 +45,8 @@ public class TapestryConnector {
         if (null != clientWss){
             clientWss.disconnect();
         }
-        
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GTM"));
         
         clientWss = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
 
@@ -85,7 +86,7 @@ public class TapestryConnector {
                                         String timeString = items[i*2].substring(8, items[i*2].length()-2).replace("T", " ");
                                         String valueString = items[i*2 + 1].substring(6, items[i*2 + 1].length());
                                         Date time = dateFormat.parse(timeString);
-                                        plotSeries.addLast((time.getTime())/1000 - 1389000000, Long.parseLong(valueString));
+                                        plotSeries.addLast(time.getTime()/1000 - 1389000000, Long.parseLong(valueString));
                                     }
                                     plot.redraw();
                                 } else {
@@ -96,10 +97,10 @@ public class TapestryConnector {
                                         setLabel(nciValueTime, time);
                                         String timeString = jsonObj.getString("Time").replace("T", " ").replace("Z", "");
                                         Date dateTime = dateFormat.parse(timeString);
-                                      //  if (plotSeries.size()>0){
-                                      //      plotSeries.addLast(dateTime.getTime(), Long.parseLong(valueString));
-                                      //      plot.redraw();
-                                      //  }
+                                        if (plotSeries.size()>0){
+                                            plotSeries.addLast(dateTime.getTime()/1000 - 1389000000, Long.parseLong(valueString));
+                                            plot.redraw();
+                                        }
                                     } else if (jsonObj.has("QPS")) {
                                         setLabel(qpsValue, jsonObj.getString("QPS"));
                                         setLabel(qpsValueTime, time);
