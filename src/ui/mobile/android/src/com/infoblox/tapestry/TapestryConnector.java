@@ -82,9 +82,9 @@ public class TapestryConnector {
                                         String timeString = items[i*2].substring(8, items[i*2].length()-2).replace("T", " ");
                                         String valueString = items[i*2 + 1].substring(6, items[i*2 + 1].length());
                                         Date time = dateFormat.parse(timeString);
-                                        graphModel.plotSeries.addLast(time.getTime()/1000 - 1389000000, Long.parseLong(valueString));
+                                        graphModel.addLast(time.getTime()/1000 - 1389000000, Long.parseLong(valueString));
                                     }
-                                    graphModel.plot.redraw();
+                                    graphModel.redraw();
                                 } else {
                                     String time = "updated " + jsonObj.getString("Time").replace("T", " ").replace("Z", "");
                                     if (jsonObj.has("NCI")) {
@@ -93,10 +93,8 @@ public class TapestryConnector {
                                         setLabel(nciValueTime, time);
                                         String timeString = jsonObj.getString("Time").replace("T", " ").replace("Z", "");
                                         Date dateTime = dateFormat.parse(timeString);
-                                        if (graphModel.plotSeries.size()>0){
-                                            graphModel.plotSeries.addLast(dateTime.getTime()/1000 - 1389000000, Long.parseLong(valueString));
-                                            graphModel.plot.redraw();
-                                        }
+                                      //  graphModel.addLast(dateTime.getTime()/1000 - 1389000000, Long.parseLong(valueString));
+                                      //  graphModel.redraw();
                                     } else if (jsonObj.has("QPS")) {
                                         setLabel(qpsValue, jsonObj.getString("QPS"));
                                         setLabel(qpsValueTime, time);

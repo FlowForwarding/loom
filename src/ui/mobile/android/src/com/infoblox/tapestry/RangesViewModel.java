@@ -1,7 +1,5 @@
 package com.infoblox.tapestry;
 
-import com.androidplot.xy.XYPlot;
-
 import android.app.Activity;
 import android.graphics.PointF;
 import android.view.MotionEvent;
@@ -18,11 +16,14 @@ public class RangesViewModel implements OnTouchListener{
     
     private float minXVal;
     private float maxXVal;
-    private float graphWidth;
+    private float graphWidth = -1;
   
     private GraphModel graphModel;
     
+    Activity activity;
+    
     public RangesViewModel(Activity activity){
+        this.activity = activity;
         leftRange = activity.findViewById(R.id.leftRange);
         rightRange = activity.findViewById(R.id.rightRange);
         leftAmputation = activity.findViewById(R.id.leftAmputation);
@@ -31,15 +32,24 @@ public class RangesViewModel implements OnTouchListener{
         rangesView.setOnTouchListener(this);
     }
     
-    public void initDimensions(XYPlot plot){
-        minXVal = plot.getCalculatedMinX().floatValue();
-        maxXVal = plot.getCalculatedMaxX().floatValue();
-        graphWidth = plot.getGraphWidget().getGridRect().width();
+    public void updateDimensions(){
+        minXVal = graphModel.plot.getCalculatedMinX().floatValue();
+        maxXVal = graphModel.plot.getCalculatedMaxX().floatValue();
+        if  (graphWidth == -1){
+            graphWidth = graphModel.plot.getGraphWidget().getGridRect().width();
+            activity.runOnUiThread(new Runnable(){
+                public void run() {
+                    leftRange.setX(graphModel.plot.getGraphWidget().getGridRect().left);
+                    rightRange.setX(leftRange.getX() + graphWidth);     
+                }
+            });
+        }
     }
 
-    public void redrawRanges(float newMinX, float newMaxX){
-        leftRange.setX ((newMinX - minXVal)*graphWidth/(maxXVal - minXVal));
-        rightRange.setX (graphWidth - (maxXVal - newMaxX)*graphWidth/(maxXVal - minXVal));
+    public void redrawRanges(float newMinTopX, float newMaxTopX){
+        float leftIndent = graphModel.plot.getGraphWidget().getGridRect().left;
+        leftRange.setX(leftIndent +  (newMinTopX - minXVal)*graphWidth/(maxXVal - minXVal));
+        rightRange.setX(leftIndent + graphWidth - (maxXVal - newMaxTopX)*graphWidth/(maxXVal - minXVal));
     }
     
     private  PointF fingerPoint;

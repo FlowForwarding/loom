@@ -92,16 +92,19 @@
             android:layout_width="fill_parent"
             android:layout_height="300dp"
             androidPlot.domainLabelWidget.labelPaint.textSize="@dimen/domain_label_font_size"
-            androidPlot.rangeLabelWidget.labelPaint.textSize="@dimen/range_label_font_size"
-            androidPlot.graphWidget.marginTop="0dp"
-            androidPlot.graphWidget.gridLinePaint.color="@color/black"/>
+            androidPlot.rangeLabelWidget.labelPaint.textSize="@dimen/range_label_font_size"/>
     
     <RelativeLayout
         android:id="@+id/rangesView"
         android:layout_below="@id/simpleXYPlot"
         android:layout_width="fill_parent"
-        android:background="@color/tapestryblue"
-        android:layout_height="60dp">
+        android:layout_height="100dp">
+        
+        <com.androidplot.xy.XYPlot
+            android:id="@+id/bottomXYPlot"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            androidPlot.rangeLabelWidget.labelPaint.textSize="@dimen/range_label_font_size"/>
         <View
             android:id="@+id/leftAmputation"
             android:layout_height="fill_parent"

@@ -142,8 +142,8 @@ public class NCIActivity extends Activity{
         rangesViewModel.setGraphModel(graphModel);
         tapestryConnector = new TapestryConnector(this, graphModel);
         tapestryConnector.connectTapestry("ws://" + "epamove.herokuapp.com");
-
     }
+    
 
     public void toggleInfoMenu(View v) {
         View list = findViewById(R.id.infolist);
