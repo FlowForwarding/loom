@@ -19,6 +19,8 @@ public class RangesViewModel implements OnTouchListener{
     private float minXVal;
     private float maxXVal;
     private float graphWidth;
+  
+    private GraphModel graphModel;
     
     public RangesViewModel(Activity activity){
         leftRange = activity.findViewById(R.id.leftRange);
@@ -72,8 +74,16 @@ public class RangesViewModel implements OnTouchListener{
                 leftRange.setX(leftRange.getX() + diff);
                 rightRange.setX(rightRange.getX() + diff);
             }
+            
+            float newMinVal = leftRange.getX()*(maxXVal - minXVal)/graphWidth + minXVal;
+            float newMaxVal = (rightRange.getX() - graphWidth)/graphWidth*(maxXVal - minXVal) + maxXVal;
+            graphModel.setNewRanges(newMinVal, newMaxVal);
             break;
         }
         return true;
+    }
+    
+    public void setGraphModel(GraphModel graphModel) {
+        this.graphModel = graphModel;
     }
 }

@@ -162,6 +162,9 @@ public class GraphModel implements OnTouchListener{
         return FloatMath.sqrt(x * x + y * y);
     }
     
-
+    public void setNewRanges(float newMinX, float newMaxX){
+        plot.setDomainBoundaries(newMinX, newMaxX, BoundaryMode.FIXED);
+        plot.redraw();
+    }
 
 }
