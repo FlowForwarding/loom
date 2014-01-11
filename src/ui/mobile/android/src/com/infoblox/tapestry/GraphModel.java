@@ -185,11 +185,11 @@ public class GraphModel implements OnTouchListener{
     }
     
     private void zoom(float scale) {
-        float domainSpan = maxXY.x    - minXY.x;
-        float domainMidPoint = maxXY.x        - domainSpan / 2.0f;
+        float domainSpan = maxXY.x - minXY.x;
+        float domainMidPoint = maxXY.x - domainSpan / 2.0f;
         float offset = domainSpan * scale/ 2.0f;
-        minXY.x=domainMidPoint - offset;
-        maxXY.x=domainMidPoint + offset;
+        minXY.x = domainMidPoint - offset;
+        maxXY.x = domainMidPoint + offset;
     }
  
     private void scroll(float pan) {

@@ -166,7 +166,10 @@ public class NCIActivity extends Activity{
     }
     
     public void connectTapestry(View v) {
-        String url = tapesty_url.getText().toString();
+        String url = tapesty_url.getText().toString().trim();
+        if (url.isEmpty()){
+            return;
+        }
         int existsPos = tapestryUrls.lastIndexOf(url);
         if (existsPos > 1){
             tapestryUrls.remove(existsPos);
@@ -210,7 +213,5 @@ public class NCIActivity extends Activity{
         helpView.setVisibility(View.VISIBLE);
     }
     
-    
-
   
 }

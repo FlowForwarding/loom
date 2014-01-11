@@ -8,7 +8,9 @@ import java.util.TimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.Color;
 import android.util.Log;
 import android.widget.TextView;
 import java.text.*;
@@ -31,6 +33,10 @@ public class TapestryConnector {
     final TextView nciValueTime;
     final TextView qpsValueTime;
     final TextView endpointsValueTime;
+    
+    float curNCIValue = -1;
+    float curNEPValue = -1;
+    float curQPSValue = -1;
 
     public TapestryConnector(Activity activity, GraphModel graphModel){
         this.graphModel = graphModel;
@@ -115,18 +121,24 @@ public class TapestryConnector {
                             String time = "updated " + jsonObj.getString("Time").replace("T", " ").replace("Z", "");
                             if (jsonObj.has("NCI")) {
                                 String valueString = jsonObj.getString("NCI");
-                                setLabel(nciValue, valueString);
+                                float newValue = Float.parseFloat(valueString);
+                                setValueLabel(nciValue, newValue, curNCIValue);
                                 setLabel(nciValueTime, time);
                                 String timeString = jsonObj.getString("Time").replace("T", " ").replace("Z", "");
                                 Date dateTime = dateFormat.parse(timeString);
-                              //  graphModel.addLast(dateTime.getTime()/1000 - 1389000000, Long.parseLong(valueString));
+                                curNCIValue = newValue;
+                              //  graphModel.addLast(dateTime.getTime()/1000 - 1389000000, curNCIValue);
                               //  graphModel.redraw();
                             } else if (jsonObj.has("QPS")) {
-                                setLabel(qpsValue, jsonObj.getString("QPS"));
+                                float newValue = Float.parseFloat(jsonObj.getString("QPS"));
+                                setValueLabel(qpsValue, newValue, curQPSValue);
                                 setLabel(qpsValueTime, time);
+                                curQPSValue = newValue;
                             } else if (jsonObj.has("NEP")) {
-                                setLabel(endpointsValue, jsonObj.getString("NEP"));
+                                float newValue = Float.parseFloat(jsonObj.getString("NEP"));
+                                setValueLabel(endpointsValue, newValue, curNEPValue);
                                 setLabel(endpointsValueTime, time);
+                                curNEPValue = newValue;
                             };
                         };
             };
@@ -138,6 +150,22 @@ public class TapestryConnector {
             e.printStackTrace();
         }
 
+    }
+    
+    public void setValueLabel(final TextView label,final float newValue, final float curValue){
+        activity.runOnUiThread(new Runnable(){
+            @SuppressLint("ResourceAsColor")
+            public void run() {
+                if (curValue == -1 || curValue == newValue){
+                    label.setTextColor(Color.BLACK);
+                } else if (curValue < newValue){
+                    label.setTextColor(Color.RED);
+                } else if (curValue > newValue){
+                    label.setTextColor(activity.getResources().getColor(R.color.tapestrygreen));
+                }
+                label.setText(String.valueOf((int)newValue));
+            }         
+        });
     }
     
     public void setLabel(final TextView label,final String text){
