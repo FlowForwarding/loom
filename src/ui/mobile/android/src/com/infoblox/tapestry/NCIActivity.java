@@ -87,6 +87,13 @@ public class NCIActivity extends Activity{
                     urlslist.setVisibility(View.GONE);
                     clearaction.setVisibility(View.INVISIBLE);
                     goaction.setVisibility(View.INVISIBLE);
+                    if (tapesty_url.getText().toString().trim().isEmpty()){
+                        if (tapestryUrls.size() > 2){
+                            tapesty_url.setText(tapestryUrls.get(2));  
+                        } else {
+                            tapesty_url.setText(tapestryUrls.get(0));   
+                        }
+                    }
                 }      
             }   
         });
@@ -130,10 +137,21 @@ public class NCIActivity extends Activity{
         urlslist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+            public void onItemClick(AdapterView<?> arg0, View arg1, int position,
                     long arg3) {
-                // TODO Auto-generated method stub
-                
+                  String newUrl = tapestryUrls.get(position);
+                  tapesty_url.setText(newUrl);
+                  if (position > 1){
+                      tapestryUrls.remove(position);
+                      tapestryUrls.add(2, newUrl);
+                      urlslist.invalidateViews();
+                  }
+                  if (position != 1){
+                      tapestryConnector.connectTapestry("ws://" + newUrl);
+                      tapesty_url.clearFocus();
+                      InputMethodManager imm = (InputMethodManager) tapesty_url.getContext().getSystemService(Context.INPUT_METHOD_SERVICE); 
+                      imm.hideSoftInputFromWindow(tapesty_url.getWindowToken(), 0);
+                  }   
             }
             
         });
