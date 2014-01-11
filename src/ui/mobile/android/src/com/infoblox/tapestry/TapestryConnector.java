@@ -11,8 +11,6 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.util.Log;
 import android.widget.TextView;
-import com.androidplot.xy.SimpleXYSeries;
-import com.androidplot.xy.XYPlot;
 import java.text.*;
 import com.codebutler.android_websockets.WebSocketClient;
 
@@ -25,12 +23,10 @@ public class TapestryConnector {
     private String websocketMoreData2 = "Z\",\"end\": \"";
     private String websocketMoreData3 = "Z\",\"max_items\": \"5\"}";
     
-    private XYPlot plot;
-    private SimpleXYSeries plotSeries;
+    private GraphModel graphModel;
 
-    public TapestryConnector(Activity activity, XYPlot plot, SimpleXYSeries plotSeries){
-        this.plot = plot;
-        this.plotSeries = plotSeries;
+    public TapestryConnector(Activity activity, GraphModel graphModel){
+        this.graphModel = graphModel;
         this.activity = activity;
     }
     
@@ -86,9 +82,9 @@ public class TapestryConnector {
                                         String timeString = items[i*2].substring(8, items[i*2].length()-2).replace("T", " ");
                                         String valueString = items[i*2 + 1].substring(6, items[i*2 + 1].length());
                                         Date time = dateFormat.parse(timeString);
-                                        plotSeries.addLast(time.getTime()/1000 - 1389000000, Long.parseLong(valueString));
+                                        graphModel.plotSeries.addLast(time.getTime()/1000 - 1389000000, Long.parseLong(valueString));
                                     }
-                                    plot.redraw();
+                                    graphModel.plot.redraw();
                                 } else {
                                     String time = "updated " + jsonObj.getString("Time").replace("T", " ").replace("Z", "");
                                     if (jsonObj.has("NCI")) {
@@ -97,9 +93,9 @@ public class TapestryConnector {
                                         setLabel(nciValueTime, time);
                                         String timeString = jsonObj.getString("Time").replace("T", " ").replace("Z", "");
                                         Date dateTime = dateFormat.parse(timeString);
-                                        if (plotSeries.size()>0){
-                                            plotSeries.addLast(dateTime.getTime()/1000 - 1389000000, Long.parseLong(valueString));
-                                            plot.redraw();
+                                        if (graphModel.plotSeries.size()>0){
+                                            graphModel.plotSeries.addLast(dateTime.getTime()/1000 - 1389000000, Long.parseLong(valueString));
+                                            graphModel.plot.redraw();
                                         }
                                     } else if (jsonObj.has("QPS")) {
                                         setLabel(qpsValue, jsonObj.getString("QPS"));
