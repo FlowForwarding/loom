@@ -163,7 +163,17 @@ public class TapestryConnector {
                 } else if (curValue > newValue){
                     label.setTextColor(activity.getResources().getColor(R.color.tapestrygreen));
                 }
-                label.setText(String.valueOf((int)newValue));
+                String valueForUi;
+                if (newValue > 1000000000){
+                    valueForUi = String.valueOf(((int)newValue/10000000)/10.0) + " B";
+                } else if (newValue > 1000000){
+                    valueForUi = String.valueOf(((int)newValue/100000)/10.0) + " M";
+                } else if (newValue > 1000){
+                    valueForUi = String.valueOf(((int)newValue/100)/10.0) + " K";
+                } else {
+                    valueForUi = String.valueOf((int)newValue);
+                }
+                label.setText(valueForUi);
             }         
         });
     }
@@ -206,9 +216,9 @@ public class TapestryConnector {
                         String dateString = dateFormat.format(curDate).replace(" ", "T");
                         String responseString = "{\"NCI\":"+ (int)(Math.random()*5) + ",\"Time\":\"" + dateString + "Z\"}";
                         parseResponse(responseString);
-                        responseString = "{\"NEP\":"+ (int)(Math.random()*5) + ",\"Time\":\"" + dateString + "Z\"}";
+                        responseString = "{\"NEP\":"+ (int)(2000 + (Math.random()*400)) + ",\"Time\":\"" + dateString + "Z\"}";
                         parseResponse(responseString);
-                        responseString = "{\"QPS\":"+ (int)(Math.random()*5) + ",\"Time\":\"" + dateString + "Z\"}";
+                        responseString = "{\"QPS\":"+ (int)(600000000 + (Math.random()*50000000)) + ",\"Time\":\"" + dateString + "Z\"}";
                         parseResponse(responseString);
                         Thread.sleep(5*1000);
                     } catch (InterruptedException e) {
