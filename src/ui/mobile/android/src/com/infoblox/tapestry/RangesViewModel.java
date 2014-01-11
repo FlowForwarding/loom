@@ -42,10 +42,16 @@ public class RangesViewModel implements OnTouchListener{
             graphWidth = graphModel.plot.getGraphWidget().getGridRect().width();
             activity.runOnUiThread(new Runnable(){
                 public void run() {
-                    leftRange.setX(graphModel.plot.getGraphWidget().getGridRect().left);
-                    rightRange.setX(leftRange.getX() + graphWidth);     
+                    resetRanges();   
                 }
             }); 
+        }
+    }
+    
+    public void resetRanges(){
+        if (null != graphModel.plot.getGraphWidget().getGridRect()){
+            leftRange.setX(graphModel.plot.getGraphWidget().getGridRect().left);
+            rightRange.setX(leftRange.getX() + graphWidth);    
         }
     }
 

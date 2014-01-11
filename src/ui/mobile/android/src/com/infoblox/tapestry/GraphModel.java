@@ -222,10 +222,13 @@ public class GraphModel implements OnTouchListener{
         plot.addSeries(plotSeries, topSeriesFormat);
         plot.redraw();
         
+        plot.setDomainBoundaries(0, 0, BoundaryMode.AUTO);
+        
         bottomPlot.removeSeries(bottomPlotSeries);
         bottomPlotSeries = new SimpleXYSeries(new LinkedList<Long>(), new LinkedList<Long>(), null);   
         bottomPlot.addSeries(bottomPlotSeries, bottomSeriesFormat);
         bottomPlot.redraw();
+        rangesViewModel.resetRanges();
     }
 
 }

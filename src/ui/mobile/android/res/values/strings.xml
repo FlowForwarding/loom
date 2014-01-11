@@ -25,4 +25,6 @@
     <string name="numberOfConnectedNetworkElements">Number of Connected\nNetwork Elements</string>
     <string name="successfulDNSQueryResponsesPerSecond">Successful DNS Query\nResponses per Second</string>
     
+    
+    <string name="Loading">Loading&#8230;</string>
 </resources>

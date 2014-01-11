@@ -94,6 +94,34 @@
             androidPlot.domainLabelWidget.labelPaint.textSize="@dimen/domain_label_font_size"
             androidPlot.rangeLabelWidget.labelPaint.textSize="@dimen/range_label_font_size"/>
     
+    
+    <TextView
+        android:id="@+id/loadingLabel"
+        android:layout_below="@id/indexesarea"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/loading_margin_top"
+        android:text="@string/Loading"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:textStyle="bold"
+        android:textSize="@dimen/loading_font"
+        android:textColor="@color/tapestrydarkblue">
+    </TextView>
+    
+    
+    <ImageView
+        android:id="@+id/tapToConnect"
+        android:layout_below="@id/indexesarea"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/loading_margin_top"
+        android:layout_centerHorizontal="true"
+        android:onClick="connectTapestry"
+        android:src="@drawable/presstoconnect"/>
+    
+            <!--     android:visibility="invisible" -->
+            
     <RelativeLayout
         android:id="@+id/rangesView"
         android:layout_below="@id/simpleXYPlot"

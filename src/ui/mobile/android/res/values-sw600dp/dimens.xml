@@ -26,5 +26,7 @@
     <dimen name="url_postfix_width">60dp</dimen>
     
     <dimen name="hint_font">18sp</dimen>
+    <dimen name="loading_font">24sp</dimen>
+    <dimen name="loading_margin_top">30dp</dimen>
 
 </resources>

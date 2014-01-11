@@ -12,6 +12,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import java.text.*;
 import com.codebutler.android_websockets.WebSocketClient;
@@ -33,6 +34,8 @@ public class TapestryConnector {
     final TextView nciValueTime;
     final TextView qpsValueTime;
     final TextView endpointsValueTime;
+    final View loadingLabel;
+    final View tapToConnect;
     
     float curNCIValue = -1;
     float curNEPValue = -1;
@@ -47,17 +50,25 @@ public class TapestryConnector {
         nciValueTime = (TextView) activity.findViewById(R.id.nciUpdated);
         qpsValueTime = (TextView) activity.findViewById(R.id.qpsUpdated);
         endpointsValueTime  = (TextView) activity.findViewById(R.id.endpointsUpdated);
+        loadingLabel = activity.findViewById(R.id.loadingLabel);
+        tapToConnect = activity.findViewById(R.id.tapToConnect);
     }
     
+    boolean isDemo;
+    
     public void connectTapestry(String url) {
-        graphModel.clearData();
-        
+        isDemo = url.equals("ws://demo");
         if (null != clientWss){
             clientWss.disconnect();
         }
         finishDemo();
+        clearData();
+        graphModel.clearData();
+        loadingLabel.setVisibility(View.VISIBLE);
+        tapToConnect.setVisibility(View.INVISIBLE);
         if (url.equals("ws://demo")){
             startDemo();
+            return;
         }
         
         clientWss = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
@@ -66,17 +77,28 @@ public class TapestryConnector {
             public void onConnect() {
                 Log.d(TAG, "connect");
                 clientWss.send("START_DATA");
-           
             }
 
             @Override
             public void onDisconnect(int arg0, String arg1) {
-                Log.d(TAG,"disconnect"); 
-
+                activity.runOnUiThread(new Runnable(){
+                    @Override
+                    public void run() {
+                        tapToConnect.setVisibility(View.VISIBLE);
+                    }
+                });
             }
 
             @Override
             public void onError(Exception arg0) {
+                if (!isDemo){
+                    activity.runOnUiThread(new Runnable(){
+                        @Override
+                        public void run() {
+                            tapToConnect.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
                 Log.d(TAG, arg0.getLocalizedMessage());
             }
 
@@ -110,6 +132,12 @@ public class TapestryConnector {
                     } else {
                         String[] items = responseString.substring(1, responseString.length() -1) .split(",");
                         if (items.length > 2) {
+                            activity.runOnUiThread(new Runnable(){
+                                @Override
+                                public void run() {
+                                    loadingLabel.setVisibility(View.INVISIBLE);
+                                }
+                            });
                             for (int i = 0; i < items.length/2; i++){
                                 String timeString = items[i*2].substring(8, items[i*2].length()-2).replace("T", " ");
                                 String valueString = items[i*2 + 1].substring(6, items[i*2 + 1].length());
@@ -229,5 +257,17 @@ public class TapestryConnector {
         };
 
         new Thread(r).start();
+    }
+    
+    public void clearData(){
+        curNCIValue = -1;
+        curNEPValue = -1;
+        curQPSValue = -1;  
+        nciValue.setText("");
+        qpsValue.setText("");
+        endpointsValue.setText("");
+        nciValueTime.setText("");
+        qpsValueTime.setText("");
+        endpointsValueTime.setText("");
     }
 }
