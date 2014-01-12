@@ -138,7 +138,7 @@
             android:layout_height="fill_parent"
             android:layout_width="0dp"
             android:layout_alignParentLeft="true"
-            android:background="@color/tapestrygrey"/>
+            android:background="@color/tapestryrangesgrey"/>
         <View
             android:id="@+id/leftRange"
             android:layout_height="fill_parent"
@@ -156,7 +156,7 @@
             android:layout_height="fill_parent"
             android:layout_width="0dp"
             android:layout_alignParentRight="true"
-            android:background="@color/tapestrygrey"/>        
+            android:background="@color/tapestryrangesgrey"/>        
      </RelativeLayout>       
     
     <ListView 

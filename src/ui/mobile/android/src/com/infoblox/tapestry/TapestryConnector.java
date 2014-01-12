@@ -155,8 +155,8 @@ public class TapestryConnector {
                                 String timeString = jsonObj.getString("Time").replace("T", " ").replace("Z", "");
                                 Date dateTime = dateFormat.parse(timeString);
                                 curNCIValue = newValue;
-                                graphModel.addLast(dateTime.getTime()/1000 - 1389000000, curNCIValue);
-                                graphModel.redraw();
+//                                graphModel.addLast(dateTime.getTime()/1000 - 1389000000, curNCIValue);
+//                                graphModel.redraw();
                             } else if (jsonObj.has("QPS")) {
                                 float newValue = Float.parseFloat(jsonObj.getString("QPS"));
                                 setValueLabel(qpsValue, newValue, curQPSValue);

@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 public class RangesViewModel implements OnTouchListener{
     
@@ -18,7 +20,9 @@ public class RangesViewModel implements OnTouchListener{
     private float minXVal;
     private float maxXVal;
     private float graphWidth = -1;
-    private float leftIndent = -1;
+    private float leftIndent;
+    private int rangeHeight;
+    private int rangeY;
   
     private GraphModel graphModel;
     
@@ -38,6 +42,8 @@ public class RangesViewModel implements OnTouchListener{
         if  (graphWidth == -1 && null != graphModel.bottomPlot.getGraphWidget().getGridRect()){
             graphWidth = graphModel.bottomPlot.getGraphWidget().getGridRect().width();
             leftIndent = graphModel.bottomPlot.getGraphWidget().getGridRect().left;
+            rangeHeight = (int) graphModel.bottomPlot.getGraphWidget().getGridRect().height();
+            rangeY = (int) graphModel.bottomPlot.getGraphWidget().getGridRect().top;
             activity.runOnUiThread(new Runnable(){
                 public void run() {
                     resetRanges();   
@@ -49,19 +55,34 @@ public class RangesViewModel implements OnTouchListener{
     float leftRangeVal;
     float rightRangeVal;
     
+    public void redrawAmputations(){
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams((int) (leftRange.getX() - leftIndent), rangeHeight);
+        leftAmputation.setLayoutParams(params);
+        RelativeLayout.LayoutParams params2 = new RelativeLayout.LayoutParams((int) (graphWidth + leftIndent - rightRange.getX()), rangeHeight);
+        rightAmputation.setX(rightRange.getX());
+        rightAmputation.setLayoutParams(params2);
+    }
+    
     public void resetRanges(){
         if (null != graphModel.bottomPlot.getGraphWidget().getGridRect()){
+            leftAmputation.setX(leftIndent);
+            leftAmputation.setY(rangeY);
+            rightAmputation.setY(rangeY);
+            leftRange.setY(rangeY);
             leftRange.setX(leftIndent);
+            leftRange.getLayoutParams().height = rangeHeight;
+            
+            rightRange.getLayoutParams().height = rangeHeight;
+            rightRange.setY(rangeY);
             rightRange.setX(leftIndent + graphWidth);
+
             leftRangeVal = convertRange(leftRange.getX());
             rightRangeVal = convertRange(rightRange.getX());
+            redrawAmputations();
         }
     }
     
     public void redrawRanges(){
-        graphModel.bottomPlot.calculateMinMaxVals();
-        minXVal = graphModel.bottomPlot.getCalculatedMinX().floatValue();
-        maxXVal = graphModel.bottomPlot.getCalculatedMaxX().floatValue();
         if (rightRange.getX() < graphWidth + leftIndent){
             redrawRanges(leftRangeVal, rightRangeVal);
         } else {
@@ -73,12 +94,16 @@ public class RangesViewModel implements OnTouchListener{
     public void redrawRanges(final float newMinTopX, final float newMaxTopX){
         leftRangeVal = newMinTopX;
         rightRangeVal = newMaxTopX;
+        graphModel.bottomPlot.calculateMinMaxVals();
+        minXVal = graphModel.bottomPlot.getCalculatedMinX().floatValue();
+        maxXVal = graphModel.bottomPlot.getCalculatedMaxX().floatValue();
         if (null != graphModel.bottomPlot.getGraphWidget().getGridRect()){
             activity.runOnUiThread(new Runnable(){
                 public void run() {
                     leftRange.setX(leftIndent +  (newMinTopX - minXVal)*graphWidth/(maxXVal - minXVal));
                     rightRange.setX(leftIndent + (newMaxTopX - minXVal)*graphWidth/(maxXVal - minXVal));
                     graphModel.setNewRanges(leftRangeVal, rightRangeVal);
+                    redrawAmputations();
                 }
             }); 
         }
@@ -123,6 +148,7 @@ public class RangesViewModel implements OnTouchListener{
             leftRangeVal = convertRange(leftRange.getX());
             rightRangeVal = convertRange(rightRange.getX());
             graphModel.setNewRanges(leftRangeVal, rightRangeVal);
+            redrawAmputations();
             break;
         }
         return true;
