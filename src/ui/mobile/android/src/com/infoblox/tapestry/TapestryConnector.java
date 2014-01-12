@@ -225,13 +225,20 @@ public class TapestryConnector {
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         dateFormat.setTimeZone(TimeZone.getTimeZone("GTM"));
         StringBuffer responseText = new StringBuffer("{");
-        int numberOfPoints = 10;
+        int trendMiddle = 6;
+        int trendStepCounter = 0;
+        int numberOfPoints = 100;
         int timePeriod = 1000*60*60*12;
         int dateStep = timePeriod/numberOfPoints;
         for (int i = 0; i < numberOfPoints; i++){
+            if (trendStepCounter > 5){
+                trendStepCounter = 0;
+                trendMiddle++;
+            }
+            trendStepCounter++;
             Date curDate = new Date(System.currentTimeMillis() - timePeriod + dateStep*i);
             String dateString = dateFormat.format(curDate).replace(" ", "T");
-            responseText.append( "\"Time\":\"" + dateString + "Z" + "\",\"NCI\":" +  (int)(Math.random()*5) + ",");
+            responseText.append( "\"Time\":\"" + dateString + "Z" + "\",\"NCI\":" +  trendMiddle + (int)(Math.random()*5) + ",");
         }
         responseText.replace(responseText.length() - 1, responseText.length(), "}");
         parseResponse(responseText.toString());
