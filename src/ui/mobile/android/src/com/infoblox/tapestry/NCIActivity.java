@@ -183,6 +183,10 @@ public class NCIActivity extends Activity{
         tapesty_url.setText("");
     }
     
+    public void changeZoom(View v){
+        tapesty_url.setText("");
+    }
+    
     public void connectTapestry(View v) {
         String url = tapesty_url.getText().toString().trim();
         if (url.isEmpty()){

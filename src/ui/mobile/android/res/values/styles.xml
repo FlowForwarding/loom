@@ -38,4 +38,11 @@
         <item name="android:src">@drawable/questionicon</item>
     </style>
     
+    <style name="zoomBtn">
+        <item name="android:layout_width">@dimen/zoombtn</item>
+        <item name="android:layout_height">@dimen/zoombtn</item>
+        <item name="android:clickable">true</item>
+        <item name="android:onClick">changeZoom</item>
+    </style>
+    
 </resources>

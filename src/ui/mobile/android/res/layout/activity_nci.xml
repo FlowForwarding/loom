@@ -86,9 +86,50 @@
     <include android:id="@+id/indexesarea"
         layout="@layout/nci_indexes"/>
     
+    <LinearLayout 
+	    android:id="@+id/zoomLinksArea"
+	    android:layout_below="@id/indexesarea"
+	    android:layout_height="wrap_content"
+        android:layout_width="fill_parent">
+        
+        <TextView
+            style="@style/zoomBtn"
+            android:text="@string/d1"/>
+
+		<TextView
+            style="@style/zoomBtn"
+            android:text="@string/d5"/>
+		
+		<TextView
+            style="@style/zoomBtn"
+            android:text="@string/m1"/>
+				
+	    <TextView
+            style="@style/zoomBtn"
+            android:text="@string/m3"/>
+	    
+	    <TextView
+            style="@style/zoomBtn"
+            android:text="@string/m6"/>
+								
+		<TextView
+            style="@style/zoomBtn"
+            android:text="@string/y1"/>
+												
+	   <TextView
+            style="@style/zoomBtn"
+            android:text="@string/y5"/>
+	   
+	   <TextView
+            style="@style/zoomBtn"
+            android:text="@string/y10"/>
+				
+
+	</LinearLayout>  
+    
     <com.androidplot.xy.XYPlot
             android:id="@+id/simpleXYPlot"
-            android:layout_below="@id/indexesarea"
+            android:layout_below="@id/zoomLinksArea"
             android:layout_width="fill_parent"
             android:layout_height="300dp"
             androidPlot.domainLabelWidget.labelPaint.textSize="@dimen/domain_label_font_size"
@@ -120,8 +161,8 @@
         android:onClick="connectTapestry"
         android:src="@drawable/presstoconnect"/>
     
-            <!--     android:visibility="invisible" -->
-            
+            <!--     android:visibility="invisible" --> 
+	      
     <RelativeLayout
         android:id="@+id/rangesView"
         android:layout_below="@id/simpleXYPlot"
