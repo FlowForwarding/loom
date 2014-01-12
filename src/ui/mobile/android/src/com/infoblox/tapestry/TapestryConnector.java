@@ -228,7 +228,7 @@ public class TapestryConnector {
         int trendMiddle = 6;
         int trendStepCounter = 0;
         int numberOfPoints = 100;
-        int timePeriod = 1000*60*60*12;
+        int timePeriod = 1000*60*60*24*30*12;
         int dateStep = timePeriod/numberOfPoints;
         for (int i = 0; i < numberOfPoints; i++){
             if (trendStepCounter > 5){

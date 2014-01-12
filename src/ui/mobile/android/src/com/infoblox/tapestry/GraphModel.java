@@ -67,7 +67,7 @@ public class GraphModel implements OnTouchListener{
         plot.setOnTouchListener(this);
     }
     
-    private void makeUpChart(XYPlot plot){
+    private void makeUpChart(final XYPlot plot){
         plot.getLegendWidget().setVisible(false);
         plot.getBackgroundPaint().setColor(Color.TRANSPARENT);
         plot.getGraphWidget().getBackgroundPaint().setColor(Color.TRANSPARENT);
@@ -83,6 +83,13 @@ public class GraphModel implements OnTouchListener{
             
             @Override
             public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
+                if (plot.getCalculatedMaxX().floatValue() - plot.getCalculatedMinX().floatValue() < 60*60*24){
+                    dateFormat =  new SimpleDateFormat("yyyy-MMM-dd HH-mm", Locale.getDefault());
+                } else if (plot.getCalculatedMaxX().floatValue() - plot.getCalculatedMinX().floatValue() < 60*60*24*30){
+                    dateFormat =  new SimpleDateFormat("yyyy-MMM-dd", Locale.getDefault());
+                } else {
+                    dateFormat =  new SimpleDateFormat("yyyy-MMM", Locale.getDefault());
+                }
                 long timestamp = (((Number) obj).longValue() + 1389000000) * 1000;
                 Date date = new Date(timestamp);
                 return dateFormat.format(date, toAppendTo, pos);
