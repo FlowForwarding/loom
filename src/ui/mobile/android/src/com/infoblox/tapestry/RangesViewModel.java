@@ -93,8 +93,9 @@ public class RangesViewModel implements OnTouchListener{
                 leftRange.setX(leftRange.getX() + diff);
                 rightRange.setX(rightRange.getX() + diff);
             }
-            float newMinVal = leftRange.getX()*(maxXVal - minXVal)/graphWidth + minXVal;
-            float newMaxVal = (rightRange.getX() - graphWidth)/graphWidth*(maxXVal - minXVal) + maxXVal;
+            float leftIndent = graphModel.plot.getGraphWidget().getGridRect().left;
+            float newMinVal = (leftRange.getX() - leftIndent)*(maxXVal - minXVal)/graphWidth + minXVal;
+            float newMaxVal = (rightRange.getX() - graphWidth - leftIndent)/graphWidth*(maxXVal - minXVal) + maxXVal;
             graphModel.setNewRanges(newMinVal, newMaxVal);
             break;
         }
