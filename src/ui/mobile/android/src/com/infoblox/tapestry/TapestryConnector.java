@@ -155,8 +155,8 @@ public class TapestryConnector {
                                 String timeString = jsonObj.getString("Time").replace("T", " ").replace("Z", "");
                                 Date dateTime = dateFormat.parse(timeString);
                                 curNCIValue = newValue;
-                              //  graphModel.addLast(dateTime.getTime()/1000 - 1389000000, curNCIValue);
-                              //  graphModel.redraw();
+                                graphModel.addLast(dateTime.getTime()/1000 - 1389000000, curNCIValue);
+                                graphModel.redraw();
                             } else if (jsonObj.has("QPS")) {
                                 float newValue = Float.parseFloat(jsonObj.getString("QPS"));
                                 setValueLabel(qpsValue, newValue, curQPSValue);
@@ -227,8 +227,8 @@ public class TapestryConnector {
         StringBuffer responseText = new StringBuffer("{");
         int trendMiddle = 6;
         int trendStepCounter = 0;
-        int numberOfPoints = 100;
-        int timePeriod = 1000*60*60*24*30*12;
+        int numberOfPoints = 10;
+        int timePeriod = 1000*60*5;
         int dateStep = timePeriod/numberOfPoints;
         for (int i = 0; i < numberOfPoints; i++){
             if (trendStepCounter > 5){

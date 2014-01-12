@@ -25,7 +25,7 @@ import com.androidplot.xy.XYPlot;
 public class GraphModel implements OnTouchListener{
     
     private Activity activity;
-    public XYPlot plot;
+    private XYPlot plot;
     private SimpleXYSeries plotSeries;
     private LineAndPointFormatter topSeriesFormat;
     
@@ -48,14 +48,12 @@ public class GraphModel implements OnTouchListener{
         bottomPlot.addSeries(bottomPlotSeries, bottomSeriesFormat);
         
         bottomPlot.addOnLayoutChangeListener(new OnLayoutChangeListener() {
-
             @Override
             public void onLayoutChange(View v, int left, int top, int right,
                     int bottom, int oldLeft, int oldTop, int oldRight,
                     int oldBottom) {
                 rangesViewModel.setGraphWidth();
-            }
-            
+            }  
         });
        
         plot = (XYPlot) activity.findViewById(R.id.simpleXYPlot);
@@ -110,16 +108,18 @@ public class GraphModel implements OnTouchListener{
         }
         plotSeries.addLast(argument, value);
         bottomPlotSeries.addLast(argument, value);
-        
-        if (plotSeries.size()>1){
-            plot.calculateMinMaxVals();
-            rangesViewModel.updateDimensions();
-            minXY = new PointF(plot.getCalculatedMinX().floatValue(), plot.getCalculatedMinY().floatValue());
-            maxXY = new PointF(plot.getCalculatedMaxX().floatValue(), plot.getCalculatedMaxY().floatValue());
-        }
+       
     }
     
     public void redraw(){
+        if (plotSeries.size()>1){
+            plot.calculateMinMaxVals();
+            if (null ==  minXY){
+                minXY = new PointF(plot.getCalculatedMinX().floatValue(), plot.getCalculatedMinY().floatValue());
+                maxXY = new PointF(plot.getCalculatedMaxX().floatValue(), plot.getCalculatedMaxY().floatValue()); 
+            }
+            rangesViewModel.redrawRanges();
+        }
         plot.redraw();
         bottomPlot.redraw();
     }
@@ -161,11 +161,6 @@ public class GraphModel implements OnTouchListener{
                 firstFinger = new PointF(event.getX(), event.getY());
                 lastScrolling = oldFirstFinger.x-firstFinger.x;
                 scroll(lastScrolling);
-                lastZooming = (firstFinger.y-oldFirstFinger.y)/plot.getHeight();
-                if (lastZooming < 0)
-                    lastZooming = 1/(1-lastZooming);
-                else
-                    lastZooming += 1;
                 redrawChart();
  
             } else if (mode == TWO_FINGERS_DRAG) {
@@ -173,6 +168,7 @@ public class GraphModel implements OnTouchListener{
                 distBetweenFingers = spacing(event);
                 if (distBetweenFingers > 0){
                     lastZooming = oldDist/distBetweenFingers;
+                    zoom(lastZooming);
                     redrawChart();
                 }
             }
@@ -183,7 +179,6 @@ public class GraphModel implements OnTouchListener{
     }
     
     private void redrawChart(){
-        zoom(lastZooming);
        // if (minXVal <= minXY.x &&  maxXVal >= maxXY.x ){
             plot.setDomainBoundaries(minXY.x, maxXY.x, BoundaryMode.FIXED);
             rangesViewModel.redrawRanges(minXY.x, maxXY.x);

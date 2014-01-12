@@ -2,6 +2,7 @@ package com.infoblox.tapestry;
 
 import android.app.Activity;
 import android.graphics.PointF;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -17,6 +18,7 @@ public class RangesViewModel implements OnTouchListener{
     private float minXVal;
     private float maxXVal;
     private float graphWidth = -1;
+    private float leftIndent = -1;
   
     private GraphModel graphModel;
     
@@ -32,14 +34,10 @@ public class RangesViewModel implements OnTouchListener{
         rangesView.setOnTouchListener(this);
     }
     
-    public void updateDimensions(){
-        minXVal = graphModel.plot.getCalculatedMinX().floatValue();
-        maxXVal = graphModel.plot.getCalculatedMaxX().floatValue();
-    }
-    
     public void setGraphWidth(){
-        if  (graphWidth == -1 && null != graphModel.plot.getGraphWidget().getGridRect()){
-            graphWidth = graphModel.plot.getGraphWidget().getGridRect().width();
+        if  (graphWidth == -1 && null != graphModel.bottomPlot.getGraphWidget().getGridRect()){
+            graphWidth = graphModel.bottomPlot.getGraphWidget().getGridRect().width();
+            leftIndent = graphModel.bottomPlot.getGraphWidget().getGridRect().left;
             activity.runOnUiThread(new Runnable(){
                 public void run() {
                     resetRanges();   
@@ -48,17 +46,46 @@ public class RangesViewModel implements OnTouchListener{
         }
     }
     
+    float leftRangeVal;
+    float rightRangeVal;
+    
     public void resetRanges(){
-        if (null != graphModel.plot.getGraphWidget().getGridRect()){
-            leftRange.setX(graphModel.plot.getGraphWidget().getGridRect().left);
-            rightRange.setX(leftRange.getX() + graphWidth);    
+        if (null != graphModel.bottomPlot.getGraphWidget().getGridRect()){
+            leftRange.setX(leftIndent);
+            rightRange.setX(leftIndent + graphWidth);
+            leftRangeVal = convertRange(leftRange.getX());
+            rightRangeVal = convertRange(rightRange.getX());
+        }
+    }
+    
+    public void redrawRanges(){
+        graphModel.bottomPlot.calculateMinMaxVals();
+        minXVal = graphModel.bottomPlot.getCalculatedMinX().floatValue();
+        maxXVal = graphModel.bottomPlot.getCalculatedMaxX().floatValue();
+        if (rightRange.getX() < graphWidth + leftIndent){
+            redrawRanges(leftRangeVal, rightRangeVal);
+        } else {
+            redrawRanges(convertRange(graphWidth + leftIndent - (rightRange.getX() - leftRange.getX())) ,
+                    convertRange(graphWidth + leftIndent));
         }
     }
 
-    public void redrawRanges(float newMinTopX, float newMaxTopX){
-        float leftIndent = graphModel.plot.getGraphWidget().getGridRect().left;
-        leftRange.setX(leftIndent +  (newMinTopX - minXVal)*graphWidth/(maxXVal - minXVal));
-        rightRange.setX(leftIndent + graphWidth - (maxXVal - newMaxTopX)*graphWidth/(maxXVal - minXVal));
+    public void redrawRanges(final float newMinTopX, final float newMaxTopX){
+        leftRangeVal = newMinTopX;
+        rightRangeVal = newMaxTopX;
+        if (null != graphModel.bottomPlot.getGraphWidget().getGridRect()){
+            activity.runOnUiThread(new Runnable(){
+                public void run() {
+                    leftRange.setX(leftIndent +  (newMinTopX - minXVal)*graphWidth/(maxXVal - minXVal));
+                    rightRange.setX(leftIndent + (newMaxTopX - minXVal)*graphWidth/(maxXVal - minXVal));
+                    graphModel.setNewRanges(leftRangeVal, rightRangeVal);
+                }
+            }); 
+        }
+    }
+    
+    public float convertRange(float val){
+        return (val - leftIndent)*(maxXVal - minXVal)/graphWidth + minXVal;
     }
     
     private  PointF fingerPoint;
@@ -93,10 +120,9 @@ public class RangesViewModel implements OnTouchListener{
                 leftRange.setX(leftRange.getX() + diff);
                 rightRange.setX(rightRange.getX() + diff);
             }
-            float leftIndent = graphModel.plot.getGraphWidget().getGridRect().left;
-            float newMinVal = (leftRange.getX() - leftIndent)*(maxXVal - minXVal)/graphWidth + minXVal;
-            float newMaxVal = (rightRange.getX() - graphWidth - leftIndent)/graphWidth*(maxXVal - minXVal) + maxXVal;
-            graphModel.setNewRanges(newMinVal, newMaxVal);
+            leftRangeVal = convertRange(leftRange.getX());
+            rightRangeVal = convertRange(rightRange.getX());
+            graphModel.setNewRanges(leftRangeVal, rightRangeVal);
             break;
         }
         return true;
