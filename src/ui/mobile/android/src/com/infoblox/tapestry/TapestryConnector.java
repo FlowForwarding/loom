@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.View;
@@ -160,8 +159,8 @@ public class TapestryConnector {
                                 String timeString = jsonObj.getString("Time").replace("T", " ").replace("Z", "");
                                 Date dateTime = dateFormat.parse(timeString);
                                 curNCIValue = newValue;
-//                                graphModel.addLast(dateTime.getTime()/1000 - 1389000000, curNCIValue);
-//                                graphModel.redraw();
+                                graphModel.addLast(dateTime.getTime()/1000 - 1389000000, curNCIValue);
+                                graphModel.redraw();
                             } else if (jsonObj.has("QPS")) {
                                 float newValue = Float.parseFloat(jsonObj.getString("QPS"));
                                 setValueLabel(qpsValue, newValue, curQPSValue);
@@ -232,7 +231,7 @@ public class TapestryConnector {
         StringBuffer responseText = new StringBuffer("{");
         int trendMiddle = 6;
         int trendStepCounter = 0;
-        int numberOfPoints = 10;
+        int numberOfPoints = 100;
         int timePeriod = 1000*60*5;
         parseResponse("{\"start_time\":\"" + 
                 dateFormat.format(new Date(System.currentTimeMillis() - timePeriod)).replace(" ", "T") + "Z\"}");
@@ -246,7 +245,7 @@ public class TapestryConnector {
             trendStepCounter++;
             Date curDate = new Date(System.currentTimeMillis() - timePeriod + dateStep*i);
             String dateString = dateFormat.format(curDate).replace(" ", "T");
-            responseText.append( "\"Time\":\"" + dateString + "Z" + "\",\"NCI\":" +  trendMiddle + (int)(Math.random()*5) + ",");
+            responseText.append( "\"Time\":\"" + dateString + "Z" + "\",\"NCI\":" +  (trendMiddle + (int)(Math.random()*5)) + ",");
         }
         responseText.replace(responseText.length() - 1, responseText.length(), "}");
         parseResponse(responseText.toString());
