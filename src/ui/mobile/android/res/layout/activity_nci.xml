@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:focusable="true" 
     android:focusableInTouchMode="true"
+    android:background="@color/tapestrybggrey"
     tools:context=".NCIActivity" >
     
     <RelativeLayout
@@ -29,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="20dp"
+            android:layout_marginRight="@dimen/infoaction_margin"
             android:onClick="toggleInfoMenu"
             android:src="@drawable/infoicon"/>
     </RelativeLayout>
@@ -39,7 +40,7 @@
         android:layout_below="@id/top_bar"
         android:layout_width="fill_parent"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_height="60dp">
+        android:layout_height="@dimen/serverurlarea_height">
             
         <TextView
             android:layout_width="wrap_content"
@@ -67,7 +68,7 @@
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:onClick="clearTapestryUrl"
-            android:layout_marginRight="70dp"
+            android:layout_marginRight="@dimen/clearaction_margin"
             android:visibility="invisible"
             android:src="@drawable/clearicon"/>
         
@@ -78,7 +79,7 @@
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:onClick="connectTapestry"
-            android:layout_marginRight="15dp"
+            android:layout_marginRight="@dimen/goaction_margin"
             android:visibility="invisible"
             android:src="@drawable/goicon"/>
         
@@ -94,12 +95,12 @@
         android:layout_width="fill_parent">
         
         <com.infoblox.tapestry.ZoomButton
+            style="@style/zoomBtn"
             android:id="@+id/d1"
             custom:period="86400"
-            style="@style/zoomBtn"
             android:text="@string/d1"/>
 
-		<com.infoblox.tapestry.ZoomButton
+ 		<com.infoblox.tapestry.ZoomButton
 		    android:id="@+id/d5"
 		    custom:period="432000"
             style="@style/zoomBtn"
@@ -142,48 +143,25 @@
             android:text="@string/y10"/>
 				
 	</LinearLayout>  
+	
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/zoomLinksArea"
+        android:orientation="vertical">  
     
     <com.androidplot.xy.XYPlot
             android:id="@+id/simpleXYPlot"
-            android:layout_below="@id/zoomLinksArea"
             android:layout_width="fill_parent"
-            android:layout_height="300dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             androidPlot.domainLabelWidget.labelPaint.textSize="@dimen/domain_label_font_size"
-            androidPlot.rangeLabelWidget.labelPaint.textSize="@dimen/range_label_font_size"/>
-    
-    
-    <TextView
-        android:id="@+id/loadingLabel"
-        android:layout_below="@id/indexesarea"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/loading_margin_top"
-        android:text="@string/Loading"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:textStyle="bold"
-        android:textSize="@dimen/loading_font"
-        android:textColor="@color/tapestrydarkblue">
-    </TextView>
-    
-    
-    <ImageView
-        android:id="@+id/tapToConnect"
-        android:layout_below="@id/indexesarea"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/loading_margin_top"
-        android:layout_centerHorizontal="true"
-        android:onClick="connectTapestry"
-        android:src="@drawable/presstoconnect"/>
-    
-            <!--     android:visibility="invisible" --> 
+            androidPlot.rangeLabelWidget.labelPaint.textSize="@dimen/range_label_font_size"/>  
 	      
     <RelativeLayout
         android:id="@+id/rangesView"
-        android:layout_below="@id/simpleXYPlot"
         android:layout_width="fill_parent"
-        android:layout_height="100dp">
+        android:layout_height="@dimen/bottomplot_height">
         
         <com.androidplot.xy.XYPlot
             android:id="@+id/bottomXYPlot"
@@ -214,7 +192,33 @@
             android:layout_width="0dp"
             android:layout_alignParentRight="true"
             android:background="@color/tapestryrangesgrey"/>        
-     </RelativeLayout>       
+     </RelativeLayout> 
+     
+    </LinearLayout>
+    
+     <TextView
+        android:id="@+id/loadingLabel"
+        android:layout_below="@id/indexesarea"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/loading_margin_top"
+        android:text="@string/Loading"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:textStyle="bold"
+        android:textSize="@dimen/loading_font"
+        android:textColor="@color/tapestrydarkblue">
+    </TextView>
+    
+    <ImageView
+        android:id="@+id/tapToConnect"
+        android:layout_below="@id/indexesarea"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/loading_margin_top"
+        android:layout_centerHorizontal="true"
+        android:onClick="connectTapestry"
+        android:src="@drawable/presstoconnect"/>
     
     <ListView 
         android:id="@+id/urlslist"

@@ -1,17 +1,21 @@
 <resources>
 
     <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="title_font">14sp</dimen>
-    <dimen name="top_bar_height">50dp</dimen>
+    <dimen name="title_font">12sp</dimen>
+    <dimen name="top_bar_height">40dp</dimen>
     
+    <dimen name="infoaction_margin">10dp</dimen>
     <dimen name="info_menu_width">250dp</dimen>
     <dimen name="infolink_font">12sp</dimen>
     
     <dimen name="url_prefix_font">10sp</dimen>
     <dimen name="url_prefix_width">100dp</dimen>
     <dimen name="url_postfix_width">30dp</dimen>
+    <dimen name="clearaction_margin">35dp</dimen>
+    <dimen name="goaction_margin">7dp</dimen>
     
-    <dimen name="urlfont">12sp</dimen>
+    <dimen name="serverurlarea_height">35dp</dimen>
+    <dimen name="urlfont">10sp</dimen>
     
     <dimen name="nci_font">16sp</dimen>
     <dimen name="nci_font_value">18sp</dimen>
@@ -23,16 +27,28 @@
     <dimen name="hint_font">12sp</dimen>
     <dimen name="loading_font">14sp</dimen>
     <dimen name="loading_margin_top">15dp</dimen>
+    <dimen name="nciValue_margin">10dp</dimen>
+    <dimen name="indexValue_margin">10dp</dimen>
     
     <dimen name="activity_horizontal_margin">6dp</dimen>
     <dimen name="activity_vertical_margin">6dp</dimen>
     
-    <dimen name="info_menuitem_heigth">40dp</dimen>
+    <dimen name="info_menuitem_heigth">30dp</dimen>
+    <dimen name="deleteicon_margin">5dp</dimen>
    
     <dimen name="title_font_size">20dp</dimen>
     <dimen name="domain_label_font_size">13dp</dimen>
     <dimen name="range_label_font_size">13dp</dimen>
     <dimen name="range_tick_label_font_size">15dp</dimen>
     <dimen name="domain_tick_label_font_size">15dp</dimen>
+    
+    <dimen name="zoombtn">30dp</dimen>
+    <dimen name="zoombtn_font">12dp</dimen>
+    <dimen name="zoombtn_margin">5dp</dimen>
+    
+    <dimen name="bottomplot_height">70dp</dimen>
+    
+    <dimen name="popup_xoffset">15dp</dimen>
+    <dimen name="popup_yoffset">20dp</dimen>
 
 </resources>

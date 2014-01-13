@@ -32,7 +32,7 @@
  			    android:id="@+id/nciValue"
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
-            	android:layout_marginLeft="20dp"
+            	android:layout_marginLeft="@dimen/nciValue_margin"
             	android:textSize="@dimen/nci_font_value"
             	android:textStyle="bold"/>
         </LinearLayout>
@@ -67,7 +67,7 @@
  			    android:id="@+id/endpointsValue"
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
-            	android:layout_marginLeft="20dp"
+            	android:layout_marginLeft="@dimen/indexValue_margin"
             	android:textSize="@dimen/index_font_value"
             	android:textStyle="bold"/>
         </LinearLayout>   
@@ -99,7 +99,7 @@
  			    android:id="@+id/qpsValue"
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
-            	android:layout_marginLeft="20dp"
+            	android:layout_marginLeft="@dimen/indexValue_margin"
             	android:textSize="@dimen/index_font_value"
             	android:textStyle="bold"/>
         </LinearLayout> 

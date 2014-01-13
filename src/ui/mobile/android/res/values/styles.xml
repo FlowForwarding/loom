@@ -45,7 +45,7 @@
         <item name="android:onClick">changeZoom</item>
         <item name="android:textSize">@dimen/zoombtn_font</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_marginLeft">@dimen/zoombtn_margin</item>
         <item name="android:background">@color/white</item>
         <item name="android:gravity">center</item>
     </style>

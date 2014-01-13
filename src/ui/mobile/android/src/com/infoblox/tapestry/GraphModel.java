@@ -11,8 +11,8 @@ import java.util.Locale;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
-import android.graphics.Paint;
 import android.graphics.PointF;
+import android.os.Build;
 import android.util.FloatMath;
 import android.view.MotionEvent;
 import android.view.View;
@@ -45,7 +45,7 @@ public class GraphModel implements OnTouchListener{
         bottomPlot.setRangeStepValue(1);
         makeUpChart(bottomPlot);
         bottomSeriesFormat = new LineAndPointFormatter(Color.rgb(0, 0, 255), 
-                Color.rgb(0, 0, 255),  Color.argb(25, 0, 0, 255), null);
+                Color.TRANSPARENT,  Color.argb(25, 0, 0, 255), null);
         bottomSeriesFormat.getLinePaint().setStrokeWidth(1);
         bottomPlotSeries  = new SimpleXYSeries(new LinkedList<Long>(), new LinkedList<Long>(), null); 
         bottomPlot.addSeries(bottomPlotSeries, bottomSeriesFormat);
@@ -72,9 +72,13 @@ public class GraphModel implements OnTouchListener{
     
     private void makeUpChart(final XYPlot plot){
         plot.getLegendWidget().setVisible(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            plot.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
         plot.getBackgroundPaint().setColor(Color.TRANSPARENT);
         plot.getGraphWidget().getBackgroundPaint().setColor(Color.TRANSPARENT);
         plot.getGraphWidget().getGridBackgroundPaint().setColor(Color.TRANSPARENT);
+        
         plot.getGraphWidget().getRangeGridLinePaint().setColor(Color.BLACK);
         plot.getGraphWidget().getRangeGridLinePaint().setPathEffect(new DashPathEffect(new float[]{1,2}, 1));
         plot.getGraphWidget().getDomainGridLinePaint().setColor(Color.BLACK);
@@ -82,7 +86,7 @@ public class GraphModel implements OnTouchListener{
         plot.setBorderStyle(XYPlot.BorderStyle.NONE, null, null);
         
         float w = activity.getWindowManager().getDefaultDisplay().getWidth();
-        float r = w/200;
+        float r = w/150;
         plot.setDomainStepValue(r);
         plot.setDomainValueFormat(new Format() {
 
@@ -113,7 +117,6 @@ public class GraphModel implements OnTouchListener{
         plot.getGraphWidget().getRangeOriginLabelPaint().setColor(Color.BLACK);
         plot.getGraphWidget().getDomainLabelPaint().setColor(Color.BLACK);
         plot.getGraphWidget().getRangeLabelPaint().setColor(Color.BLACK);
-
     }
     
     public void showDataForPeriod(long period){

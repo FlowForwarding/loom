@@ -265,8 +265,8 @@ public class NCIActivity extends Activity{
     private void setupHelpView(View v){
         int[] loc = new int[2];
         v.getLocationOnScreen(loc);
-        helpView.setX(loc[0] + 30);
-        helpView.setY(loc[1] + 70); 
+        helpView.setX(loc[0] + getResources().getDimension(R.dimen.popup_xoffset));
+        helpView.setY(loc[1] + getResources().getDimension(R.dimen.popup_yoffset)); 
         helpView.setVisibility(View.VISIBLE);
     }
   

@@ -20,6 +20,7 @@ containing a value of this type.
     }
     public static final class color {
         public static final int black=0x7f040000;
+        public static final int tapestrybggrey=0x7f040006;
         public static final int tapestrydarkblue=0x7f040004;
         public static final int tapestrygreen=0x7f040003;
         public static final int tapestrygrey=0x7f040002;
@@ -36,49 +37,59 @@ containing a value of this type.
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f050011;
-        public static final int activity_vertical_margin=0x7f050012;
-        public static final int domain_label_font_size=0x7f050015;
-        public static final int domain_tick_label_font_size=0x7f050018;
-        public static final int hint_font=0x7f05000e;
-        public static final int index_font=0x7f05000a;
-        public static final int index_font_value=0x7f05000b;
-        public static final int indexarea_margin=0x7f05000d;
-        public static final int info_menu_width=0x7f050002;
-        public static final int info_menuitem_heigth=0x7f050013;
-        public static final int infolink_font=0x7f050003;
-        public static final int loading_font=0x7f05000f;
-        public static final int loading_margin_top=0x7f050010;
-        public static final int nci_font=0x7f050008;
-        public static final int nci_font_value=0x7f050009;
-        public static final int range_label_font_size=0x7f050016;
-        public static final int range_tick_label_font_size=0x7f050017;
+        public static final int activity_horizontal_margin=0x7f050017;
+        public static final int activity_vertical_margin=0x7f050018;
+        public static final int bottomplot_height=0x7f050023;
+        public static final int clearaction_margin=0x7f050008;
+        public static final int deleteicon_margin=0x7f05001a;
+        public static final int domain_label_font_size=0x7f05001c;
+        public static final int domain_tick_label_font_size=0x7f05001f;
+        public static final int goaction_margin=0x7f050009;
+        public static final int hint_font=0x7f050012;
+        public static final int indexValue_margin=0x7f050016;
+        public static final int index_font=0x7f05000e;
+        public static final int index_font_value=0x7f05000f;
+        public static final int indexarea_margin=0x7f050011;
+        public static final int info_menu_width=0x7f050003;
+        public static final int info_menuitem_heigth=0x7f050019;
+        public static final int infoaction_margin=0x7f050002;
+        public static final int infolink_font=0x7f050004;
+        public static final int loading_font=0x7f050013;
+        public static final int loading_margin_top=0x7f050014;
+        public static final int nciValue_margin=0x7f050015;
+        public static final int nci_font=0x7f05000c;
+        public static final int nci_font_value=0x7f05000d;
+        public static final int popup_xoffset=0x7f050024;
+        public static final int popup_yoffset=0x7f050025;
+        public static final int range_label_font_size=0x7f05001d;
+        public static final int range_tick_label_font_size=0x7f05001e;
+        public static final int serverurlarea_height=0x7f05000a;
         /**  Default screen margins, per the Android Design guidelines. 
          */
         public static final int title_font=0x7f050000;
-        public static final int title_font_size=0x7f050014;
+        public static final int title_font_size=0x7f05001b;
         public static final int top_bar_height=0x7f050001;
-        public static final int undated_font=0x7f05000c;
-        public static final int url_postfix_width=0x7f050006;
-        public static final int url_prefix_font=0x7f050004;
-        public static final int url_prefix_width=0x7f050005;
-        public static final int urlfont=0x7f050007;
-        public static final int zoombtn=0x7f050019;
-        public static final int zoombtn_font=0x7f05001a;
+        public static final int undated_font=0x7f050010;
+        public static final int url_postfix_width=0x7f050007;
+        public static final int url_prefix_font=0x7f050005;
+        public static final int url_prefix_width=0x7f050006;
+        public static final int urlfont=0x7f05000b;
+        public static final int zoombtn=0x7f050020;
+        public static final int zoombtn_font=0x7f050021;
+        public static final int zoombtn_margin=0x7f050022;
     }
     public static final class drawable {
         public static final int clearicon=0x7f020000;
-        public static final int connectimage=0x7f020001;
-        public static final int deleteicon=0x7f020002;
-        public static final int goicon=0x7f020003;
-        public static final int ic_launcher=0x7f020004;
-        public static final int infoicon=0x7f020005;
-        public static final int link=0x7f020006;
-        public static final int presstoconnect=0x7f020007;
-        public static final int questionicon=0x7f020008;
+        public static final int deleteicon=0x7f020001;
+        public static final int goicon=0x7f020002;
+        public static final int ic_launcher=0x7f020003;
+        public static final int infoicon=0x7f020004;
+        public static final int link=0x7f020005;
+        public static final int presstoconnect=0x7f020006;
+        public static final int questionicon=0x7f020007;
     }
     public static final class id {
-        public static final int bottomXYPlot=0x7f080016;
+        public static final int bottomXYPlot=0x7f080014;
         public static final int clearaction=0x7f080006;
         public static final int d1=0x7f08000a;
         public static final int d5=0x7f08000b;
@@ -92,9 +103,9 @@ containing a value of this type.
         public static final int infoaction=0x7f080003;
         public static final int infolist=0x7f08001c;
         public static final int infotext=0x7f080002;
-        public static final int leftAmputation=0x7f080017;
-        public static final int leftRange=0x7f080018;
-        public static final int loadingLabel=0x7f080013;
+        public static final int leftAmputation=0x7f080015;
+        public static final int leftRange=0x7f080016;
+        public static final int loadingLabel=0x7f080019;
         public static final int m1=0x7f08000c;
         public static final int m3=0x7f08000d;
         public static final int m6=0x7f08000e;
@@ -104,12 +115,12 @@ containing a value of this type.
         public static final int qpsUpdated=0x7f080025;
         public static final int qpsValue=0x7f080024;
         public static final int qpsarea=0x7f080023;
-        public static final int rangesView=0x7f080015;
-        public static final int rightAmputation=0x7f08001a;
-        public static final int rightRange=0x7f080019;
+        public static final int rangesView=0x7f080013;
+        public static final int rightAmputation=0x7f080018;
+        public static final int rightRange=0x7f080017;
         public static final int serverurlarea=0x7f080004;
         public static final int simpleXYPlot=0x7f080012;
-        public static final int tapToConnect=0x7f080014;
+        public static final int tapToConnect=0x7f08001a;
         public static final int tapestryurl=0x7f080026;
         public static final int tapesty_url=0x7f080005;
         public static final int top_bar=0x7f080001;
