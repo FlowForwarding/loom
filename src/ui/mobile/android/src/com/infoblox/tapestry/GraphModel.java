@@ -187,11 +187,9 @@ public class GraphModel implements OnTouchListener{
     }
     
     private void redrawChart(){
-       // if (minXVal <= minXY.x &&  maxXVal >= maxXY.x ){
-            plot.setDomainBoundaries(minXY.x, maxXY.x, BoundaryMode.FIXED);
-            rangesViewModel.redrawRanges(minXY.x, maxXY.x);
-            plot.redraw();
-      //  }
+        plot.setDomainBoundaries(minXY.x, maxXY.x, BoundaryMode.FIXED);
+        rangesViewModel.redrawRanges(minXY.x, maxXY.x);
+        plot.redraw();
     }
     
     private void zoom(float scale) {
@@ -200,6 +198,7 @@ public class GraphModel implements OnTouchListener{
         float offset = domainSpan * scale/ 2.0f;
         minXY.x = domainMidPoint - offset;
         maxXY.x = domainMidPoint + offset;
+        correctBoundaryValues();
     }
  
     private void scroll(float pan) {
@@ -208,6 +207,16 @@ public class GraphModel implements OnTouchListener{
         float offset = pan * step;
         minXY.x+= offset;
         maxXY.x+= offset;
+        correctBoundaryValues();
+    }
+    
+    private void correctBoundaryValues(){
+        if (minXY.x < bottomPlot.getCalculatedMinX().floatValue()){
+            minXY.x = bottomPlot.getCalculatedMinX().floatValue();
+        }
+        if (maxXY.x > bottomPlot.getCalculatedMaxX().floatValue()){
+            maxXY.x = bottomPlot.getCalculatedMaxX().floatValue();
+        }
     }
  
     private float spacing(MotionEvent event) {

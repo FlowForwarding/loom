@@ -23,10 +23,11 @@ public class RangesViewModel implements OnTouchListener{
     private float leftIndent;
     private int rangeHeight;
     private int rangeY;
+    
+    private int minRangesDistance = 3;
   
     private GraphModel graphModel;
-    
-    Activity activity;
+    private Activity activity;
     
     public RangesViewModel(Activity activity){
         this.activity = activity;
@@ -137,14 +138,29 @@ public class RangesViewModel implements OnTouchListener{
             PointF oldFirstFinger = fingerPoint;
             fingerPoint = new PointF(event.getX(), event.getY());
             float diff = fingerPoint.x  - oldFirstFinger.x;
+            float newLeftX = leftRange.getX();
+            float newRightX = rightRange.getX();
             if (moveLeft){
-                leftRange.setX(leftRange.getX() + diff);
+                newLeftX = leftRange.getX() + diff;
             } else if (moveRight){
-                rightRange.setX(rightRange.getX() + diff);
+                newRightX = rightRange.getX() + diff;
             } else {
-                leftRange.setX(leftRange.getX() + diff);
-                rightRange.setX(rightRange.getX() + diff);
+                newLeftX = leftRange.getX() + diff;
+                newRightX = rightRange.getX() + diff;
             }
+            if (newLeftX < leftIndent){
+                newLeftX = leftIndent;
+            }
+            if (newRightX > leftIndent + graphWidth){
+                newRightX = leftIndent + graphWidth;
+            }
+            if (newRightX - newLeftX < minRangesDistance){
+                break;
+            }
+            
+            leftRange.setX(newLeftX);
+            rightRange.setX(newRightX);
+            
             leftRangeVal = convertRange(leftRange.getX());
             rightRangeVal = convertRange(rightRange.getX());
             graphModel.setNewRanges(leftRangeVal, rightRangeVal);
