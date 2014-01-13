@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res/com.infoblox.tapestry"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nci_layout"
     android:layout_width="match_parent"
@@ -92,39 +93,54 @@
 	    android:layout_height="wrap_content"
         android:layout_width="fill_parent">
         
-        <TextView
+        <com.infoblox.tapestry.ZoomButton
+            android:id="@+id/d1"
+            custom:period="86400"
             style="@style/zoomBtn"
             android:text="@string/d1"/>
 
-		<TextView
+		<com.infoblox.tapestry.ZoomButton
+		    android:id="@+id/d5"
+		    custom:period="432000"
             style="@style/zoomBtn"
             android:text="@string/d5"/>
 		
-		<TextView
+		<com.infoblox.tapestry.ZoomButton
+		    android:id="@+id/m1"
+		    custom:period="2592000"
             style="@style/zoomBtn"
             android:text="@string/m1"/>
 				
-	    <TextView
+	    <com.infoblox.tapestry.ZoomButton
+	        android:id="@+id/m3"
+	        custom:period="7776000"
             style="@style/zoomBtn"
             android:text="@string/m3"/>
 	    
-	    <TextView
+	    <com.infoblox.tapestry.ZoomButton
+	        android:id="@+id/m6"
+	        custom:period="15552000"
             style="@style/zoomBtn"
             android:text="@string/m6"/>
 								
-		<TextView
+		<com.infoblox.tapestry.ZoomButton
+		    android:id="@+id/y1"
+		    custom:period="31104000"
             style="@style/zoomBtn"
             android:text="@string/y1"/>
 												
-	   <TextView
+	   <com.infoblox.tapestry.ZoomButton
+	        android:id="@+id/y5"
+	        custom:period="155520000"
             style="@style/zoomBtn"
             android:text="@string/y5"/>
 	   
-	   <TextView
+	   <com.infoblox.tapestry.ZoomButton
+	        android:id="@+id/y10"
+	        custom:period="311040000"
             style="@style/zoomBtn"
             android:text="@string/y10"/>
 				
-
 	</LinearLayout>  
     
     <com.androidplot.xy.XYPlot

@@ -9,6 +9,14 @@ package com.infoblox.tapestry;
 
 public final class R {
     public static final class attr {
+        /** <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int period=0x7f010000;
     }
     public static final class color {
         public static final int black=0x7f040000;
@@ -56,6 +64,7 @@ public final class R {
         public static final int url_prefix_width=0x7f050005;
         public static final int urlfont=0x7f050007;
         public static final int zoombtn=0x7f050019;
+        public static final int zoombtn_font=0x7f05001a;
     }
     public static final class drawable {
         public static final int clearicon=0x7f020000;
@@ -69,37 +78,45 @@ public final class R {
         public static final int questionicon=0x7f020008;
     }
     public static final class id {
-        public static final int bottomXYPlot=0x7f08000e;
+        public static final int bottomXYPlot=0x7f080016;
         public static final int clearaction=0x7f080006;
-        public static final int deleteicon=0x7f08001f;
-        public static final int endpointsUpdated=0x7f08001a;
-        public static final int endpointsValue=0x7f080019;
-        public static final int endpointsarea=0x7f080018;
+        public static final int d1=0x7f08000a;
+        public static final int d5=0x7f08000b;
+        public static final int deleteicon=0x7f080027;
+        public static final int endpointsUpdated=0x7f080022;
+        public static final int endpointsValue=0x7f080021;
+        public static final int endpointsarea=0x7f080020;
         public static final int goaction=0x7f080007;
-        public static final int hintView=0x7f080015;
+        public static final int hintView=0x7f08001d;
         public static final int indexesarea=0x7f080008;
         public static final int infoaction=0x7f080003;
-        public static final int infolist=0x7f080014;
+        public static final int infolist=0x7f08001c;
         public static final int infotext=0x7f080002;
-        public static final int leftAmputation=0x7f08000f;
-        public static final int leftRange=0x7f080010;
-        public static final int loadingLabel=0x7f08000b;
-        public static final int nciUpdated=0x7f080017;
-        public static final int nciValue=0x7f080016;
+        public static final int leftAmputation=0x7f080017;
+        public static final int leftRange=0x7f080018;
+        public static final int loadingLabel=0x7f080013;
+        public static final int m1=0x7f08000c;
+        public static final int m3=0x7f08000d;
+        public static final int m6=0x7f08000e;
+        public static final int nciUpdated=0x7f08001f;
+        public static final int nciValue=0x7f08001e;
         public static final int nci_layout=0x7f080000;
-        public static final int qpsUpdated=0x7f08001d;
-        public static final int qpsValue=0x7f08001c;
-        public static final int qpsarea=0x7f08001b;
-        public static final int rangesView=0x7f08000d;
-        public static final int rightAmputation=0x7f080012;
-        public static final int rightRange=0x7f080011;
+        public static final int qpsUpdated=0x7f080025;
+        public static final int qpsValue=0x7f080024;
+        public static final int qpsarea=0x7f080023;
+        public static final int rangesView=0x7f080015;
+        public static final int rightAmputation=0x7f08001a;
+        public static final int rightRange=0x7f080019;
         public static final int serverurlarea=0x7f080004;
-        public static final int simpleXYPlot=0x7f08000a;
-        public static final int tapToConnect=0x7f08000c;
-        public static final int tapestryurl=0x7f08001e;
+        public static final int simpleXYPlot=0x7f080012;
+        public static final int tapToConnect=0x7f080014;
+        public static final int tapestryurl=0x7f080026;
         public static final int tapesty_url=0x7f080005;
         public static final int top_bar=0x7f080001;
-        public static final int urlslist=0x7f080013;
+        public static final int urlslist=0x7f08001b;
+        public static final int y1=0x7f08000f;
+        public static final int y10=0x7f080011;
+        public static final int y5=0x7f080010;
         public static final int zoomLinksArea=0x7f080009;
     }
     public static final class layout {
@@ -162,4 +179,33 @@ public final class R {
         public static final int updatedText=0x7f070003;
         public static final int zoomBtn=0x7f070005;
     }
+    public static final class styleable {
+        /** Attributes that can be used with a ZoomButton.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #ZoomButton_period com.infoblox.tapestry:period}</code></td><td></td></tr>
+           </table>
+           @see #ZoomButton_period
+         */
+        public static final int[] ZoomButton = {
+            0x7f010000
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.infoblox.tapestry.R.attr#period}
+          attribute's value can be found in the {@link #ZoomButton} array.
+
+
+          <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.infoblox.tapestry:period
+        */
+        public static final int ZoomButton_period = 0;
+    };
 }

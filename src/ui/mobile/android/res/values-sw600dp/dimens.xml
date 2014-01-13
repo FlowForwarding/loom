@@ -29,6 +29,7 @@
     <dimen name="loading_font">24sp</dimen>
     <dimen name="loading_margin_top">30dp</dimen>
     
-    <dimen name="zoombtn">50dp</dimen>
+    <dimen name="zoombtn">40dp</dimen>
+    <dimen name="zoombtn_font">18dp</dimen>
 
 </resources>

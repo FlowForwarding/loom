@@ -37,6 +37,8 @@ public class NCIActivity extends Activity{
     
     static String PREFS_NAME = "tapestryPrefs";
     static String PREFS_URLS = "tapestryUrls";
+    
+    private ArrayList<ZoomButton> zoomButtons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,6 +170,13 @@ public class NCIActivity extends Activity{
         }
         tapestryConnector.connectTapestry("ws://" + urlToConnect);
         tapesty_url.setText(urlToConnect);
+        
+        zoomButtons = new ArrayList<ZoomButton>();
+        int[] btnsIds = {R.id.d1, R.id.d5, R.id.m1, R.id.m3, R.id.m6, R.id.y1, R.id.y5, R.id.y10};
+        for (int btnId : btnsIds){
+            ZoomButton zoomBtn = (ZoomButton) findViewById(btnId);
+            zoomButtons.add(zoomBtn);
+        }
     }
     
     public void toggleInfoMenu(View v) {
@@ -184,7 +193,10 @@ public class NCIActivity extends Activity{
     }
     
     public void changeZoom(View v){
-        tapesty_url.setText("");
+       for(ZoomButton zoomBtn: zoomButtons){
+           zoomBtn.deselect();
+       }
+       ((ZoomButton)v).select();
     }
     
     public void connectTapestry(View v) {
