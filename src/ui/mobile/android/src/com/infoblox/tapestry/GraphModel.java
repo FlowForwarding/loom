@@ -101,6 +101,14 @@ public class GraphModel implements OnTouchListener{
         });
     }
     
+    public void showDataForPeriod(long period){
+        long nowMilliseconds = System.currentTimeMillis();
+        long startMilliseconds = nowMilliseconds - period;
+        setNewRanges(startMilliseconds/1000 - 1389000000, nowMilliseconds/1000 - 1389000000);
+        rangesViewModel.redrawRanges(minXY.x, maxXY.x);
+        
+    }
+    
     public void addLast(float argument, float value){
         if (plotSeries.size() == 1 && plotSeries.getX(0).floatValue() > argument) {
             plotSeries.removeFirst();

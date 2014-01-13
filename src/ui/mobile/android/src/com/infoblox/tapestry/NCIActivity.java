@@ -149,6 +149,7 @@ public class NCIActivity extends Activity{
                       urlslist.invalidateViews();
                   }
                   if (position != 1){
+                      resetZoomBtns();
                       tapestryConnector.connectTapestry("ws://" + newUrl);
                       tapesty_url.clearFocus();
                       InputMethodManager imm = (InputMethodManager) tapesty_url.getContext().getSystemService(Context.INPUT_METHOD_SERVICE); 
@@ -160,8 +161,15 @@ public class NCIActivity extends Activity{
         rangesViewModel = new RangesViewModel(this);
         graphModel = new GraphModel(this, rangesViewModel);
         rangesViewModel.setGraphModel(graphModel);
-        tapestryConnector = new TapestryConnector(this, graphModel);
+        zoomButtons = new ArrayList<ZoomButton>();
+        int[] btnsIds = {R.id.d1, R.id.d5, R.id.m1, R.id.m3, R.id.m6, R.id.y1, R.id.y5, R.id.y10};
+        for (int btnId : btnsIds){
+            ZoomButton zoomBtn = (ZoomButton) findViewById(btnId);
+            zoomButtons.add(zoomBtn);
+        }
         
+        tapestryConnector = new TapestryConnector(this, graphModel);
+      
         String urlToConnect;
         if (tapestryUrls.size() < 3){
             urlToConnect =  tapestryUrls.get(0);
@@ -170,13 +178,6 @@ public class NCIActivity extends Activity{
         }
         tapestryConnector.connectTapestry("ws://" + urlToConnect);
         tapesty_url.setText(urlToConnect);
-        
-        zoomButtons = new ArrayList<ZoomButton>();
-        int[] btnsIds = {R.id.d1, R.id.d5, R.id.m1, R.id.m3, R.id.m6, R.id.y1, R.id.y5, R.id.y10};
-        for (int btnId : btnsIds){
-            ZoomButton zoomBtn = (ZoomButton) findViewById(btnId);
-            zoomButtons.add(zoomBtn);
-        }
     }
     
     public void toggleInfoMenu(View v) {
@@ -193,10 +194,31 @@ public class NCIActivity extends Activity{
     }
     
     public void changeZoom(View v){
+        ZoomButton curBtn =  ((ZoomButton)v);
+        if (curBtn.isDisabled()){
+            return;
+        }
        for(ZoomButton zoomBtn: zoomButtons){
-           zoomBtn.deselect();
+           if (!zoomBtn.isDisabled()){
+               zoomBtn.deselect();
+           }
        }
-       ((ZoomButton)v).select();
+       curBtn.select();
+       graphModel.showDataForPeriod(curBtn.getPeriod());
+    }
+    
+    private void resetZoomBtns(){
+        for(ZoomButton zoomBtn: zoomButtons){
+            zoomBtn.reset();
+        } 
+    }
+    
+    public void disableNotAvailableZoomBtns(long period){
+        for (int i = 1; i <zoomButtons.size(); i++ ){
+            if (zoomButtons.get(i-1).getPeriod() > period){
+                zoomButtons.get(i).setDisabled();
+            }
+        }
     }
     
     public void connectTapestry(View v) {
@@ -214,6 +236,7 @@ public class NCIActivity extends Activity{
         tapesty_url.clearFocus();
         InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE); 
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+        resetZoomBtns();
         tapestryConnector.connectTapestry("ws://" + url);
     }
     
@@ -246,6 +269,5 @@ public class NCIActivity extends Activity{
         helpView.setY(loc[1] + 70); 
         helpView.setVisibility(View.VISIBLE);
     }
-    
   
 }

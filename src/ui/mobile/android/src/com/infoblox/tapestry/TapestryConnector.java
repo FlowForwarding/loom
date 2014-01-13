@@ -20,13 +20,15 @@ import com.codebutler.android_websockets.WebSocketClient;
 public class TapestryConnector {
 
     protected static final String TAG = "WEBSOCKET";
-    private Activity activity;
+    private NCIActivity activity;
     private WebSocketClient clientWss;
     private String websocketMoreData1 = "{\"request\":\"more_data\",\"start\": \"";
     private String websocketMoreData2 = "Z\",\"end\": \"";
     private String websocketMoreData3 = "Z\",\"max_items\": \"5\"}";
     
     private GraphModel graphModel;
+    
+    private Date startDate;
     
     final TextView nciValue;
     final TextView qpsValue;
@@ -41,7 +43,7 @@ public class TapestryConnector {
     float curNEPValue = -1;
     float curQPSValue = -1;
 
-    public TapestryConnector(Activity activity, GraphModel graphModel){
+    public TapestryConnector(NCIActivity activity, GraphModel graphModel){
         this.graphModel = graphModel;
         this.activity = activity;
         nciValue = (TextView) activity.findViewById(R.id.nciValue);
@@ -123,12 +125,15 @@ public class TapestryConnector {
         try {
             JSONObject jsonObj = new JSONObject(responseString);
             if (jsonObj.has("start_time")){
-                jsonObj.get("start_time");
+                String startDateString = jsonObj.getString("start_time").replace("T", " ").replace("Z", "");
                 Date now = new Date(System.currentTimeMillis());
-                Date start = new Date(System.currentTimeMillis() - 1000*60);
-                clientWss.send(websocketMoreData1 + dateFormat.format(start).replace(" ", "T") +
+                startDate = dateFormat.parse(startDateString);
+                activity.disableNotAvailableZoomBtns(System.currentTimeMillis() - startDate.getTime());
+                if (!isDemo){
+                    clientWss.send(websocketMoreData1 + dateFormat.format(startDate).replace(" ", "T") +
                         websocketMoreData2 + dateFormat.format(now).replace(" ", "T") +
                         websocketMoreData3);
+                }
                     } else {
                         String[] items = responseString.substring(1, responseString.length() -1) .split(",");
                         if (items.length > 2) {
@@ -229,8 +234,11 @@ public class TapestryConnector {
         int trendStepCounter = 0;
         int numberOfPoints = 10;
         int timePeriod = 1000*60*5;
+        parseResponse("{\"start_time\":\"" + 
+                dateFormat.format(new Date(System.currentTimeMillis() - timePeriod)).replace(" ", "T") + "Z\"}");
+        
         int dateStep = timePeriod/numberOfPoints;
-        for (int i = 0; i < numberOfPoints; i++){
+        for (int i = 0; i <= numberOfPoints; i++){
             if (trendStepCounter > 5){
                 trendStepCounter = 0;
                 trendMiddle++;
@@ -243,13 +251,14 @@ public class TapestryConnector {
         responseText.replace(responseText.length() - 1, responseText.length(), "}");
         parseResponse(responseText.toString());
         
+        final int trendVal = trendMiddle;
         Runnable r = new Runnable() {
             public void run() {
                 while (isDemoMode){
                     try {
                         Date curDate = new Date(System.currentTimeMillis());
                         String dateString = dateFormat.format(curDate).replace(" ", "T");
-                        String responseString = "{\"NCI\":"+ (int)(Math.random()*5) + ",\"Time\":\"" + dateString + "Z\"}";
+                        String responseString = "{\"NCI\":" + (int)(trendVal + Math.random()*5) + ",\"Time\":\"" + dateString + "Z\"}";
                         parseResponse(responseString);
                         responseString = "{\"NEP\":"+ (int)(2000 + (Math.random()*400)) + ",\"Time\":\"" + dateString + "Z\"}";
                         parseResponse(responseString);
