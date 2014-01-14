@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import java.text.*;
+
 import com.codebutler.android_websockets.WebSocketClient;
 
 public class TapestryConnector {
@@ -23,7 +24,7 @@ public class TapestryConnector {
     private WebSocketClient clientWss;
     private String websocketMoreData1 = "{\"request\":\"more_data\",\"start\": \"";
     private String websocketMoreData2 = "Z\",\"end\": \"";
-    private String websocketMoreData3 = "Z\",\"max_items\": \"5\"}";
+    private String websocketMoreData3 = "Z\",\"max_items\": \"200\"}";
     
     private GraphModel graphModel;
     
@@ -105,7 +106,13 @@ public class TapestryConnector {
 
             @Override
             public void onMessage(String arg0) {
-                parseResponse(arg0);
+                final String response = arg0;
+                activity.runOnUiThread(new Runnable(){
+                    @Override
+                    public void run() {
+                        parseResponse(response);
+                    }
+                });
             }
 
             @Override
@@ -136,12 +143,7 @@ public class TapestryConnector {
                     } else {
                         String[] items = responseString.substring(1, responseString.length() -1) .split(",");
                         if (items.length > 2) {
-                            activity.runOnUiThread(new Runnable(){
-                                @Override
-                                public void run() {
-                                    loadingLabel.setVisibility(View.INVISIBLE);
-                                }
-                            });
+                            loadingLabel.setVisibility(View.INVISIBLE);
                             for (int i = 0; i < items.length/2; i++){
                                 String timeString = items[i*2].substring(8, items[i*2].length()-2).replace("T", " ");
                                 String valueString = items[i*2 + 1].substring(6, items[i*2 + 1].length());
@@ -149,8 +151,9 @@ public class TapestryConnector {
                                 graphModel.addLast(time.getTime()/1000 - 1389000000, Long.parseLong(valueString));
                             }
                             graphModel.redraw();
+                            graphModel.rangesViewModel.setDefaultRanges();
                         } else {
-                            String time = "updated " + jsonObj.getString("Time").replace("T", " ").replace("Z", "");
+                            String time = "updated " + serverStringToLocalDate(jsonObj.getString("Time"));
                             if (jsonObj.has("NCI")) {
                                 String valueString = jsonObj.getString("NCI");
                                 float newValue = Float.parseFloat(valueString);
@@ -182,6 +185,14 @@ public class TapestryConnector {
             e.printStackTrace();
         }
 
+    }
+    
+    public String serverStringToLocalDate(String timeString) throws ParseException{
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GTM"));
+        Date serverDate = dateFormat.parse(timeString.replace("T", " ").replace("Z", ""));
+        dateFormat.setTimeZone(TimeZone.getDefault());
+        return dateFormat.format(serverDate);
     }
     
     public void setValueLabel(final TextView label,final float newValue, final float curValue){

@@ -31,10 +31,10 @@ public class GraphModel implements OnTouchListener{
     private SimpleXYSeries plotSeries;
     private LineAndPointFormatter topSeriesFormat;
     
-    private RangesViewModel rangesViewModel;
+    public RangesViewModel rangesViewModel;
     
     public XYPlot bottomPlot;
-    private SimpleXYSeries bottomPlotSeries;
+    public SimpleXYSeries bottomPlotSeries;
     private LineAndPointFormatter bottomSeriesFormat;
     
     public GraphModel(Activity activity, final RangesViewModel rangesViewModel){
@@ -122,7 +122,7 @@ public class GraphModel implements OnTouchListener{
     public void showDataForPeriod(long period){
         long nowMilliseconds = System.currentTimeMillis();
         long startMilliseconds = nowMilliseconds - period;
-        setNewRanges(startMilliseconds/1000 - 1389000000, nowMilliseconds/1000 - 1389000000);
+        setNewRanges(startMilliseconds/1000 - 1389000000, getCurTimeRange());
         rangesViewModel.redrawRanges(minXY.x, maxXY.x);
         
     }
@@ -141,9 +141,14 @@ public class GraphModel implements OnTouchListener{
         if (plotSeries.size()>1){
             plot.calculateMinMaxVals();
             if (null ==  minXY){
-                minXY = new PointF(plot.getCalculatedMinX().floatValue(), plot.getCalculatedMinY().floatValue());
-                maxXY = new PointF(plot.getCalculatedMaxX().floatValue(), plot.getCalculatedMaxY().floatValue()); 
+                minXY = new PointF(plotSeries.getX(0).floatValue(), plot.getCalculatedMinY().floatValue());
+                maxXY = new PointF(getCurTimeRange(), plot.getCalculatedMaxY().floatValue()); 
             }
+            if (reseted){
+                plot.setDomainBoundaries(plotSeries.getX(0).floatValue(), getCurTimeRange(), BoundaryMode.FIXED);  
+                bottomPlot.setDomainBoundaries(bottomPlotSeries.getX(0), getCurTimeRange(), BoundaryMode.FIXED);
+            }
+            reseted = false;
             rangesViewModel.redrawRanges();
         }
         plot.redraw();
@@ -204,6 +209,10 @@ public class GraphModel implements OnTouchListener{
     
     }
     
+    public long getCurTimeRange(){
+        return System.currentTimeMillis()/1000 - 1389000000;
+    }
+    
     private void redrawChart(){
         plot.setDomainBoundaries(minXY.x, maxXY.x, BoundaryMode.FIXED);
         rangesViewModel.redrawRanges(minXY.x, maxXY.x);
@@ -232,7 +241,7 @@ public class GraphModel implements OnTouchListener{
         if (minXY.x < bottomPlot.getCalculatedMinX().floatValue()){
             minXY.x = bottomPlot.getCalculatedMinX().floatValue();
         }
-        if (maxXY.x > bottomPlot.getCalculatedMaxX().floatValue()){
+        if (maxXY.x > getCurTimeRange()){
             maxXY.x = bottomPlot.getCalculatedMaxX().floatValue();
         }
     }
@@ -253,15 +262,17 @@ public class GraphModel implements OnTouchListener{
         plot.redraw();
     }
     
+    boolean reseted = true;
     public void clearData(){
+        reseted = true;
         plot.removeSeries(plotSeries);
+        plot.clear();
         plotSeries = new SimpleXYSeries(new LinkedList<Long>(), new LinkedList<Long>(), null);   
         plot.addSeries(plotSeries, topSeriesFormat);
         plot.redraw();
         
-        plot.setDomainBoundaries(0, 0, BoundaryMode.AUTO);
-        
         bottomPlot.removeSeries(bottomPlotSeries);
+        bottomPlot.clear();
         bottomPlotSeries = new SimpleXYSeries(new LinkedList<Long>(), new LinkedList<Long>(), null);   
         bottomPlot.addSeries(bottomPlotSeries, bottomSeriesFormat);
         bottomPlot.redraw();

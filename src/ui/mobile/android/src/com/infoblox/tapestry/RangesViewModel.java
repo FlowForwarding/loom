@@ -77,13 +77,29 @@ public class RangesViewModel implements OnTouchListener{
             rightRange.setY(rangeY);
             rightRange.setX(leftIndent + graphWidth);
 
-            leftRangeVal = convertRange(leftRange.getX());
-            rightRangeVal = convertRange(rightRange.getX());
+            leftRangeVal = -1;
+            rightRangeVal = -1;
             redrawAmputations();
         }
     }
     
+    public void setDefaultRanges(){
+        graphModel.bottomPlot.calculateMinMaxVals();
+        minXVal = graphModel.bottomPlot.getCalculatedMinX().floatValue();
+        maxXVal = getCurTimeRange();
+        leftRangeVal = maxXVal - (maxXVal - minXVal)/10;
+        rightRangeVal = maxXVal;
+        redrawRanges(leftRangeVal, rightRangeVal);
+    }
+    
     public void redrawRanges(){
+        if (leftRangeVal == -1){
+            graphModel.bottomPlot.calculateMinMaxVals();
+            minXVal = graphModel.bottomPlot.getCalculatedMinX().floatValue();
+            maxXVal = getCurTimeRange();
+            leftRangeVal = minXVal;
+            rightRangeVal = maxXVal;
+        }
         if (rightRange.getX() < graphWidth + leftIndent){
             redrawRanges(leftRangeVal, rightRangeVal);
         } else {
@@ -91,13 +107,17 @@ public class RangesViewModel implements OnTouchListener{
                     convertRange(graphWidth + leftIndent));
         }
     }
+    
+    public long getCurTimeRange(){
+        return System.currentTimeMillis()/1000 - 1389000000;
+    }
 
     public void redrawRanges(final float newMinTopX, final float newMaxTopX){
         leftRangeVal = newMinTopX;
         rightRangeVal = newMaxTopX;
         graphModel.bottomPlot.calculateMinMaxVals();
         minXVal = graphModel.bottomPlot.getCalculatedMinX().floatValue();
-        maxXVal = graphModel.bottomPlot.getCalculatedMaxX().floatValue();
+        maxXVal = getCurTimeRange();
         if (null != graphModel.bottomPlot.getGraphWidget().getGridRect()){
             activity.runOnUiThread(new Runnable(){
                 public void run() {
@@ -160,6 +180,10 @@ public class RangesViewModel implements OnTouchListener{
             
             leftRange.setX(newLeftX);
             rightRange.setX(newRightX);
+            
+            graphModel.bottomPlot.calculateMinMaxVals();
+            minXVal = graphModel.bottomPlot.getCalculatedMinX().floatValue();
+            maxXVal = getCurTimeRange();
             
             leftRangeVal = convertRange(leftRange.getX());
             rightRangeVal = convertRange(rightRange.getX());
