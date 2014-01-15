@@ -49,6 +49,6 @@
     <dimen name="bottomplot_height">70dp</dimen>
     
     <dimen name="popup_xoffset">15dp</dimen>
-    <dimen name="popup_yoffset">20dp</dimen>
+    <dimen name="popup_yoffset">10dp</dimen>
 
 </resources>
