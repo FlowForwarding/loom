@@ -35,6 +35,7 @@
 		2A6DDF211866D9230013D202 /* NCIBtmChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDF201866D9230013D202 /* NCIBtmChartView.m */; };
 		2A6DDF24186703CF0013D202 /* NCITopChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDF23186703CF0013D202 /* NCITopChartView.m */; };
 		2AA5BA59186C511800222760 /* NCIChartOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AA5BA58186C511800222760 /* NCIChartOptions.m */; };
+		2ACAD5C21887081600F4832E /* NCILine.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ACAD5C11887081600F4832E /* NCILine.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +103,8 @@
 		2A6DDF23186703CF0013D202 /* NCITopChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCITopChartView.m; sourceTree = "<group>"; };
 		2AA5BA57186C511800222760 /* NCIChartOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIChartOptions.h; sourceTree = "<group>"; };
 		2AA5BA58186C511800222760 /* NCIChartOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIChartOptions.m; sourceTree = "<group>"; };
+		2ACAD5C01887081600F4832E /* NCILine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCILine.h; sourceTree = "<group>"; };
+		2ACAD5C11887081600F4832E /* NCILine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCILine.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -228,6 +231,8 @@
 				2A55A1F818675A1E00088F2F /* NCITopGraphView.m */,
 				2A55A1FA18675AE300088F2F /* NCITopGridView.h */,
 				2A55A1FB18675AE300088F2F /* NCITopGridView.m */,
+				2ACAD5C01887081600F4832E /* NCILine.h */,
+				2ACAD5C11887081600F4832E /* NCILine.m */,
 			);
 			path = views;
 			sourceTree = "<group>";
@@ -380,6 +385,7 @@
 				2A6DDF24186703CF0013D202 /* NCITopChartView.m in Sources */,
 				2A6DDF041864C2860013D202 /* NCISimpleChartView.m in Sources */,
 				2AA5BA59186C511800222760 /* NCIChartOptions.m in Sources */,
+				2ACAD5C21887081600F4832E /* NCILine.m in Sources */,
 				2A55A1FC18675AE300088F2F /* NCITopGridView.m in Sources */,
 				2A6DDE0418637A1D0013D202 /* NCIHandspikeView.m in Sources */,
 				2A6DDF1B1866C4320013D202 /* NCISimpleGridView.m in Sources */,

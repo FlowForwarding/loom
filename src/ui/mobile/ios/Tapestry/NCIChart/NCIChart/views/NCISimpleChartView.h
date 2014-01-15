@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "NCIChartOptions.h"
+#import "NCILine.h"
 
 @class NCISimpleGraphView;
 
@@ -40,9 +41,14 @@
 //callbacks
 @property (nonatomic, copy) NSString* (^nciSelPointTextRenderer)(double, NSArray *);
 @property (nonatomic, copy) void (^nciTapGridAction)(double, double);
-
 //in persentage
 @property (nonatomic)float topBottomGridSpace;
+
+@property(nonatomic, strong)NCILine* nciBoundaryVertical;
+@property(nonatomic, strong)NCILine* nciBoundaryHorizontal;
+@property(nonatomic, strong)NCILine* nciGridVertical;
+@property(nonatomic, strong)NCILine* nciGridHorizontal;
+@property(nonatomic, strong)UIColor* nciGridColor;
 
 -(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts;
 

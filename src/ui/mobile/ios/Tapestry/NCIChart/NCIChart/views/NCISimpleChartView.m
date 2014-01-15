@@ -65,7 +65,9 @@
         if ([opts objectForKey:nciIsFill])
             _nciIsFill = [[opts objectForKey:nciIsFill] boolValue];
         
-        for (NSString* key in @[nciLineColors, nciXLabelsFont, nciYLabelsFont, nciSelPointFont]){
+        for (NSString* key in @[nciLineColors, nciXLabelsFont, nciYLabelsFont,
+                                nciSelPointFont, nciBoundaryVertical, nciBoundaryHorizontal,
+                                nciGridVertical, nciGridHorizontal, nciGridColor]){
             if ([opts objectForKey:key]){
                 [self setValue:[opts objectForKey:key] forKey:key];
             }

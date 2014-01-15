@@ -8,8 +8,8 @@
 
 #import <UIKit/UIKit.h>
 #import "NCISimpleChartView.h"
-@class NCITopChartView;
-@class NCIBtmChartView;
+#import "NCITopChartView.h"
+#import "NCIBtmChartView.h"
 
 @interface NCIChartView : NCISimpleChartView
 

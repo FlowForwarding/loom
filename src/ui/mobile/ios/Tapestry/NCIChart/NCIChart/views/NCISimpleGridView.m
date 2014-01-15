@@ -30,29 +30,72 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        self.backgroundColor = [UIColor clearColor];
+        [self setBgColor];
     }
     return self;
 }
 
-- (void)drawRect:(CGRect)rect
-{
-    [self drawGraphLine:[self getFirstLast]];
+- (void)setBgColor{
+    if (self.graph.chart.nciGridColor){
+        self.backgroundColor = self.graph.chart.nciGridColor;
+    } else {
+        self.backgroundColor = [UIColor clearColor];
+    }
+}
 
-    CGContextRef currentContext = UIGraphicsGetCurrentContext();
+- (void)setUpLine:(CGContextRef) currentContext line:(NCILine*)line{
     CGContextSetLineWidth(currentContext, 0.3);
     [[UIColor blackColor] setStroke];
     CGFloat dashes[] = { 1, 1 };
     CGContextSetLineDash(currentContext, 0.0,  dashes , 2 );
+    if (line){
+        if (line.width)
+            CGContextSetLineWidth(currentContext, line.width);
+        if (line.color)
+            [line.color setStroke];
+        if (line.dashes && line.dashes.count == 2
+            && [line.dashes[0] integerValue]
+            && [line.dashes[1] integerValue]){
+            CGFloat dashes[] = { [line.dashes[0] integerValue], [line.dashes[1] integerValue]};
+            CGContextSetLineDash(currentContext, 0.0, dashes, 2 );
+        } else {
+            CGContextSetLineDash(currentContext, 0, NULL, 0);
+        }
+    }
+}
+
+- (void)drawRect:(CGRect)rect
+{
+    [self setBgColor];
+    [self drawGraphLine:[self getFirstLast]];
     
+    CGContextRef currentContext = UIGraphicsGetCurrentContext();
+    
+    [self setUpLine:currentContext line:self.graph.chart.nciGridHorizontal];
     for (UILabel *yLabel in _graph.yAxisLabels){
         CGContextMoveToPoint(currentContext, yLabel.frame.origin.x, yLabel.frame.origin.y + self.graph.yLabelShift);
         CGContextAddLineToPoint(currentContext, self.frame.size.width, yLabel.frame.origin.y + self.graph.yLabelShift);
     }
     
+    CGContextStrokePath(currentContext);
+    [self setUpLine:currentContext line:self.graph.chart.nciGridVertical];
     for (UILabel *xLabel in _graph.xAxisLabels){
         CGContextMoveToPoint(currentContext, xLabel.frame.origin.x - _graph.xLabelsWidth + self.graph.chart.nciXLabelsDistance/2, xLabel.frame.origin.y);
         CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x - _graph.xLabelsWidth + self.graph.chart.nciXLabelsDistance/2, 0);
+    }
+    CGContextStrokePath(currentContext);
+    
+    if (self.graph.chart.nciBoundaryVertical){
+        [self setUpLine:currentContext line:self.graph.chart.nciBoundaryVertical];
+        CGContextMoveToPoint(currentContext, 0, 0);
+        CGContextAddLineToPoint(currentContext, 0, self.frame.size.height);
+
+    }
+    CGContextStrokePath(currentContext);
+    if (self.graph.chart.nciBoundaryHorizontal){
+        [self setUpLine:currentContext line:self.graph.chart.nciBoundaryHorizontal];
+        CGContextMoveToPoint(currentContext,0, self.frame.size.height);
+        CGContextAddLineToPoint(currentContext,self.frame.size.width, self.frame.size.height);
     }
     CGContextStrokePath(currentContext);
     

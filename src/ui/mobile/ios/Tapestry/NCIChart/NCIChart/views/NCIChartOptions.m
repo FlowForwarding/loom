@@ -37,4 +37,10 @@ NSString *const nciBottomGraphOptions = @"nciBottomGraphOptions";
 NSString *const nciShowPoints = @"nciShowPoints";
 NSString *const nciUseDateFormatter = @"nciUseDateFormatter";
 
+NSString *const nciBoundaryVertical = @"nciBoundaryVertical";
+NSString *const nciBoundaryHorizontal = @"nciBoundaryHorizontal";
+NSString *const nciGridVertical = @"nciGridVertical";
+NSString *const nciGridHorizontal = @"nciGridHorizontal";
+NSString *const nciGridColor = @"nciGridColor";
+
 @end
