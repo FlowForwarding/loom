@@ -59,7 +59,7 @@
                                                        andOptions:@{nciIsFill: @(NO),
                                                                     nciXLabelsDistance: @(ylabelsdis),
                                                                     nciLineWidth : @(2),
-                                                                    nciSelPointSize: @(20),
+                                                                    nciSelPointSizes: @[@20],
                                                                     nciSelPointImages : @[@"star", @"star"],
                                                                     nciHasSelection: @(YES),
                                                                     nciXLabelRenderer:^(double argument){
@@ -72,7 +72,7 @@
                                                               nciLineColors : @[[UIColor greenColor]],
                                                               nciLineWidth : @(2),
                                                               nciSelPointImages : @[@"star"],
-                                                              nciSelPointSize: @(20),
+                                                              nciSelPointSizes: @[@20],
                                                               nciXLabelsFont: [UIFont fontWithName:@"MarkerFelt-Thin" size:12],
                                                               nciYLabelsFont: [UIFont fontWithName:@"MarkerFelt-Thin" size:12],
                                                               nciSelPointFont: [UIFont fontWithName:@"MarkerFelt-Thin" size:14],

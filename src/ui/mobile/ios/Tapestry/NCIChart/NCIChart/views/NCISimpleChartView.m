@@ -39,14 +39,14 @@
             _nciSelPointFont = [UIFont boldSystemFontOfSize:18];
             _nciXLabelsDistance = 200;
             _nciYLabelsDistance = 80;
-            _nciSelPointSize = 8;
+            _nciSelPointSizes = @[@8];
         } else {
             _nciXLabelsFont = [UIFont italicSystemFontOfSize:10];
             _nciYLabelsFont = [UIFont systemFontOfSize:10];
             _nciSelPointFont = [UIFont boldSystemFontOfSize:12];
             _nciXLabelsDistance = 100;
             _nciYLabelsDistance = 40;
-            _nciSelPointSize = 4;
+            _nciSelPointSizes = @[@4];
         }
         
         dateFormatter = [[NSDateFormatter alloc] init];
@@ -84,8 +84,8 @@
             _nciSelPointColors = [opts objectForKey:nciSelPointColors];
             _nciHasSelection = YES;
         }
-        if ([opts objectForKey:nciSelPointSize]){
-            _nciSelPointSize = [[opts objectForKey:nciSelPointSize] floatValue];
+        if ([opts objectForKey:nciSelPointSizes]){
+            _nciSelPointSizes = [opts objectForKey:nciSelPointSizes];
             _nciHasSelection = YES;
         }
         if ([opts objectForKey:nciSelPointImages]){
@@ -122,12 +122,16 @@
 
 -(UIView *)createSelPoint:(int) num{
     UIView *selectedPoint;
+    float curSize = [_nciSelPointSizes[0] floatValue];
+    if (num <[_nciSelPointSizes count]){
+        curSize = [_nciSelPointSizes[num] floatValue];
+    }
     if (_nciSelPointImages && _nciSelPointImages.count >= (num+1)){
-        selectedPoint = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, _nciSelPointSize, _nciSelPointSize)];
+        selectedPoint = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, curSize, curSize)];
         ((UIImageView *)selectedPoint).image = [UIImage imageNamed:_nciSelPointImages[num]];
     } else {
-        selectedPoint = [[UIView alloc] initWithFrame:CGRectMake(0, 0, _nciSelPointSize, _nciSelPointSize)];
-        selectedPoint.layer.cornerRadius = _nciSelPointSize/2;
+        selectedPoint = [[UIView alloc] initWithFrame:CGRectMake(0, 0, curSize, curSize)];
+        selectedPoint.layer.cornerRadius = curSize/2;
     }
     selectedPoint.hidden = YES;
     [self addSubview:selectedPoint];
