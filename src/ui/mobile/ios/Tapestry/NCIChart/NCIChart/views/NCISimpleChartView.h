@@ -17,6 +17,7 @@
 @property (nonatomic, strong)NSMutableArray *chartData;
 @property (nonatomic, strong)UILabel *selectedLabel;
 
+@property (nonatomic)bool nciUseDateFormatter;
 @property (nonatomic)bool nciShowPoints;
 @property (nonatomic)bool hasYLabels;
 @property (nonatomic)bool nciIsFill;

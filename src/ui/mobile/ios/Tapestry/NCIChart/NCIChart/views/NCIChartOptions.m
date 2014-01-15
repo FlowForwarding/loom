@@ -35,5 +35,6 @@ NSString *const nciTopGraphOptions = @"nciTopGraphOptions";
 NSString *const nciBottomGraphOptions = @"nciBottomGraphOptions";
 
 NSString *const nciShowPoints = @"nciShowPoints";
+NSString *const nciUseDateFormatter = @"nciUseDateFormatter";
 
 @end

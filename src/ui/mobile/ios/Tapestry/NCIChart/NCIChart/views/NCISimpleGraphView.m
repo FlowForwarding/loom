@@ -39,6 +39,7 @@
         self.backgroundColor = [UIColor clearColor];
         _dateFormatter = [[NSDateFormatter alloc] init];
         [self addSubviews];
+
     }
     return self;
 }
@@ -138,9 +139,10 @@
     label.font = self.chart.nciXLabelsFont;
     if (self.chart.nciXLabelRenderer){
         label.text = self.chart.nciXLabelRenderer(curVal);
+    } else if (self.chart.nciUseDateFormatter){
+        label.text = [_dateFormatter stringFromDate: [NSDate dateWithTimeIntervalSince1970:curVal]];
     } else {
-        label.text = [NSString stringWithFormat:@"%@",
-                      [_dateFormatter stringFromDate: [NSDate dateWithTimeIntervalSince1970:curVal]]];
+        label.text =   [NSString stringWithFormat:@"%0.1f", curVal];
     }
     [_xAxisLabels addObject:label];
     [self addSubview:label];
