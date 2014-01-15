@@ -32,7 +32,6 @@
         _nciLineColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
         _nciSelPointColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
         selectedPointArgument = NAN;
-        _nciShowPoints = NO;
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
             _nciXLabelsFont = [UIFont italicSystemFontOfSize:14];
@@ -95,7 +94,18 @@
         }
         if ([opts objectForKey:nciSelPointTextRenderer]){
             _nciSelPointTextRenderer = [opts objectForKey:nciSelPointTextRenderer];
-            _nciHasSelection = YES;
+        } else {
+            _nciHasSelection = NO;
+        }
+        if ([opts objectForKey:nciUseDateFormatter]){
+            _nciUseDateFormatter = [opts objectForKey:nciUseDateFormatter];
+        } else {
+            _nciUseDateFormatter = NO;
+        }
+        if ([opts objectForKey:nciShowPoints]){
+            _nciShowPoints = [opts objectForKey:nciShowPoints];
+        } else {
+            _nciShowPoints = NO;
         }
         self.nciHasSelection = _nciHasSelection;
         

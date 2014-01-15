@@ -86,6 +86,7 @@
     
     chartView = [[NCIChartView alloc] initWithFrame:
                  CGRectZero andOptions:@{nciTopGraphOptions:@{
+                                                 nciUseDateFormatter: @(YES),
                                                  nciSelPointColors: @[[UIColor tapestryDarkBlue]],
                                                  nciSelPointTextRenderer: ^(double argument , NSArray *values){
         NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
@@ -93,6 +94,11 @@
         return  [NSString stringWithFormat:@"NCI:%@ %@", values[0],
                  [dateFormatter stringFromDate: [NSDate dateWithTimeIntervalSince1970:argument]]];
     }
+                                                 },
+                                         
+                                         nciBottomGraphOptions:@{
+                                                 nciUseDateFormatter: @(YES),
+                                                 nciHasSelection:@(NO)
                                                  }}];
     chartView.rangesMoved = ^(){
         [[NCIWebSocketConnector interlocutor].periodSwitcherPanel resetButtons];
