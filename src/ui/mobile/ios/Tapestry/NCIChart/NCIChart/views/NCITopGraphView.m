@@ -94,24 +94,22 @@
 
     [super layoutSubviews];
     if (self.chart.chartData.count == 0)
-            return;
+        return;
     float scaleIndex = [((NCITopChartView *)self.chart).nciChart getScaleIndex];
     float contentWidth = self.gridWidth* scaleIndex;
     float timeDiff = [[self.chart.chartData lastObject][0] doubleValue] - [self.chart.chartData[0][0] doubleValue];
-    if (timeDiff == 0){
-        timeDiff = contentWidth;
-    }
+    if (timeDiff == 0)
+        timeDiff = 1000*60*2;
+    
     float stepX = contentWidth/timeDiff;
-    
     gridScroll.frame = CGRectMake(self.xLabelsWidth, 0, self.gridWidth, self.gridHeigth);
-    
     gridScroll.contentSize = CGSizeMake(contentWidth, self.gridHeigth);
     
     double timeOffest = ((NCITopChartView *)self.chart).nciChart.minRangeVal  -  [self.chart.chartData[0][0] doubleValue];
     if (timeOffest < 0)
         timeOffest = 0;
     gridScroll.contentOffset = CGPointMake(timeOffest * stepX, 0);
-     [self.chart layoutSelectedPoint];
+    [self.chart layoutSelectedPoint];
     self.grid.frame = CGRectMake(timeOffest * stepX, 0, self.gridWidth, self.gridHeigth);
 }
 

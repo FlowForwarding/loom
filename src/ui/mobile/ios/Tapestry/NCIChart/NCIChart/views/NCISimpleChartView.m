@@ -32,6 +32,7 @@
         _nciLineColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
         _nciSelPointColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
         selectedPointArgument = NAN;
+        _nciShowPoints = NO;
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
             _nciXLabelsFont = [UIFont italicSystemFontOfSize:14];
@@ -241,6 +242,10 @@
 
 - (void)addPoint:(double)arg val:(NSArray *)values{
     [self.chartData addObject:@[@(arg), values]];
+}
+
+-(void)drawChart{
+    [self setNeedsLayout];
 }
 
 - (NSArray *)getBoundaryValues{

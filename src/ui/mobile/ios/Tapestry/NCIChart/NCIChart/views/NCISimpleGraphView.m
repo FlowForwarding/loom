@@ -73,9 +73,10 @@
     if (_chart.chartData.count > 0){
         _minXVal = [_chart.chartData[0][0] doubleValue];
         _maxXVal = [[_chart.chartData lastObject][0] doubleValue];
-//        if (_maxXVal == _minXVal){
-//            _minXVal = _minXVal - 60;
-//        }
+        if (_maxXVal == _minXVal){
+            _minXVal = _minXVal - 1;
+            _maxXVal = _maxXVal + 1;
+        }
         _xStep = _gridWidth/(_maxXVal - _minXVal);
         [self detectRanges];
        

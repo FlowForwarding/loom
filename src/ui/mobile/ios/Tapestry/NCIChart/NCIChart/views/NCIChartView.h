@@ -28,6 +28,5 @@
 -(double)getTimePeriod;
 -(double)getRangesPeriod;
 -(void)resetChart;
--(void)drawChart;
 
 @end

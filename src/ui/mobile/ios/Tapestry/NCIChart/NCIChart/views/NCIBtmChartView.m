@@ -56,16 +56,12 @@
 
 - (void)layoutSubviews{
     [super layoutSubviews];
-    if ( self.nciChart.chartData.count < 2 )
-        return;
     if (self.nciChart.minRangeVal != self.nciChart.minRangeVal){
         self.nciChart.minRangeVal = [self.nciChart.chartData[0][0] doubleValue];
     }
     if (self.nciChart.maxRangeVal != self.nciChart.maxRangeVal){
         self.nciChart.maxRangeVal = [[self.nciChart.chartData lastObject][0] doubleValue];
     }
-    if (!self.nciChart.maxRangeVal)
-        _xHandspikeRight = self.frame.size.width;
     [self redrawRanges];
 }
 

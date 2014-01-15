@@ -17,6 +17,7 @@
 @property (nonatomic, strong)NSMutableArray *chartData;
 @property (nonatomic, strong)UILabel *selectedLabel;
 
+@property (nonatomic)bool nciShowPoints;
 @property (nonatomic)bool hasYLabels;
 @property (nonatomic)bool nciIsFill;
 @property (nonatomic)float nciLineWidth;
@@ -25,7 +26,7 @@
 @property (nonatomic)bool nciHasSelection;
 @property (nonatomic, strong)NSMutableArray* nciSelPointColors;
 @property (nonatomic, strong)NSMutableArray* nciSelPointImages;
-@property (nonatomic)NSMutableArray* nciSelPointSizes;
+@property (nonatomic)NSArray* nciSelPointSizes;
 @property (nonatomic, strong)UIFont* nciSelPointFont;
 
 @property (nonatomic, strong)UIFont* nciXLabelsFont;
@@ -44,6 +45,7 @@
 
 -(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts;
 
+- (void)drawChart;
 - (void)addSubviews;
 - (void)addPoint:(double)arg val:(NSArray *)values;
 - (NSArray *)getBoundaryValues;

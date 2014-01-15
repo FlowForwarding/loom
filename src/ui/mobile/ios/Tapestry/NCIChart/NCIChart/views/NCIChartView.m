@@ -67,8 +67,8 @@
 }
 
 -(void)drawChart{
-    [_topChart setNeedsLayout];
-    [_btmChart setNeedsLayout];
+    [_topChart drawChart];
+    [_btmChart drawChart];
 
 }
 

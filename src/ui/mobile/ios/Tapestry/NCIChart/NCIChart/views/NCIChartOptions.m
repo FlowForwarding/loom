@@ -34,4 +34,6 @@ NSString *const nciTapGridAction = @"nciTapGridAction";
 NSString *const nciTopGraphOptions = @"nciTopGraphOptions";
 NSString *const nciBottomGraphOptions = @"nciBottomGraphOptions";
 
+NSString *const nciShowPoints = @"nciShowPoints";
+
 @end
