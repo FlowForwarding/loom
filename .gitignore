@@ -2,3 +2,4 @@
 xcuserdata
 Pods
 src/ui/mobile/android/gen/android/
+src/ui/mobile/android/gen/com/infoblox/tapestry/R.java

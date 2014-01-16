@@ -18,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.View.OnLayoutChangeListener;
+import android.widget.TextView;
 
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
@@ -36,6 +37,7 @@ public class GraphModel implements OnTouchListener{
     public XYPlot bottomPlot;
     public SimpleXYSeries bottomPlotSeries;
     private LineAndPointFormatter bottomSeriesFormat;
+    private TextView selectedPointView;
     
     public GraphModel(Activity activity, final RangesViewModel rangesViewModel){
         this.activity = activity;
@@ -68,6 +70,8 @@ public class GraphModel implements OnTouchListener{
         plotSeries = new SimpleXYSeries(new LinkedList<Long>(), new LinkedList<Long>(), null);                           
         plot.addSeries(plotSeries, topSeriesFormat);
         plot.setOnTouchListener(this);
+        
+        selectedPointView = (TextView) activity.findViewById(R.id.selectedPointView);
     }
     
     private void makeUpChart(final XYPlot plot){
@@ -178,6 +182,7 @@ public class GraphModel implements OnTouchListener{
         case MotionEvent.ACTION_DOWN: // Start gesture
             firstFinger = new PointF(event.getX(), event.getY());
             mode = ONE_FINGER_DRAG;
+            selectedPointView.setText("NCI: " + event.getX() + " " + event.getY());
             break;
         case MotionEvent.ACTION_POINTER_DOWN: // second finger
             distBetweenFingers = spacing(event);
