@@ -46,5 +46,8 @@ extern NSString *const nciGridHorizontal;
 extern NSString *const nciGridColor;
 extern NSString *const nciGridLeftMargin;
 
+extern NSString *const nciLeftRangeImageName;
+extern NSString *const nciRightRangeImageName;
+
 
 @end

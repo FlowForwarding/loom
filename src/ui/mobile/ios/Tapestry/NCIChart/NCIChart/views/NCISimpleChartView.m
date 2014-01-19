@@ -71,7 +71,8 @@
         
         for (NSString* key in @[nciLineColors, nciXLabelsFont, nciYLabelsFont,
                                 nciSelPointFont, nciBoundaryVertical, nciBoundaryHorizontal,
-                                nciGridVertical, nciGridHorizontal, nciGridColor, nciXLabelsColor, nciYLabelsColor]){
+                                nciGridVertical, nciGridHorizontal, nciGridColor,
+                                nciXLabelsColor, nciYLabelsColor, nciLeftRangeImageName, nciRightRangeImageName]){
             if ([opts objectForKey:key]){
                 [self setValue:[opts objectForKey:key] forKey:key];
             }
@@ -208,7 +209,7 @@
                     continue;
                 
                 CGPoint pointInGrid = [self.graph pointByValueInGrid:@[currentPoint[0], val]];
-                if (prevPoint){
+                if (prevPoint && prevPoint[1][j]){
                     if (([point[0]doubleValue] - selectedPointArgument) >
                         (selectedPointArgument - [prevPoint[0]doubleValue])){
                         pointInGrid = [self.graph pointByValueInGrid:@[prevPoint[0], prevPoint[1][j]]];

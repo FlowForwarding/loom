@@ -12,4 +12,6 @@
 
 @interface NCIHandspikeView : UIView
 
+- (id)initWithImageName:(NSString *)imageName;
+
 @end

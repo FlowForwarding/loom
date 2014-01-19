@@ -53,6 +53,9 @@
 @property(nonatomic, strong)UIColor* nciGridColor;
 @property(nonatomic)float nciGridLeftMargin;
 
+@property (nonatomic, copy) NSString* nciLeftRangeImageName;
+@property (nonatomic, copy) NSString* nciRightRangeImageName;
+
 -(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts;
 
 - (void)drawChart;

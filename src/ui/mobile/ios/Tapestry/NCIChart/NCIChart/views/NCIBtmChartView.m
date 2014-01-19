@@ -42,9 +42,17 @@
 
 - (void)addSubviews{
     [super addSubviews];
-    handspikeLeft = [[NCIHandspikeView alloc] initWithFrame:CGRectZero];
+    if (self.nciChart.nciLeftRangeImageName){
+        handspikeLeft = [[NCIHandspikeView alloc] initWithImageName:self.nciChart.nciLeftRangeImageName];
+    } else {
+        handspikeLeft = [[NCIHandspikeView alloc] initWithFrame:CGRectZero];
+    }
     [self addSubview:handspikeLeft];
-    handspikeRight = [[NCIHandspikeView alloc] initWithFrame:CGRectZero];
+    if (self.nciChart.nciRightRangeImageName){
+        handspikeRight = [[NCIHandspikeView alloc] initWithImageName:self.nciChart.nciRightRangeImageName];
+    } else {
+        handspikeRight = [[NCIHandspikeView alloc] initWithFrame:CGRectZero];
+    }
     [self addSubview:handspikeRight];
     rightAmputation = [[UIView alloc] initWithFrame:CGRectZero];
     rightAmputation.backgroundColor = [[UIColor grayColor] colorWithAlphaComponent:0.2];
@@ -73,10 +81,10 @@
     _xHandspikeLeft = [self.graph getXByArgument: self.nciChart.minRangeVal] + self.graph.chart.nciGridLeftMargin;
     _xHandspikeRight = [self.graph getXByArgument: self.nciChart.maxRangeVal] + self.graph.chart.nciGridLeftMargin;
     
-    handspikeLeft.frame = CGRectMake(_xHandspikeLeft, 0, handspikeWidth, gridHeigth);
+    handspikeLeft.frame = CGRectMake(_xHandspikeLeft - handspikeLeft.frame.size.width/2, 0, handspikeLeft.frame.size.width, gridHeigth);
     leftAmputation.frame = CGRectMake(self.graph.chart.nciGridLeftMargin, 0, _xHandspikeLeft - self.graph.chart.nciGridLeftMargin, gridHeigth);
     
-    handspikeRight.frame = CGRectMake(_xHandspikeRight, 0, handspikeWidth, gridHeigth);
+    handspikeRight.frame = CGRectMake(_xHandspikeRight  - handspikeRight.frame.size.width/2, 0, handspikeRight.frame.size.width, gridHeigth);
     rightAmputation.frame = CGRectMake(_xHandspikeRight, 0,
                                        self.frame.size.width - _xHandspikeRight, gridHeigth);
 

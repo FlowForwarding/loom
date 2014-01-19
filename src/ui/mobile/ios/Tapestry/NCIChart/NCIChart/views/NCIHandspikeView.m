@@ -17,6 +17,15 @@
 
 @implementation NCIHandspikeView
 
+- (id)initWithImageName:(NSString *)imageName{
+    UIImageView *rangeImage = [[UIImageView alloc] initWithImage:[UIImage imageNamed:imageName]];
+    self = [super initWithFrame:rangeImage.frame];
+    if (self) {
+        [self addSubview:rangeImage];
+    }
+    return self;
+}
+
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
@@ -29,8 +38,9 @@
 }
 
 -(void)layoutSubviews{
-        border.frame = CGRectMake(self.frame.size.width/2 - 1, 0, 2, self.frame.size.height);
+    border.frame = CGRectMake(self.frame.size.width/2 - 1, 0, 2, self.frame.size.height);
 }
+
 
 /*
 // Only override drawRect: if you perform custom drawing.
