@@ -80,8 +80,10 @@
     CGContextStrokePath(currentContext);
     [self setUpLine:currentContext line:self.graph.chart.nciGridVertical];
     for (UILabel *xLabel in _graph.xAxisLabels){
-        CGContextMoveToPoint(currentContext, xLabel.frame.origin.x - _graph.xLabelsWidth + self.graph.chart.nciXLabelsDistance/2, xLabel.frame.origin.y);
-        CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x - _graph.xLabelsWidth + self.graph.chart.nciXLabelsDistance/2, 0);
+        CGContextMoveToPoint(currentContext, xLabel.frame.origin.x - _graph.chart.nciGridLeftMargin
+                             + self.graph.chart.nciXLabelsDistance/2, xLabel.frame.origin.y);
+        CGContextAddLineToPoint(currentContext, xLabel.frame.origin.x - _graph.chart.nciGridLeftMargin
+                                + self.graph.chart.nciXLabelsDistance/2, 0);
     }
     CGContextStrokePath(currentContext);
     

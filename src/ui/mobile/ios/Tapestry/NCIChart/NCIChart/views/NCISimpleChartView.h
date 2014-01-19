@@ -49,6 +49,7 @@
 @property(nonatomic, strong)NCILine* nciGridVertical;
 @property(nonatomic, strong)NCILine* nciGridHorizontal;
 @property(nonatomic, strong)UIColor* nciGridColor;
+@property(nonatomic)float nciGridLeftMargin;
 
 -(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts;
 

@@ -24,14 +24,11 @@
     if (self) {
 
         _yLabelShift = 15;
-        _xLabelsWidth = 50;
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
             _yLabelsHeigth = 40;
-            _xLabelsWidth = 50;
         } else {
             _yLabelsHeigth = 20;
-            _xLabelsWidth = 50;
         }
         
         _yAxisLabels = [[NSMutableArray alloc] init];
@@ -68,7 +65,7 @@
     [_xAxisLabels removeAllObjects];
     
     _gridHeigth = self.frame.size.height- _yLabelsHeigth;
-    _gridWidth = self.frame.size.width - _xLabelsWidth;
+    _gridWidth = self.frame.size.width - self.chart.nciGridLeftMargin;
     float yLabelsDistance = self.chart.nciYLabelsDistance;
     
     if (_chart.chartData.count > 0){
@@ -83,8 +80,9 @@
        
         for(int i = 0; i<= _gridHeigth/yLabelsDistance; i++){
             UILabel *label = [[UILabel alloc] initWithFrame:
-                              CGRectMake(0, self.frame.size.height - i*yLabelsDistance - _yLabelsHeigth - _yLabelShift, _xLabelsWidth, 20)];
+                              CGRectMake(0, self.frame.size.height - i*yLabelsDistance - _yLabelsHeigth - _yLabelShift, self.chart.nciGridLeftMargin, 20)];
             label.font =  self.chart.nciYLabelsFont;
+            label.textAlignment = NSTextAlignmentRight;
             if (self.chart.hasYLabels){
                 double curVal = [self getValByY: (_yLabelsHeigth + yLabelsDistance*i)];
                 if (self.chart.nciYLabelRenderer){
@@ -99,7 +97,7 @@
        
         [self redrawXLabels];
     }
-    _grid.frame = CGRectMake(_xLabelsWidth, 0, _gridWidth, _gridHeigth);
+    _grid.frame = CGRectMake(self.chart.nciGridLeftMargin, 0, _gridWidth, _gridHeigth);
    [_grid setNeedsDisplay];
 }
 
@@ -116,10 +114,10 @@
     
     for(int i = 0; i<= _gridWidth/xLabelsDistance; i++){
         UILabel *label = [[UILabel alloc] initWithFrame:
-                          CGRectMake(_xLabelsWidth + xLabelsDistance *i  - xLabelsDistance/2,
+                          CGRectMake(self.chart.nciGridLeftMargin + xLabelsDistance *i  - xLabelsDistance/2,
                                      self.frame.size.height - _yLabelsHeigth, xLabelsDistance,
                                      _yLabelsHeigth)];
-        double curVal = [self getArgumentByX: (_xLabelsWidth + xLabelsDistance *i - xLabelsDistance/2)];
+        double curVal = [self getArgumentByX: (self.chart.nciGridLeftMargin + xLabelsDistance *i - xLabelsDistance/2)];
         [self makeUpXLabel:label val:curVal];
     }
 }

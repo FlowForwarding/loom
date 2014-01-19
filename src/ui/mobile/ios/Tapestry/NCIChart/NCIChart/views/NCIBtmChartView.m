@@ -70,11 +70,11 @@
 - (void)redrawRanges{
 
     float gridHeigth =  self.graph.grid.frame.size.height;
-    _xHandspikeLeft = [self.graph getXByArgument: self.nciChart.minRangeVal] + self.graph.xLabelsWidth;
-    _xHandspikeRight = [self.graph getXByArgument: self.nciChart.maxRangeVal] + self.graph.xLabelsWidth;
+    _xHandspikeLeft = [self.graph getXByArgument: self.nciChart.minRangeVal] + self.graph.chart.nciGridLeftMargin;
+    _xHandspikeRight = [self.graph getXByArgument: self.nciChart.maxRangeVal] + self.graph.chart.nciGridLeftMargin;
     
     handspikeLeft.frame = CGRectMake(_xHandspikeLeft, 0, handspikeWidth, gridHeigth);
-    leftAmputation.frame = CGRectMake(self.graph.xLabelsWidth, 0, _xHandspikeLeft - self.graph.xLabelsWidth, gridHeigth);
+    leftAmputation.frame = CGRectMake(self.graph.chart.nciGridLeftMargin, 0, _xHandspikeLeft - self.graph.chart.nciGridLeftMargin, gridHeigth);
     
     handspikeRight.frame = CGRectMake(_xHandspikeRight, 0, handspikeWidth, gridHeigth);
     rightAmputation.frame = CGRectMake(_xHandspikeRight, 0,
@@ -167,7 +167,7 @@ static float startRightRange = -1;
 
 - (void)moveRangesFollowingNewLeft:(double)newLeft newRight:(double)newRight {
     
-    if (!( (newLeft != -1 ) && ((newLeft - self.graph.xLabelsWidth) > 0))){
+    if (!( (newLeft != -1 ) && ((newLeft - self.graph.chart.nciGridLeftMargin) > 0))){
         newLeft = _xHandspikeLeft;
     };
     
@@ -178,8 +178,8 @@ static float startRightRange = -1;
     if ((newLeft != -1 && newRight != -1) && (newRight - newLeft) < minRangesDistance)
         return;
     
-    self.nciChart.minRangeVal = [self.graph getArgumentByX:newLeft - self.graph.xLabelsWidth];
-    self.nciChart.maxRangeVal = [self.graph getArgumentByX:newRight - self.graph.xLabelsWidth];
+    self.nciChart.minRangeVal = [self.graph getArgumentByX:newLeft - self.graph.chart.nciGridLeftMargin];
+    self.nciChart.maxRangeVal = [self.graph getArgumentByX:newRight - self.graph.chart.nciGridLeftMargin];
 
     [self.nciChart.topChart.graph setNeedsLayout];
     [self.nciChart.topChart.graph.grid setNeedsDisplay];

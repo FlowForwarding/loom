@@ -22,7 +22,6 @@
 @property(nonatomic) float gridHeigth;
 @property(nonatomic) float gridWidth;
 
-@property(nonatomic) float xLabelsWidth;
 @property(nonatomic) float yLabelsHeigth;
 
 @property(nonatomic) float yStep;

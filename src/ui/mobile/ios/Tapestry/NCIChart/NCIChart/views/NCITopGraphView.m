@@ -102,7 +102,7 @@
         timeDiff = 1000*60*2;
     
     float stepX = contentWidth/timeDiff;
-    gridScroll.frame = CGRectMake(self.xLabelsWidth, 0, self.gridWidth, self.gridHeigth);
+    gridScroll.frame = CGRectMake(self.chart.nciGridLeftMargin, 0, self.gridWidth, self.gridHeigth);
     gridScroll.contentSize = CGSizeMake(contentWidth, self.gridHeigth);
     
     double timeOffest = ((NCITopChartView *)self.chart).nciChart.minRangeVal  -  [self.chart.chartData[0][0] doubleValue];
@@ -120,13 +120,13 @@
     
     float shift = gridScroll.contentOffset.x - xLabelsDistance*((int)gridScroll.contentOffset.x / (int)xLabelsDistance);
     for(int i = 0; i<= self.gridWidth/xLabelsDistance + 1; i++){
-        float xVal = self.xLabelsWidth + xLabelsDistance *i - shift;
-        if ((xVal - self.xLabelsWidth) >= 0 && (xVal < self.frame.size.width) ){
+        float xVal = self.chart.nciGridLeftMargin + xLabelsDistance *i - shift;
+        if ((xVal - self.chart.nciGridLeftMargin) >= 0 && (xVal < self.frame.size.width) ){
             UILabel *label = [[UILabel alloc] initWithFrame:
                               CGRectMake(xVal - xLabelsDistance/2,
                                          self.frame.size.height - self.yLabelsHeigth, xLabelsDistance ,
                                          self.yLabelsHeigth)];
-            double curVal = [self getArgumentByX: xVal -  self.xLabelsWidth];
+            double curVal = [self getArgumentByX: xVal -  self.chart.nciGridLeftMargin];
             [self makeUpXLabel:label val:curVal];
         }
     }

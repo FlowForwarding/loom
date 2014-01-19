@@ -28,6 +28,7 @@
         _hasYLabels = YES;
         _nciIsFill = YES;
         _topBottomGridSpace = 10;
+        _nciGridLeftMargin = 50;
         _nciLineWidth = 0.3;
         _nciLineColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
         _nciSelPointColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
@@ -79,6 +80,8 @@
             _nciXLabelsDistance = [[opts objectForKey:nciXLabelsDistance] floatValue];
         if ([opts objectForKey:nciYLabelsDistance])
             _nciYLabelsDistance = [[opts objectForKey:nciYLabelsDistance] floatValue];
+        if ([opts objectForKey:nciGridLeftMargin])
+            _nciGridLeftMargin = [[opts objectForKey:nciGridLeftMargin] floatValue];
         
         if ([opts objectForKey:nciHasSelection])
             _nciHasSelection = [[opts objectForKey:nciLineWidth] boolValue];
@@ -208,7 +211,7 @@
                 }
                 selectedPoint.hidden = NO;
                 CGPoint pointInGrid = [self.graph pointByServerDataInGrid:@[point[0], val]];
-                selectedPoint.center =  CGPointMake(pointInGrid.x + self.graph.xLabelsWidth, pointInGrid.y + labelHeight);
+                selectedPoint.center =  CGPointMake(pointInGrid.x + self.graph.chart.nciGridLeftMargin, pointInGrid.y + labelHeight);
                 if (pointInGrid.x < 0 || pointInGrid.x >= (self.graph.grid.frame.size.width + 2)){
                     selectedPoint.hidden = YES;
                 } else {

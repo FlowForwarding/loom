@@ -42,5 +42,7 @@ extern NSString *const nciBoundaryHorizontal;
 extern NSString *const nciGridVertical;
 extern NSString *const nciGridHorizontal;
 extern NSString *const nciGridColor;
+extern NSString *const nciGridLeftMargin;
+
 
 @end

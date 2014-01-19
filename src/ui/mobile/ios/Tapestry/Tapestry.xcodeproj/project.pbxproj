@@ -29,6 +29,16 @@
 		2A02D07F1844F2210065B0E9 /* NCIWebSocketConnector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D07D1844F2210065B0E9 /* NCIWebSocketConnector.m */; };
 		2A3BBB0D18576EBF006ECC2B /* NCIConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3BBB0C18576EBF006ECC2B /* NCIConstants.m */; };
 		2A846CFF18465ABC000CAA2F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2A846CFE18465ABC000CAA2F /* Localizable.strings */; };
+		2ACAD5A91886E4DC00F4832E /* NCIBtmChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ACAD5961886E4DC00F4832E /* NCIBtmChartView.m */; };
+		2ACAD5AA1886E4DC00F4832E /* NCIChartOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ACAD5981886E4DC00F4832E /* NCIChartOptions.m */; };
+		2ACAD5AB1886E4DC00F4832E /* NCIChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ACAD59A1886E4DC00F4832E /* NCIChartView.m */; };
+		2ACAD5AC1886E4DC00F4832E /* NCIHandspikeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ACAD59C1886E4DC00F4832E /* NCIHandspikeView.m */; };
+		2ACAD5AD1886E4DC00F4832E /* NCISimpleChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ACAD59E1886E4DC00F4832E /* NCISimpleChartView.m */; };
+		2ACAD5AE1886E4DC00F4832E /* NCISimpleGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ACAD5A01886E4DC00F4832E /* NCISimpleGraphView.m */; };
+		2ACAD5AF1886E4DC00F4832E /* NCISimpleGridView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ACAD5A21886E4DC00F4832E /* NCISimpleGridView.m */; };
+		2ACAD5B01886E4DC00F4832E /* NCITopChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ACAD5A41886E4DC00F4832E /* NCITopChartView.m */; };
+		2ACAD5B11886E4DC00F4832E /* NCITopGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ACAD5A61886E4DC00F4832E /* NCITopGraphView.m */; };
+		2ACAD5B21886E4DC00F4832E /* NCITopGridView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ACAD5A81886E4DC00F4832E /* NCITopGridView.m */; };
 		2AF134E0185E31E50087D685 /* UIColor+WithHex.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AF134DF185E31E50087D685 /* UIColor+WithHex.m */; };
 		BF1E73678289457C8D232F84 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06D5AAF19A074DA0BABE9A8B /* libPods.a */; };
 /* End PBXBuildFile section */
@@ -82,6 +92,26 @@
 		2A6DDE0618637A420013D202 /* libNCIChart.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libNCIChart.a; path = "NCIChart/build/Debug-iphoneos/libNCIChart.a"; sourceTree = "<group>"; };
 		2A6DDE0A1864523B0013D202 /* libNCIChart.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libNCIChart.a; path = "NCIChart/build/Debug-iphoneos/libNCIChart.a"; sourceTree = "<group>"; };
 		2A846CFE18465ABC000CAA2F /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		2ACAD5951886E4DC00F4832E /* NCIBtmChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIBtmChartView.h; sourceTree = "<group>"; };
+		2ACAD5961886E4DC00F4832E /* NCIBtmChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIBtmChartView.m; sourceTree = "<group>"; };
+		2ACAD5971886E4DC00F4832E /* NCIChartOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIChartOptions.h; sourceTree = "<group>"; };
+		2ACAD5981886E4DC00F4832E /* NCIChartOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIChartOptions.m; sourceTree = "<group>"; };
+		2ACAD5991886E4DC00F4832E /* NCIChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIChartView.h; sourceTree = "<group>"; };
+		2ACAD59A1886E4DC00F4832E /* NCIChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIChartView.m; sourceTree = "<group>"; };
+		2ACAD59B1886E4DC00F4832E /* NCIHandspikeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIHandspikeView.h; sourceTree = "<group>"; };
+		2ACAD59C1886E4DC00F4832E /* NCIHandspikeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIHandspikeView.m; sourceTree = "<group>"; };
+		2ACAD59D1886E4DC00F4832E /* NCISimpleChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCISimpleChartView.h; sourceTree = "<group>"; };
+		2ACAD59E1886E4DC00F4832E /* NCISimpleChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCISimpleChartView.m; sourceTree = "<group>"; };
+		2ACAD59F1886E4DC00F4832E /* NCISimpleGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCISimpleGraphView.h; sourceTree = "<group>"; };
+		2ACAD5A01886E4DC00F4832E /* NCISimpleGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCISimpleGraphView.m; sourceTree = "<group>"; };
+		2ACAD5A11886E4DC00F4832E /* NCISimpleGridView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCISimpleGridView.h; sourceTree = "<group>"; };
+		2ACAD5A21886E4DC00F4832E /* NCISimpleGridView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCISimpleGridView.m; sourceTree = "<group>"; };
+		2ACAD5A31886E4DC00F4832E /* NCITopChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCITopChartView.h; sourceTree = "<group>"; };
+		2ACAD5A41886E4DC00F4832E /* NCITopChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCITopChartView.m; sourceTree = "<group>"; };
+		2ACAD5A51886E4DC00F4832E /* NCITopGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCITopGraphView.h; sourceTree = "<group>"; };
+		2ACAD5A61886E4DC00F4832E /* NCITopGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCITopGraphView.m; sourceTree = "<group>"; };
+		2ACAD5A71886E4DC00F4832E /* NCITopGridView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCITopGridView.h; sourceTree = "<group>"; };
+		2ACAD5A81886E4DC00F4832E /* NCITopGridView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCITopGridView.m; sourceTree = "<group>"; };
 		2AF134DE185E31E50087D685 /* UIColor+WithHex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+WithHex.h"; sourceTree = "<group>"; };
 		2AF134DF185E31E50087D685 /* UIColor+WithHex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+WithHex.m"; sourceTree = "<group>"; };
 		873D91FA5DF341DBB1741EE2 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
@@ -115,6 +145,7 @@
 		2A02CFFA1844F16B0065B0E9 = {
 			isa = PBXGroup;
 			children = (
+				2ACAD5941886E4DC00F4832E /* views */,
 				2A02D00C1844F16C0065B0E9 /* Tapestry */,
 				2A02D0251844F16C0065B0E9 /* TapestryTests */,
 				2A02D0051844F16B0065B0E9 /* Frameworks */,
@@ -213,6 +244,34 @@
 				2A02D0541844F1BF0065B0E9 /* NCIPeriodSwitcherPanel.m */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		2ACAD5941886E4DC00F4832E /* views */ = {
+			isa = PBXGroup;
+			children = (
+				2ACAD5951886E4DC00F4832E /* NCIBtmChartView.h */,
+				2ACAD5961886E4DC00F4832E /* NCIBtmChartView.m */,
+				2ACAD5971886E4DC00F4832E /* NCIChartOptions.h */,
+				2ACAD5981886E4DC00F4832E /* NCIChartOptions.m */,
+				2ACAD5991886E4DC00F4832E /* NCIChartView.h */,
+				2ACAD59A1886E4DC00F4832E /* NCIChartView.m */,
+				2ACAD59B1886E4DC00F4832E /* NCIHandspikeView.h */,
+				2ACAD59C1886E4DC00F4832E /* NCIHandspikeView.m */,
+				2ACAD59D1886E4DC00F4832E /* NCISimpleChartView.h */,
+				2ACAD59E1886E4DC00F4832E /* NCISimpleChartView.m */,
+				2ACAD59F1886E4DC00F4832E /* NCISimpleGraphView.h */,
+				2ACAD5A01886E4DC00F4832E /* NCISimpleGraphView.m */,
+				2ACAD5A11886E4DC00F4832E /* NCISimpleGridView.h */,
+				2ACAD5A21886E4DC00F4832E /* NCISimpleGridView.m */,
+				2ACAD5A31886E4DC00F4832E /* NCITopChartView.h */,
+				2ACAD5A41886E4DC00F4832E /* NCITopChartView.m */,
+				2ACAD5A51886E4DC00F4832E /* NCITopGraphView.h */,
+				2ACAD5A61886E4DC00F4832E /* NCITopGraphView.m */,
+				2ACAD5A71886E4DC00F4832E /* NCITopGridView.h */,
+				2ACAD5A81886E4DC00F4832E /* NCITopGridView.m */,
+			);
+			name = views;
+			path = NCIChart/NCIChart/views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -352,15 +411,25 @@
 			files = (
 				2A02D07F1844F2210065B0E9 /* NCIWebSocketConnector.m in Sources */,
 				2A02D07E1844F2210065B0E9 /* NCIGraphController.m in Sources */,
+				2ACAD5AF1886E4DC00F4832E /* NCISimpleGridView.m in Sources */,
+				2ACAD5AB1886E4DC00F4832E /* NCIChartView.m in Sources */,
 				2A02D0571844F1BF0065B0E9 /* NCIHintView.m in Sources */,
 				2AF134E0185E31E50087D685 /* UIColor+WithHex.m in Sources */,
+				2ACAD5B01886E4DC00F4832E /* NCITopChartView.m in Sources */,
+				2ACAD5AD1886E4DC00F4832E /* NCISimpleChartView.m in Sources */,
+				2ACAD5AE1886E4DC00F4832E /* NCISimpleGraphView.m in Sources */,
 				2A3BBB0D18576EBF006ECC2B /* NCIConstants.m in Sources */,
+				2ACAD5A91886E4DC00F4832E /* NCIBtmChartView.m in Sources */,
 				2A02D0591844F1BF0065B0E9 /* NCIPeriodSwitcher.m in Sources */,
 				2A02D05A1844F1BF0065B0E9 /* NCIPeriodSwitcherPanel.m in Sources */,
+				2ACAD5B21886E4DC00F4832E /* NCITopGridView.m in Sources */,
+				2ACAD5AC1886E4DC00F4832E /* NCIHandspikeView.m in Sources */,
 				2A02D0561844F1BF0065B0E9 /* NCIHelpView.m in Sources */,
 				2A02D0581844F1BF0065B0E9 /* NCIIndexValueView.m in Sources */,
 				2A02D0131844F16C0065B0E9 /* main.m in Sources */,
+				2ACAD5B11886E4DC00F4832E /* NCITopGraphView.m in Sources */,
 				2A02D0551844F1BF0065B0E9 /* NCIEditServerView.m in Sources */,
+				2ACAD5AA1886E4DC00F4832E /* NCIChartOptions.m in Sources */,
 				2A02D0171844F16C0065B0E9 /* NCIAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
