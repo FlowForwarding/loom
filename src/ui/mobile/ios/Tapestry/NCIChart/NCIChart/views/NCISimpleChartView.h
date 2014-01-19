@@ -32,7 +32,9 @@
 @property (nonatomic, strong)UIFont* nciSelPointFont;
 
 @property (nonatomic, strong)UIFont* nciXLabelsFont;
+@property (nonatomic, strong)UIColor* nciXLabelsColor;
 @property (nonatomic, strong)UIFont* nciYLabelsFont;
+@property (nonatomic, strong)UIColor* nciYLabelsColor;
 @property(nonatomic) float nciXLabelsDistance;
 @property(nonatomic) float nciYLabelsDistance;
 

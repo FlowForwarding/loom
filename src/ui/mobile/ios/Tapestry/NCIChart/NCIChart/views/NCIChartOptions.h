@@ -22,6 +22,8 @@ extern NSString *const nciSelPointFont;
 
 extern NSString *const nciXLabelsFont;
 extern NSString *const nciYLabelsFont;
+extern NSString *const nciXLabelsColor;
+extern NSString *const nciYLabelsColor;
 
 extern NSString *const nciXLabelsDistance;
 extern NSString *const nciYLabelsDistance;

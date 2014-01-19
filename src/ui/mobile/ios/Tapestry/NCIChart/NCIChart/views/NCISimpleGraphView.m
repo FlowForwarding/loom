@@ -83,6 +83,7 @@
                               CGRectMake(0, self.frame.size.height - i*yLabelsDistance - _yLabelsHeigth - _yLabelShift, self.chart.nciGridLeftMargin, 20)];
             label.font =  self.chart.nciYLabelsFont;
             label.textAlignment = NSTextAlignmentRight;
+            label.textColor = self.chart.nciYLabelsColor;
             if (self.chart.hasYLabels){
                 double curVal = [self getValByY: (_yLabelsHeigth + yLabelsDistance*i)];
                 if (self.chart.nciYLabelRenderer){
@@ -117,6 +118,8 @@
                           CGRectMake(self.chart.nciGridLeftMargin + xLabelsDistance *i  - xLabelsDistance/2,
                                      self.frame.size.height - _yLabelsHeigth, xLabelsDistance,
                                      _yLabelsHeigth)];
+        label.textColor = self.chart.nciXLabelsColor;
+        label.font =  self.chart.nciXLabelsFont;
         double curVal = [self getArgumentByX: (self.chart.nciGridLeftMargin + xLabelsDistance *i - xLabelsDistance/2)];
         [self makeUpXLabel:label val:curVal];
     }

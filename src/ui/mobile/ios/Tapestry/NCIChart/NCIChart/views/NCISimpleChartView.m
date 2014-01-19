@@ -34,6 +34,9 @@
         _nciSelPointColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
         selectedPointArgument = NAN;
         
+        _nciXLabelsColor = [UIColor blackColor];
+        _nciYLabelsColor = [UIColor blackColor];
+        
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
             _nciXLabelsFont = [UIFont italicSystemFontOfSize:14];
             _nciYLabelsFont = [UIFont systemFontOfSize:14];
@@ -68,7 +71,7 @@
         
         for (NSString* key in @[nciLineColors, nciXLabelsFont, nciYLabelsFont,
                                 nciSelPointFont, nciBoundaryVertical, nciBoundaryHorizontal,
-                                nciGridVertical, nciGridHorizontal, nciGridColor]){
+                                nciGridVertical, nciGridHorizontal, nciGridColor, nciXLabelsColor, nciYLabelsColor]){
             if ([opts objectForKey:key]){
                 [self setValue:[opts objectForKey:key] forKey:key];
             }

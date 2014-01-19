@@ -21,7 +21,9 @@ NSString *const nciSelPointSizes = @"nciSelPointSizes";
 NSString *const nciSelPointFont = @"nciSelPointFont";
 
 NSString *const nciXLabelsFont = @"nciXLabelsFont";
+NSString *const nciXLabelsColor = @"nciXLabelsColor";
 NSString *const nciYLabelsFont = @"nciYLabelsFont";
+NSString *const nciYLabelsColor = @"nciXLabelsColor";
 
 NSString *const nciXLabelsDistance = @"nciXLabelsDistance";
 NSString *const nciYLabelsDistance = @"nciYLabelsDistance";
