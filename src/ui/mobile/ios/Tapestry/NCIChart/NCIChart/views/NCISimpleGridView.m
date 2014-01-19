@@ -128,7 +128,7 @@
             } else {
                 path = paths[i];
             };
-            CGPoint pointP = [_graph pointByServerDataInGrid:@[points[0], val]];
+            CGPoint pointP = [_graph pointByValueInGrid:@[points[0], val]];
             if ([val isKindOfClass:[NSNull class]] ){
                 if (lastMoveInd != (ind -1) && self.graph.chart.nciIsFill){
                     [path addLineToPoint:CGPointMake( path.currentPoint.x, self.frame.size.height)];

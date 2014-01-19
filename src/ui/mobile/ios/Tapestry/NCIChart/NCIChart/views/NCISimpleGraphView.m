@@ -158,7 +158,7 @@
     return _minYVal + (pointY - _yLabelsHeigth)/_yStep;
 }
 //TODO for points
-- (CGPoint)pointByServerDataInGrid:(NSArray *)data{
+- (CGPoint)pointByValueInGrid:(NSArray *)data{
     double argument = [data[0] doubleValue];
     if ([data[1] isKindOfClass:[NSNull class]] )
         return CGPointMake(NAN, NAN);

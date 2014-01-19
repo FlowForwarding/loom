@@ -39,7 +39,7 @@
 - (void)addSubviews;
 
 - (double)getArgumentByX:(float) pointX;
-- (CGPoint)pointByServerDataInGrid:(NSArray *)data;
+- (CGPoint)pointByValueInGrid:(NSArray *)data;
 - (float)getXByArgument:(double) arg;
 - (float )getValByY:(float) pointY;
 

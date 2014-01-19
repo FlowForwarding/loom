@@ -197,13 +197,27 @@
 - (void)layoutSelectedPoint{
     if (selectedPointArgument != selectedPointArgument)
         return;
+    NSArray *prevPoint;
     for (int i =0; i < _chartData.count; i++){
         NSArray *point = _chartData[i];
+        NSArray *currentPoint = _chartData[i];
         if (selectedPointArgument <= [point[0] doubleValue] ){
-            for (int j = 0; j < ((NSArray *)point[1]).count; j++){
-                id val = point[1][j];
+            for (int j = 0; j < ((NSArray *)currentPoint[1]).count; j++){
+                id val = currentPoint[1][j];
                 if ([val isKindOfClass:[NSNull class]])
                     continue;
+                
+                CGPoint pointInGrid = [self.graph pointByValueInGrid:@[currentPoint[0], val]];
+                if (prevPoint){
+                    if (([point[0]doubleValue] - selectedPointArgument) >
+                        (selectedPointArgument - [prevPoint[0]doubleValue])){
+                        pointInGrid = [self.graph pointByValueInGrid:@[prevPoint[0], prevPoint[1][j]]];
+                        currentPoint = prevPoint;
+                        val = currentPoint[1][j];
+                    } else {
+                        currentPoint = point;
+                    }
+                }
                 UIView *selectedPoint;
                 if (selectedPoints.count < (j+1)){
                     selectedPoint = [self createSelPoint:j];
@@ -213,8 +227,7 @@
                     selectedPoint = selectedPoints[j];
                 }
                 selectedPoint.hidden = NO;
-                CGPoint pointInGrid = [self.graph pointByServerDataInGrid:@[point[0], val]];
-                selectedPoint.center =  CGPointMake(pointInGrid.x + self.graph.chart.nciGridLeftMargin, pointInGrid.y + labelHeight);
+                selectedPoint.center = CGPointMake(pointInGrid.x + self.graph.chart.nciGridLeftMargin, pointInGrid.y + labelHeight);
                 if (pointInGrid.x < 0 || pointInGrid.x >= (self.graph.grid.frame.size.width + 2)){
                     selectedPoint.hidden = YES;
                 } else {
@@ -223,20 +236,20 @@
             }
             
             if (self.nciSelPointTextRenderer){
-                _selectedLabel.text = self.nciSelPointTextRenderer([point[0] doubleValue], point[1]);
+                _selectedLabel.text = self.nciSelPointTextRenderer([currentPoint[0] doubleValue], currentPoint[1]);
             } else {
                 NSMutableString *values = [[NSMutableString alloc] init];
-                for (id val in point[1]){
+                for (id val in currentPoint[1]){
                     if (![val isKindOfClass:[NSNull class]]){
                         [values appendString:[val description]];
                         [values appendString:@","];
                     }
                 }
-                _selectedLabel.text = [NSString stringWithFormat:@"x: %@  y:%@", values,
-                                       [dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:[point[0] doubleValue]]]];
+                _selectedLabel.text = [NSString stringWithFormat:@"x: %@  y:% 0.1f", values, [currentPoint[0] doubleValue]];
             }
             return;
         }
+        prevPoint = point;
     }
     for (UIView *selectedPoint in selectedPoints){
         _selectedLabel.text = @"";
