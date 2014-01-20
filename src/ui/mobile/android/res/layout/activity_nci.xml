@@ -35,54 +35,54 @@
             android:src="@drawable/infoicon"/>
     </RelativeLayout>
     
+    <TextView
+        android:id="@+id/serverprefix"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/top_bar"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:text="@string/tapestry_server_ws"
+        android:textColor="@color/black"
+        android:textSize="@dimen/url_prefix_font"
+        android:textStyle="bold" >
+    </TextView>
+
     <RelativeLayout
         android:id="@+id/serverurlarea"
-        android:layout_below="@id/top_bar"
         android:layout_width="fill_parent"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_height="@dimen/serverurlarea_height">
-            
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:text="@string/tapestry_server_ws"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:textStyle="bold"
-            android:textSize="@dimen/url_prefix_font"
-            android:textColor="@color/black">
-        </TextView>
-               
-        <EditText android:id="@+id/tapesty_url"
-            android:layout_marginLeft="@dimen/url_prefix_width"
-            android:layout_marginRight="@dimen/url_postfix_width"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/serverprefix"
+        android:orientation="horizontal" >
+
+        <EditText
+            android:id="@+id/tapesty_url"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:textSize ="@dimen/urlfont"
-            android:hint="@string/nciexamplecom28080clientsockyaws" />
-        
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/url_postfix_width"
+            android:hint="@string/nciexamplecom28080clientsockyaws"
+            android:textSize="@dimen/urlfont" />
+
         <ImageView
             android:id="@+id/clearaction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:onClick="clearTapestryUrl"
+            android:layout_centerVertical="true"
             android:layout_marginRight="@dimen/clearaction_margin"
-            android:visibility="invisible"
-            android:src="@drawable/clearicon"/>
-        
+            android:onClick="clearTapestryUrl"
+            android:src="@drawable/clearicon"
+            android:visibility="invisible" />
+
         <ImageView
             android:id="@+id/goaction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:onClick="connectTapestry"
+            android:layout_centerVertical="true"
             android:layout_marginRight="@dimen/goaction_margin"
-            android:visibility="invisible"
-            android:src="@drawable/goicon"/>
-        
+            android:onClick="connectTapestry"
+            android:src="@drawable/goicon"
+            android:visibility="invisible" />
     </RelativeLayout>
     
     <include android:id="@+id/indexesarea"
@@ -165,9 +165,7 @@
             android:id="@+id/simpleXYPlot"
             android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            androidPlot.domainLabelWidget.labelPaint.textSize="@dimen/domain_label_font_size"
-            androidPlot.rangeLabelWidget.labelPaint.textSize="@dimen/range_label_font_size">   
+            android:layout_weight="1">   
     </com.androidplot.xy.XYPlot>         
 	      
     <RelativeLayout
@@ -178,8 +176,7 @@
         <com.androidplot.xy.XYPlot
             android:id="@+id/bottomXYPlot"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            androidPlot.rangeLabelWidget.labelPaint.textSize="@dimen/range_label_font_size"/>
+            android:layout_height="fill_parent"/>
         <View
             android:id="@+id/leftAmputation"
             android:layout_height="fill_parent"
@@ -235,7 +232,6 @@
     <ListView 
         android:id="@+id/urlslist"
         android:layout_below="@id/serverurlarea"
-        android:layout_marginLeft="@dimen/url_prefix_width"
         android:layout_marginRight="@dimen/url_postfix_width"
         android:layout_width="fill_parent"
         android:visibility="gone"

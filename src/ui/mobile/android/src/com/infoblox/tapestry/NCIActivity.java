@@ -224,9 +224,7 @@ public class NCIActivity extends Activity{
     public void disableNotAvailableZoomBtns(long period){
         period = period/1000;
         for (int i = 1; i <zoomButtons.size(); i++ ){
-            Log.e("test2", String.valueOf(zoomButtons.get(i-1).getPeriod()));
             if (zoomButtons.get(i-1).getPeriod() > period){
-                Log.e("test3", String.valueOf(zoomButtons.get(i-1).getPeriod()));
                 zoomButtons.get(i).setDisabled();
             }
         }
