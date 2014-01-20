@@ -1,6 +1,7 @@
 package com.infoblox.tapestry;
 
 import android.graphics.PointF;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -56,8 +57,9 @@ public class RangesViewModel implements OnTouchListener{
                     rightRange.setY(rangeY);
                     rightRange.setX(leftIndent + graphWidth);
                     rightRange.invalidate();  
-                    
-                    redrawRanges();
+                    if (leftRangeVal == -1){
+                        setDefaultRanges();
+                    }
                 }
             }); 
         }
@@ -66,11 +68,11 @@ public class RangesViewModel implements OnTouchListener{
     float leftRangeVal;
     float rightRangeVal;
     
-    public void redrawAmputations(){
+    private void redrawAmputations(){
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams((int) (leftRange.getX() - leftIndent), rangeHeight);
         leftAmputation.setLayoutParams(params);
         RelativeLayout.LayoutParams params2 = new RelativeLayout.LayoutParams((int) (graphWidth + leftIndent - rightRange.getX()), rangeHeight);
-        rightAmputation.setX(rightRange.getX());
+        params2.setMargins((int) rightRange.getX(),0,0,0);
         rightAmputation.setLayoutParams(params2);
     }
     
@@ -79,7 +81,6 @@ public class RangesViewModel implements OnTouchListener{
 
             leftRangeVal = -1;
             rightRangeVal = -1;
-            redrawAmputations();
         }
     }
     
@@ -89,6 +90,17 @@ public class RangesViewModel implements OnTouchListener{
         maxXVal = getCurTimeRange();
         leftRangeVal = maxXVal - (maxXVal - minXVal)/10;
         rightRangeVal = maxXVal;
+        if (leftRangeVal > graphModel.bottomPlotSeries.getX(graphModel.bottomPlotSeries.size()-1).floatValue()){
+            float maxInSeries = graphModel.bottomPlotSeries.getX(graphModel.bottomPlotSeries.size()-1).floatValue();
+            leftRangeVal = maxInSeries - (maxXVal - minXVal)/10;
+            if (leftRangeVal < minXVal){
+                leftRangeVal = minXVal;
+            }
+            rightRangeVal = maxInSeries + (maxXVal - minXVal)/10;
+            if (rightRangeVal > maxXVal){
+                rightRangeVal = maxXVal;
+            }
+        }
         redrawRanges(leftRangeVal, rightRangeVal);
     }
     
@@ -103,7 +115,8 @@ public class RangesViewModel implements OnTouchListener{
         if (rightRange.getX() < graphWidth + leftIndent){
             redrawRanges(leftRangeVal, rightRangeVal);
         } else {
-            setDefaultRanges();
+            redrawRanges(convertRange(graphWidth + leftIndent - (rightRange.getX() - leftRange.getX())) ,
+                                        convertRange(graphWidth + leftIndent));
         }
     }
     

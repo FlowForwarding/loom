@@ -110,6 +110,7 @@ public class TapestryConnector {
                 activity.runOnUiThread(new Runnable(){
                     @Override
                     public void run() {
+                        tapToConnect.setVisibility(View.INVISIBLE);
                         parseResponse(response);
                     }
                 });
