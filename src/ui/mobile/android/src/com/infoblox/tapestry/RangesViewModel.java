@@ -44,7 +44,20 @@ public class RangesViewModel implements OnTouchListener{
             rangeY = (int) graphModel.bottomPlot.getGraphWidget().getGridRect().top;
             activity.runOnUiThread(new Runnable(){
                 public void run() {
-                    resetRanges();   
+                    leftAmputation.setX(leftIndent);
+                    leftAmputation.setY(rangeY);
+                    rightAmputation.setY(rangeY);
+                    leftRange.setY(rangeY);
+                    leftRange.setX(leftIndent);
+                    leftRange.getLayoutParams().height = rangeHeight;
+                    leftRange.invalidate();
+                    
+                    rightRange.getLayoutParams().height = rangeHeight;
+                    rightRange.setY(rangeY);
+                    rightRange.setX(leftIndent + graphWidth);
+                    rightRange.invalidate();  
+                    
+                    redrawRanges();
                 }
             }); 
         }
@@ -63,18 +76,6 @@ public class RangesViewModel implements OnTouchListener{
     
     public void resetRanges(){
         if (null != graphModel.bottomPlot.getGraphWidget().getGridRect()){
-            leftAmputation.setX(leftIndent);
-            leftAmputation.setY(rangeY);
-            rightAmputation.setY(rangeY);
-            leftRange.setY(rangeY);
-            leftRange.setX(leftIndent);
-            leftRange.getLayoutParams().height = rangeHeight;
-            leftRange.invalidate();
-            
-            rightRange.getLayoutParams().height = rangeHeight;
-            rightRange.setY(rangeY);
-            rightRange.setX(leftIndent + graphWidth);
-            rightRange.invalidate();
 
             leftRangeVal = -1;
             rightRangeVal = -1;
@@ -102,8 +103,7 @@ public class RangesViewModel implements OnTouchListener{
         if (rightRange.getX() < graphWidth + leftIndent){
             redrawRanges(leftRangeVal, rightRangeVal);
         } else {
-            redrawRanges(convertRange(graphWidth + leftIndent - (rightRange.getX() - leftRange.getX())) ,
-                    convertRange(graphWidth + leftIndent));
+            setDefaultRanges();
         }
     }
     
@@ -112,12 +112,13 @@ public class RangesViewModel implements OnTouchListener{
     }
 
     public void redrawRanges(final float newMinTopX, final float newMaxTopX){
-        leftRangeVal = newMinTopX;
-        rightRangeVal = newMaxTopX;
         graphModel.bottomPlot.calculateMinMaxVals();
         minXVal = graphModel.bottomPlot.getCalculatedMinX().floatValue();
         maxXVal = getCurTimeRange();
-        if (null != graphModel.bottomPlot.getGraphWidget().getGridRect()){
+        leftRangeVal = newMinTopX < minXVal ? minXVal : newMinTopX;
+        rightRangeVal = newMaxTopX;
+        
+        if (-1 != graphWidth){
             activity.runOnUiThread(new Runnable(){
                 public void run() {
                     leftRange.setX(leftIndent +  (newMinTopX - minXVal)*graphWidth/(maxXVal - minXVal));

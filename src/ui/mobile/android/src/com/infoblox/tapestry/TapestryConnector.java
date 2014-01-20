@@ -134,7 +134,8 @@ public class TapestryConnector {
                 String startDateString = jsonObj.getString("start_time").replace("T", " ").replace("Z", "");
                 Date now = new Date(System.currentTimeMillis());
                 startDate = dateFormat.parse(startDateString);
-                activity.disableNotAvailableZoomBtns(System.currentTimeMillis() - startDate.getTime());
+                long period = System.currentTimeMillis() - startDate.getTime();
+                activity.disableNotAvailableZoomBtns(period);
                 if (!isDemo){
                     clientWss.send(websocketMoreData1 + dateFormat.format(startDate).replace(" ", "T") +
                         websocketMoreData2 + dateFormat.format(now).replace(" ", "T") +
@@ -243,11 +244,11 @@ public class TapestryConnector {
         int trendMiddle = 6;
         int trendStepCounter = 0;
         int numberOfPoints = 100;
-        int timePeriod = 1000*60*5;
+        long timePeriod = 1000L*60*60*24*30 *12;
         parseResponse("{\"start_time\":\"" + 
                 dateFormat.format(new Date(System.currentTimeMillis() - timePeriod)).replace(" ", "T") + "Z\"}");
         
-        int dateStep = timePeriod/numberOfPoints;
+        long dateStep = timePeriod/numberOfPoints;
         for (int i = 0; i <= numberOfPoints; i++){
             if (trendStepCounter > 5){
                 trendStepCounter = 0;
