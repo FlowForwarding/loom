@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Locale;
 
-import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.PointF;
@@ -28,7 +27,7 @@ import com.androidplot.xy.XYPlot;
 
 public class GraphModel implements OnTouchListener{
     
-    private Activity activity;
+    private NCIActivity activity;
     private XYPlot plot;
     private SimpleXYSeries plotSeries;
     private LineAndPointFormatter topSeriesFormat;
@@ -43,7 +42,7 @@ public class GraphModel implements OnTouchListener{
     private PointF selectedPointF;
     
     
-    public GraphModel(Activity activity, final RangesViewModel rangesViewModel){
+    public GraphModel(NCIActivity activity, final RangesViewModel rangesViewModel){
         this.activity = activity;
         this.rangesViewModel = rangesViewModel;
         
@@ -234,6 +233,7 @@ public class GraphModel implements OnTouchListener{
                     redrawChart();
                 }
             }
+            activity.resetZoom();
             break;
         }
         return true;
@@ -318,6 +318,7 @@ public class GraphModel implements OnTouchListener{
         minXY.x = newMinX;
         maxXY.x = newMaxX;
         plot.setDomainBoundaries(newMinX, newMaxX, BoundaryMode.FIXED);
+        setMinMax();
         drawPoint();
         plot.redraw();
     }

@@ -1,12 +1,9 @@
 package com.infoblox.tapestry;
 
-import android.app.Activity;
 import android.graphics.PointF;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 public class RangesViewModel implements OnTouchListener{
@@ -27,9 +24,9 @@ public class RangesViewModel implements OnTouchListener{
     private int minRangesDistance = 3;
   
     private GraphModel graphModel;
-    private Activity activity;
+    private NCIActivity  activity;
     
-    public RangesViewModel(Activity activity){
+    public RangesViewModel(NCIActivity activity){
         this.activity = activity;
         leftRange = activity.findViewById(R.id.leftRange);
         rightRange = activity.findViewById(R.id.rightRange);
@@ -72,10 +69,12 @@ public class RangesViewModel implements OnTouchListener{
             leftRange.setY(rangeY);
             leftRange.setX(leftIndent);
             leftRange.getLayoutParams().height = rangeHeight;
+            leftRange.invalidate();
             
             rightRange.getLayoutParams().height = rangeHeight;
             rightRange.setY(rangeY);
             rightRange.setX(leftIndent + graphWidth);
+            rightRange.invalidate();
 
             leftRangeVal = -1;
             rightRangeVal = -1;
@@ -189,6 +188,7 @@ public class RangesViewModel implements OnTouchListener{
             rightRangeVal = convertRange(rightRange.getX());
             graphModel.setNewRanges(leftRangeVal, rightRangeVal);
             redrawAmputations();
+            activity.resetZoom();
             break;
         }
         return true;

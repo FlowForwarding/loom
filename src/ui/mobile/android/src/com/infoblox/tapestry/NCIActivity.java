@@ -207,6 +207,13 @@ public class NCIActivity extends Activity{
        graphModel.showDataForPeriod(curBtn.getPeriod());
     }
     
+    public void resetZoom(){
+        for(ZoomButton zoomBtn: zoomButtons){
+            if (!zoomBtn.isDisabled())
+                zoomBtn.deselect();
+        } 
+    }
+    
     private void resetZoomBtns(){
         for(ZoomButton zoomBtn: zoomButtons){
             zoomBtn.reset();

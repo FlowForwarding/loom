@@ -186,13 +186,13 @@
             android:background="@color/tapestryrangesgrey"/>
         <View
             android:id="@+id/leftRange"
-            android:layout_height="fill_parent"
+            android:layout_height="0dp"
             android:layout_width="2dp"
             android:layout_alignParentLeft="true"
             android:background="@color/black"/>      
         <View
             android:id="@+id/rightRange"
-            android:layout_height="fill_parent"
+            android:layout_height="0dp"
             android:layout_width="2dp"
             android:layout_alignParentRight="true"
             android:background="@color/black"/>
