@@ -20,6 +20,7 @@ import android.view.View.OnTouchListener;
 import android.view.View.OnLayoutChangeListener;
 import android.widget.TextView;
 
+import com.androidplot.util.ValPixConverter;
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
 import com.androidplot.xy.SimpleXYSeries;
@@ -37,7 +38,10 @@ public class GraphModel implements OnTouchListener{
     public XYPlot bottomPlot;
     public SimpleXYSeries bottomPlotSeries;
     private LineAndPointFormatter bottomSeriesFormat;
-    private TextView selectedPointView;
+    private TextView selectedPointText;
+    private View selectedPoint;
+    private PointF selectedPointF;
+    
     
     public GraphModel(Activity activity, final RangesViewModel rangesViewModel){
         this.activity = activity;
@@ -65,13 +69,14 @@ public class GraphModel implements OnTouchListener{
         plot.setRangeStepValue(5);
         makeUpChart(plot);
         topSeriesFormat = new LineAndPointFormatter(Color.rgb(0, 0, 255), 
-                Color.rgb(0, 0, 255),  Color.argb(25, 0, 0, 255), null); 
+                Color.TRANSPARENT,  Color.argb(25, 0, 0, 255), null); 
         topSeriesFormat.getLinePaint().setStrokeWidth(1);
         plotSeries = new SimpleXYSeries(new LinkedList<Long>(), new LinkedList<Long>(), null);                           
         plot.addSeries(plotSeries, topSeriesFormat);
         plot.setOnTouchListener(this);
         
-        selectedPointView = (TextView) activity.findViewById(R.id.selectedPointView);
+        selectedPointText = (TextView) activity.findViewById(R.id.selectedPointView);
+        selectedPoint = activity.findViewById(R.id.selectedPoint);
     }
     
     private void makeUpChart(final XYPlot plot){
@@ -94,18 +99,18 @@ public class GraphModel implements OnTouchListener{
         plot.setDomainStepValue(r);
         plot.setDomainValueFormat(new Format() {
 
-            private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MMM-dd HH-mm-ss", Locale.getDefault());
+            private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss", Locale.getDefault());
             
             @Override
             public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
                 if (plot.getCalculatedMaxX().floatValue() - plot.getCalculatedMinX().floatValue() < 60*60*24){
-                    dateFormat =  new SimpleDateFormat("yyyy-MMM-dd HH-mm", Locale.getDefault());
+                    dateFormat =  new SimpleDateFormat("yyyy-MMM-dd HH:mm", Locale.getDefault());
                 } else if (plot.getCalculatedMaxX().floatValue() - plot.getCalculatedMinX().floatValue() < 60*60*24*30){
                     dateFormat =  new SimpleDateFormat("yyyy-MMM-dd", Locale.getDefault());
                 } else {
                     dateFormat =  new SimpleDateFormat("yyyy-MMM", Locale.getDefault());
                 }
-                long timestamp = (((Number) obj).longValue() + 1389000000) * 1000;
+                long timestamp = seriesArgumentConvert(((Number) obj).longValue());
                 Date date = new Date(timestamp);
                 return dateFormat.format(date, toAppendTo, pos);
             }
@@ -172,6 +177,7 @@ public class GraphModel implements OnTouchListener{
     float lastScrolling;
     float distBetweenFingers;
     float lastZooming;
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss", Locale.getDefault());
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -182,7 +188,27 @@ public class GraphModel implements OnTouchListener{
         case MotionEvent.ACTION_DOWN: // Start gesture
             firstFinger = new PointF(event.getX(), event.getY());
             mode = ONE_FINGER_DRAG;
-            selectedPointView.setText("NCI: " + event.getX() + " " + event.getY());
+            setMinMax(); 
+            float valYInGrig = event.getY() - plot.getGraphWidget().getGridRect().top;
+            float valXInGrig = event.getX() - plot.getGraphWidget().getGridRect().left;
+            if (valYInGrig < 0 || valXInGrig < 0){
+                break;
+            }
+            double yVal = ValPixConverter.pixToVal(valYInGrig, maxXY.y, minXY.y,
+                    plot.getGraphWidget().getGridRect().height(), false);
+            double xVal = ValPixConverter.pixToVal(valXInGrig, minXY.x, maxXY.x, 
+                    plot.getGraphWidget().getGridRect().width(), false);
+            for (int i = 1; i<plotSeries.size(); i++){
+                double curV = plotSeries.getX(i).floatValue();
+                if (xVal < curV){
+                    xVal = curV;
+                    yVal = plotSeries.getY(i).longValue();
+                    selectedPointF = new PointF((float)xVal, (float)yVal);
+                    selectedPointText.setText("NCI: " + (int)yVal + "  " +  dateFormat.format(new Date(seriesArgumentConvert(xVal))));
+                    drawPoint();
+                    break;
+                }
+            }
             break;
         case MotionEvent.ACTION_POINTER_DOWN: // second finger
             distBetweenFingers = spacing(event);
@@ -214,6 +240,32 @@ public class GraphModel implements OnTouchListener{
     
     }
     
+    private void drawPoint(){
+        if (null == selectedPointF){
+            return;
+        }
+        float pointPosY = ValPixConverter.valToPix(selectedPointF.y, maxXY.y, minXY.y, 
+                plot.getGraphWidget().getGridRect().height(), false);
+        float pointPosX = ValPixConverter.valToPix(selectedPointF.x, minXY.x, maxXY.x, 
+                plot.getGraphWidget().getGridRect().width(), false);
+        int[] loc = new int[2];
+        plot.getLocationOnScreen(loc);
+        selectedPoint.setX(pointPosX + loc[0] + plot.getGraphWidget().getGridRect().left - 3);
+        selectedPoint.setY(pointPosY + loc[1] + plot.getGraphWidget().getGridRect().top - 3);
+        selectedPoint.setVisibility(View.VISIBLE);
+        selectedPoint.invalidate();
+    }
+    
+    private void setMinMax(){
+        plot.calculateMinMaxVals();
+        minXY = new PointF(plot.getCalculatedMinX().floatValue(), plot.getCalculatedMinY().floatValue());
+        maxXY = new PointF(plot.getCalculatedMaxX().floatValue(), plot.getCalculatedMaxY().floatValue()); 
+    }
+    
+    private long seriesArgumentConvert(double argument){
+        return (long)(argument + 1389000000) * 1000;
+    }
+    
     public long getCurTimeRange(){
         return System.currentTimeMillis()/1000 - 1389000000;
     }
@@ -221,6 +273,8 @@ public class GraphModel implements OnTouchListener{
     private void redrawChart(){
         plot.setDomainBoundaries(minXY.x, maxXY.x, BoundaryMode.FIXED);
         rangesViewModel.redrawRanges(minXY.x, maxXY.x);
+        setMinMax();
+        drawPoint();
         plot.redraw();
     }
     
@@ -264,12 +318,15 @@ public class GraphModel implements OnTouchListener{
         minXY.x = newMinX;
         maxXY.x = newMaxX;
         plot.setDomainBoundaries(newMinX, newMaxX, BoundaryMode.FIXED);
+        drawPoint();
         plot.redraw();
     }
     
     boolean reseted = true;
     public void clearData(){
         reseted = true;
+        selectedPoint.setVisibility(View.INVISIBLE);
+        selectedPointText.setText("");
         plot.removeSeries(plotSeries);
         plot.clear();
         plotSeries = new SimpleXYSeries(new LinkedList<Long>(), new LinkedList<Long>(), null);   

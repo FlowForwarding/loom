@@ -153,7 +153,10 @@
     <TextView
         android:id="@+id/selectedPointView"
         android:layout_width="fill_parent"
-        android:layout_height="15dp"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="@dimen/selected_point_font"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:gravity="right|center"/>    
     
     <com.androidplot.xy.XYPlot
@@ -162,7 +165,8 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             androidPlot.domainLabelWidget.labelPaint.textSize="@dimen/domain_label_font_size"
-            androidPlot.rangeLabelWidget.labelPaint.textSize="@dimen/range_label_font_size"/>  
+            androidPlot.rangeLabelWidget.labelPaint.textSize="@dimen/range_label_font_size">   
+    </com.androidplot.xy.XYPlot>         
 	      
     <RelativeLayout
         android:id="@+id/rangesView"
@@ -248,5 +252,13 @@
 	<TextView
         android:id="@+id/hintView"
         style="@style/hintView"/>
+	
+	<View
+	    android:id="@+id/selectedPoint"
+	    android:layout_width="6dp"
+	    android:layout_height="6dp"
+	    android:visibility="invisible"
+	    android:background="@color/tapestrygreen">
+	</View> 
 
 </RelativeLayout>
