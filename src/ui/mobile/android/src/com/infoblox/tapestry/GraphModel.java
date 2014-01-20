@@ -326,6 +326,7 @@ public class GraphModel implements OnTouchListener{
     boolean reseted = true;
     public void clearData(){
         reseted = true;
+        selectedPointF = null;
         selectedPoint.setVisibility(View.INVISIBLE);
         selectedPointText.setText("");
         plot.removeSeries(plotSeries);

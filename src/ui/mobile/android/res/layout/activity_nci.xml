@@ -91,6 +91,7 @@
     <LinearLayout 
 	    android:id="@+id/zoomLinksArea"
 	    android:layout_below="@id/indexesarea"
+	    android:layout_marginTop="@dimen/activity_vertical_margin"
 	    android:layout_height="wrap_content"
         android:layout_width="fill_parent">
         
@@ -154,6 +155,7 @@
         android:id="@+id/selectedPointView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:textStyle="bold"
         android:textSize="@dimen/selected_point_font"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
