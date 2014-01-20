@@ -57,9 +57,9 @@ public class RangesViewModel implements OnTouchListener{
                     rightRange.setY(rangeY);
                     rightRange.setX(leftIndent + graphWidth);
                     rightRange.invalidate();  
-                    if (leftRangeVal == -1){
+                   // if (leftRangeVal == -1){
                         setDefaultRanges();
-                    }
+                   // }
                 }
             }); 
         }
@@ -90,7 +90,7 @@ public class RangesViewModel implements OnTouchListener{
         maxXVal = getCurTimeRange();
         leftRangeVal = maxXVal - (maxXVal - minXVal)/10;
         rightRangeVal = maxXVal;
-        if (leftRangeVal > graphModel.bottomPlotSeries.getX(graphModel.bottomPlotSeries.size()-1).floatValue()){
+        if (graphModel.bottomPlotSeries.size() > 0 && leftRangeVal > graphModel.bottomPlotSeries.getX(graphModel.bottomPlotSeries.size()-1).floatValue()){
             float maxInSeries = graphModel.bottomPlotSeries.getX(graphModel.bottomPlotSeries.size()-1).floatValue();
             leftRangeVal = maxInSeries - (maxXVal - minXVal)/10;
             if (leftRangeVal < minXVal){

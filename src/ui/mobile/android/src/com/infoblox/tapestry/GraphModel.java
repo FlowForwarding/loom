@@ -40,12 +40,11 @@ public class GraphModel implements OnTouchListener{
     private TextView selectedPointText;
     private View selectedPoint;
     private PointF selectedPointF;
-    
-    
+    int topOffset = 0;
+
     public GraphModel(NCIActivity activity, final RangesViewModel rangesViewModel){
         this.activity = activity;
         this.rangesViewModel = rangesViewModel;
-        
         bottomPlot = (XYPlot) activity.findViewById(R.id.bottomXYPlot);
         bottomPlot.setRangeStepValue(1);
         makeUpChart(bottomPlot);
@@ -76,6 +75,15 @@ public class GraphModel implements OnTouchListener{
         
         selectedPointText = (TextView) activity.findViewById(R.id.selectedPointView);
         selectedPoint = activity.findViewById(R.id.selectedPoint);
+        
+        if (null != activity.getActionBar()) {
+            int resourceId = activity.getResources().getIdentifier(
+                    "status_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                topOffset = activity.getResources().getDimensionPixelSize(
+                        resourceId);
+            }
+        }
     }
     
     private void makeUpChart(final XYPlot plot){
@@ -244,18 +252,18 @@ public class GraphModel implements OnTouchListener{
         if (null == selectedPointF){
             return;
         }
-        float pointPosY = ValPixConverter.valToPix(selectedPointF.y, maxXY.y, minXY.y, 
-                plot.getGraphWidget().getGridRect().height(), false);
+        float pointPosY = ValPixConverter.valToPix(selectedPointF.y, minXY.y, maxXY.y, 
+                plot.getGraphWidget().getGridRect().height(), true);
         float pointPosX = ValPixConverter.valToPix(selectedPointF.x, minXY.x, maxXY.x, 
                 plot.getGraphWidget().getGridRect().width(), false);
         int[] loc = new int[2];
-        plot.getLocationOnScreen(loc);
+        plot.getLocationInWindow(loc);
         selectedPoint.setX(pointPosX + loc[0] + plot.getGraphWidget().getGridRect().left - 3);
-        selectedPoint.setY(pointPosY + loc[1] + plot.getGraphWidget().getGridRect().top - 3);
+        selectedPoint.setY(pointPosY + loc[1] + plot.getGraphWidget().getGridRect().top - topOffset - 3);
         selectedPoint.setVisibility(View.VISIBLE);
         selectedPoint.invalidate();
     }
-    
+
     private void setMinMax(){
         plot.calculateMinMaxVals();
         minXY = new PointF(plot.getCalculatedMinX().floatValue(), plot.getCalculatedMinY().floatValue());
@@ -315,6 +323,9 @@ public class GraphModel implements OnTouchListener{
     }
     
     public void setNewRanges(float newMinX, float newMaxX){
+        if (null == minXY){
+            return;
+        }
         minXY.x = newMinX;
         maxXY.x = newMaxX;
         plot.setDomainBoundaries(newMinX, newMaxX, BoundaryMode.FIXED);
