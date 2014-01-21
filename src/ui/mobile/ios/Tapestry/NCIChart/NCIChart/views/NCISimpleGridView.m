@@ -123,7 +123,7 @@
             UIBezierPath *path;
             if (paths.count < (i + 1) ){
                 path = [UIBezierPath bezierPath];
-                [path setLineWidth: self.graph.chart.nciLineWidth];
+                [path setLineWidth: [self lineWidth:i]];
                 [paths addObject:path];
             } else {
                 path = paths[i];
@@ -172,8 +172,20 @@
     [self addSubview:pointView];
 }
 
+- (float )lineWidth:(int) i{
+    float returnWidth;
+    if (self.graph.chart.nciLineWidths &&
+        (self.graph.chart.nciLineWidths.count > i) &&
+        (![self.graph.chart.nciLineWidths[i] isKindOfClass:[NSNull class]])){
+        returnWidth = [self.graph.chart.nciLineWidths[i] floatValue];
+    } else {
+        returnWidth = [self.graph.chart.nciLineWidths[0] floatValue];
+    }
+    return returnWidth;
+}
 
--(UIColor *)getColor:(int) i{
+
+- (UIColor *)getColor:(int) i{
     if (self.graph.chart.nciLineColors.count > i){
        return self.graph.chart.nciLineColors[i];
     } else {

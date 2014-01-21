@@ -12,7 +12,7 @@
 
 NSString *const nciIsFill = @"nciIsFill";
 NSString *const nciLineColors = @"nciLineColors";
-NSString *const nciLineWidth = @"nciLineWidth";
+NSString *const nciLineWidths = @"nciLineWidths";
 
 NSString *const nciHasSelection = @"nciHasSelection";
 NSString *const nciSelPointColors = @"nciSelPointColors";

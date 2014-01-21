@@ -29,7 +29,7 @@
         _nciIsFill = YES;
         _topBottomGridSpace = 10;
         _nciGridLeftMargin = 50;
-        _nciLineWidth = 0.3;
+        _nciLineWidths = @[@0.3];
         _nciLineColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
         _nciSelPointColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
         selectedPointArgument = NAN;
@@ -62,7 +62,7 @@
     return self;
 }
 
--(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts{
+- (id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts{
     self = [self initWithFrame:frame];
     if (self){
         
@@ -72,14 +72,18 @@
         for (NSString* key in @[nciLineColors, nciXLabelsFont, nciYLabelsFont,
                                 nciSelPointFont, nciBoundaryVertical, nciBoundaryHorizontal,
                                 nciGridVertical, nciGridHorizontal, nciGridColor,
-                                nciXLabelsColor, nciYLabelsColor, nciLeftRangeImageName, nciRightRangeImageName]){
+                                nciXLabelsColor, nciYLabelsColor, nciLeftRangeImageName, nciRightRangeImageName,
+                                nciLineWidths, nciSelPointColors, nciSelPointSizes, nciSelPointImages]){
             if ([opts objectForKey:key]){
-                [self setValue:[opts objectForKey:key] forKey:key];
+                id object = [opts objectForKey:key];
+                if ([object isKindOfClass:[NSArray class]]){
+                    [self setValue:[NSMutableArray arrayWithArray:object] forKey:key];
+                } else {
+                    [self setValue:object forKey:key];
+                }
             }
         }
-        
-        if ([opts objectForKey:nciLineWidth])
-            _nciLineWidth = [[opts objectForKey:nciLineWidth] floatValue];
+    
         if ([opts objectForKey:nciXLabelsDistance])
             _nciXLabelsDistance = [[opts objectForKey:nciXLabelsDistance] floatValue];
         if ([opts objectForKey:nciYLabelsDistance])
@@ -89,18 +93,7 @@
         
         if ([opts objectForKey:nciHasSelection])
             _nciHasSelection = [[opts objectForKey:nciHasSelection] boolValue];
-        if ([opts objectForKey:nciSelPointColors]){
-            _nciSelPointColors = [opts objectForKey:nciSelPointColors];
-            _nciHasSelection = YES;
-        }
-        if ([opts objectForKey:nciSelPointSizes]){
-            _nciSelPointSizes = [opts objectForKey:nciSelPointSizes];
-            _nciHasSelection = YES;
-        }
-        if ([opts objectForKey:nciSelPointImages]){
-            _nciSelPointImages = [opts objectForKey:nciSelPointImages];
-            _nciHasSelection = YES;
-        }
+
         if ([opts objectForKey:nciSelPointTextRenderer]){
             _nciSelPointTextRenderer = [opts objectForKey:nciSelPointTextRenderer];
         }
@@ -110,7 +103,7 @@
             _nciUseDateFormatter = NO;
         }
         if ([opts objectForKey:nciShowPoints]){
-            _nciShowPoints = [opts objectForKey:nciShowPoints];
+            _nciShowPoints = [[opts objectForKey:nciShowPoints] boolValue];
         } else {
             _nciShowPoints = NO;
         }
@@ -125,7 +118,6 @@
         if ([opts objectForKey:nciTapGridAction]){
             _nciTapGridAction = [opts objectForKey:nciTapGridAction];
         }
-
     }
     return self;
 }

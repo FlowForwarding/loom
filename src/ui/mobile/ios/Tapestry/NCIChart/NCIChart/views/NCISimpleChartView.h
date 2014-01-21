@@ -22,7 +22,7 @@
 @property (nonatomic)bool nciShowPoints;
 @property (nonatomic)bool hasYLabels;
 @property (nonatomic)bool nciIsFill;
-@property (nonatomic)float nciLineWidth;
+@property (nonatomic)NSArray* nciLineWidths;
 @property (nonatomic, strong)NSMutableArray* nciLineColors;
 
 @property (nonatomic)bool nciHasSelection;

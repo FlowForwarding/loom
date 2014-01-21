@@ -12,7 +12,7 @@
 
 extern NSString *const nciIsFill;
 extern NSString *const nciLineColors;
-extern NSString *const nciLineWidth;
+extern NSString *const nciLineWidths;
 
 extern NSString *const nciHasSelection;
 extern NSString *const nciSelPointColors;
