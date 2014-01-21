@@ -51,6 +51,7 @@ public class NCIActivity extends Activity{
         fakeBg = findViewById(R.id.fakebg);
         
         infoList = (ListView) findViewById(R.id.infolist);
+        infoList.bringToFront();
         final Resources res = getResources();
         
         String[] labels = {res.getString(R.string.about_nci),

@@ -17,7 +17,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.View.OnLayoutChangeListener;
-import android.view.Window;
 import android.widget.TextView;
 
 import com.androidplot.util.ValPixConverter;
@@ -94,7 +93,7 @@ public class GraphModel implements OnTouchListener{
         plot.setBorderStyle(XYPlot.BorderStyle.NONE, null, null);
         
         float w = activity.getWindowManager().getDefaultDisplay().getWidth();
-        float r = w/150;
+        float r = w/250;
         plot.setDomainStepValue(r);
         plot.setDomainValueFormat(new Format() {
 
@@ -125,6 +124,8 @@ public class GraphModel implements OnTouchListener{
         plot.getGraphWidget().getRangeOriginLabelPaint().setColor(Color.BLACK);
         plot.getGraphWidget().getDomainLabelPaint().setColor(Color.BLACK);
         plot.getGraphWidget().getRangeLabelPaint().setColor(Color.BLACK);
+        plot.getGraphWidget().setDomainLabelWidth(30);
+        plot.getGraphWidget().setRangeLabelWidth(80);
     }
     
     public void showDataForPeriod(long period){

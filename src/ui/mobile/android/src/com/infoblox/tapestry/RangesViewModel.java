@@ -1,10 +1,10 @@
 package com.infoblox.tapestry;
 
 import android.graphics.PointF;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.RelativeLayout;
 
 public class RangesViewModel implements OnTouchListener{
@@ -45,24 +45,25 @@ public class RangesViewModel implements OnTouchListener{
             rangeY = (int) graphModel.bottomPlot.getGraphWidget().getGridRect().top;
             activity.runOnUiThread(new Runnable(){
                 public void run() {
-                    leftAmputation.setX(leftIndent);
-                    leftAmputation.setY(rangeY);
-                    rightAmputation.setY(rangeY);
-                    leftRange.setY(rangeY);
-                    leftRange.setX(leftIndent);
-                    leftRange.getLayoutParams().height = rangeHeight;
-                    leftRange.invalidate();
-                    
-                    rightRange.getLayoutParams().height = rangeHeight;
-                    rightRange.setY(rangeY);
-                    rightRange.setX(leftIndent + graphWidth);
-                    rightRange.invalidate();  
+                    setupRanges();
                    // if (leftRangeVal == -1){
                         setDefaultRanges();
                    // }
                 }
             }); 
         }
+    }
+    
+    private void setupRanges(){
+        leftAmputation.setX(leftIndent);
+        leftAmputation.setY(rangeY);
+        rightAmputation.setY(rangeY);
+        leftRange.setY(rangeY);
+        leftRange.setX(leftIndent);
+        leftRange.setLayoutParams(new LayoutParams(leftRange.getWidth(), rangeHeight));
+        rightRange.getLayoutParams().height = rangeHeight;
+        rightRange.setY(rangeY);
+        rightRange.setX(leftIndent + graphWidth);
     }
     
     float leftRangeVal;
@@ -134,7 +135,7 @@ public class RangesViewModel implements OnTouchListener{
         if (-1 != graphWidth){
             activity.runOnUiThread(new Runnable(){
                 public void run() {
-                    leftRange.setX(leftIndent +  (newMinTopX - minXVal)*graphWidth/(maxXVal - minXVal));
+                    leftRange.setX(leftIndent +  (leftRangeVal - minXVal)*graphWidth/(maxXVal - minXVal));
                     rightRange.setX(leftIndent + (newMaxTopX - minXVal)*graphWidth/(maxXVal - minXVal));
                     graphModel.setNewRanges(leftRangeVal, rightRangeVal);
                     redrawAmputations();

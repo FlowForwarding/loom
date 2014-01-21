@@ -45,5 +45,8 @@
     <dimen name="popup_yoffset">10dp</dimen>
     
     <dimen name="selected_point_font">12sp</dimen>
+    
+    <dimen name="graph_label_font_size">10sp</dimen>
+    <dimen name="graph_domain_label_font_size">8sp</dimen>
 
 </resources>
