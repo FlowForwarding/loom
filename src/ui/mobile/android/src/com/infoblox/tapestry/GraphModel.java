@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.View.OnLayoutChangeListener;
+import android.view.Window;
 import android.widget.TextView;
 
 import com.androidplot.util.ValPixConverter;
@@ -40,7 +41,6 @@ public class GraphModel implements OnTouchListener{
     private TextView selectedPointText;
     private View selectedPoint;
     private PointF selectedPointF;
-    int topOffset = 0;
 
     public GraphModel(NCIActivity activity, final RangesViewModel rangesViewModel){
         this.activity = activity;
@@ -74,16 +74,8 @@ public class GraphModel implements OnTouchListener{
         plot.setOnTouchListener(this);
         
         selectedPointText = (TextView) activity.findViewById(R.id.selectedPointView);
-        selectedPoint = activity.findViewById(R.id.selectedPoint);
-        
-        if (null != activity.getActionBar()) {
-            int resourceId = activity.getResources().getIdentifier(
-                    "status_bar_height", "dimen", "android");
-            if (resourceId > 0) {
-                topOffset = activity.getResources().getDimensionPixelSize(
-                        resourceId);
-            }
-        }
+        selectedPoint = activity.findViewById(R.id.selectedPoint);  
+  
     }
     
     private void makeUpChart(final XYPlot plot){
@@ -256,6 +248,10 @@ public class GraphModel implements OnTouchListener{
                 plot.getGraphWidget().getGridRect().height(), true);
         float pointPosX = ValPixConverter.valToPix(selectedPointF.x, minXY.x, maxXY.x, 
                 plot.getGraphWidget().getGridRect().width(), false);
+        
+        int[] locTop = new int[2];
+        activity.findViewById(R.id.nci_layout).getLocationInWindow(locTop);
+        int topOffset= locTop[1];
         int[] loc = new int[2];
         plot.getLocationInWindow(loc);
         selectedPoint.setX(pointPosX + loc[0] + plot.getGraphWidget().getGridRect().left - 3);

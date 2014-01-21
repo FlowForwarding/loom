@@ -230,6 +230,12 @@
         android:onClick="connectTapestry"
         android:src="@drawable/presstoconnect"/>
     
+    <View
+        android:id="@+id/fakebg"
+        android:onClick="hideAll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"/>
+    
     <ListView 
         android:id="@+id/urlslist"
         android:layout_below="@id/serverurlarea"

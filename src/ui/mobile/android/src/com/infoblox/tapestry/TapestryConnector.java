@@ -245,7 +245,7 @@ public class TapestryConnector {
         int trendMiddle = 6;
         int trendStepCounter = 0;
         int numberOfPoints = 100;
-        long timePeriod = 1000L*60*60*24*10;
+        long timePeriod = 1000L*60*60*24*2;
         parseResponse("{\"start_time\":\"" + 
                 dateFormat.format(new Date(System.currentTimeMillis() - timePeriod)).replace(" ", "T") + "Z\"}");
         

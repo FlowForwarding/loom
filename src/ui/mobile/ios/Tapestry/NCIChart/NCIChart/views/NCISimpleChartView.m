@@ -88,7 +88,7 @@
             _nciGridLeftMargin = [[opts objectForKey:nciGridLeftMargin] floatValue];
         
         if ([opts objectForKey:nciHasSelection])
-            _nciHasSelection = [[opts objectForKey:nciLineWidth] boolValue];
+            _nciHasSelection = [[opts objectForKey:nciHasSelection] boolValue];
         if ([opts objectForKey:nciSelPointColors]){
             _nciSelPointColors = [opts objectForKey:nciSelPointColors];
             _nciHasSelection = YES;
@@ -103,8 +103,6 @@
         }
         if ([opts objectForKey:nciSelPointTextRenderer]){
             _nciSelPointTextRenderer = [opts objectForKey:nciSelPointTextRenderer];
-        } else {
-            _nciHasSelection = NO;
         }
         if ([opts objectForKey:nciUseDateFormatter]){
             _nciUseDateFormatter = [opts objectForKey:nciUseDateFormatter];

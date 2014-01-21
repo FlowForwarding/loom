@@ -7,17 +7,14 @@ import org.json.JSONException;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
-import android.view.View.OnTouchListener;
+import android.widget.RelativeLayout.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.app.Activity;
 import android.content.Context;
@@ -31,6 +28,8 @@ public class NCIActivity extends Activity{
     private ArrayList<String> tapestryUrls;
     private ListView urlslist;
     private TextView helpView;
+    private ListView infoList;
+    private View fakeBg;
     private TapestryConnector tapestryConnector;
     
     private RangesViewModel rangesViewModel;
@@ -46,9 +45,12 @@ public class NCIActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nci);
         
-        helpView = (TextView) findViewById(R.id.hintView);
+        findViewById(R.id.serverurlarea).bringToFront();
         
-        final ListView infoList = (ListView) findViewById(R.id.infolist);
+        helpView = (TextView) findViewById(R.id.hintView);
+        fakeBg = findViewById(R.id.fakebg);
+        
+        infoList = (ListView) findViewById(R.id.infolist);
         final Resources res = getResources();
         
         String[] labels = {res.getString(R.string.about_nci),
@@ -66,6 +68,7 @@ public class NCIActivity extends Activity{
             @Override
             public void onItemClick(AdapterView<?> arg0, View view, int position,
                     long id) {
+               toggleInfoMenu(null);
                String url = helpUrls[position];
                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                startActivity(browserIntent);
@@ -86,7 +89,9 @@ public class NCIActivity extends Activity{
                     infoList.setVisibility(View.INVISIBLE);
                     goaction.setVisibility(View.VISIBLE);
                     helpView.setVisibility(View.GONE);
+                    initMask();
                 } else {
+                    hideMask();
                     urlslist.setVisibility(View.GONE);
                     clearaction.setVisibility(View.INVISIBLE);
                     goaction.setVisibility(View.INVISIBLE);
@@ -100,23 +105,7 @@ public class NCIActivity extends Activity{
                 }      
             }   
         });
-        
-        RelativeLayout nci_layout = (RelativeLayout)findViewById(R.id.nci_layout);
-        nci_layout.setOnTouchListener( new OnTouchListener(){
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    infoList.setVisibility(View.INVISIBLE);
-                    tapesty_url.clearFocus();
-                    helpView.setVisibility(View.GONE);
-                    InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE); 
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                }
-                return false;
-            }
-            
-        });
         String[] urls = {res.getString(R.string.demo),
                 res.getString(R.string.nciexamplecom28080clientsockyaws)};
         SharedPreferences urlsPrefs = getSharedPreferences(PREFS_NAME, 0);
@@ -182,11 +171,12 @@ public class NCIActivity extends Activity{
     }
     
     public void toggleInfoMenu(View v) {
-        View list = findViewById(R.id.infolist);
-        if (list.getVisibility() == View.VISIBLE){
-            list.setVisibility(View.INVISIBLE);
+        if (infoList.getVisibility() == View.VISIBLE){
+            hideMask();
+            infoList.setVisibility(View.INVISIBLE);
         } else {
-            list.setVisibility(View.VISIBLE);
+            initMask();
+            infoList.setVisibility(View.VISIBLE);
         }
     }
     
@@ -271,12 +261,30 @@ public class NCIActivity extends Activity{
         helpView.setText(R.string.successfulDNSQueryResponsesPerSecond);
     }
     
+    public void hideAll(View v){
+        hideMask();
+        infoList.setVisibility(View.INVISIBLE);
+        tapesty_url.clearFocus();
+        helpView.setVisibility(View.GONE);
+        InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE); 
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+    }
+    
     private void setupHelpView(View v){
+        initMask();
         int[] loc = new int[2];
         v.getLocationOnScreen(loc);
         helpView.setX(loc[0] + getResources().getDimension(R.dimen.popup_xoffset));
         helpView.setY(loc[1] + getResources().getDimension(R.dimen.popup_yoffset)); 
         helpView.setVisibility(View.VISIBLE);
+    }
+    
+    private void initMask(){
+        fakeBg.setLayoutParams(new LayoutParams(getWindow().getDecorView().getWidth(), getWindow().getDecorView().getHeight()));
+    }
+    
+    private void hideMask(){
+        fakeBg.setLayoutParams(new LayoutParams(0, 0));
     }
   
 }
