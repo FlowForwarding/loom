@@ -186,14 +186,17 @@
 
 
 - (UIColor *)getColor:(int) i{
-    if (self.graph.chart.nciLineColors.count > i){
+    if (self.graph.chart.nciLineColors.count > i && ![self.graph.chart.nciLineColors[i] isKindOfClass:[NSNull class]]){
        return self.graph.chart.nciLineColors[i];
     } else {
-        UIColor *newColor = [UIColor colorWithRed:(arc4random() % 74)/255.0f
-                                            green:(arc4random() % 74)/255.0f
-                                             blue:(arc4random() % 74)/255.0f alpha:1.0];
-        [self.graph.chart.nciLineColors addObject:newColor];
-        [self.graph.chart.nciSelPointColors addObject:newColor];
+        UIColor *newColor = [UIColor colorWithRed:(arc4random() % 255)/255.0f
+                                            green:(arc4random() % 255)/255.0f
+                                             blue:(arc4random() % 255)/255.0f alpha:1.0];
+        if (self.graph.chart.nciLineColors.count > i){
+             [self.graph.chart.nciLineColors replaceObjectAtIndex:i withObject:newColor];
+        } else {
+            [self.graph.chart.nciLineColors addObject:newColor];
+        }
         return newColor;
     }
 }
