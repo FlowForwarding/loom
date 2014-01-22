@@ -93,7 +93,7 @@ Customization options
     for (int ind = 0; ind < numOfPoints; ind ++){
         //to use default date formatter for Y axis, provide arguments as  timeIntervalSince1970
         //and set nciXLabelRenderer option to YES
-        [chart addPoint:[[[NSDate date] dateByAddingTimeInterval:- step *ind] timeIntervalSince1970] val:@[@(arc4random() % 5),
+        [chart addPoint:[[NSDate dateWithTimeIntervalSinceNow: -dataPeriod + step *ind] timeIntervalSince1970] val:@[@(arc4random() % 5),
                                   @(arc4random() % 5)]];
     }            
 
