@@ -135,7 +135,7 @@
     if (num <[_nciSelPointSizes count] && ![_nciSelPointSizes[num] isKindOfClass:[[NSNull null] class]]){
             curSize = [_nciSelPointSizes[num] floatValue];
     }
-    if (_nciSelPointImages && _nciSelPointImages.count >= (num+1)){
+    if (_nciSelPointImages && _nciSelPointImages.count >= (num+1) && ![_nciSelPointImages[num] isKindOfClass:[NSNull class]]){
         selectedPoint = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, curSize, curSize)];
         ((UIImageView *)selectedPoint).image = [UIImage imageNamed:_nciSelPointImages[num]];
     } else {
@@ -211,22 +211,23 @@
                 UIView *selectedPoint;
                 if (selectedPoints.count < (j+1)){
                     selectedPoint = [self createSelPoint:j];
-                    if ((!_nciSelPointImages ||
-                         _nciSelPointImages.count <= j ||
-                         [_nciSelPointImages[j]isKindOfClass:[NSNull class]]) &&
-                        (_nciSelPointColors.count > j && ![_nciSelPointColors[j] isKindOfClass:[NSNull class]])){
-                        selectedPoint.backgroundColor =  _nciSelPointColors[j];
-                    } else {
-                        UIColor *newColor = [UIColor colorWithRed:(arc4random() % 255)/255.0f
-                                                            green:(arc4random() % 255)/255.0f
-                                                             blue:(arc4random() % 255)/255.0f alpha:1.0];
-                        selectedPoint.backgroundColor =  newColor;
-                        if (_nciSelPointColors.count <= j){
-                            [_nciSelPointColors addObject:newColor];
+                    if (!_nciSelPointImages ||
+                        _nciSelPointImages.count <= j ||
+                        [_nciSelPointImages[j]isKindOfClass:[NSNull class]]){
+                        if(_nciSelPointColors.count > j && ![_nciSelPointColors[j] isKindOfClass:[NSNull class]]){
+                            selectedPoint.backgroundColor =  _nciSelPointColors[j];
                         } else {
-                            [_nciSelPointColors replaceObjectAtIndex:j withObject:newColor];
+                            UIColor *newColor = [UIColor colorWithRed:(arc4random() % 255)/255.0f
+                                                                green:(arc4random() % 255)/255.0f
+                                                                 blue:(arc4random() % 255)/255.0f alpha:1.0];
+                            selectedPoint.backgroundColor =  newColor;
+                            if (_nciSelPointColors.count <= j){
+                                [_nciSelPointColors addObject:newColor];
+                            } else {
+                                [_nciSelPointColors replaceObjectAtIndex:j withObject:newColor];
+                            }
                         }
-                    }
+                    }  
                 } else {
                     selectedPoint = selectedPoints[j];
                 }
