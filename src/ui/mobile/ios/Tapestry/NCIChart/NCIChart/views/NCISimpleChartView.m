@@ -23,49 +23,55 @@
 {
     self = [super initWithFrame:(CGRect)frame];
     if (self) {
-        _nciGridTopMargin = 0;
-        _hasYLabels = YES;
-        _nciIsFill = YES;
-        _topBottomGridSpace = 10;
-        _nciGridLeftMargin = 50;
-        _nciLineWidths = @[@0.3];
-        _nciLineColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
-        _nciSelPointColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
-        selectedPointArgument = NAN;
-        
-        _nciXLabelsColor = [UIColor blackColor];
-        _nciYLabelsColor = [UIColor blackColor];
-        _nciSelPointFontColor = [UIColor blackColor];
-        
-        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
-            _nciXLabelsFont = [UIFont italicSystemFontOfSize:14];
-            _nciYLabelsFont = [UIFont systemFontOfSize:14];
-            _nciSelPointFont = [UIFont boldSystemFontOfSize:18];
-            _nciXLabelsDistance = 200;
-            _nciYLabelsDistance = 80;
-            _nciSelPointSizes = @[@8];
-            _nciGridBottomMargin = 40;
-        } else {
-            _nciXLabelsFont = [UIFont italicSystemFontOfSize:10];
-            _nciYLabelsFont = [UIFont systemFontOfSize:10];
-            _nciSelPointFont = [UIFont boldSystemFontOfSize:12];
-            _nciXLabelsDistance = 100;
-            _nciYLabelsDistance = 40;
-            _nciSelPointSizes = @[@4];
-            _nciGridBottomMargin = 20;
-        }
-        
-        dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm:ss"];
-        self.backgroundColor = [UIColor clearColor];
-        self.chartData = [[NSMutableArray alloc] init];
+        [self defaultSetup];
+        [self addSubviews];
     }
     return self;
 }
 
+- (void)defaultSetup{
+    _nciGridTopMargin = 0;
+    _hasYLabels = YES;
+    _nciIsFill = YES;
+    _topBottomGridSpace = 10;
+    _nciGridLeftMargin = 50;
+    _nciLineWidths = @[@0.3];
+    _nciLineColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
+    _nciSelPointColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
+    selectedPointArgument = NAN;
+    
+    _nciXLabelsColor = [UIColor blackColor];
+    _nciYLabelsColor = [UIColor blackColor];
+    _nciSelPointFontColor = [UIColor blackColor];
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
+        _nciXLabelsFont = [UIFont italicSystemFontOfSize:14];
+        _nciYLabelsFont = [UIFont systemFontOfSize:14];
+        _nciSelPointFont = [UIFont boldSystemFontOfSize:18];
+        _nciXLabelsDistance = 200;
+        _nciYLabelsDistance = 80;
+        _nciSelPointSizes = @[@8];
+        _nciGridBottomMargin = 40;
+    } else {
+        _nciXLabelsFont = [UIFont italicSystemFontOfSize:10];
+        _nciYLabelsFont = [UIFont systemFontOfSize:10];
+        _nciSelPointFont = [UIFont boldSystemFontOfSize:12];
+        _nciXLabelsDistance = 100;
+        _nciYLabelsDistance = 40;
+        _nciSelPointSizes = @[@4];
+        _nciGridBottomMargin = 20;
+    }
+    
+    dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm:ss"];
+    self.backgroundColor = [UIColor clearColor];
+    self.chartData = [[NSMutableArray alloc] init];
+}
+
 - (id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts{
-    self = [self initWithFrame:frame];
+    self = [super initWithFrame:frame];
     if (self){
+        [self defaultSetup];
         if ([opts objectForKey:nciIsFill])
             _nciIsFill = [[opts objectForKey:nciIsFill] boolValue];
         
@@ -131,11 +137,9 @@
 }
 
 - (void)addSubviews{
-    _graph = [[NCISimpleGraphView alloc] initWithChart:self];
+    self.graph = [[NCISimpleGraphView alloc] initWithChart:self];
     [self addSubview:_graph];
-    if (_nciHasSelection){
-        [self setupSelection];
-    }
+    [self setupSelection];
 }
 
 -(UIView *)createSelPoint:(int) num{
@@ -158,6 +162,8 @@
 }
 
 - (void)setupSelection{
+    if (!_nciHasSelection)
+        return;
     if (_selectedLabel)
         return;
     _selectedLabel = [[UILabel alloc] initWithFrame:CGRectZero];
@@ -177,7 +183,6 @@
     if (hasSelection){
         _nciGridTopMargin = 20;
         _selectedLabel.hidden = NO;
-        [self setupSelection];
     } else {
         _nciGridTopMargin = 0;
         _selectedLabel.hidden = YES;
