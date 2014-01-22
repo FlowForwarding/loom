@@ -43,7 +43,7 @@
 @property (nonatomic, copy) NSString* (^nciYLabelRenderer)(double);
 //callbacks
 @property (nonatomic, copy) NSString* (^nciSelPointTextRenderer)(double, NSArray *);
-@property (nonatomic, copy) void (^nciTapGridAction)(double, double);
+@property (nonatomic, copy) void (^nciTapGridAction)(double, double, float, float);
 //in persentage
 @property (nonatomic)float topBottomGridSpace;
 

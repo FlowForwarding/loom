@@ -59,7 +59,6 @@
         [dateFormatter setDateFormat:@"yyyy-MMM-dd HH:mm:ss"];
         self.backgroundColor = [UIColor clearColor];
         self.chartData = [[NSMutableArray alloc] init];
-        [self addSubviews];
     }
     return self;
 }
@@ -67,7 +66,6 @@
 - (id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts{
     self = [self initWithFrame:frame];
     if (self){
-        
         if ([opts objectForKey:nciIsFill])
             _nciIsFill = [[opts objectForKey:nciIsFill] boolValue];
         
@@ -127,6 +125,7 @@
         if ([opts objectForKey:nciTapGridAction]){
             _nciTapGridAction = [opts objectForKey:nciTapGridAction];
         }
+        [self addSubviews];
     }
     return self;
 }
@@ -178,19 +177,19 @@
     if (hasSelection){
         _nciGridTopMargin = 20;
         _selectedLabel.hidden = NO;
+        [self setupSelection];
     } else {
         _nciGridTopMargin = 0;
         _selectedLabel.hidden = YES;
     }
     _nciHasSelection = hasSelection;
-    [self setupSelection];
 }
 
 - (void)gridTapped:(UITapGestureRecognizer *)recognizer{
     CGPoint location = [recognizer locationInView:self.graph.grid];
     selectedPointArgument = [self.graph getArgumentByX:location.x];
     if (self.nciTapGridAction){
-        self.nciTapGridAction([self.graph getArgumentByX:location.x], [self.graph getValByY:location.y]);
+        self.nciTapGridAction([self.graph getArgumentByX:location.x], [self.graph getValByY:location.y], location.x, location.y);
     }
     [self layoutSelectedPoint];
 }

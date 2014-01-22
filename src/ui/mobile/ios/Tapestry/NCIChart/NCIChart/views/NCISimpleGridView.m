@@ -20,20 +20,14 @@
 - (id)initWithGraph:(NCISimpleGraphView *) ncigraph{
     self = [self initWithFrame:CGRectZero];
     if (self){
-        _graph = ncigraph;
+        self.graph = ncigraph;
         pointsArray = [[NSMutableArray alloc] init];
-    }
-    return self;
-}
-
-- (id)initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self) {
         [self setBgColor];
     }
     return self;
 }
+
+
 
 - (void)setBgColor{
     if (self.graph.chart.nciGridColor){

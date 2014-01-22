@@ -29,7 +29,7 @@
 @property(nonatomic) double minXVal;
 @property(nonatomic) double maxXVal;
 
-@property (nonatomic)float yLabelShift;
+@property(nonatomic) float yLabelShift;
 
 @property(nonatomic, strong) NSDateFormatter *dateFormatter;
 

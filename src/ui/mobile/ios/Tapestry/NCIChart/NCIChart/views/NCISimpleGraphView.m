@@ -18,24 +18,6 @@
 @implementation NCISimpleGraphView
 
 
-- (id)initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self) {
-
-        _yLabelShift = 15;
-        
-
-        
-        _yAxisLabels = [[NSMutableArray alloc] init];
-        _xAxisLabels = [[NSMutableArray alloc] init];
-        self.backgroundColor = [UIColor clearColor];
-        _dateFormatter = [[NSDateFormatter alloc] init];
-        [self addSubviews];
-
-    }
-    return self;
-}
 
 - (void)addSubviews{
     self.grid = [[NCISimpleGridView alloc] initWithGraph:self];
@@ -46,6 +28,14 @@
     self = [self initWithFrame:CGRectZero];
     if (self){
         _chart = chartHolder;
+        _yLabelShift = 15;
+        
+        _yAxisLabels = [[NSMutableArray alloc] init];
+        _xAxisLabels = [[NSMutableArray alloc] init];
+        self.backgroundColor = [UIColor clearColor];
+        _dateFormatter = [[NSDateFormatter alloc] init];
+        [self addSubviews];
+    
     }
     return  self;
 }
