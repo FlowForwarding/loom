@@ -30,13 +30,14 @@
 @property (nonatomic, strong)NSMutableArray* nciSelPointImages;
 @property (nonatomic)NSArray* nciSelPointSizes;
 @property (nonatomic, strong)UIFont* nciSelPointFont;
+@property (nonatomic, strong)UIColor* nciSelPointFontColor;
 
 @property (nonatomic, strong)UIFont* nciXLabelsFont;
 @property (nonatomic, strong)UIColor* nciXLabelsColor;
 @property (nonatomic, strong)UIFont* nciYLabelsFont;
 @property (nonatomic, strong)UIColor* nciYLabelsColor;
-@property(nonatomic) float nciXLabelsDistance;
-@property(nonatomic) float nciYLabelsDistance;
+@property (nonatomic) float nciXLabelsDistance;
+@property (nonatomic) float nciYLabelsDistance;
 
 @property (nonatomic, copy) NSString* (^nciXLabelRenderer)(double);
 @property (nonatomic, copy) NSString* (^nciYLabelRenderer)(double);
@@ -46,12 +47,14 @@
 //in persentage
 @property (nonatomic)float topBottomGridSpace;
 
-@property(nonatomic, strong)NCILine* nciBoundaryVertical;
-@property(nonatomic, strong)NCILine* nciBoundaryHorizontal;
-@property(nonatomic, strong)NCILine* nciGridVertical;
-@property(nonatomic, strong)NCILine* nciGridHorizontal;
-@property(nonatomic, strong)UIColor* nciGridColor;
-@property(nonatomic)float nciGridLeftMargin;
+@property (nonatomic, strong) NCILine* nciBoundaryVertical;
+@property (nonatomic, strong) NCILine* nciBoundaryHorizontal;
+@property (nonatomic, strong) NCILine* nciGridVertical;
+@property (nonatomic, strong) NCILine* nciGridHorizontal;
+@property (nonatomic, strong) UIColor* nciGridColor;
+@property (nonatomic) float nciGridLeftMargin;
+@property (nonatomic) float nciGridTopMargin;
+@property (nonatomic) float nciGridBottomMargin;
 
 @property (nonatomic, copy) NSString* nciLeftRangeImageName;
 @property (nonatomic, copy) NSString* nciRightRangeImageName;

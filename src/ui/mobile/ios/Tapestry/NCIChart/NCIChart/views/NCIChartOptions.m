@@ -19,6 +19,7 @@ NSString *const nciSelPointColors = @"nciSelPointColors";
 NSString *const nciSelPointImages = @"nciSelPointImages";
 NSString *const nciSelPointSizes = @"nciSelPointSizes";
 NSString *const nciSelPointFont = @"nciSelPointFont";
+NSString *const nciSelPointFontColor = @"nciSelPointFontColor";
 
 NSString *const nciXLabelsFont = @"nciXLabelsFont";
 NSString *const nciXLabelsColor = @"nciXLabelsColor";
@@ -45,6 +46,8 @@ NSString *const nciGridVertical = @"nciGridVertical";
 NSString *const nciGridHorizontal = @"nciGridHorizontal";
 NSString *const nciGridColor = @"nciGridColor";
 NSString *const nciGridLeftMargin = @"nciGridLeftMargin";
+NSString *const nciGridTopMargin = @"nciGridTopMargin";
+NSString *const nciGridBottomMargin = @"nciGridBottomMargin";
 
 NSString *const nciLeftRangeImageName = @"nciLeftRangeImageName";
 NSString *const nciRightRangeImageName = @"nciRightRangeImageName";

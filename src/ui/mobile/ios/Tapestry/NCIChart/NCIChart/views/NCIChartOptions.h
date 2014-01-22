@@ -19,6 +19,7 @@ extern NSString *const nciSelPointColors;
 extern NSString *const nciSelPointImages;
 extern NSString *const nciSelPointSizes;
 extern NSString *const nciSelPointFont;
+extern NSString *const nciSelPointFontColor;
 
 extern NSString *const nciXLabelsFont;
 extern NSString *const nciYLabelsFont;
@@ -45,6 +46,8 @@ extern NSString *const nciGridVertical;
 extern NSString *const nciGridHorizontal;
 extern NSString *const nciGridColor;
 extern NSString *const nciGridLeftMargin;
+extern NSString *const nciGridTopMargin;
+extern NSString *const nciGridBottomMargin;
 
 extern NSString *const nciLeftRangeImageName;
 extern NSString *const nciRightRangeImageName;

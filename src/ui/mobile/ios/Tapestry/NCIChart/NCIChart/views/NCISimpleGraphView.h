@@ -22,8 +22,6 @@
 @property(nonatomic) float gridHeigth;
 @property(nonatomic) float gridWidth;
 
-@property(nonatomic) float yLabelsHeigth;
-
 @property(nonatomic) float yStep;
 @property(nonatomic) float xStep;
 @property(nonatomic) float minYVal;

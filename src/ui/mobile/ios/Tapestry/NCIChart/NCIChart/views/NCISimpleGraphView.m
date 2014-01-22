@@ -25,11 +25,7 @@
 
         _yLabelShift = 15;
         
-        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
-            _yLabelsHeigth = 40;
-        } else {
-            _yLabelsHeigth = 20;
-        }
+
         
         _yAxisLabels = [[NSMutableArray alloc] init];
         _xAxisLabels = [[NSMutableArray alloc] init];
@@ -64,7 +60,7 @@
     [_yAxisLabels removeAllObjects];
     [_xAxisLabels removeAllObjects];
     
-    _gridHeigth = self.frame.size.height- _yLabelsHeigth;
+    _gridHeigth = self.frame.size.height- self.chart.nciGridBottomMargin;
     _gridWidth = self.frame.size.width - self.chart.nciGridLeftMargin;
     float yLabelsDistance = self.chart.nciYLabelsDistance;
     
@@ -80,12 +76,13 @@
        
         for(int i = 0; i<= _gridHeigth/yLabelsDistance; i++){
             UILabel *label = [[UILabel alloc] initWithFrame:
-                              CGRectMake(0, self.frame.size.height - i*yLabelsDistance - _yLabelsHeigth - _yLabelShift, self.chart.nciGridLeftMargin, 20)];
+                              CGRectMake(0, self.frame.size.height - i*yLabelsDistance -
+                                         self.chart.nciGridBottomMargin - _yLabelShift, self.chart.nciGridLeftMargin, 20)];
             label.font =  self.chart.nciYLabelsFont;
             label.textAlignment = NSTextAlignmentRight;
             label.textColor = self.chart.nciYLabelsColor;
             if (self.chart.hasYLabels){
-                double curVal = [self getValByY: (_yLabelsHeigth + yLabelsDistance*i)];
+                double curVal = [self getValByY: (self.chart.nciGridBottomMargin + yLabelsDistance*i)];
                 if (self.chart.nciYLabelRenderer){
                     label.text = self.chart.nciYLabelRenderer(curVal);
                 } else {
@@ -116,8 +113,8 @@
     for(int i = 0; i<= _gridWidth/xLabelsDistance; i++){
         UILabel *label = [[UILabel alloc] initWithFrame:
                           CGRectMake(self.chart.nciGridLeftMargin + xLabelsDistance *i  - xLabelsDistance/2,
-                                     self.frame.size.height - _yLabelsHeigth, xLabelsDistance,
-                                     _yLabelsHeigth)];
+                                     self.frame.size.height - self.chart.nciGridBottomMargin, xLabelsDistance,
+                                     self.chart.nciGridBottomMargin)];
         label.textColor = self.chart.nciXLabelsColor;
         label.font =  self.chart.nciXLabelsFont;
         double curVal = [self getArgumentByX: (self.chart.nciGridLeftMargin + xLabelsDistance *i - xLabelsDistance/2)];
@@ -155,14 +152,14 @@
 }
 
 - (float )getValByY:(float) pointY{
-    return _minYVal + (pointY - _yLabelsHeigth)/_yStep;
+    return _minYVal + (pointY - self.chart.nciGridBottomMargin)/_yStep;
 }
 //TODO for points
 - (CGPoint)pointByValueInGrid:(NSArray *)data{
     double argument = [data[0] doubleValue];
     if ([data[1] isKindOfClass:[NSNull class]] )
         return CGPointMake(NAN, NAN);
-    float yVal = self.frame.size.height - (([data[1] floatValue] - _minYVal)*_yStep) - _yLabelsHeigth;
+    float yVal = self.frame.size.height - (([data[1] floatValue] - _minYVal)*_yStep) - self.chart.nciGridBottomMargin;
     float xVal = [self getXByArgument: argument];
     return CGPointMake(xVal, yVal);
 }

@@ -13,7 +13,6 @@
     NSDateFormatter* dateFormatter;
     double selectedPointArgument;
     NSMutableArray *selectedPoints;
-    float labelHeight;
 }
 
 @end
@@ -24,7 +23,7 @@
 {
     self = [super initWithFrame:(CGRect)frame];
     if (self) {
-        labelHeight = 0;
+        _nciGridTopMargin = 0;
         _hasYLabels = YES;
         _nciIsFill = YES;
         _topBottomGridSpace = 10;
@@ -36,6 +35,7 @@
         
         _nciXLabelsColor = [UIColor blackColor];
         _nciYLabelsColor = [UIColor blackColor];
+        _nciSelPointFontColor = [UIColor blackColor];
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
             _nciXLabelsFont = [UIFont italicSystemFontOfSize:14];
@@ -44,6 +44,7 @@
             _nciXLabelsDistance = 200;
             _nciYLabelsDistance = 80;
             _nciSelPointSizes = @[@8];
+            _nciGridBottomMargin = 40;
         } else {
             _nciXLabelsFont = [UIFont italicSystemFontOfSize:10];
             _nciYLabelsFont = [UIFont systemFontOfSize:10];
@@ -51,6 +52,7 @@
             _nciXLabelsDistance = 100;
             _nciYLabelsDistance = 40;
             _nciSelPointSizes = @[@4];
+            _nciGridBottomMargin = 20;
         }
         
         dateFormatter = [[NSDateFormatter alloc] init];
@@ -73,7 +75,7 @@
                                 nciSelPointFont, nciBoundaryVertical, nciBoundaryHorizontal,
                                 nciGridVertical, nciGridHorizontal, nciGridColor,
                                 nciXLabelsColor, nciYLabelsColor, nciLeftRangeImageName, nciRightRangeImageName,
-                                nciLineWidths, nciSelPointColors, nciSelPointSizes, nciSelPointImages]){
+                                nciLineWidths, nciSelPointColors, nciSelPointSizes, nciSelPointImages, nciSelPointFontColor]){
             if ([opts objectForKey:key]){
                 id object = [opts objectForKey:key];
                 if ([object isKindOfClass:[NSArray class]]){
@@ -91,9 +93,17 @@
         if ([opts objectForKey:nciGridLeftMargin])
             _nciGridLeftMargin = [[opts objectForKey:nciGridLeftMargin] floatValue];
         
-        if ([opts objectForKey:nciHasSelection])
-            _nciHasSelection = [[opts objectForKey:nciHasSelection] boolValue];
-        self.nciHasSelection = _nciHasSelection;
+        //order of 2 next opts is important
+        if ([opts objectForKey:nciHasSelection]){
+            self.nciHasSelection = [[opts objectForKey:nciHasSelection] boolValue];
+        }
+        if ([opts objectForKey:nciGridTopMargin]){
+            _nciGridTopMargin = [[opts objectForKey:nciGridTopMargin] floatValue];
+        }
+    
+        if ([opts objectForKey:nciGridBottomMargin]){
+            _nciGridBottomMargin = [[opts objectForKey:nciGridBottomMargin] floatValue];
+        }
 
         if ([opts objectForKey:nciSelPointTextRenderer]){
             _nciSelPointTextRenderer = [opts objectForKey:nciSelPointTextRenderer];
@@ -153,6 +163,7 @@
         return;
     _selectedLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     _selectedLabel.font = _nciSelPointFont;
+    _selectedLabel.textColor = _nciSelPointFontColor;
     _selectedLabel.textAlignment = NSTextAlignmentRight;
     _selectedLabel.numberOfLines = 0;
     [self addSubview:_selectedLabel];
@@ -165,10 +176,10 @@
 
 - (void)setNciHasSelection:(bool)hasSelection{
     if (hasSelection){
-        labelHeight = 20;
+        _nciGridTopMargin = 20;
         _selectedLabel.hidden = NO;
     } else {
-        labelHeight = 0;
+        _nciGridTopMargin = 0;
         _selectedLabel.hidden = YES;
     }
     _nciHasSelection = hasSelection;
@@ -232,7 +243,7 @@
                     selectedPoint = selectedPoints[j];
                 }
                 selectedPoint.hidden = NO;
-                selectedPoint.center = CGPointMake(pointInGrid.x + self.graph.chart.nciGridLeftMargin, pointInGrid.y + labelHeight);
+                selectedPoint.center = CGPointMake(pointInGrid.x + self.graph.chart.nciGridLeftMargin, pointInGrid.y + _nciGridTopMargin);
                 if (pointInGrid.x < 0 || pointInGrid.x >= (self.graph.grid.frame.size.width + 2)){
                     selectedPoint.hidden = YES;
                 } else {
@@ -250,7 +261,12 @@
                         [values appendString:@","];
                     }
                 }
-                _selectedLabel.text = [NSString stringWithFormat:@"x: %@  y:% 0.1f", values, [currentPoint[0] doubleValue]];
+                if (_nciUseDateFormatter){
+                    _selectedLabel.text = [NSString stringWithFormat:@"y: %@  x:%@", values,
+                                           [dateFormatter stringFromDate: [NSDate dateWithTimeIntervalSince1970:[currentPoint[0] doubleValue]]]];
+                } else {
+                    _selectedLabel.text = [NSString stringWithFormat:@"y: %@  x:% 0.1f", values, [currentPoint[0] doubleValue]];
+                }
             }
             return;
         }
@@ -265,13 +281,13 @@
 
 - (void)layoutSubviews{
     if (_nciHasSelection){
-        _graph.frame = CGRectMake(0, labelHeight, self.bounds.size.width, self.bounds.size.height - labelHeight) ;//self.bounds;
+        _graph.frame = CGRectMake(0, _nciGridTopMargin, self.bounds.size.width, self.bounds.size.height - _nciGridTopMargin);
     } else {
         _graph.frame = self.bounds;
     }
     [_graph layoutSubviews];
     if (_nciHasSelection){
-        _selectedLabel.frame = CGRectMake(0, 0, self.bounds.size.width, labelHeight);;
+        _selectedLabel.frame = CGRectMake(0, 0, self.bounds.size.width, _nciGridTopMargin);;
         [self layoutSelectedPoint];
     }
 }

@@ -124,8 +124,8 @@
         if ((xVal - self.chart.nciGridLeftMargin) >= 0 && (xVal < self.frame.size.width) ){
             UILabel *label = [[UILabel alloc] initWithFrame:
                               CGRectMake(xVal - xLabelsDistance/2,
-                                         self.frame.size.height - self.yLabelsHeigth, xLabelsDistance ,
-                                         self.yLabelsHeigth)];
+                                         self.frame.size.height - self.chart.nciGridBottomMargin , xLabelsDistance ,
+                                         self.chart.nciGridBottomMargin)];
             double curVal = [self getArgumentByX: xVal -  self.chart.nciGridLeftMargin];
             [self makeUpXLabel:label val:curVal];
         }
