@@ -6,14 +6,18 @@
 Simple
 
 ```ObjectiveC
-#import "NCIChartView.h"
+#import "NCISimpleChartView.h"
 
-    NCISimpleChartView *chart = [[NCISimpleChartView alloc] initWithFrame:CGRectMake(0, 0, 400, 250)];
+    NCISimpleChartView *chart = [[NCISimpleChartView alloc] initWithFrame:CGRectMake(50, 30, 400, 250)];
     [self.view addSubview:chart];
     
     int numOfPoints = 10;
     for (int ind = 0; ind < numOfPoints; ind ++){
-        [chart addPoint:ind val:@[@(arc4random() % 5)]];
+        if (ind % 5 == 0){
+            [chart addPoint:ind val:@[[NSNull null]]];
+        } else {
+            [chart addPoint:ind val:@[@(arc4random() % 5)]];
+        }
     }
 ``` 
 
