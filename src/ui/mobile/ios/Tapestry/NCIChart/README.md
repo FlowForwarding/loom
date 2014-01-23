@@ -35,6 +35,8 @@
     for (int ind = 0; ind < numOfPoints; ind ++){
         [chart addPoint:ind val:@[@(arc4random() % 5)]];
     }
+    chart.minRangeVal = 5;
+    chart.maxRangeVal = 8;  
 ```
 
 ## Several lines
@@ -46,7 +48,7 @@
 #import "NCIChartView.h"
     
     NCISimpleChartView *chart = [[NCISimpleChartView alloc]
-                                 initWithFrame:CGRectMake(30, 50, 400, 250)
+                                 initWithFrame:CGRectMake(0, 0, 400, 250)
                                  andOptions: @{nciIsFill: @(NO),
                                                nciSelPointSizes: @[@5, @10, @5]}];
                                                
@@ -116,5 +118,45 @@
 
 ```ObjectiveC
 
+    NCIChartView *chart = [[NCIChartView alloc]
+                           initWithFrame:CGRectMake(0, 0, 400, 250)
+                           andOptions: @{
+                                         nciTopGraphOptions : @{
+                                                 //simple chart options
+                                                 },
+                                         nciBottomGraphOptions : @{
+                                                 //simple chart options
+                                                 },
+                                         nciLeftRangeImageName: @"image",
+                                         nciRightRangeImageName: @"image",
+                                         nciBottomChartHeight: @50
+                                         }
+                           ];
+//@property(nonatomic)double minRangeVal;
+//@property(nonatomic)double maxRangeVal;
+//@property (nonatomic, copy) void (^rangesMoved)(void);   
+
 ```
 
+## Live updates
+
+```ObjectiveC
+
+    NCISimpleChartView *chart = [[NCISimpleChartView alloc]
+                                 initWithFrame:CGRectMake(50, 30, 400, 250)];
+    [self.view addSubview:chart];
+    int numOfPoints = 10;
+    for (int ind = 0; ind < numOfPoints; ind ++){
+        [chart addPoint:ind val:@[@(arc4random() % 5)]];
+    }
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        for (int ind = numOfPoints; ind < 4*numOfPoints; ind ++){
+            [NSThread sleepForTimeInterval:2.0f];
+            [chart addPoint:ind val:@[@(2*ind)]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [chart drawChart];
+            });
+        }
+    });
+```    
