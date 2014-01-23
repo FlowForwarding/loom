@@ -30,7 +30,7 @@
             btmChartHeigth =  90;
             chartsSpace = 30;
         } else {
-            btmChartHeigth =  60;
+            btmChartHeigth =  50;
             chartsSpace = 10;
         }
         _minRangeVal = NAN;
@@ -60,6 +60,7 @@
     _topChart.nciHasSelection = YES;
     _btmChart = [[NCIBtmChartView alloc] initWithFrame:CGRectZero andOptions:bottomOptions];
     _btmChart.chartData = self.chartData;
+    _btmChart.nciHasSelection = NO;
     _btmChart.hasYLabels = NO;
     _btmChart.nciChart = self;
     [self addSubview:_topChart];

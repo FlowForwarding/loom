@@ -13,6 +13,7 @@
     NSDateFormatter* dateFormatter;
     double selectedPointArgument;
     NSMutableArray *selectedPoints;
+    UITapGestureRecognizer *gridTapped;
 }
 
 @end
@@ -40,6 +41,7 @@
     _nciSelPointColors = [NSMutableArray arrayWithArray: @[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
     selectedPointArgument = NAN;
     
+    self.nciHasSelection = YES;
     _nciXLabelsColor = [UIColor blackColor];
     _nciYLabelsColor = [UIColor blackColor];
     _nciSelPointFontColor = [UIColor blackColor];
@@ -139,7 +141,6 @@
 - (void)addSubviews{
     self.graph = [[NCISimpleGraphView alloc] initWithChart:self];
     [self addSubview:_graph];
-    [self setupSelection];
 }
 
 -(UIView *)createSelPoint:(int) num{
@@ -174,7 +175,7 @@
     [self addSubview:_selectedLabel];
     selectedPoints = [[NSMutableArray alloc] init];
     
-    UITapGestureRecognizer *gridTapped = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(gridTapped:)];
+    gridTapped = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(gridTapped:)];
     gridTapped.numberOfTapsRequired = 1;
     [self.graph.grid addGestureRecognizer:gridTapped];
 }
@@ -183,9 +184,11 @@
     if (hasSelection){
         _nciGridTopMargin = 20;
         _selectedLabel.hidden = NO;
+        [self setupSelection];
     } else {
         _nciGridTopMargin = 0;
         _selectedLabel.hidden = YES;
+        [self.graph.grid removeGestureRecognizer: gridTapped];
     }
     _nciHasSelection = hasSelection;
 }
@@ -213,7 +216,7 @@
                     continue;
                 
                 CGPoint pointInGrid = [self.graph pointByValueInGrid:@[currentPoint[0], val]];
-                if (prevPoint && prevPoint[1][j]){
+                if (prevPoint && prevPoint[1][j] && ![prevPoint[1][j] isKindOfClass:[NSNull class]]){
                     if (([point[0]doubleValue] - selectedPointArgument) >
                         (selectedPointArgument - [prevPoint[0]doubleValue])){
                         pointInGrid = [self.graph pointByValueInGrid:@[prevPoint[0], prevPoint[1][j]]];
