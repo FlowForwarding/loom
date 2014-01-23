@@ -1,9 +1,9 @@
 ### NCICharts: Linear charts and charts with range selectors for iOS
 
-![alt text][Illustration]
-[Illustration]: https://raw.github.com/FlowForwarding/tapestry/master/src/ui/mobile/ios/Tapestry/NCIChart/docs/default.png "NCI chart"
+## Simple
 
-Simple
+![alt text][Illustration]
+[Illustration]: https://raw.github.com/FlowForwarding/tapestry/master/src/ui/mobile/ios/Tapestry/NCIChart/docs/simple.png "NCI simple chart"
 
 ```ObjectiveC
 #import "NCISimpleChartView.h"
@@ -21,10 +21,13 @@ Simple
     }
 ``` 
 
-Ranges
+## Ranges
+
+![alt text][Illustration2]
+[Illustration2]: https://raw.github.com/FlowForwarding/tapestry/master/src/ui/mobile/ios/Tapestry/NCIChart/docs/ranges.png "NCI chart"
 
 ```ObjectiveC
-#import "NCIChartView.h"
+#import "NCISimpleChartView.h"
 
     NCIChartView *chart = [[NCIChartView alloc] initWithFrame:CGRectMake(0, 0, 300, 400)];
     [self.view addSubview:chart];
@@ -34,7 +37,10 @@ Ranges
     }
 ```
 
-Several lines
+## Several lines
+
+![alt text][Illustration3]
+[Illustration3]: https://raw.github.com/FlowForwarding/tapestry/master/src/ui/mobile/ios/Tapestry/NCIChart/docs/several_lines.png "NCI selveral chart"
 
 ```ObjectiveC
 #import "NCIChartView.h"
@@ -46,7 +52,10 @@ Several lines
                                                
 ```
 
-Customization options
+## Customization options
+
+![alt text][Illustration4]
+[Illustration4]: https://raw.github.com/FlowForwarding/tapestry/master/src/ui/mobile/ios/Tapestry/NCIChart/docs/cuatomization.png "NCI customized chart" 
 
 ```ObjectiveC
     NCISimpleChartView *chart = [[NCISimpleChartView alloc]
@@ -102,3 +111,10 @@ Customization options
     }            
 
 ``` 
+
+## Ranges chart customization
+
+```ObjectiveC
+
+```
+
