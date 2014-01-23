@@ -36,6 +36,7 @@ extern NSString *const nciTapGridAction;
 
 extern NSString *const nciTopGraphOptions;
 extern NSString *const nciBottomGraphOptions;
+extern NSString *const nciBottomChartHeight;
 
 extern NSString *const nciShowPoints;
 extern NSString *const nciUseDateFormatter;

@@ -26,34 +26,42 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
-            btmChartHeigth =  90;
-            chartsSpace = 30;
-        } else {
-            btmChartHeigth =  50;
-            chartsSpace = 10;
-        }
-        _minRangeVal = NAN;
-        _maxRangeVal = NAN;
         
     }
     return self;
 }
 
 -(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts{
-    if ([opts objectForKey:nciTopGraphOptions]){
-        topOptions = [opts objectForKey:nciTopGraphOptions];
-    }
-    if ([opts objectForKey:nciBottomGraphOptions]){
-        bottomOptions = [opts objectForKey:nciBottomGraphOptions];
-    }
     self = [self initWithFrame:frame];
     if (self) {
+        if ([opts objectForKey:nciTopGraphOptions]){
+            topOptions = [opts objectForKey:nciTopGraphOptions];
+        }
+        if ([opts objectForKey:nciBottomGraphOptions]){
+            bottomOptions = [opts objectForKey:nciBottomGraphOptions];
+        }
+        if ([opts objectForKey:nciBottomChartHeight]){
+            btmChartHeigth = [[opts objectForKey:nciBottomChartHeight] floatValue];
+        }
+        [self addGraps];
     }
     return self;
 }
 
-- (void)addSubviews{
+- (void)defaultSetup{
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
+        btmChartHeigth =  90;
+        chartsSpace = 30;
+    } else {
+        btmChartHeigth =  50;
+        chartsSpace = 10;
+    }
+    _minRangeVal = NAN;
+    _maxRangeVal = NAN;
+    self.chartData = [[NSMutableArray alloc] init];
+}
+
+- (void)addGraps{
     _topChart = [[NCITopChartView alloc] initWithFrame:CGRectZero andOptions:topOptions];
     _topChart.chartData = self.chartData;
     _topChart.nciChart = self;
@@ -65,6 +73,10 @@
     _btmChart.nciChart = self;
     [self addSubview:_topChart];
     [self addSubview:_btmChart];
+}
+
+- (void)addSubviews{
+
 }
 
 -(void)drawChart{

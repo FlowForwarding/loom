@@ -66,5 +66,6 @@
 - (void)addPoint:(double)arg val:(NSArray *)values;
 - (NSArray *)getBoundaryValues;
 - (void)layoutSelectedPoint;
+- (void)defaultSetup;
 
 @end

@@ -34,9 +34,6 @@ NSString *const nciYLabelRenderer = @"yLabelRenderer";
 NSString *const nciSelPointTextRenderer = @"nciSelPointTextRenderer";
 NSString *const nciTapGridAction = @"nciTapGridAction";
 
-NSString *const nciTopGraphOptions = @"nciTopGraphOptions";
-NSString *const nciBottomGraphOptions = @"nciBottomGraphOptions";
-
 NSString *const nciShowPoints = @"nciShowPoints";
 NSString *const nciUseDateFormatter = @"nciUseDateFormatter";
 
@@ -49,6 +46,10 @@ NSString *const nciGridLeftMargin = @"nciGridLeftMargin";
 NSString *const nciGridTopMargin = @"nciGridTopMargin";
 NSString *const nciGridBottomMargin = @"nciGridBottomMargin";
 
+//range selectors chart options
+NSString *const nciTopGraphOptions = @"nciTopGraphOptions";
+NSString *const nciBottomGraphOptions = @"nciBottomGraphOptions";
+NSString *const nciBottomChartHeight = @"nciBottomChartHeight";
 NSString *const nciLeftRangeImageName = @"nciLeftRangeImageName";
 NSString *const nciRightRangeImageName = @"nciRightRangeImageName";
 

@@ -31,6 +31,9 @@
 }
 
 - (void)defaultSetup{
+    gridTapped = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(gridTapped:)];
+    gridTapped.numberOfTapsRequired = 1;
+    
     _nciGridTopMargin = 0;
     _hasYLabels = YES;
     _nciIsFill = YES;
@@ -141,6 +144,7 @@
 - (void)addSubviews{
     self.graph = [[NCISimpleGraphView alloc] initWithChart:self];
     [self addSubview:_graph];
+    [self setupSelection];
 }
 
 -(UIView *)createSelPoint:(int) num{
@@ -165,7 +169,7 @@
 - (void)setupSelection{
     if (!_nciHasSelection)
         return;
-    if (_selectedLabel)
+    if (_selectedLabel || !self.graph.grid)
         return;
     _selectedLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     _selectedLabel.font = _nciSelPointFont;
@@ -173,17 +177,15 @@
     _selectedLabel.textAlignment = NSTextAlignmentRight;
     _selectedLabel.numberOfLines = 0;
     [self addSubview:_selectedLabel];
-    selectedPoints = [[NSMutableArray alloc] init];
-    
-    gridTapped = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(gridTapped:)];
-    gridTapped.numberOfTapsRequired = 1;
     [self.graph.grid addGestureRecognizer:gridTapped];
+    selectedPoints = [[NSMutableArray alloc] init];
 }
 
 - (void)setNciHasSelection:(bool)hasSelection{
     if (hasSelection){
         _nciGridTopMargin = 20;
         _selectedLabel.hidden = NO;
+        [self.graph.grid addGestureRecognizer:gridTapped];
         [self setupSelection];
     } else {
         _nciGridTopMargin = 0;
