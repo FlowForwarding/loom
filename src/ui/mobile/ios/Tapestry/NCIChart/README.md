@@ -1,5 +1,12 @@
 ### NCICharts: Linear charts and charts with range selectors for iOS
 
+1. [Simple](#simple)
+1. [Ranges](#ranges)
+1. [Several lines](#several-lines)
+1. [Customization options](#customization-options)
+1. [Ranges chart customization](#ranges-chart-customization)
+1. [Live updates](#live-updates)
+
 ## Simple
 
 ![alt text][Illustration]
