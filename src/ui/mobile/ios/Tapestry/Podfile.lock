@@ -1,10 +1,17 @@
 PODS:
+  - NCICharts (1.0.0)
   - SocketRocket (0.3.1-beta2)
 
 DEPENDENCIES:
+  - NCICharts (from `https://raw.github.com/FlowForwarding/tapestry/master/src/ui/mobile/ios/Tapestry/NCIChart/NCICharts.podspec`)
   - SocketRocket (~> 0.3.1-beta2)
 
+EXTERNAL SOURCES:
+  NCICharts:
+    :podspec: https://raw.github.com/FlowForwarding/tapestry/master/src/ui/mobile/ios/Tapestry/NCIChart/NCICharts.podspec
+
 SPEC CHECKSUMS:
+  NCICharts: 705b8d9f38b33387ef3a4af3f2936a7b082a791f
   SocketRocket: 7ac946bcce46287a791dfff3c1f8daa692821dae
 
 COCOAPODS: 0.29.0
