@@ -76,7 +76,9 @@
 }
 
 - (void)redrawRanges{
-
+    if (self.nciChart.topChart.minRangeVal !=  self.nciChart.topChart.minRangeVal)
+        return;
+    
     float gridHeigth =  self.graph.grid.frame.size.height;
     _xHandspikeLeft = [self.graph getXByArgument: self.nciChart.topChart.minRangeVal] + self.graph.chart.nciGridLeftMargin;
     _xHandspikeRight = [self.graph getXByArgument: self.nciChart.topChart.maxRangeVal] + self.graph.chart.nciGridLeftMargin;
