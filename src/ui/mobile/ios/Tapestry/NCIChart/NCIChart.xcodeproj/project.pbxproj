@@ -14,6 +14,9 @@
 		2A1E1BEF1863794D00009A3A /* libNCIChart.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A1E1BD71863794D00009A3A /* libNCIChart.a */; };
 		2A1E1BF51863794D00009A3A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2A1E1BF31863794D00009A3A /* InfoPlist.strings */; };
 		2A1E1BF71863794D00009A3A /* NCIChartTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A1E1BF61863794D00009A3A /* NCIChartTests.m */; };
+		2A2902AF18966F8400661079 /* NCIZoomChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A2902AE18966F8400661079 /* NCIZoomChartView.m */; };
+		2A2902B218966FE400661079 /* NCIZoomGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A2902B118966FE400661079 /* NCIZoomGraphView.m */; };
+		2A2902B51896706A00661079 /* NCIZoomGridView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A2902B41896706A00661079 /* NCIZoomGridView.m */; };
 		2A55A1F918675A1E00088F2F /* NCITopGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A55A1F818675A1E00088F2F /* NCITopGraphView.m */; };
 		2A55A1FC18675AE300088F2F /* NCITopGridView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A55A1FB18675AE300088F2F /* NCITopGridView.m */; };
 		2A6DDE0418637A1D0013D202 /* NCIHandspikeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6DDDFD18637A1D0013D202 /* NCIHandspikeView.m */; };
@@ -70,6 +73,12 @@
 		2A1E1BF21863794D00009A3A /* NCIChartTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "NCIChartTests-Info.plist"; sourceTree = "<group>"; };
 		2A1E1BF41863794D00009A3A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2A1E1BF61863794D00009A3A /* NCIChartTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCIChartTests.m; sourceTree = "<group>"; };
+		2A2902AD18966F8400661079 /* NCIZoomChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIZoomChartView.h; sourceTree = "<group>"; };
+		2A2902AE18966F8400661079 /* NCIZoomChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIZoomChartView.m; sourceTree = "<group>"; };
+		2A2902B018966FE400661079 /* NCIZoomGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIZoomGraphView.h; sourceTree = "<group>"; };
+		2A2902B118966FE400661079 /* NCIZoomGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIZoomGraphView.m; sourceTree = "<group>"; };
+		2A2902B31896706A00661079 /* NCIZoomGridView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIZoomGridView.h; sourceTree = "<group>"; };
+		2A2902B41896706A00661079 /* NCIZoomGridView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIZoomGridView.m; sourceTree = "<group>"; };
 		2A55A1F718675A1E00088F2F /* NCITopGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCITopGraphView.h; sourceTree = "<group>"; };
 		2A55A1F818675A1E00088F2F /* NCITopGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCITopGraphView.m; sourceTree = "<group>"; };
 		2A55A1FA18675AE300088F2F /* NCITopGridView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCITopGridView.h; sourceTree = "<group>"; };
@@ -233,6 +242,12 @@
 				2A55A1FB18675AE300088F2F /* NCITopGridView.m */,
 				2ACAD5C01887081600F4832E /* NCILine.h */,
 				2ACAD5C11887081600F4832E /* NCILine.m */,
+				2A2902AD18966F8400661079 /* NCIZoomChartView.h */,
+				2A2902AE18966F8400661079 /* NCIZoomChartView.m */,
+				2A2902B018966FE400661079 /* NCIZoomGraphView.h */,
+				2A2902B118966FE400661079 /* NCIZoomGraphView.m */,
+				2A2902B31896706A00661079 /* NCIZoomGridView.h */,
+				2A2902B41896706A00661079 /* NCIZoomGridView.m */,
 			);
 			path = views;
 			sourceTree = "<group>";
@@ -391,7 +406,10 @@
 				2A6DDF1B1866C4320013D202 /* NCISimpleGridView.m in Sources */,
 				2A6DDF1E1866CEB20013D202 /* NCIChartView.m in Sources */,
 				2A6DDF071864C4870013D202 /* NCISimpleGraphView.m in Sources */,
+				2A2902AF18966F8400661079 /* NCIZoomChartView.m in Sources */,
+				2A2902B51896706A00661079 /* NCIZoomGridView.m in Sources */,
 				2A55A1F918675A1E00088F2F /* NCITopGraphView.m in Sources */,
+				2A2902B218966FE400661079 /* NCIZoomGraphView.m in Sources */,
 				2A6DDF211866D9230013D202 /* NCIBtmChartView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
