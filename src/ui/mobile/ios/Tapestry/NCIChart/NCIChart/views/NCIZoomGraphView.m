@@ -10,7 +10,7 @@
 #import "NCIZoomGridView.h"
 #import "NCIZoomChartView.h"
 
-@interface NCIZoomGraphView()<UIScrollViewDelegate>{
+@interface NCIZoomGraphView(){
     UIScrollView *gridScroll;
 }
 
@@ -38,7 +38,6 @@
         if ([sender numberOfTouches] == 2) {
             CGPoint point1 = [(UIPinchGestureRecognizer *)sender locationOfTouch:0 inView:self];
             CGPoint point2 = [(UIPinchGestureRecognizer *)sender locationOfTouch:1 inView:self];
-             // TODO NOT TO FORGET!!!
             [self startMoveWithPoint:point1 andPoint:point2];
         }
     }
@@ -46,7 +45,6 @@
         if ([sender numberOfTouches] == 2) {
             CGPoint point1 = [(UIPinchGestureRecognizer *)sender locationOfTouch:0 inView:self];
             CGPoint point2 = [(UIPinchGestureRecognizer *)sender locationOfTouch:1 inView:self];
-             // TODO NOT TO FORGET!!!
             [self moveRangesWithPoint:point1 andPoint:point2];
         }
     }
@@ -119,10 +117,7 @@ static float startMaxRangeVal;
     self.grid.frame = CGRectMake(gridScroll.contentOffset.x, 0, self.gridWidth, self.gridHeigth);
     
     [self setNeedsLayout];
-    [self.chart layoutSelectedPoint];
- // TODO NOT TO FORGET!!!
- //   [nciChart.btmChart redrawRanges];
-    
+    [self.chart layoutSelectedPoint];    
 }
 
 - (void)layoutSubviews{

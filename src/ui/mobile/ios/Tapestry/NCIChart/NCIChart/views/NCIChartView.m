@@ -8,7 +8,6 @@
 
 #import "NCIChartView.h"
 #import "NCITopChartView.h"
-#import "NCITopGridView.h"
 #import "NCIBtmChartView.h"
 
 @interface NCIChartView(){
@@ -56,8 +55,6 @@
         btmChartHeigth =  50;
         chartsSpace = 10;
     }
-    _minRangeVal = NAN;
-    _maxRangeVal = NAN;
     self.chartData = [[NSMutableArray alloc] init];
 }
 
@@ -94,25 +91,5 @@
     _btmChart.frame = CGRectMake(0, self.frame.size.height - btmChartHeigth, self.frame.size.width, btmChartHeigth);
 }
 
-- (double)getScaleIndex{
-    if (_minRangeVal != _minRangeVal || _maxRangeVal != _maxRangeVal)
-        return 1;
-    double rangeDiff = [self getRangesPeriod];
-    if (rangeDiff == 0){
-        return  1;
-    } else {
-        return [self getTimePeriod]/rangeDiff;
-    }
-}
-
--(double)getTimePeriod{
-    if (self.chartData.count == 0)
-        return 0;
-    return [[self.chartData lastObject][0] doubleValue] - [self.chartData[0][0] doubleValue];
-}
-
--(double)getRangesPeriod{
-    return self.maxRangeVal - self.minRangeVal;
-}
 
 @end

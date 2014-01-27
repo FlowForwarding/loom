@@ -8,7 +8,7 @@
 
 #import "NCISimpleGraphView.h"
 
-@interface NCIZoomGraphView : NCISimpleGraphView
+@interface NCIZoomGraphView : NCISimpleGraphView<UIScrollViewDelegate>
 
 
 @end

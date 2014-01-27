@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 FlowForwarding.Org. All rights reserved.
 //
 
-#import "NCISimpleGraphView.h"
+#import "NCIZoomGraphView.h"
 
-@interface NCITopGraphView : NCISimpleGraphView
+@interface NCITopGraphView : NCIZoomGraphView
 
 @end

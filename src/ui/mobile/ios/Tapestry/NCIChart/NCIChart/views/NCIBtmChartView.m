@@ -66,11 +66,11 @@
     [super layoutSubviews];
     if (self.nciChart.chartData.count == 0)
         return;
-    if (self.nciChart.minRangeVal != self.nciChart.minRangeVal){
-        self.nciChart.minRangeVal = [self.nciChart.chartData[0][0] doubleValue];
+    if (self.nciChart.topChart.minRangeVal != self.nciChart.topChart.minRangeVal){
+        self.nciChart.topChart.minRangeVal = [self.nciChart.topChart.chartData[0][0] doubleValue];
     }
-    if (self.nciChart.maxRangeVal != self.nciChart.maxRangeVal){
-        self.nciChart.maxRangeVal = [[self.nciChart.chartData lastObject][0] doubleValue];
+    if (self.nciChart.topChart.maxRangeVal != self.nciChart.topChart.maxRangeVal){
+        self.nciChart.topChart.maxRangeVal = [[self.nciChart.chartData lastObject][0] doubleValue];
     }
     [self redrawRanges];
 }
@@ -78,8 +78,8 @@
 - (void)redrawRanges{
 
     float gridHeigth =  self.graph.grid.frame.size.height;
-    _xHandspikeLeft = [self.graph getXByArgument: self.nciChart.minRangeVal] + self.graph.chart.nciGridLeftMargin;
-    _xHandspikeRight = [self.graph getXByArgument: self.nciChart.maxRangeVal] + self.graph.chart.nciGridLeftMargin;
+    _xHandspikeLeft = [self.graph getXByArgument: self.nciChart.topChart.minRangeVal] + self.graph.chart.nciGridLeftMargin;
+    _xHandspikeRight = [self.graph getXByArgument: self.nciChart.topChart.maxRangeVal] + self.graph.chart.nciGridLeftMargin;
     
     handspikeLeft.frame = CGRectMake(_xHandspikeLeft - handspikeLeft.frame.size.width/2, 0, handspikeLeft.frame.size.width, gridHeigth);
     leftAmputation.frame = CGRectMake(self.graph.chart.nciGridLeftMargin, 0, _xHandspikeLeft - self.graph.chart.nciGridLeftMargin, gridHeigth);
@@ -186,8 +186,8 @@ static float startRightRange = -1;
     if ((newLeft != -1 && newRight != -1) && (newRight - newLeft) < minRangesDistance)
         return;
     
-    self.nciChart.minRangeVal = [self.graph getArgumentByX:newLeft - self.graph.chart.nciGridLeftMargin];
-    self.nciChart.maxRangeVal = [self.graph getArgumentByX:newRight - self.graph.chart.nciGridLeftMargin];
+    self.nciChart.topChart.minRangeVal = [self.graph getArgumentByX:newLeft - self.graph.chart.nciGridLeftMargin];
+    self.nciChart.topChart.maxRangeVal = [self.graph getArgumentByX:newRight - self.graph.chart.nciGridLeftMargin];
 
     [self.nciChart.topChart.graph setNeedsLayout];
     [self.nciChart.topChart.graph.grid setNeedsDisplay];

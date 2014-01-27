@@ -6,14 +6,12 @@
 //  Copyright (c) 2013 FlowForwarding.Org. All rights reserved.
 //
 
-#import "NCISimpleChartView.h"
+#import  "NCIZoomChartView.h"
 
 @class NCIChartView;
 
-@interface NCITopChartView : NCISimpleChartView
+@interface NCITopChartView : NCIZoomChartView
 
 @property(nonatomic, strong) NCIChartView* nciChart;
-
-- (NSArray *)getValsInRanges;
 
 @end
