@@ -15,6 +15,8 @@
 
 @property(nonatomic, strong) NCITopChartView *topChart;
 @property(nonatomic, strong) NCIBtmChartView *btmChart;
+@property(nonatomic)double minRangeVal;
+@property(nonatomic)double maxRangeVal;
 
 //callbacks
 @property (nonatomic, copy) void (^rangesMoved)(void);

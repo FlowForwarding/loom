@@ -2,7 +2,7 @@ Pod::Spec.new do |s|
 
   s.name         = 'NCICharts'
   s.version      = '1.0.0'
-  s.summary      = 'Charts library fo iOS'
+  s.summary      = 'Simple, zoom and charts with ranges for iOS'
 
   s.description  = <<-DESC
   Linear charts and charts with range selectors

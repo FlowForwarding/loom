@@ -82,6 +82,22 @@
 
 }
 
+- (void)setMinRangeVal:(double)minRangeVal{
+    self.topChart.maxRangeVal = minRangeVal;
+}
+
+- (void)setMaxRangeVal:(double)maxRangeVal{
+    self.topChart.maxRangeVal = maxRangeVal;
+}
+
+- (double)maxRangeVal{
+    return self.topChart.maxRangeVal;
+}
+
+- (double)minRangeVal{
+    return self.topChart.minRangeVal;
+}
+
 - (void)resetChart{
     [self.chartData removeAllObjects];
 }

@@ -100,9 +100,9 @@
     float xLabelsDistance = self.chart.nciXLabelsDistance;
     [self formatDateForDistance:xLabelsDistance];
     
-    for(int i = 0; i<= _gridWidth/xLabelsDistance; i++){
+    for(int i = 0; i<= (_gridWidth - self.chart.nciGridLeftMargin)/xLabelsDistance; i++){
         UILabel *label = [[UILabel alloc] initWithFrame:
-                          CGRectMake(self.chart.nciGridLeftMargin + xLabelsDistance *i  - xLabelsDistance/2,
+                          CGRectMake(self.chart.nciGridLeftMargin + xLabelsDistance *i,
                                      self.frame.size.height - self.chart.nciGridBottomMargin, xLabelsDistance,
                                      self.chart.nciGridBottomMargin)];
         label.textColor = self.chart.nciXLabelsColor;
