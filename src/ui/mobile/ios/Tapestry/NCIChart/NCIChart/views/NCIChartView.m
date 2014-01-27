@@ -25,13 +25,13 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        
+        [self addGraps];
     }
     return self;
 }
 
 -(id)initWithFrame:(CGRect)frame andOptions:(NSDictionary *)opts{
-    self = [self initWithFrame:frame];
+    self = [super initWithFrame:frame];
     if (self) {
         if ([opts objectForKey:nciTopGraphOptions]){
             topOptions = [opts objectForKey:nciTopGraphOptions];
