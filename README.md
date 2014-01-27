@@ -43,7 +43,13 @@ If required, download and compile LINC for the network switches
 
 ```bash
 % git clone https://github.com/FlowForwarding/LINC-Switch.git
-You will need to edit $LINC_ROOT/rel/files/sys.config and then
+```
+
+You will need to create ```$LINC_ROOT/rel/files/sys.config``` by adding the correspond ports and adding the Tapestry
+Controller.  There are 2 ports needed for Tapestry Controller and hence, we can generate a sys.config somelike below.
+```bash
+% cd $LINC_ROOT
+% scripts/config_gen -s 0 eth1 eth2 eth3 eth4 -c tcp:10.10.10.71:6633 tcp:10.10.10.71:6634 -o rel/files/sys.config
 % make compile
 % make rel
 ```
