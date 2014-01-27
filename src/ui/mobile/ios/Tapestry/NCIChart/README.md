@@ -35,23 +35,7 @@
 [Illustration2]: https://raw.github.com/FlowForwarding/tapestry/master/src/ui/mobile/ios/Tapestry/NCIChart/docs/ranges.png "NCI chart"
 
 ```ObjectiveC
-#import "NCISimpleChartView.h"
-
-    NCIZoomChartView *chart = [[NCIZoomChartView alloc] initWithFrame:CGRectMake(0, 0, 300, 400)];
-    [self.view addSubview:chart];
-    int numOfPoints = 10;
-    for (int ind = 0; ind < numOfPoints; ind ++){
-        [chart addPoint:ind val:@[@(arc4random() % 5)]];
-    }
-```
-
-## Zoom
-
-![alt text][Illustration2]
-[Illustration2]: https://raw.github.com/FlowForwarding/tapestry/master/src/ui/mobile/ios/Tapestry/NCIChart/docs/zoom.gif 
-
-```ObjectiveC
-#import "NCISimpleChartView.h"
+#import "NCIChartView.h"
 
     NCIChartView *chart = [[NCIChartView alloc] initWithFrame:CGRectMake(0, 0, 300, 400)];
     [self.view addSubview:chart];
@@ -60,7 +44,21 @@
         [chart addPoint:ind val:@[@(arc4random() % 5)]];
     }
     chart.minRangeVal = 5;
-    chart.maxRangeVal = 8;  
+    chart.maxRangeVal = 8; 
+```
+
+## Zoom
+
+![alt text][IllustrationZoom]
+[IllustrationZoom]: https://raw.github.com/FlowForwarding/tapestry/master/src/ui/mobile/ios/Tapestry/NCIChart/docs/zoom.gif 
+
+```ObjectiveC
+    NCIZoomChartView *chart = [[NCIZoomChartView alloc] initWithFrame:CGRectMake(0, 0, 300, 400)];
+    [self.view addSubview:chart];
+    int numOfPoints = 10;
+    for (int ind = 0; ind < numOfPoints; ind ++){
+        [chart addPoint:ind val:@[@(arc4random() % 5)]];
+    }
 ```
 
 ## Several lines
