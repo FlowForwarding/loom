@@ -27,8 +27,8 @@
 %% ------------------------------------------------------------------
 
 -export([
-    ofsh_init/4,
-    ofsh_connect/5,
+    ofsh_init/5,
+    ofsh_connect/6,
     ofsh_disconnect/3,
     ofsh_failover/1,
     ofsh_handle_message/3,
@@ -47,18 +47,18 @@ start_link() ->
 %% Callback API
 %% ----------------------------------------------------------------------------
 
-ofsh_init(active, IpAddr, DatapathId, Connection) ->
-    ok = gen_server:call(?MODULE, {init, IpAddr, DatapathId, Connection}),
+ofsh_init(active, IpAddr, DatapathId, Version, Connection) ->
+    ok = gen_server:call(?MODULE, {init, IpAddr, DatapathId, Version, Connection}),
     ?INFO("new active connection: ~p ~p~n", [IpAddr, DatapathId]),
     {ok, self()};
-ofsh_init(standby, IpAddr, DatapathId, _Connection) ->
+ofsh_init(standby, IpAddr, DatapathId, _Version, _Connection) ->
     ?INFO("new standby connection: ~p ~p~n", [IpAddr, DatapathId]),
     {ok, self()}.
 
-ofsh_connect(active, _IpAddr, DatapathId, _Connection, AuxId) ->
+ofsh_connect(active, _IpAddr, DatapathId, _Connection, _Version, AuxId) ->
     ?INFO("new active aux connection: ~p ~p~n", [AuxId, DatapathId]),
     {ok, self()};
-ofsh_connect(standby, _IpAddr, DatapathId, _Connection, AuxId) ->
+ofsh_connect(standby, _IpAddr, DatapathId, _Connection, _Version, AuxId) ->
     ?INFO("new standby aux connection: ~p ~p~n", [AuxId, DatapathId]),
     {ok, self()}.
 
@@ -107,8 +107,8 @@ init([]) ->
     State = #?STATE{switches_table = SwitchesTable},
     {ok, State}.
 
-handle_call({init, IpAddr, DatapathId, Connection}, _From, State) ->
-    ok = register_switch(IpAddr, DatapathId, Connection, State),
+handle_call({init, IpAddr, DatapathId, Version, Connection}, _From, State) ->
+    ok = register_switch(IpAddr, DatapathId, Version, Connection, State),
     {reply, ok, State};
 handle_call({sync_send, IpAddr, Msg}, _From, State) ->
     Reply = do_sync_send(IpAddr, Msg, State),
@@ -141,8 +141,8 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal Function Definitions
 %% ------------------------------------------------------------------
 
-register_switch(IpAddr, DatapathId, Connection, #?STATE{switches_table = Switches}) ->
-    true = ets:insert(Switches, {IpAddr, DatapathId, Connection}),
+register_switch(IpAddr, DatapathId, Version, Connection, #?STATE{switches_table = Switches}) ->
+    true = ets:insert(Switches, {IpAddr, DatapathId, Version, Connection}),
     ok.
 
 do_get_switches(#?STATE{switches_table = Switches}) ->
@@ -151,7 +151,7 @@ do_get_switches(#?STATE{switches_table = Switches}) ->
 find_switch(IpAddr, #?STATE{switches_table = Switches}) ->
     case ets:lookup(Switches, IpAddr) of
         [] -> not_found;
-        [{_, DatapathId, _}] -> DatapathId
+        [{_, DatapathId, _, _}] -> DatapathId
     end.
 
 do_sync_send(IpAddr, Msg, State) ->

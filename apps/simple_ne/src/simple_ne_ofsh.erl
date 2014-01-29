@@ -19,16 +19,16 @@
 
 % callbacks from ofs_handler
 
-init(Mode, IpAddr, DatapathId, _Features, _Version, Connection, _Opts) ->
-    {ok, Pid} = simple_ne_logic:ofsh_init(Mode, IpAddr, DatapathId, Connection),
+init(Mode, IpAddr, DatapathId, _Features, Version, Connection, _Opts) ->
+    {ok, Pid} = simple_ne_logic:ofsh_init(Mode, IpAddr, DatapathId, Version, Connection),
     State = #?STATE{
                         datapath_id = DatapathId,
                         handler_pid = Pid
                     },
     {ok, State}.
 
-connect(Mode, IpAddr, DatapathId, _Features, _Version, Connection, AuxId, _Opts) ->
-    {ok, Pid} = simple_ne_logic:ofsh_connect(Mode, IpAddr, DatapathId, Connection, AuxId),
+connect(Mode, IpAddr, DatapathId, _Features, Version, Connection, AuxId, _Opts) ->
+    {ok, Pid} = simple_ne_logic:ofsh_connect(Mode, IpAddr, DatapathId, Version, Connection, AuxId),
     State = #?STATE{
                         datapath_id = DatapathId,
                         aux_id = AuxId,
