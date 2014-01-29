@@ -1,5 +1,5 @@
 platform :ios, '6.0'
 
 pod 'SocketRocket', '~> 0.3.1-beta2'
-pod 'NCICharts', :podspec => 'https://raw.github.com/FlowForwarding/tapestry/master/src/ui/mobile/ios/Tapestry/NCIChart/NCICharts.podspec'
+pod 'NCICharts', :podspec => 'https://raw.github.com/FlowForwarding/dynamiccharts/master/NCICharts.podspec'
 
