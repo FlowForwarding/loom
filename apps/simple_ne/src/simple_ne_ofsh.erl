@@ -6,6 +6,7 @@
     disconnect/1,
     failover/1,
     handle_message/2,
+    handle_error/2,
     terminate/1
 ]).
 
@@ -49,13 +50,19 @@ failover(State) ->
     ok = simple_ne_logic:ofsh_failover(Pid),
     {ok, State}.
 
+handle_error(Reason, State) ->
+    #?STATE{
+        datapath_id = DatapathId,
+        handler_pid = Pid
+    } = State,
+    ok = simple_ne_logic:ofsh_handle_error(Pid, DatapathId, Reason).
+
 handle_message(Msg, State) ->
     #?STATE{
         datapath_id = DatapathId,
         handler_pid = Pid
     } = State,
-    ok = simple_ne_logic:ofsh_handle_message(Pid, DatapathId, Msg),
-    {ok, State}.
+    ok = simple_ne_logic:ofsh_handle_message(Pid, DatapathId, Msg).
 
 terminate(State) ->
     #?STATE{

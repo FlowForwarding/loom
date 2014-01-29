@@ -32,6 +32,7 @@
     ofsh_disconnect/3,
     ofsh_failover/1,
     ofsh_handle_message/3,
+    ofsh_handle_error/3,
     ofsh_terminate/2,
     switches/0,
     send/2,
@@ -71,6 +72,10 @@ ofsh_failover(_Pid) ->
 
 ofsh_handle_message(_Pid, DatapathId, Msg) ->
     ?INFO("message in: ~p ~p~n", [DatapathId, Msg]),
+    ok.
+
+ofsh_handle_error(_Pid, DatapathId, Reason) ->
+    ?INFO("rror in: ~p ~p~n", [DatapathId, Reason]),
     ok.
 
 ofsh_terminate(_Pid, DatapathId) ->
