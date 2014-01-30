@@ -5,6 +5,7 @@
     grant_ipaddr/1,
     revoke_ipaddr/1,
     send/2,
+    sync_send/2,
     subscribe/2,
     ping/1,
     i/1
@@ -28,6 +29,9 @@ revoke_ipaddr(IpAddr) ->
 
 send(IpAddr, Msg) ->
     simple_ne_logic:send(IpAddr, Msg).
+
+sync_send(IpAddr, Msg) ->
+    simple_ne_logic:sync_send(IpAddr, Msg).
 
 subscribe(IpAddr, MsgType) ->
     simple_ne_logic:subscribe(IpAddr, MsgType).
