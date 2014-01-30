@@ -21,6 +21,5 @@ apps/*/logs
 apps/*/ebin
 apps/*/.eunit
 ebin/
-rebar
 erl_crash.dump
 Mnesia*
