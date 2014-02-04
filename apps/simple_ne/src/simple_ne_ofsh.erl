@@ -1,4 +1,12 @@
+%%%-------------------------------------------------------------------
+%%% @copyright (C) 1999-2013, Erlang Solutions Ltd
+%%% @author Marc Sugiyama <marc.sugiyama@erlang-solutions.com>
+%%% @doc
+%%% Simple network executive callback handler for ofs_handler.
+%%% @end
+%%%-------------------------------------------------------------------
 -module(simple_ne_ofsh).
+-copyright("2013, Erlang Solutions Ltd.").
 
 -export([
     init/7,
