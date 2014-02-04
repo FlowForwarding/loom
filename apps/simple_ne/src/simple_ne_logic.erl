@@ -13,6 +13,8 @@
 -define(STATE, simple_ne_logic_state).
 
 -include_lib("loom/include/loom_logger.hrl").
+-include_lib("ofs_handler/include/ofs_handler.hrl").
+-include_lib("of_protocol/include/of_protocol.hrl").
 
 -record(?STATE, {
     switches_table
@@ -38,11 +40,11 @@
 -export([
     ofsh_init/5,
     ofsh_connect/6,
-    ofsh_disconnect/3,
-    ofsh_failover/1,
-    ofsh_handle_message/3,
-    ofsh_handle_error/3,
-    ofsh_terminate/2,
+    ofsh_disconnect/2,
+    ofsh_failover/0,
+    ofsh_handle_message/2,
+    ofsh_handle_error/2,
+    ofsh_terminate/1,
     switches/0,
     send/2,
     sync_send/2,
@@ -56,38 +58,66 @@ start_link() ->
 %% Callback API
 %% ----------------------------------------------------------------------------
 
+% These functions are called from simple_ne_ofsh.erl.
+-spec ofsh_init(handler_mode(), ipaddress(), datapath_id(), of_version(), connection()) -> ok.
 ofsh_init(active, IpAddr, DatapathId, Version, Connection) ->
+    % new main connection
     ok = gen_server:call(?MODULE, {init, IpAddr, DatapathId, Version, Connection}),
     ?INFO("new active connection: ~p ~p~n", [IpAddr, DatapathId]),
-    {ok, self()};
+    ok;
 ofsh_init(standby, IpAddr, DatapathId, _Version, _Connection) ->
+    % new main connection
+    % TODO: this will never happen, failover not implemented ofs_handler.
     ?INFO("new standby connection: ~p ~p~n", [IpAddr, DatapathId]),
-    {ok, self()}.
+    ok.
 
-ofsh_connect(active, _IpAddr, DatapathId, _Connection, _Version, AuxId) ->
+-spec ofsh_connect(handler_mode(), ipaddress(), datapath_id(), of_version(), connection(), auxid()) -> ok.
+ofsh_connect(active, _IpAddr, DatapathId, _Version, _Connection, AuxId) ->
+    % new auxiliary connection
+    % The simple network executive doesn't need to capture the auxiliary
+    % connections, so they are not passed to the simple_ne_logic pid.
     ?INFO("new active aux connection: ~p ~p~n", [AuxId, DatapathId]),
-    {ok, self()};
-ofsh_connect(standby, _IpAddr, DatapathId, _Connection, _Version, AuxId) ->
+    ok;
+ofsh_connect(standby, _IpAddr, DatapathId, _Version, _Connection, AuxId) ->
+    % new auxiliary connection
+    % TODO: this will never happen, failover not implemented ofs_handler.
     ?INFO("new standby aux connection: ~p ~p~n", [AuxId, DatapathId]),
-    {ok, self()}.
+    ok.
 
-ofsh_disconnect(_Pid, AuxId, DatapathId) ->
+-spec ofsh_disconnect(auxid(), datapath_id()) -> ok.
+ofsh_disconnect(AuxId, DatapathId) ->
+    % lost an auxiliary connection
+    % The simple network executive is not tracking the auxiliary
+    % connections, so they are not passed to the simple_ne_logic pid.
     ?INFO("disconnect aux connection: ~p ~p~n", [AuxId, DatapathId]),
     ok.
 
-ofsh_failover(_Pid) ->
+-spec ofsh_failover() -> ok.
+ofsh_failover() ->
+    % ofs_handler failover
+    % TODO: this will never happen, failover not implemented ofs_handler.
     ?INFO("failover"),
     ok.
 
-ofsh_handle_message(_Pid, DatapathId, Msg) ->
+-spec ofsh_handle_message(datapath_id(), ofp_message()) -> ok.
+ofsh_handle_message(DatapathId, Msg) ->
+    % process a message from the switch.
+    % the simple network executive doesn't process any messages
+    % from the switch, so they are not passed to the simple_ne_logic pid.
     ?INFO("message in: ~p ~p~n", [DatapathId, Msg]),
     ok.
 
-ofsh_handle_error(_Pid, DatapathId, Reason) ->
+-spec ofsh_handle_error(datapath_id(), error_reason()) -> ok.
+ofsh_handle_error(DatapathId, Reason) ->
+    % Error on connection.
     ?INFO("rror in: ~p ~p~n", [DatapathId, Reason]),
     ok.
 
-ofsh_terminate(_Pid, DatapathId) ->
+-spec ofsh_terminate(datapath_id()) -> ok.
+ofsh_terminate(DatapathId) ->
+    % lost the main connection
+    % TODO: tell simple_ne_logic pid that it is disconnected from this
+    % switch.
     ?INFO("disconnect main connection: ~p~n", [DatapathId]),
     ok.
 
@@ -95,15 +125,41 @@ ofsh_terminate(_Pid, DatapathId) ->
 %% Utility API
 %% ----------------------------------------------------------------------------
 
+%% @doc
+%% Returns the list of connected switches.
+%% @end
+-spec switches() -> [{ipaddress(), datapath_id(), of_version(), connection()}].
 switches() ->
     gen_server:call(?SERVER, switches).
 
+%% @doc
+%% Send ``Msg'' to the switch connected from ``IpAddr''.  Returns
+%% ``not_found'' if there is no switch connected from ``IpAddrr'', ``ok''
+%% if the message is sent successfully, or ``error'' if there was an error
+%% sending the request to the switch.
+%% @end
+-spec send(ipaddress(), ofp_message()) -> not_found | ok | {error, error_reason()}.
 send(IpAddr, Msg) ->
     gen_server:call(?SERVER, {send, IpAddr, Msg}).
 
+%% @doc
+%% Send ``Msg'' to the switch connected from ``IpAddr'' and wait
+%% for any replies.  Returns
+%% ``not_found'' if there is no switch connected from ``IpAddrr'',
+%% ``{ok, Reply}''
+%% if the message is sent successfully, or ``error'' if there was an error
+%% sending the request to the switch.  ``Reply'' is ``no_reply'' if there
+%% was no reply to the request, or ``Reply'' is an ``ofp_message'' record
+%% that may be decoded with ``of_msg_lib:decode/1''.
+%% @end
+-spec sync_send(ipaddress(), ofp_message()) -> not_found | {ok, no_reply | ofp_message()} | {error, error_reason()}.
 sync_send(IpAddr, Msg) ->
     gen_server:call(?SERVER, {sync_send, IpAddr, Msg}).
 
+%% @doc
+%% Subscribe to messages received from ``IpAddr''.
+%% @end
+-spec subscribe(ipaddress(), subscription_item()) -> ok.
 subscribe(IpAddr, MsgType) ->
     gen_server:call(?SERVER, {subscribe, IpAddr, MsgType}).
 
@@ -117,6 +173,8 @@ init([]) ->
     {ok, State}.
 
 handle_call({init, IpAddr, DatapathId, Version, Connection}, _From, State) ->
+    % Got the main connection, remember tha mapping between the ip address
+    % and the datapath id
     ok = register_switch(IpAddr, DatapathId, Version, Connection, State),
     {reply, ok, State};
 handle_call({sync_send, IpAddr, Msg}, _From, State) ->
@@ -181,5 +239,6 @@ do_subscribe(IpAddr, MsgType, State) ->
     case find_switch(IpAddr, State) of
         not_found -> not_found;
         DatapathId ->
+            % use our callback module to receive the handle_message.
             ofs_handler:subscribe(DatapathId, simple_ne_ofsh, MsgType)
     end.
