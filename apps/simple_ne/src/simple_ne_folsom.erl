@@ -2,10 +2,10 @@
 %%% @copyright (C) 1999-2013, Erlang Solutions Ltd
 %%% @author Marc Sugiyama <marc.sugiyama@erlang-solutions.com>
 %%% @doc
-%%% Simple network exeuctive open flow stats poller.
+%%% Process OpenFlow stat replies.
 %%% @end
 %%%-------------------------------------------------------------------
--module(simple_ne_stats).
+-module(simple_ne_folsom).
 -copyright("2013, Erlang Solutions Ltd.").
 
 -behaviour(gen_server).
