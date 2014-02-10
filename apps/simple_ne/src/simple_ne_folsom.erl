@@ -2,7 +2,7 @@
 %%% @copyright (C) 1999-2013, Erlang Solutions Ltd
 %%% @author Marc Sugiyama <marc.sugiyama@erlang-solutions.com>
 %%% @doc
-%%% Process OpenFlow stat replies.
+%%% Publish OpenFlow stats into folsom.
 %%% @end
 %%%-------------------------------------------------------------------
 -module(simple_ne_folsom).
@@ -10,21 +10,15 @@
 
 -behaviour(gen_server).
 -define(SERVER, ?MODULE).
--define(STATE, simple_ne_stats_state).
+-define(STATE, simple_ne_folsom_state).
 
 -include_lib("loom/include/loom_logger.hrl").
 -include_lib("of_protocol/include/of_protocol.hrl").
 -include("simple_ne_ofsh.hrl").
 
--define(DEFAULT_STATS_INTERVAL, 10).
--define(DEFAULT_STATS, [flow, table, aggregate, port, queue, group, meter]).
-
 -record(?STATE, {
-    stats,
-    stats_interval, 
-    interval_timer,
-    of_version,
-    datapath_id
+    stats :: term(),
+    stats_version = 0 :: integer()
 }).
 
 -record(flow_stat, {
@@ -116,7 +110,7 @@
 %% API Function Exports
 %% ------------------------------------------------------------------
 
--export([start_link/2,
+-export([start_link/0,
          handle_message/2]).
 
 %% ------------------------------------------------------------------
@@ -130,12 +124,11 @@
 %% API Function Definitions
 %% ------------------------------------------------------------------
 
-start_link(Version, DatapathId) ->
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [Version, DatapathId], []).
+start_link() ->
+    gen_server:start_link({local, ?SERVER}, ?MODULE, noargs, []).
 
 -spec handle_message(ofp_message(), ofs_state()) -> ok.
 handle_message(Msg, #?OFS_STATE{datapath_id = DatapathId}) ->
-    % XXX locate the right gen_server?
     gen_server:cast(?SERVER, {handle_message, DatapathId, Msg}),
     ok.
 
@@ -143,37 +136,21 @@ handle_message(Msg, #?OFS_STATE{datapath_id = DatapathId}) ->
 %% gen_server Function Definitions
 %% ------------------------------------------------------------------
 
-init([Version, DatapathId]) ->
-    Stats = application:get_env(loom, stats, ?DEFAULT_STATS),
-    StatsInterval = application:get_env(loom, stats_interval_sec, ?DEFAULT_STATS_INTERVAL),
-    IntervalTimer = timer:send_interval(StatsInterval * 1000, poll_stats),
-    State = #?STATE{stats = Stats,
-                    stats_interval = StatsInterval,
-                    interval_timer = IntervalTimer,
-                    of_version = Version,
-                    datapath_id = DatapathId},
-    gen_server:cast(self(), subscribe),
+init(noargs) ->
+    State = #?STATE{stats = []},
     {ok, State}.
 
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
-handle_cast(subscribe, State = #?STATE{datapath_id = DatapathId,
-                                       stats = Stats}) ->
-    [subscribe_reply(DatapathId, Stat) || Stat <- Stats],
-    {noreply, State};
 handle_cast({handle_message, DatapathId, Msg}, State) ->
-    % XXX - list of old stats
-    update_folsom(process_reply(DatapathId, Msg)),
-    {noreply, State};
+    Metrics = lists:flatten(process_reply(DatapathId, Msg)),
+    CoreName = folsom_corename(DatapathId, Msg),
+    NewState = update_folsom(CoreName, Metrics, State),
+    {noreply, NewState};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
-handle_info(poll_stats, State = #?STATE{of_version = Version,
-                                        datapath_id = DatapathId,
-                                        stats = Stats}) ->
-    ok = poll_stats(Version, Stats, DatapathId),
-    {noreply, State};
 handle_info(_Info, State) ->
     {noreply, State}.
 
@@ -187,69 +164,64 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal Function Definitions
 %% ------------------------------------------------------------------
 
-update_folsom({flows, Stats}) ->
-    ok.
+update_folsom(CoreName, Metrics,
+                        State = #?STATE{stats = ExistingMetrics,
+                                        stats_version = Version}) ->
+    % create folsom metrics as needed and set value
+    NewVersion = Version + 1,
+    Metrics1 = lists:foldl(
+        fun(Metric, Existing) ->
+            {Name, Value} = Metric,
+            NewExisting = maybe_create_metric(Name, Existing, NewVersion),
+            ok = folsom_metric:notify(Name, Value),
+            NewExisting
+         end, ExistingMetrics, Metrics),
+    % delete folsom metrics with the same corename that were not updated
+    Metrics2 = lists:foldl(
+        fun({N, V}, M) ->
+            case V /= NewVersion andalso common_prefix(CoreName, N) of
+                true ->
+                    folsom_metric:delete_metric(N),
+                    gb_tree:delete(N, M);
+                false ->
+                    M
+            end
+        end, Metrics1, gb_tree:to_list(Metrics1)),
+    State#?STATE{stats = Metrics2, stats_version = NewVersion}.
 
-poll_stats(Version, Stats, DatapathId) ->
-    Requests = stats_msgs(Stats, Version),
-    ok = ofs_handler:send_list(DatapathId, Requests).
+common_prefix(Prefix, Value) ->
+    binary:longest_common_prefix([Prefix, Value]) == size(Prefix).
 
-subscribe_reply(DatapathId, Stat) ->
-    ok = ofs_handler:subscribe(DatapathId, ?MODULE, stats_reply(Stat)).
+% create the folsom metric if it doesn't exist yet
+maybe_create_metric(Name, Existing, NewVersion) ->
+    case gb_tree:lookup(Name, Existing) of
+        none ->
+            folsom:new_gauge(Name);
+        _ ->
+            ok
+    end,
+    gb_tree:enter(Name, NewVersion, Existing).
 
-stats_msgs(Version, Stats) ->
-    [stats_msg(Version, Stat) || Stat <- Stats].
-
-stats_msg(Version, flow) ->
-    of_msg_lib:get_flow_statistics(Version, all, [], []);
-stats_msg(Version, table) ->
-    of_msg_lib:get_table_stats(Version);
-stats_msg(Version, aggregate) ->
-    of_msg_lib:get_aggregate_statistics(Version, all, [], []);
-stats_msg(Version, port) ->
-    of_msg_lib:get_port_statistics(Version, all);
-stats_msg(Version, queue) ->
-    of_msg_lib:get_queue_statistics(Version, any, all);
-stats_msg(Version, group) ->
-    of_msg_lib:get_group_statistics(Version, all);
-stats_msg(Version, meter) ->
-    of_msg_lib:get_meter_stats(Version, all).
-
-stats_reply(flow) ->
-    flow_stats_reply;
-stats_reply(table) ->
-    table_stats_reply;
-stats_reply(aggregate) ->
-    aggregate_stats_reply;
-stats_reply(port) ->
-    port_stats_reply;
-stats_reply(queue) ->
-    queue_stats_reply;
-stats_reply(group) ->
-    group_stats_reply;
-stats_reply(meter) ->
-    meter_stats_reply.
-
-process_reply(DatapathId, {ok, {flow_stats_reply, Body}}) ->
+process_reply(_DatapathId, {ok, {flow_stats_reply, Body}}) ->
     Flows = proplists:get_value(flows, Body),
-    {flows, process_flows(DatapathId, Flows)};
-process_reply(DatapathId, {ok, {table_stats_reply, Body}}) ->
+    process_flows(Flows);
+process_reply(_DatapathId, {ok, {table_stats_reply, Body}}) ->
     Tables = proplists:get_value(tables, Body),
-    {tables, process_tables(DatapathId, Tables)};
-process_reply(DatapathId, {ok, {aggregate_stats_reply, Body}}) ->
-    {aggregate, process_aggregates(DatapathId, Body)};
-process_reply(DatapathId, {ok, {port_stats_reply, Body}}) ->
+    process_tables(Tables);
+process_reply(_DatapathId, {ok, {aggregate_stats_reply, Body}}) ->
+    process_aggregates(Body);
+process_reply(_DatapathId, {ok, {port_stats_reply, Body}}) ->
     Ports = proplists:get_value(ports, Body),
-    {ports, process_ports(DatapathId, Ports)};
-process_reply(DatapathId, {ok, {queue_stats_reply, Body}}) ->
+    process_ports(Ports);
+process_reply(_DatapathId, {ok, {queue_stats_reply, Body}}) ->
     Queues = proplists:get_value(queues, Body),
-    {queues, process_queues(DatapathId, Queues)};
-process_reply(DatapathId, {ok, {group_stats_reply, Body}}) ->
+    process_queues(Queues);
+process_reply(_DatapathId, {ok, {group_stats_reply, Body}}) ->
     Groups = proplists:get_value(groups, Body),
-    {groups, process_groups(DatapathId, Groups)};
-process_reply(DatapathId, {ok, {meter_stats_reply, Body}}) ->
+    process_groups(Groups);
+process_reply(_DatapathId, {ok, {meter_stats_reply, Body}}) ->
     Meters = proplists:get_value(meters, Body),
-    {meters, process_meters(DatapathId, Meters)};
+    process_meters(Meters);
 process_reply(DatapathId, {ok, {UnknownReply, _}}) ->
     ?INFO("Unknown stats poll reply: ~p(~p)~n", [DatapathId, UnknownReply]),
     [];
@@ -259,12 +231,12 @@ process_reply(DatapathId, {error, Reason}) ->
 
 % flow stats
 
-process_flows(_DatapathId, undefined) ->
+process_flows(undefined) ->
     [];
-process_flows(DatapathId, Flows) ->
+process_flows(Flows) ->
     lists:foldl(
         fun (Flow, Metrics) ->
-            [make_stats(DatapathId, process_flow(Flow)) | Metrics]
+            [make_stats(process_flow(Flow)) | Metrics]
         end, [], Flows).
 
 process_flow(Flow) ->
@@ -289,12 +261,12 @@ process_flow(Flow) ->
 
 % table stats
 
-process_tables(_DatapathId, undefined) ->
+process_tables(undefined) ->
     [];
-process_tables(DatapathId, Tables) ->
+process_tables(Tables) ->
     lists:foldl(
         fun (Table, Metrics) ->
-                [make_stats(DatapathId, process_table(Table)) | Metrics]
+                [make_stats(process_table(Table)) | Metrics]
         end, [], Tables).
 
 process_table(Table) ->
@@ -313,8 +285,10 @@ process_table(Table) ->
 
 % aggregate stats
 
-process_aggregates(DatapathId, Body) ->
-    make_stats(DatapathId, process_aggregate(Body)).
+process_aggregates(undefined) ->
+    [];
+process_aggregates(Body) ->
+    make_stats(process_aggregate(Body)).
 
 process_aggregate(Aggregate) ->
     lists:foldl(
@@ -330,12 +304,12 @@ process_aggregate(Aggregate) ->
 
 % port stats
 
-process_ports(_DatapathId, undefined) ->
+process_ports(undefined) ->
     [];
-process_ports(DatapathId, Ports) ->
+process_ports(Ports) ->
     lists:foldl(
         fun (Port, Metrics) ->
-                [make_stats(DatapathId, process_port(Port)) | Metrics]
+                [make_stats(process_port(Port)) | Metrics]
         end, [], Ports).
 
 process_port(Port) ->
@@ -376,12 +350,12 @@ process_port(Port) ->
 
 % queue stats
 
-process_queues(_DatapathId, undefined) ->
+process_queues(undefined) ->
     [];
-process_queues(DatapathId, Queues) ->
+process_queues(Queues) ->
     lists:foldl(
         fun(Queue, Metrics) ->
-            [make_stats(DatapathId, process_queue(Queue)) | Metrics]
+            [make_stats(process_queue(Queue)) | Metrics]
         end, [], Queues).
 
 process_queue(Queue) ->
@@ -404,12 +378,12 @@ process_queue(Queue) ->
 
 % group stats
 
-process_groups(_DatapathId, undefined) ->
+process_groups(undefined) ->
     [];
-process_groups(DatapathId, Groups) ->
+process_groups(Groups) ->
     lists:foldl(
         fun (Group, Metrics) ->
-            [make_stats(DatapathId, process_group(Group)) | Metrics]
+            [make_stats(process_group(Group)) | Metrics]
         end, [], Groups).
 
 process_group(Group) ->
@@ -448,12 +422,12 @@ process_bucket(BucketId, Bucket) ->
 
 % meter stats
 
-process_meters(_DatapathId, undefined) ->
+process_meters(undefined) ->
     [];
-process_meters(DatapathId, Meters) ->
+process_meters(Meters) ->
     lists:foldl(
         fun (Meter, Metrics) ->
-            [make_stats(DatapathId, process_meter(Meter)) | Metrics]
+            [make_stats(process_meter(Meter)) | Metrics]
         end, [], Meters).
 
 process_meter(Meter) ->
@@ -492,47 +466,58 @@ process_band(BandId, Band) ->
 
 % folsom stats
 
-make_stats(DatapathId, Stat) ->
-    BaseName = folsom_basename(DatapathId, Stat),
-    [{folsom_name(BaseName, Key), Value} || {Key, Value}
-                                        <- folsom_stats(Stat)].
+make_stats(Stat) ->
+    BaseName = folsom_basename(Stat),
+    [{folsom_name(BaseName, Key), Value} || {Key, Value} <- folsom_stats(Stat)].
 
 folsom_name(BaseName, Name) ->
-    list_to_binary([BaseName, $_, Name]).
+    list_to_binary([BaseName, $-, Name]).
 
-folsom_basename(DatapathId, #flow_stat{table_id = TableId,
+folsom_corename(DatapathId, {flow_stats_reply, _}) ->
+    [datapathid_to_binary(DatapathId),
+     <<"-flow-">>];
+folsom_corename(DatapathId, {table_stats_reply, _}) ->
+    [datapathid_to_binary(DatapathId),
+     <<"-table-">>];
+folsom_corename(DatapathId, {aggregate_stats_reply, _}) ->
+    [datapathid_to_binary(DatapathId),
+     <<"-aggregate-">>];
+folsom_corename(DatapathId, {port_stats_reply, _}) ->
+    [datapathid_to_binary(DatapathId),
+     <<"-port-">>];
+folsom_corename(DatapathId, {queue_stats_reply, _}) ->
+    [datapathid_to_binary(DatapathId),
+     <<"-queue-">>]; 
+folsom_corename(DatapathId, {group_stats_reply, _}) ->
+    [datapathid_to_binary(DatapathId),
+     <<"-group-">>];
+folsom_corename(DatapathId, {meter_stats_reply, _}) ->
+    [datapathid_to_binary(DatapathId),
+     <<"-meter-">>];
+folsom_corename(_DatapathId, _) ->
+    <<>>.
+
+folsom_basename(#flow_stat{table_id = TableId,
                                               priority = Priority,
                                               cookie = Cookie}) ->
-    [datapathid_to_binary(DatapathId),
-     <<"-flow-">>,
-     integer_to_binary(TableId),
+    % XXX may need to identify flow by match
+    [integer_to_binary(TableId),
      $-,
      binary_to_hex(Priority),
      $-,
      binary_to_hex(Cookie)];
-folsom_basename(DatapathId, #table_stat{table_id = TableId}) ->
-    [datapathid_to_binary(DatapathId),
-     <<"-table-">>,
-     integer_to_binary(TableId)];
-folsom_basename(DatapathId, #aggregate_stat{}) ->
-    [datapathid_to_binary(DatapathId),
-     <<"-aggregate-">>];
-folsom_basename(DatapathId, #port_stat{port_no = Port}) ->
-    [datapathid_to_binary(DatapathId),
-     <<"-port-">>, 
-     integer_to_binary(Port)];
-folsom_basename(DatapathId, #queue_stat{port_no = Port}) ->
-    [datapathid_to_binary(DatapathId),
-     <<"-queue-">>, 
-     integer_to_binary(Port)];
-folsom_basename(DatapathId, #group_stat{group_id = Group}) ->
-    [datapathid_to_binary(DatapathId),
-     <<"-group-">>, 
-     integer_to_binary(Group)];
-folsom_basename(DatapathId, #band_stat{band_id = Band}) ->
-    [datapathid_to_binary(DatapathId),
-     <<"-band-">>, 
-     integer_to_binary(Band)].
+folsom_basename(#table_stat{table_id = TableId}) ->
+    integer_to_binary(TableId);
+folsom_basename(#aggregate_stat{}) ->
+    <<>>;
+folsom_basename(#port_stat{port_no = Port}) ->
+    integer_to_binary(Port);
+folsom_basename(#queue_stat{port_no = Port}) ->
+    integer_to_binary(Port);
+folsom_basename(#group_stat{group_id = Group}) ->
+    integer_to_binary(Group);
+folsom_basename(#meter_stat{meter_id = Meter}) ->
+    integer_to_binary(Meter).
 
 folsom_stats(Stat = #flow_stat{}) ->
     #flow_stat{duration_sec = SDuration,
@@ -604,17 +589,17 @@ folsom_stats(Stat = #group_stat{}) ->
                 duration_sec = Duration,
                 duration_nsec = NDuration,
                 bucket_stats = Buckets} = Stat,
-    [{<<"packet_count">>, PCount},
+    lists:flatten([{<<"packet_count">>, PCount},
      {<<"byte_count">>, BCount},
      {<<"ref_count">>, RCount},
      {<<"duration_sec">>, Duration},
      {<<"duration_nsec">>, NDuration},
-     [folsom_stats(Bucket) || Bucket <- Buckets]];
+     [folsom_stats(Bucket) || Bucket <- Buckets]]);
 folsom_stats(Stat = #bucket_stat{}) ->
     #bucket_stat{bucket_id = BucketId,
                  packet_count = PCount,
                  byte_count = BCount} = Stat,
-    Base = [<<"bucket">>, $-, integer_to_list(BucketId), $-],
+    Base = [<<"bucket-">>, integer_to_list(BucketId), $-],
     [{[Base, <<"packet_count">>], PCount},
      {[Base, <<"byte_count">>], BCount}];
 folsom_stats(Stat = #meter_stat{}) ->
@@ -624,17 +609,17 @@ folsom_stats(Stat = #meter_stat{}) ->
                 duration_sec = Duration,
                 duration_nsec = NDuration,
                 band_stats = Bands} = Stat,
-    [{<<"flow_count">>, FCount},
+    lists:flatten([{<<"flow_count">>, FCount},
      {<<"byte_in_count">>, BCount},
      {<<"packet_in_count">>, PCount},
      {<<"duration_sec">>, Duration},
      {<<"duration_nsec">>, NDuration},
-     [folsom_stats(Band) || Band <- Bands]];
+     [folsom_stats(Band) || Band <- Bands]]);
 folsom_stats(Stat = #band_stat{}) ->
     #band_stat{band_id = BandId,
                packet_band_count = PCount,
                byte_band_count = BCount} = Stat,
-    Base = [<<"band">>, $-, integer_to_list(BandId), $-],
+    Base = [<<"band-">>, integer_to_list(BandId), $-],
     [{[Base, <<"packet_band_count">>], PCount},
      {[Base, <<"byte_band_count">>], BCount}].
 
