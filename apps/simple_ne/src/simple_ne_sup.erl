@@ -32,6 +32,8 @@ start_link() ->
 
 init([]) ->
     {ok, { {one_for_one, 5, 10}, [
-        ?CHILD(simple_ne_logic, worker)
+        ?CHILD(simple_ne_stats_sup, supervisor),
+        ?CHILD(simple_ne_logic, worker),
+        ?CHILD(simple_ne_folsom, worker)
     ]} }.
 

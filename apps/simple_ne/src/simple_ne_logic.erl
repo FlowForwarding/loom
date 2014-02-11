@@ -62,8 +62,8 @@ start_link() ->
 -spec ofsh_init(handler_mode(), ipaddress(), datapath_id(), of_version(), connection()) -> ok.
 ofsh_init(active, IpAddr, DatapathId, Version, Connection) ->
     % new main connection
-    ok = gen_server:call(?MODULE, {init, IpAddr, DatapathId, Version, Connection}),
     ?INFO("new active connection: ~p ~p~n", [IpAddr, DatapathId]),
+    ok = gen_server:call(?MODULE, {init, IpAddr, DatapathId, Version, Connection}),
     ok;
 ofsh_init(standby, IpAddr, DatapathId, _Version, _Connection) ->
     % new main connection
@@ -119,6 +119,7 @@ ofsh_terminate(DatapathId) ->
     % TODO: tell simple_ne_logic pid that it is disconnected from this
     % switch.
     ?INFO("disconnect main connection: ~p~n", [DatapathId]),
+    ok = gen_server:call(?MODULE, {terminate, DatapathId}),
     ok.
 
 %% ----------------------------------------------------------------------------
@@ -126,9 +127,14 @@ ofsh_terminate(DatapathId) ->
 %% ----------------------------------------------------------------------------
 
 %% @doc
-%% Returns the list of connected switches.
+%% Returns the list of connected switches.  The returned tuples have
+%% the IP address of the switch (for calling simple_ne_logic
+%% functions), the datapath id (for calling ofs_handler),
+%% the open flow version number (for calling of_msg_lib), the
+%% connection (for calling of_driver), and the simple_ne_stats pid
+%% responsible for polling for open flow stats from this switch.
 %% @end
--spec switches() -> [{ipaddress(), datapath_id(), of_version(), connection()}].
+-spec switches() -> [{ipaddress(), datapath_id(), of_version(), connection(), pid()}].
 switches() ->
     gen_server:call(?SERVER, switches).
 
@@ -175,7 +181,8 @@ init([]) ->
 handle_call({init, IpAddr, DatapathId, Version, Connection}, _From, State) ->
     % Got the main connection, remember tha mapping between the ip address
     % and the datapath id
-    ok = register_switch(IpAddr, DatapathId, Version, Connection, State),
+    {ok, Pid} = simple_ne_stats_sup:start_child(Version, DatapathId),
+    ok = register_switch(IpAddr, DatapathId, Version, Connection, Pid, State),
     {reply, ok, State};
 handle_call({sync_send, IpAddr, Msg}, _From, State) ->
     Reply = do_sync_send(IpAddr, Msg, State),
@@ -208,8 +215,8 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal Function Definitions
 %% ------------------------------------------------------------------
 
-register_switch(IpAddr, DatapathId, Version, Connection, #?STATE{switches_table = Switches}) ->
-    true = ets:insert(Switches, {IpAddr, DatapathId, Version, Connection}),
+register_switch(IpAddr, DatapathId, Version, Connection, PollerPid, #?STATE{switches_table = Switches}) ->
+    true = ets:insert(Switches, {IpAddr, DatapathId, Version, Connection, PollerPid}),
     ok.
 
 do_get_switches(#?STATE{switches_table = Switches}) ->
@@ -218,7 +225,7 @@ do_get_switches(#?STATE{switches_table = Switches}) ->
 find_switch(IpAddr, #?STATE{switches_table = Switches}) ->
     case ets:lookup(Switches, IpAddr) of
         [] -> not_found;
-        [{_, DatapathId, _, _}] -> DatapathId
+        [{_, DatapathId, _, _, _}] -> DatapathId
     end.
 
 do_sync_send(IpAddr, Msg, State) ->

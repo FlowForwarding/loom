@@ -50,16 +50,13 @@ start_link(Version, DatapathId) ->
 %% ------------------------------------------------------------------
 
 init([Version, DatapathId]) ->
-    Stats = application:get_env(loom, stats, ?DEFAULT_STATS),
-    StatsInterval = application:get_env(loom, stats_interval_sec, ?DEFAULT_STATS_INTERVAL),
-    IntervalTimer = timer:send_interval(StatsInterval * 1000, poll_stats),
+    Stats = application:get_env(simple_ne, stats, ?DEFAULT_STATS),
+    StatsInterval = application:get_env(simple_ne, stats_interval_sec, ?DEFAULT_STATS_INTERVAL),
     State = #?STATE{stats = Stats,
                     stats_interval = StatsInterval,
-                    interval_timer = IntervalTimer,
                     of_version = Version,
                     datapath_id = DatapathId},
-    gen_server:cast(self(), subscribe),
-    {ok, State}.
+    launch(State).
 
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
@@ -89,8 +86,17 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal Function Definitions
 %% ------------------------------------------------------------------
 
+% only subscribe and start time if we enabled.
+launch(State = #?STATE{stats_interval = disable}) ->
+    {ok, State};
+launch(State = #?STATE{stats_interval = StatsInterval}) ->
+    % subscribe before the first poll.
+    gen_server:cast(self(), subscribe),
+    IntervalTimer = timer:send_interval(StatsInterval * 1000, poll_stats),
+    {ok, State#?STATE{interval_timer = IntervalTimer}}.
+
 poll_stats(Version, Stats, DatapathId) ->
-    Requests = stats_msgs(Stats, Version),
+    Requests = stats_msgs(Version, Stats),
     ok = ofs_handler:send_list(DatapathId, Requests).
 
 subscribe_reply(DatapathId, Stat) ->

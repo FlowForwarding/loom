@@ -72,6 +72,6 @@ ping(IpAddr) ->
 -spec i(Item:: atom()) -> term().
 i(switches) ->
     lists:foreach(
-        fun({IpAddr, DatapathId, Version, _}) ->
+        fun({IpAddr, DatapathId, Version, _, _}) ->
             io:format("~p: v~p ~p~n", [IpAddr, Version, DatapathId])
         end, simple_ne_logic:switches()).

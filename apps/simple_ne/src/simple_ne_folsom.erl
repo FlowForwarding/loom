@@ -137,7 +137,7 @@ handle_message(Msg, #?OFS_STATE{datapath_id = DatapathId}) ->
 %% ------------------------------------------------------------------
 
 init(noargs) ->
-    State = #?STATE{stats = []},
+    State = #?STATE{stats = gb_trees:empty()},
     {ok, State}.
 
 handle_call(_Request, _From, State) ->
@@ -172,8 +172,9 @@ update_folsom(CoreName, Metrics,
     Metrics1 = lists:foldl(
         fun(Metric, Existing) ->
             {Name, Value} = Metric,
-            NewExisting = maybe_create_metric(Name, Existing, NewVersion),
-            ok = folsom_metric:notify(Name, Value),
+            FullName = list_to_binary([CoreName, Name]),
+            NewExisting = maybe_create_metric(FullName, Existing, NewVersion),
+            ok = folsom_metrics:notify(FullName, Value),
             NewExisting
          end, ExistingMetrics, Metrics),
     % delete folsom metrics with the same corename that were not updated
@@ -181,12 +182,12 @@ update_folsom(CoreName, Metrics,
         fun({N, V}, M) ->
             case V /= NewVersion andalso common_prefix(CoreName, N) of
                 true ->
-                    folsom_metric:delete_metric(N),
-                    gb_tree:delete(N, M);
+                    folsom_metrics:delete_metric(N),
+                    gb_trees:delete(N, M);
                 false ->
                     M
             end
-        end, Metrics1, gb_tree:to_list(Metrics1)),
+        end, Metrics1, gb_trees:to_list(Metrics1)),
     State#?STATE{stats = Metrics2, stats_version = NewVersion}.
 
 common_prefix(Prefix, Value) ->
@@ -194,39 +195,36 @@ common_prefix(Prefix, Value) ->
 
 % create the folsom metric if it doesn't exist yet
 maybe_create_metric(Name, Existing, NewVersion) ->
-    case gb_tree:lookup(Name, Existing) of
+    case gb_trees:lookup(Name, Existing) of
         none ->
-            folsom:new_gauge(Name);
+            folsom_metrics:new_gauge(Name);
         _ ->
             ok
     end,
-    gb_tree:enter(Name, NewVersion, Existing).
+    gb_trees:enter(Name, NewVersion, Existing).
 
-process_reply(_DatapathId, {ok, {flow_stats_reply, Body}}) ->
+process_reply(_DatapathId, {flow_stats_reply, _Xid, Body}) ->
     Flows = proplists:get_value(flows, Body),
     process_flows(Flows);
-process_reply(_DatapathId, {ok, {table_stats_reply, Body}}) ->
+process_reply(_DatapathId, {table_stats_reply, _Xid, Body}) ->
     Tables = proplists:get_value(tables, Body),
     process_tables(Tables);
-process_reply(_DatapathId, {ok, {aggregate_stats_reply, Body}}) ->
+process_reply(_DatapathId, {aggregate_stats_reply, _Xid, Body}) ->
     process_aggregates(Body);
-process_reply(_DatapathId, {ok, {port_stats_reply, Body}}) ->
+process_reply(_DatapathId, {port_stats_reply, _Xid, Body}) ->
     Ports = proplists:get_value(ports, Body),
     process_ports(Ports);
-process_reply(_DatapathId, {ok, {queue_stats_reply, Body}}) ->
+process_reply(_DatapathId, {queue_stats_reply, _Xid, Body}) ->
     Queues = proplists:get_value(queues, Body),
     process_queues(Queues);
-process_reply(_DatapathId, {ok, {group_stats_reply, Body}}) ->
+process_reply(_DatapathId, {group_stats_reply, _Xid, Body}) ->
     Groups = proplists:get_value(groups, Body),
     process_groups(Groups);
-process_reply(_DatapathId, {ok, {meter_stats_reply, Body}}) ->
+process_reply(_DatapathId, {meter_stats_reply, _Xid, Body}) ->
     Meters = proplists:get_value(meters, Body),
     process_meters(Meters);
-process_reply(DatapathId, {ok, {UnknownReply, _}}) ->
+process_reply(DatapathId, {UnknownReply, _Xid, _Body}) ->
     ?INFO("Unknown stats poll reply: ~p(~p)~n", [DatapathId, UnknownReply]),
-    [];
-process_reply(DatapathId, {error, Reason}) ->
-    ?ERROR("stats poll error: ~p(~p)~n", [DatapathId, Reason]),
     [].
 
 % flow stats
@@ -471,29 +469,29 @@ make_stats(Stat) ->
     [{folsom_name(BaseName, Key), Value} || {Key, Value} <- folsom_stats(Stat)].
 
 folsom_name(BaseName, Name) ->
-    list_to_binary([BaseName, $-, Name]).
+    list_to_binary([BaseName, Name]).
 
-folsom_corename(DatapathId, {flow_stats_reply, _}) ->
-    [datapathid_to_binary(DatapathId),
-     <<"-flow-">>];
-folsom_corename(DatapathId, {table_stats_reply, _}) ->
-    [datapathid_to_binary(DatapathId),
-     <<"-table-">>];
-folsom_corename(DatapathId, {aggregate_stats_reply, _}) ->
-    [datapathid_to_binary(DatapathId),
-     <<"-aggregate-">>];
-folsom_corename(DatapathId, {port_stats_reply, _}) ->
-    [datapathid_to_binary(DatapathId),
-     <<"-port-">>];
-folsom_corename(DatapathId, {queue_stats_reply, _}) ->
-    [datapathid_to_binary(DatapathId),
-     <<"-queue-">>]; 
-folsom_corename(DatapathId, {group_stats_reply, _}) ->
-    [datapathid_to_binary(DatapathId),
-     <<"-group-">>];
-folsom_corename(DatapathId, {meter_stats_reply, _}) ->
-    [datapathid_to_binary(DatapathId),
-     <<"-meter-">>];
+folsom_corename(DatapathId, {flow_stats_reply, _, _}) ->
+    list_to_binary([datapathid_to_binary(DatapathId),
+     <<"-flow-">>]);
+folsom_corename(DatapathId, {table_stats_reply, _, _}) ->
+    list_to_binary([datapathid_to_binary(DatapathId),
+     <<"-table-">>]);
+folsom_corename(DatapathId, {aggregate_stats_reply, _, _}) ->
+    list_to_binary([datapathid_to_binary(DatapathId),
+     <<"-aggregate-">>]);
+folsom_corename(DatapathId, {port_stats_reply, _, _}) ->
+    list_to_binary([datapathid_to_binary(DatapathId),
+     <<"-port-">>]);
+folsom_corename(DatapathId, {queue_stats_reply, _, _}) ->
+    list_to_binary([datapathid_to_binary(DatapathId),
+     <<"-queue-">>]); 
+folsom_corename(DatapathId, {group_stats_reply, _, _}) ->
+    list_to_binary([datapathid_to_binary(DatapathId),
+     <<"-group-">>]);
+folsom_corename(DatapathId, {meter_stats_reply, _, _}) ->
+    list_to_binary([datapathid_to_binary(DatapathId),
+     <<"-meter-">>]);
 folsom_corename(_DatapathId, _) ->
     <<>>.
 
@@ -501,23 +499,21 @@ folsom_basename(#flow_stat{table_id = TableId,
                                               priority = Priority,
                                               cookie = Cookie}) ->
     % XXX may need to identify flow by match
-    [integer_to_binary(TableId),
-     $-,
-     binary_to_hex(Priority),
-     $-,
-     binary_to_hex(Cookie)];
+    [integer_to_binary(TableId), $-,
+     binary_to_hex(Priority), $-,
+     binary_to_hex(Cookie), $-];
 folsom_basename(#table_stat{table_id = TableId}) ->
-    integer_to_binary(TableId);
+    [integer_to_binary(TableId), $-];
 folsom_basename(#aggregate_stat{}) ->
     <<>>;
 folsom_basename(#port_stat{port_no = Port}) ->
-    integer_to_binary(Port);
+    [integer_to_binary(Port), $-];
 folsom_basename(#queue_stat{port_no = Port}) ->
-    integer_to_binary(Port);
+    [integer_to_binary(Port), $-];
 folsom_basename(#group_stat{group_id = Group}) ->
-    integer_to_binary(Group);
+    [integer_to_binary(Group), $-];
 folsom_basename(#meter_stat{meter_id = Meter}) ->
-    integer_to_binary(Meter).
+    [integer_to_binary(Meter), $-].
 
 folsom_stats(Stat = #flow_stat{}) ->
     #flow_stat{duration_sec = SDuration,
@@ -627,7 +623,7 @@ datapathid_to_binary({I, B}) ->
     [integer_to_binary(I), $:, binary_to_hex(B)].
 
 binary_to_hex(Bin) when is_binary(Bin) ->
-    [byte_to_hex(Byte) || <<Byte>> <- Bin].
+    [byte_to_hex(N1, N2) || <<N1:4, N2:4>> <= Bin].
 
-byte_to_hex(<<N1:4, N2:4>>) ->
+byte_to_hex(N1, N2) ->
     [erlang:integer_to_list(N1, 16), erlang:integer_to_list(N2, 16)].
