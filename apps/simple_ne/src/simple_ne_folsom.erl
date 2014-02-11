@@ -404,10 +404,11 @@ process_group(Group) ->
         end, #group_stat{}, Group).
 
 process_buckets(Buckets) ->
-    lists:foldl(
+    {_, ProcessedBuckets} = lists:foldl(
         fun (Bucket, {Count, Stats}) ->
                 {Count + 1, [process_bucket(Count, Bucket) | Stats]}
-        end, {0, []}, Buckets).
+        end, {0, []}, Buckets),
+    ProcessedBuckets.
 
 process_bucket(BucketId, Bucket) ->
     lists:foldl(
@@ -448,10 +449,11 @@ process_meter(Meter) ->
         end, #meter_stat{}, Meter).
 
 process_bands(Bands) ->
-    lists:foldl(
+    {_, ProcessedBands} = lists:foldl(
         fun (Band, {Count, Stats}) ->
                 {Count + 1, [process_band(Count, Band) | Stats]}
-        end, {0, []}, Bands).
+        end, {0, []}, Bands),
+    ProcessedBands.
 
 process_band(BandId, Band) ->
     lists:foldl(
@@ -500,7 +502,7 @@ folsom_basename(#flow_stat{table_id = TableId,
                                               cookie = Cookie}) ->
     % XXX may need to identify flow by match
     [integer_to_binary(TableId), $-,
-     binary_to_hex(Priority), $-,
+     integer_to_binary(Priority), $-,
      binary_to_hex(Cookie), $-];
 folsom_basename(#table_stat{table_id = TableId}) ->
     [integer_to_binary(TableId), $-];

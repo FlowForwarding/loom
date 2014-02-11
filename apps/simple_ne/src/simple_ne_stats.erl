@@ -92,6 +92,7 @@ launch(State = #?STATE{stats_interval = disable}) ->
 launch(State = #?STATE{stats_interval = StatsInterval}) ->
     % subscribe before the first poll.
     gen_server:cast(self(), subscribe),
+    gen_server:cast(self(), poll_stats),
     IntervalTimer = timer:send_interval(StatsInterval * 1000, poll_stats),
     {ok, State#?STATE{interval_timer = IntervalTimer}}.
 
@@ -112,7 +113,7 @@ stats_msg(Version, table) ->
 stats_msg(Version, aggregate) ->
     of_msg_lib:get_aggregate_statistics(Version, all, [], []);
 stats_msg(Version, port) ->
-    of_msg_lib:get_port_statistics(Version, all);
+    of_msg_lib:get_port_statistics(Version, any);
 stats_msg(Version, queue) ->
     of_msg_lib:get_queue_statistics(Version, any, all);
 stats_msg(Version, group) ->
