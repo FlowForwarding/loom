@@ -32,11 +32,11 @@
 -define(H_PRIORITY, 101).
 
 config() ->
-    [{IP, _, _, _, _}] = simple_ne_logic:switches(),
-    sne:send(IP, remove_all_flows_mod()),
-    sne:send(IP, tap_dns_response(1,2,controller, IP)),
-    sne:send(IP, forward_mod(1, [2])),
-    sne:send(IP, forward_mod(2, [1])).
+    [{IP, DatapathId, Version, _, _}] = simple_ne_logic:switches(),
+    ofs_handler:send(DatapathId, remove_all_flows_mod()),
+    ofs_handler:send(DatapathId, tap_dns_response(1,2,controller, IP)),
+    ofs_handler:send(DatapathId, forward_mod(1, [2])),
+    ofs_handler:send(DatapathId, forward_mod(2, [1])).
 
 %tap packets to controller for udp traffic from DNS server IP address
 tap_dns_response(Port1, Port2, Port3, IPv4Src) ->
