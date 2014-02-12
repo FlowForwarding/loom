@@ -27,36 +27,34 @@
 
 -export([config/0]).
 
--define(Version, 4).
 -define(L_PRIORITY, 100).
 -define(H_PRIORITY, 101).
 
 config() ->
     [{IP, DatapathId, Version, _, _}] = simple_ne_logic:switches(),
-    ofs_handler:send(DatapathId, remove_all_flows_mod()),
-    ofs_handler:send(DatapathId, tap_dns_response(1,2,controller, IP)),
-    ofs_handler:send(DatapathId, forward_mod(1, [2])),
-    ofs_handler:send(DatapathId, forward_mod(2, [1])).
+    ofs_handler:send(DatapathId, remove_all_flows_mod(Version)),
+    ofs_handler:send(DatapathId, tap_dns_response(Version, 1,2,controller, IP)),
+    ofs_handler:send(DatapathId, forward_mod(Version, 1, [2])),
+    ofs_handler:send(DatapathId, forward_mod(Version, 2, [1])).
 
 %tap packets to controller for udp traffic from DNS server IP address
-tap_dns_response(Port1, Port2, Port3, IPv4Src) ->
+tap_dns_response(Version, Port1, Port2, Port3, IPv4Src) ->
 %    Matches = [{in_port, <<Port1:32>>}, {eth_type, <<16#800:16>>}, {ip_proto, <<17:8>>}, {ipv4_src, IPv4Src}],
     Matches = [{in_port, <<Port1:32>>}, {eth_type, 2048}, {ip_proto, <<17:8>>}, {ipv4_src, IPv4Src} ],
     Instructions = [{apply_actions, [{output, Port2, no_buffer}, {output, Port3, no_buffer}] }],
     Opts = [{table_id,0}, {priority, ?H_PRIORITY}, {idle_timeout, 0}, {idle_timeout, 0},
             {cookie, <<0,0,0,0,0,0,0,10>>}, {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
-    of_msg_lib:flow_add(?Version, Matches, Instructions, Opts).
+    of_msg_lib:flow_add(Version, Matches, Instructions, Opts).
 
 %forward packet on InPort to OutPorts using apply_actions
-forward_mod(InPort,OutPorts)->
+forward_mod(Version,InPort,OutPorts)->
     Matches = [{in_port, <<InPort:32>>}],
     Instructions = [{apply_actions, [{output, OutPort, no_buffer} || OutPort <- OutPorts] } ],
     io:format("Instructions=~p~n", [Instructions]),
     Opts = [{table_id,0}, {priority,?L_PRIORITY}, {idle_timeout, 0}, {idle_timeout, 0},
             {cookie, <<0,0,0,0,0,0,0,10>>}, {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
-    of_msg_lib:flow_add(?Version, Matches, Instructions, Opts).    
+    of_msg_lib:flow_add(Version, Matches, Instructions, Opts).    
 
 % delete all flows in table 0
-remove_all_flows_mod() ->
-    of_msg_lib:flow_delete(?Version, [], [{table_id, 0}]).
-    
+remove_all_flows_mod(Version) ->
+    of_msg_lib:flow_delete(Version, [], [{table_id, 0}]).
