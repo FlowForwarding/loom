@@ -43,7 +43,7 @@
 %% ------------------------------------------------------------------
 
 start_link(Version, DatapathId) ->
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [Version, DatapathId], []).
+    gen_server:start_link(?MODULE, [Version, DatapathId], []).
 
 %% ------------------------------------------------------------------
 %% gen_server Function Definitions

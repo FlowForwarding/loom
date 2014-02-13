@@ -29,4 +29,4 @@ init([]) ->
             [{C, {C, start_link, []}, temporary, 1000, worker, [C]}]}}.
 
 start_child(Version, DataPathId) ->
-    supervisor:start_child(?MODULE, [Version, DataPathId]).
+    supervisor:start_child(?SERVER, [Version, DataPathId]).
