@@ -16,6 +16,7 @@ Set the configuration rel/files/sys.config.  You may configure of_driver, ofs_ha
 ## Building
 
 After getting a copy of the LOOM repo:
+
 1. edit the rel/files/sys.config as needed
 2. make offline
 
