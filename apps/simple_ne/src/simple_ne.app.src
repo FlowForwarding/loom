@@ -14,6 +14,6 @@
   {mod, { simple_ne_app, []}},
   {env, [
     {stats, [flow, table, aggregate, port, queue, group, meter]},
-    {stats_interval, 10} % 'disable' to disable
+    {stats_interval_sec, 10} % 'disable' to disable
   ]}
  ]}.
