@@ -19,10 +19,10 @@ yawsUpdate:
 
 
 loom:
-	git clone https://github.com/sigstop/loom.git
+	git clone https://github.com/shivarammysore/loom.git
 
 loomUpdate:
-	cd loom; git pull; make
+	cd loom; git pull; ./rebar compile
 
 bifrost:
 	git clone https://github.com/thorstadt/bifrost.git; cd bifrost; ./rebar get-deps
