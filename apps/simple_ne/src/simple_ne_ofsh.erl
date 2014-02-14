@@ -70,4 +70,4 @@ handle_message(Msg, State) ->
 terminate(State) ->
     % lost the main connection
     DatapathId = State#?OFS_STATE.datapath_id,
-    ok = simple_ne_logic:terminate(DatapathId).
+    ok = simple_ne_logic:ofsh_terminate(DatapathId).
