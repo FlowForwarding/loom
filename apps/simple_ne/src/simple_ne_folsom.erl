@@ -511,6 +511,7 @@ folsom_basename(#aggregate_stat{}) ->
 folsom_basename(#port_stat{port_no = Port}) ->
     [integer_to_binary(Port), $-];
 folsom_basename(#queue_stat{port_no = Port}) ->
+    % XXX include queue id
     [integer_to_binary(Port), $-];
 folsom_basename(#group_stat{group_id = Group}) ->
     [integer_to_binary(Group), $-];
