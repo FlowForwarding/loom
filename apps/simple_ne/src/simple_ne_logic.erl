@@ -116,8 +116,6 @@ ofsh_handle_error(DatapathId, Reason) ->
 -spec ofsh_terminate(datapath_id()) -> ok.
 ofsh_terminate(DatapathId) ->
     % lost the main connection
-    % TODO: tell simple_ne_logic pid that it is disconnected from this
-    % switch.
     ?INFO("disconnect main connection: ~p~n", [DatapathId]),
     ok = gen_server:call(?MODULE, {terminate, DatapathId}),
     ok.
