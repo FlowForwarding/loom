@@ -29,7 +29,7 @@
 %% API Function Exports
 %% ------------------------------------------------------------------
 
--export([start_link/2]).
+-export([start_link/2, stop/2]).
 
 %% ------------------------------------------------------------------
 %% gen_server Function Exports
@@ -44,6 +44,10 @@
 
 start_link(Version, DatapathId) ->
     gen_server:start_link(?MODULE, [Version, DatapathId], []).
+
+stop(Pid, Reason) ->
+    gen_server:cast(Pid, {stop, Reason}),
+    ok.
 
 %% ------------------------------------------------------------------
 %% gen_server Function Definitions
@@ -65,6 +69,8 @@ handle_cast(subscribe, State = #?STATE{datapath_id = DatapathId,
                                        stats = Stats}) ->
     [subscribe_reply(DatapathId, Stat) || Stat <- Stats],
     {noreply, State};
+handle_cast({stop, Reason}, State) ->
+    {stop, Reason, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 

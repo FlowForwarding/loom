@@ -12,7 +12,7 @@
 
 -export([start_link/0]).
 -export([init/1]).
--export([start_child/2]).
+-export([start_child/2, stop_child/2]).
 
 -define(SERVER, ?MODULE).
 
@@ -30,3 +30,8 @@ init([]) ->
 
 start_child(Version, DataPathId) ->
     supervisor:start_child(?SERVER, [Version, DataPathId]).
+
+stop_child(ChildPid, Reason) ->
+    simple_ne_stats:stop(ChildPid, Reason),
+    ok.
+    

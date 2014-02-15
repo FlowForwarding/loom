@@ -172,7 +172,7 @@ subscribe(IpAddr, MsgType) ->
 %% ------------------------------------------------------------------
 
 init([]) ->
-    SwitchesTable = ets:new(switches, [set, protected]),
+    SwitchesTable = ets:new(switches, [bag, protected]),
     State = #?STATE{switches_table = SwitchesTable},
     {ok, State}.
 
@@ -181,6 +181,11 @@ handle_call({init, IpAddr, DatapathId, Version, Connection}, _From, State) ->
     % and the datapath id
     {ok, Pid} = simple_ne_stats_sup:start_child(Version, DatapathId),
     ok = register_switch(IpAddr, DatapathId, Version, Connection, Pid, State),
+    {reply, ok, State};
+handle_call({terminate, DatapathId}, _From, State) ->
+    Poller = poller_pid(DatapathId, State),
+    ok = simple_ne_stats_sup:stop_child(Poller, normal),
+    ok = deregister_switch(DatapathId, State),
     {reply, ok, State};
 handle_call({sync_send, IpAddr, Msg}, _From, State) ->
     Reply = do_sync_send(IpAddr, Msg, State),
@@ -217,13 +222,26 @@ register_switch(IpAddr, DatapathId, Version, Connection, PollerPid, #?STATE{swit
     true = ets:insert(Switches, {IpAddr, DatapathId, Version, Connection, PollerPid}),
     ok.
 
+deregister_switch(DatapathId, #?STATE{switches_table = Switches}) ->
+    [Object] = ets:match_object(Switches, {'_', DatapathId, '_', '_', '_'}),
+    true = ets:delete_object(Switches, Object),
+    ok.
+
+poller_pid(DatapathId, #?STATE{switches_table = Switches}) ->
+    [[Pid]] = ets:match(Switches, {'_', DatapathId, '_', '_', '$1'}),
+    Pid.
+
 do_get_switches(#?STATE{switches_table = Switches}) ->
     ets:tab2list(Switches).
 
 find_switch(IpAddr, #?STATE{switches_table = Switches}) ->
+    % All LINC logical switches on the same capable switch connect
+    % with the IP address of the capable switch.  There may be
+    % duplicates.  The sne API doesn't really accomodate this, so
+    % cheat by returning the first logical switch with the IP address.
     case ets:lookup(Switches, IpAddr) of
         [] -> not_found;
-        [{_, DatapathId, _, _, _}] -> DatapathId
+        [{_, DatapathId, _, _, _}|_] -> DatapathId
     end.
 
 do_sync_send(IpAddr, Msg, State) ->
