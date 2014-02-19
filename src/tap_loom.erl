@@ -39,11 +39,17 @@ start()->
     application:start(compiler),
     ok = application:start(lager),
     ok = application:start(eenum),
+    ok = application:start(folsom),
     ok = application:start(of_protocol),
     application:start(of_msg_lib),
+    application:load(of_driver),
+    application:set_env(of_driver, callback_module, ofs_handler_driver),
     ok = application:start(of_driver),
+    application:load(ofs_handler),
+    application:set_env(ofs_handler, callback_module, simple_ne_ofsh),
     application:start(ofs_handler),
-    application:start(loom).
+    application:start(loom),
+    application:start(simple_ne).
     
 
 config()->
