@@ -43,6 +43,8 @@ start()->
     ok = application:start(of_protocol),
     application:start(of_msg_lib),
     application:load(of_driver),
+    application:set_env(of_driver, listen_ip, {0,0,0,0}),
+    application:set_env(of_driver, listen_port, 6653),
     application:set_env(of_driver, callback_module, ofs_handler_driver),
     ok = application:start(of_driver),
     application:load(ofs_handler),
