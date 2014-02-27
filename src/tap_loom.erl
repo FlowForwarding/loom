@@ -51,6 +51,8 @@ start()->
     application:set_env(ofs_handler, callback_module, simple_ne_ofsh),
     application:start(ofs_handler),
     application:start(loom),
+    application:load(simple_ne),
+    application:set_env(simple_ne, stats_interval_sec, disable),
     application:start(simple_ne).
     
 
@@ -138,7 +140,29 @@ process_ofdps([OFDP|Rest]) ->
 	_ -> process_ofdps(Rest)
     end.
 
-    
+bridge(IPAddress,Port1,Port2) ->
+    OFSwitchList = simple_ne_logic:switches(),
+    lists:foreach(fun(X)->
+			  {OFDPIP, DatapathId, Version, _, _} = X,
+			  case OFDPIP == IPAddress of
+			      true ->
+				  ofs_handler:send(DatapathId, forward_mod(Version, Port1, [Port2])),
+				  ofs_handler:send(DatapathId, forward_mod(Version, Port2, [Port1]));
+			      false -> ok
+			  end
+		  end, OFSwitchList).
+
+clear_flows(IPAddress) -> 
+    OFSwitchList = simple_ne_logic:switches(),
+    lists:foreach(fun(X)->
+			  {OFDPIP, DatapathId, Version, _, _} = X,
+			  case OFDPIP == IPAddress of
+			      true ->
+				  ofs_handler:send(DatapathId, remove_all_flows_mod(Version));
+			      false -> ok
+			  end
+		  end, OFSwitchList).
+
 
 
 dns_tap([],_Version,_Port1,_Port2,_IPTupleList)->
