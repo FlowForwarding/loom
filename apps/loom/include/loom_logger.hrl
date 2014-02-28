@@ -1,5 +1,5 @@
 %%------------------------------------------------------------------------------
-%% Copyright 2012 FlowForwarding.org
+%% Copyright 2014 FlowForwarding.org
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
 %%-----------------------------------------------------------------------------
 
 %% @author Erlang Solutions Ltd. <openflow@erlang-solutions.com>
-%% @copyright 2012 FlowForwarding.org
+%% @copyright 2014 FlowForwarding.org
+
 %% @doc Header file for OpenFlow controller application with logger macros.
 
 %%------------------------------------------------------------------------------
