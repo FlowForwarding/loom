@@ -7,6 +7,10 @@ As such LOOM employs a distributed architecture with a unique data management sc
 
 In addition, LOOM supports third party applications. The LOOM design explores tactics for integrating these applications into LOOM’s distributed architecture while protecting the network from rogue applications. 
 
+# Current Status
+
+LOOM development is in its early stages and at this point provides an integration test bed for of_driver, ofs_handler, and of_msg_lib.
+
 # LOOM Node
 
 ## Configuration
