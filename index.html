@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Loom by FlowForwarding</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Loom</h1>
+        <h2>LOOM Controller</h2>
+        <a href="https://github.com/FlowForwarding/loom" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a name="loom" class="anchor" href="#loom"><span class="octicon octicon-link"></span></a>Loom</h1>
+
+<p>The purpose of the LOOM project is to design and prototype an experimental network switch controller that implements the OpenFlow 1.3.x and 1.4 protocols. The project explores the scalability and robustness of such controllers on a scale much larger than typically considered: 100,000s of end points, 10,000s of switches. </p>
+
+<p>As such LOOM employs a distributed architecture with a unique data management scheme to store switch configurations and the network topology to address the dual challenges of massive scale and enterprise-class robustness and reliability.</p>
+
+<p>In addition, LOOM supports third party applications. The LOOM design explores tactics for integrating these applications into LOOM’s distributed architecture while protecting the network from rogue applications. </p>
+
+<h1>
+<a name="current-status" class="anchor" href="#current-status"><span class="octicon octicon-link"></span></a>Current Status</h1>
+
+<p>LOOM development is in its early stages and at this point provides an integration test bed for of_driver, ofs_handler, and of_msg_lib.</p>
+
+<h1>
+<a name="loom-node" class="anchor" href="#loom-node"><span class="octicon octicon-link"></span></a>LOOM Node</h1>
+
+<h2>
+<a name="configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h2>
+
+<p>Set the configuration rel/files/sys.config.  You may configure of_driver, ofs_handler, simple_ne, lager, and sasl.  of_driver listen_port is the TCP/IP port LOOM uses to listen for connections from switches.  listen_ip is the IP address of the listener port.  {0,0,0,0} means any address.  It should not be necessary to change any of the other of_driver settings or any ofs_handler settings.  simple_ne settings are described below.</p>
+
+<h2>
+<a name="building" class="anchor" href="#building"><span class="octicon octicon-link"></span></a>Building</h2>
+
+<p>After getting a copy of the LOOM repo:</p>
+
+<ol>
+<li>edit the rel/files/sys.config as needed</li>
+<li>make offline</li>
+</ol><h2>
+<a name="starting" class="anchor" href="#starting"><span class="octicon octicon-link"></span></a>Starting</h2>
+
+<p>After running make offline to build the release use the utility program rel/loom/bin/loom start loom to start and stop the LOOM node.  For example: rel/loom/bin/loom console starts LOOM with an interactive Erlang shell.</p>
+
+<h1>
+<a name="simple-network-executive" class="anchor" href="#simple-network-executive"><span class="octicon octicon-link"></span></a>Simple Network Executive</h1>
+
+<p>The simple network executive (simple_ne) is an exmaple implementation using the LOOM framework.  It accepts connections from switches and allows for interacting with the switches via the Erlang shell.  The simple network exucutive also collects open flow statistics from the switches and publishes the stats using folsom.</p>
+
+<h2>
+<a name="statistics-poller" class="anchor" href="#statistics-poller"><span class="octicon octicon-link"></span></a>Statistics Poller</h2>
+
+<p>Use the simple_ne application environment to control the behavior of the stats collector.</p>
+
+<ol>
+<li>stats is the list of the stats to poll.  The valid values are: flow, table, aggregate, port, queue, group, and meter.  These correspond to the similarly named stats get requests in the open flow protocol.</li>
+<li>stats_interval is the number of seconds between polls.  Set to 'disable' to disable stats polling.</li>
+</ol><p>The open flow stats are published as folsom gauge metrics.  The following naming scheme is used to encode the open flow stats into folsom metric names:</p>
+
+<ul>
+<li>
+<em>datapath_id</em>-flow-<em>table_id</em>-<em>priority</em>-<em>cookie</em> - flow stats</li>
+<li>
+<em>datapath_id</em>-table-<em>table_id</em> - table stats</li>
+<li>
+<em>datapath_id</em>-aggregate - aggregate stats</li>
+<li>
+<em>datapath_id</em>-port-<em>port_num</em> - port stats</li>
+<li>
+<em>datapath_id</em>-queue-<em>queue_id</em>-<em>port_num</em> - queue stats</li>
+<li>
+<em>datapath_id</em>-group-<em>group_id</em> - group stats</li>
+<li>
+<em>datapath_id</em>-group-<em>group_id</em>-bucket-<em>bucket_id</em> - group bucket stats</li>
+<li>
+<em>datapath_id</em>-meter-<em>meter_id</em> -meter stats</li>
+<li>
+<em>datapath_id</em>-meter-<em>meter_id</em>-band-<em>band_id</em> - meter band stats</li>
+</ul><p>For bucket and band stats, the statistics poller creates bucket and band ids to give each one a unique identifier within the group and meter.  The bucket and band ids are not in the open flow protocol.</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/FlowForwarding/loom/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/FlowForwarding/loom/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/FlowForwarding/loom"></a> is maintained by <a href="https://github.com/FlowForwarding">FlowForwarding</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+            <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-48523563-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
