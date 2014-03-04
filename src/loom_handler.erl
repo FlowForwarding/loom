@@ -17,8 +17,6 @@ handle_message({packet_in, Xid, Body}, _State) ->
     TableId = proplists:get_value(table_id, Body),    
     Match = proplists:get_value(match, Body),
     Data = proplists:get_value(data, Body),        
-    io:format("Reason = ~p~n", [Reason]),
-    io:format("Data = ~p~n", [Data]),
     process_packetin(Reason, TableId, Match, Data),
     ok.
 
@@ -28,9 +26,9 @@ handle_message({packet_in, Xid, Body}, _State) ->
 process_packetin(action, _TableId, _Match, Data) ->
     dns_reply(Data);
 process_packetin(nomatch, _TableId, _Match, _Data) ->
-    io:format("packetin reason = nomatch~n");
+    lager:info("packetin reason = nomatch~n");
 process_packetin(Reason, _TableId, _Match, _Data) ->
-    io:format("packetin reason = ~p~n", [Reason]).
+    lager:info("packetin reason = ~p~n", [Reason]).
 
 dns_reply(Data)->
 %    {MatchList,_Rest} = lists:partition(fun({Key,Value})->Key == packet_in_dns_reply end,Subscribers),
@@ -51,20 +49,20 @@ dns_reply(Data)->
 		    {ok,DnsRec} -> 
 			Match = match_reply(DnsRec),
 			case Match of
-			    {error,_} -> io:format("No match dropped: ~p~n",[Match]);
+			    {error,_} -> lager:info("No match dropped: ~p~n",[Match]);
 			    ID ->
 				R = list_to_tuple(binary_to_list(Header1#ipv4.daddr)),
 				SendValue = {R,ID},
-				io:format("Sending: ~p~n",[SendValue])
+				lager:info("Sending: ~p~n",[SendValue])
 				%[ Pid ! {dns_reply,SendValue} || Pid <- Pids ]
 			end;
-		    _ -> io:format("No match dropped: ~p~n",[Result])
+		    _ -> lager:info("No match dropped: ~p~n",[Result])
 		end;
-	    _ -> io:format("No match dropped: ~p~n",[Packet])
+	    _ -> lager:info("No match dropped: ~p~n",[Packet])
 	end
     catch
 	Error ->
-	    io:format("Decapsulation Error:~p Data: ~p~n",[Error,Data])
+	    lager:info("Decapsulation Error:~p Data: ~p~n",[Error,Data])
     end.
 
 
