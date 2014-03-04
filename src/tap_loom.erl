@@ -34,6 +34,7 @@ start()->
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/deps/*/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/apps/*/ebin")],
+    [code:add_pathz(Path) || Path <- filelib:wildcard("./deps/*/ebin")],
     application:start(mnesia),
     application:start(syntax_tools),
     application:start(compiler),
@@ -199,3 +200,13 @@ forward_mod(Version,InPort,OutPorts)->
 % delete all flows in table 0
 remove_all_flows_mod(Version) ->
     of_msg_lib:flow_delete(Version, [], [{table_id, 0}]).
+
+
+    
+%%% Handling packet_in message
+%%-spec handle_message(ofp_message(), ofs_state()) -> ok.
+handle_message({packet_in, Xid, Body}, _State) ->
+    % received a message on the connection
+    Data = proplists:get_value(data, Body),
+    io:format("Data = ~p~n", [Data]),
+    ok.

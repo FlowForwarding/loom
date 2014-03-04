@@ -30,7 +30,7 @@ start()->
     Pid.
 
 start(Time,Interval,MsgTime)->
-    Receivers = tap_loom:get_ofdp_recv_list(),
+    Receivers = simple_ne_logic:switches(),
     case Receivers of
 	[] -> timer:sleep(Interval * 1000),
 	      case Rem = Time rem MsgTime of
@@ -45,7 +45,7 @@ start(Time,Interval,MsgTime)->
 	     {_Date,CurTime} = calendar:universal_time(),
 	     Pid = spawn(?MODULE,listen,[#state{tap_ds = TapDS,tap_client_data=TCD,query_count=0,time_stamp=calendar:time_to_seconds(CurTime)}]),
 	     register(tap_aggr,Pid),
-	     [ Recv ! {subscribe, {Pid, packet_in_dns_reply}} || Recv <- Receivers ],
+	     packet_in_subscribe(),
 	     Pid
     end.
 
@@ -74,6 +74,14 @@ listen(State)->
 	    io:format("Msg: ~p~n",[Msg]),
 	    listen(State)
     end.
+
+
+packet_in_subscribe()->
+    OFSwitchList = simple_ne_logic:switches(),
+    lists:foreach(fun(X)->
+			  {OFDPIP, DatapathId, Version, _, _} = X,
+			  ofs_handler:subscribe(DatapathId, loom_handler, packet_in)
+		  end, OFSwitchList).
 
 
 test_raw_edge_list()->
