@@ -53,7 +53,8 @@ dns_reply(Data)->
 			    ID ->
 				R = list_to_tuple(binary_to_list(Header1#ipv4.daddr)),
 				SendValue = {R,ID},
-				lager:info("Sending: ~p~n",[SendValue])
+				lager:info("Sending: ~p~n",[SendValue]),
+				whereis(tap_aggr) ! {dns_reply,SendValue}
 				%[ Pid ! {dns_reply,SendValue} || Pid <- Pids ]
 			end;
 		    _ -> lager:info("No match dropped: ~p~n",[Result])
