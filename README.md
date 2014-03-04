@@ -30,7 +30,7 @@ After running make offline to build the release use the utility program rel/loom
 
 # Simple Network Executive
 
-The simple network executive (simple_ne) is an exmaple implementation using the LOOM framework.  It accepts connections from switches and allows for interacting with the switches via the Erlang shell.  The simple network exucutive also collects open flow statistics from the switches and publishes the stats using folsom.
+The simple network executive (simple_ne) is an example implementation using the LOOM framework.  It accepts connections from switches and allows for interacting with the switches via the Erlang shell.  The simple network executive also collects open flow statistics from the switches and publishes the stats using folsom.
 
 ## Statistics Poller
 
