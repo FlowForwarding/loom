@@ -39,6 +39,7 @@ start()->
     application:start(syntax_tools),
     application:start(compiler),
     ok = application:start(lager),
+    lager:set_loglevel(lager_console_backend, error),
     ok = application:start(eenum),
     ok = application:start(folsom),
     ok = application:start(of_protocol),

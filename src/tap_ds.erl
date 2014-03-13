@@ -74,15 +74,13 @@ add_edges_and_clean(State,Edges)->
     TapClientData ! {num_endpoints,{digraph:no_vertices(Digraph),DateTime}},
     TimeInSeconds = calendar:time_to_seconds(Time),
     Elapsed = TimeInSeconds - NCITimeStamp,
-%	    io:format("CleaningTimeStamp = ~p~nDateTime = ~p~nNCITimeStamp = ~p~nTimeInSeconds= ~p~nElapsed = ~p~nNCIMinInterval = ~p~n",[CleaningTimeStamp,
-%																	  DateTime,
-%																	  NCITimeStamp,
-%																	  TimeInSeconds,
-%																	  Elapsed,
-%																	  NCIMinInterval]),
+    case Elapsed < 0 of
+	true -> listen(State#state{nci_timestamp=TimeInSeconds});
+	false -> ok
+    end,
     case Elapsed > NCIMinInterval of
 	true ->
-	    spawn(?MODULE,get_nci,[TapClientData,Digraph]),
+	    spawn_link(?MODULE,get_nci,[TapClientData,Digraph]),
 	    listen(State#state{nci_timestamp=TimeInSeconds});
 	false ->
 	    Age = calendar:time_difference(CleaningTimeStamp,DateTime),
