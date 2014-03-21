@@ -1,0 +1,13 @@
+The OpenFlow Driver is an Erlang application that provides the common base for OpenFlow controllers.
+This is a completely generic application and contains nothing loom specific. The Loom logic will be implemented in callback modules.
+
+Requirements
+
+1, handle the connections to the OpenFlow switch
+2, handle message sending and receiving
+3, application logic get handled via a callback module
+4, manage connections to several OpenFlow switches
+5, each OpenFlow switch is handled by a separate process, or group of processes
+6, have a white list of switches that it accepts OpenFlow connections from, the whitelist contains things like IP address, data path id, and certificates to make connection possible
+7, it shall be possible to add and remove IP addresses from the whitelist while the system is running
+8, support multiple OpenFlow versions

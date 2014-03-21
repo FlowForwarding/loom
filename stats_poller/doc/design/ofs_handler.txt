@@ -1,0 +1,66 @@
+OpenFlow Switch Handler
+---------------------
+
+This is the loom specific part of managing an OpenFlow switch.
+
+Requirements
+-----------
+
+1, controls one OpenFlow switch, there is one instance of ifs_handler for each OpenFlow switch
+2, maintains an authoritative view of which flows should be present in the OpenFlow switch, this implies
+    - when modifying a flow or group in the switch also update the datastore
+    - receive flow-removed messages from the switch and remove the flow in the datastore
+3, have an audit function to compare the flow and group configuration in the OpenFlow switch with the authoritative version
+4, Support redundancy via a hot standby on another node
+
+Data Consistancy
+------------------
+There are two issues with the openFlow protocol that makes it hard to keep a consistent replica of what flows are supposed to be installed in the switch.
+
+1, The order in which messages are processed by the switch is NOT defined, OpenFlow versionn 1.3.2 ch. 6.2 Message handling says
+"Message Ordering: Ordering can be ensured through the use of barrier messages. In the absence of barrier messages, switches may arbitrarily reorder messages to maximize performance; hence, controllers should not depend on a specific processing order. In particular, flow entries may be inserted in tables in an order different than that of flow mod messages received by the switch. Messages must not be reordered across a barrier message and the barrier message must be processed only when all prior messages have been processed."
+
+2, Messages that change the flow tables, like flow_mod and group_mod do not return a reply if they are successful.
+
+There are some combinations of messages that can leave the switch in different states depending on in which order the messages are processed.
+
+So a brute force method is to send a barrier request after each request that does any changes.
+
+A more sophisticated  method could be to
+1, for each request that will affect several flow entries, check if there is a currently pending, or queued, request that is referencing the same flows, if that is the case issue a barrier request and queue the request.
+
+2, when the barrier reply is received resume processing the queued requests
+
+
+Redundancy
+----------
+
+My current idea for the replication is this
+
+- The distribution framework shall select two, different, nodes for ofs_handlers for a switch.
+- Each ofs_handler keeps a local datastore.
+- The message routing function in the distribution framework will send every request for a switch to both ofs_handlers
+
+The executive ofs_handler will
+- send the request to the switch
+- send a barrier request, if necessary
+- when the message reply, or barrier reply, is received
+  - send an ack to the requester, this ack also gets forwarded to the standby ofs_handler
+  - commit the changes in the switch level datastore
+
+The standby ofs_handler will
+- stage the change
+- wait for an ack from the executive
+- commit the changes in the switch level datastore
+
+Failover
+When the executive ofs_handler fails, it will be detected by the distribution framework and the standby ofs_handler will be notified that it is now executive.
+Before accepting new requests it will query the switch to verify that all staged changes has been performed, and if not perform the one that are pending.
+
+The distribution framework will select a new node for a standby ofs_handler for the switch.
+The standby will queue all new request until it has an up to date copy of the switch level database, to get this it will request a snapshot of the switch level database from the executive
+when the snapshot is installed it will start processing request as normal, for a standby.
+
+For performance reasons I think we will need flow level locking as described above. But an initial version may just use barrier requests after each command.
+
+This still needs more work.
