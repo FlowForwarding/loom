@@ -26,7 +26,6 @@
                   kernel,
                   stdlib,
                   lager,
-                  folsom,
                   of_driver,
                   ofs_handler
                  ]},

@@ -27,7 +27,7 @@
 -define(SERVER, ?MODULE).
 -define(STATE, simple_ne_logic_state).
 
--include_lib("loom/include/loom_logger.hrl").
+-include("simple_ne_logger.hrl").
 -include_lib("ofs_handler/include/ofs_handler.hrl").
 -include_lib("of_protocol/include/of_protocol.hrl").
 
@@ -144,10 +144,9 @@ ofsh_terminate(DatapathId) ->
 %% the IP address of the switch (for calling simple_ne_logic
 %% functions), the datapath id (for calling ofs_handler),
 %% the open flow version number (for calling of_msg_lib), the
-%% connection (for calling of_driver), and the simple_ne_stats pid
-%% responsible for polling for open flow stats from this switch.
+%% connection (for calling of_driver).
 %% @end
--spec switches() -> [{ipaddress(), datapath_id(), of_version(), connection(), pid()}].
+-spec switches() -> [{ipaddress(), datapath_id(), of_version(), connection()}].
 switches() ->
     gen_server:call(?SERVER, switches).
 
@@ -194,12 +193,9 @@ init([]) ->
 handle_call({init, IpAddr, DatapathId, Version, Connection}, _From, State) ->
     % Got the main connection, remember tha mapping between the ip address
     % and the datapath id
-    {ok, Pid} = simple_ne_stats_sup:start_child(Version, DatapathId),
-    ok = register_switch(IpAddr, DatapathId, Version, Connection, Pid, State),
+    ok = register_switch(IpAddr, DatapathId, Version, Connection, State),
     {reply, ok, State};
 handle_call({terminate, DatapathId}, _From, State) ->
-    Poller = poller_pid(DatapathId, State),
-    ok = simple_ne_stats_sup:stop_child(Poller, normal),
     ok = deregister_switch(DatapathId, State),
     {reply, ok, State};
 handle_call({sync_send, IpAddr, Msg}, _From, State) ->
@@ -233,18 +229,14 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal Function Definitions
 %% ------------------------------------------------------------------
 
-register_switch(IpAddr, DatapathId, Version, Connection, PollerPid, #?STATE{switches_table = Switches}) ->
-    true = ets:insert(Switches, {IpAddr, DatapathId, Version, Connection, PollerPid}),
+register_switch(IpAddr, DatapathId, Version, Connection, #?STATE{switches_table = Switches}) ->
+    true = ets:insert(Switches, {IpAddr, DatapathId, Version, Connection}),
     ok.
 
 deregister_switch(DatapathId, #?STATE{switches_table = Switches}) ->
-    [Object] = ets:match_object(Switches, {'_', DatapathId, '_', '_', '_'}),
+    [Object] = ets:match_object(Switches, {'_', DatapathId, '_', '_'}),
     true = ets:delete_object(Switches, Object),
     ok.
-
-poller_pid(DatapathId, #?STATE{switches_table = Switches}) ->
-    [[Pid]] = ets:match(Switches, {'_', DatapathId, '_', '_', '$1'}),
-    Pid.
 
 do_get_switches(#?STATE{switches_table = Switches}) ->
     ets:tab2list(Switches).
@@ -256,7 +248,7 @@ find_switch(IpAddr, #?STATE{switches_table = Switches}) ->
     % cheat by returning the first logical switch with the IP address.
     case ets:lookup(Switches, IpAddr) of
         [] -> not_found;
-        [{_, DatapathId, _, _, _}|_] -> DatapathId
+        [{_, DatapathId, _, _}|_] -> DatapathId
     end.
 
 do_sync_send(IpAddr, Msg, State) ->
