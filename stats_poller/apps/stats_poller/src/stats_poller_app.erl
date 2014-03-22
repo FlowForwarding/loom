@@ -17,22 +17,23 @@
 %% @author Erlang Solutions Ltd. <openflow@erlang-solutions.com>
 %% @copyright 2014 FlowForwarding.org
 
-{application, simple_ne,
- [
-  {description, ""},
-  {vsn, "1"},
-  {registered, []},
-  {applications, [
-                  kernel,
-                  stdlib,
-                  lager,
-                  folsom,
-                  of_driver,
-                  ofs_handler
-                 ]},
-  {mod, { simple_ne_app, []}},
-  {env, [
-    {stats, [flow, table, aggregate, port, queue, group, meter]},
-    {stats_interval_sec, 10} % 'disable' to disable
-  ]}
- ]}.
+%%% @doc
+%%% Simple network executive.
+%%% @end
+
+-module(stats_poller_app).
+
+-behaviour(application).
+
+%% Application callbacks
+-export([start/2, stop/1]).
+
+%% ===================================================================
+%% Application callbacks
+%% ===================================================================
+
+start(_StartType, _StartArgs) ->
+    stats_poller:start_link().
+
+stop(_State) ->
+    ok.

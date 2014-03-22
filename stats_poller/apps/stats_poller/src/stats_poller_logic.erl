@@ -18,16 +18,16 @@
 %% @copyright 2014 FlowForwarding.org
 
 %%% @doc
-%%% Simple Network executive logic.
+%%% Stats Poller logic.
 %%% @end
 
--module(simple_ne_logic).
+-module(stats_poller_logic).
 
 -behaviour(gen_server).
 -define(SERVER, ?MODULE).
--define(STATE, simple_ne_logic_state).
+-define(STATE, stats_poller_logic_state).
 
--include_lib("loom/include/loom_logger.hrl").
+-include("stats_poller_logger.hrl").
 -include_lib("ofs_handler/include/ofs_handler.hrl").
 -include_lib("of_protocol/include/of_protocol.hrl").
 
@@ -73,7 +73,7 @@ start_link() ->
 %% Callback API
 %% ----------------------------------------------------------------------------
 
-% These functions are called from simple_ne_ofsh.erl.
+% These functions are called from stats_poller_ofsh.erl.
 -spec ofsh_init(handler_mode(), ipaddress(), datapath_id(), of_version(), connection()) -> ok.
 ofsh_init(active, IpAddr, DatapathId, Version, Connection) ->
     % new main connection
@@ -89,8 +89,8 @@ ofsh_init(standby, IpAddr, DatapathId, _Version, _Connection) ->
 -spec ofsh_connect(handler_mode(), ipaddress(), datapath_id(), of_version(), connection(), auxid()) -> ok.
 ofsh_connect(active, _IpAddr, DatapathId, _Version, _Connection, AuxId) ->
     % new auxiliary connection
-    % The simple network executive doesn't need to capture the auxiliary
-    % connections, so they are not passed to the simple_ne_logic pid.
+    % The stats poller doesn't need to capture the auxiliary
+    % connections, so they are not passed to the stats_poller_logic pid.
     ?INFO("new active aux connection: ~p ~p~n", [AuxId, DatapathId]),
     ok;
 ofsh_connect(standby, _IpAddr, DatapathId, _Version, _Connection, AuxId) ->
@@ -102,8 +102,8 @@ ofsh_connect(standby, _IpAddr, DatapathId, _Version, _Connection, AuxId) ->
 -spec ofsh_disconnect(auxid(), datapath_id()) -> ok.
 ofsh_disconnect(AuxId, DatapathId) ->
     % lost an auxiliary connection
-    % The simple network executive is not tracking the auxiliary
-    % connections, so they are not passed to the simple_ne_logic pid.
+    % The stats poller is not tracking the auxiliary
+    % connections, so they are not passed to the stats_poller_logic pid.
     ?INFO("disconnect aux connection: ~p ~p~n", [AuxId, DatapathId]),
     ok.
 
@@ -117,8 +117,8 @@ ofsh_failover() ->
 -spec ofsh_handle_message(datapath_id(), ofp_message()) -> ok.
 ofsh_handle_message(DatapathId, Msg) ->
     % process a message from the switch.
-    % the simple network executive doesn't process any messages
-    % from the switch, so they are not passed to the simple_ne_logic pid.
+    % the stats poller doesn't process any messages
+    % from the switch, so they are not passed to the stats_poller_logic pid.
     ?INFO("message in: ~p ~p~n", [DatapathId, Msg]),
     ok.
 
@@ -141,10 +141,10 @@ ofsh_terminate(DatapathId) ->
 
 %% @doc
 %% Returns the list of connected switches.  The returned tuples have
-%% the IP address of the switch (for calling simple_ne_logic
+%% the IP address of the switch (for calling stats_poller_logic
 %% functions), the datapath id (for calling ofs_handler),
 %% the open flow version number (for calling of_msg_lib), the
-%% connection (for calling of_driver), and the simple_ne_stats pid
+%% connection (for calling of_driver), and the stats_poller_handler pid
 %% responsible for polling for open flow stats from this switch.
 %% @end
 -spec switches() -> [{ipaddress(), datapath_id(), of_version(), connection(), pid()}].
@@ -194,12 +194,12 @@ init([]) ->
 handle_call({init, IpAddr, DatapathId, Version, Connection}, _From, State) ->
     % Got the main connection, remember tha mapping between the ip address
     % and the datapath id
-    {ok, Pid} = simple_ne_stats_sup:start_child(Version, DatapathId),
+    {ok, Pid} = stats_poller_handler_sup:start_child(Version, DatapathId),
     ok = register_switch(IpAddr, DatapathId, Version, Connection, Pid, State),
     {reply, ok, State};
 handle_call({terminate, DatapathId}, _From, State) ->
     Poller = poller_pid(DatapathId, State),
-    ok = simple_ne_stats_sup:stop_child(Poller, normal),
+    ok = stats_poller_handler_sup:stop_child(Poller, normal),
     ok = deregister_switch(DatapathId, State),
     {reply, ok, State};
 handle_call({sync_send, IpAddr, Msg}, _From, State) ->
@@ -278,5 +278,5 @@ do_subscribe(IpAddr, MsgType, State) ->
         not_found -> not_found;
         DatapathId ->
             % use our callback module to receive the handle_message.
-            ofs_handler:subscribe(DatapathId, simple_ne_ofsh, MsgType)
+            ofs_handler:subscribe(DatapathId, stats_poller_ofsh, MsgType)
     end.

@@ -17,36 +17,22 @@
 %% @author Erlang Solutions Ltd. <openflow@erlang-solutions.com>
 %% @copyright 2014 FlowForwarding.org
 
-%%% @doc 
-%%% Supervisor for simple network exeuctive open flow stats collector
-%%% @end
-
--module(simple_ne_stats_sup).
-
--behaviour(supervisor).
-
--export([start_link/0]).
--export([init/1]).
--export([start_child/2, stop_child/2]).
-
--define(SERVER, ?MODULE).
-
-start_link() ->
-    supervisor:start_link({local, ?SERVER}, ?MODULE, []).
-
-init([]) ->
-    C = simple_ne_stats,
-    RestartStrategy = simple_one_for_one,
-    MaxRestarts = 1000,
-    MaxSecondsBetweenRestarts = 3600,
-    SupFlags = {RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts},
-    {ok, {SupFlags,
-            [{C, {C, start_link, []}, temporary, 1000, worker, [C]}]}}.
-
-start_child(Version, DataPathId) ->
-    supervisor:start_child(?SERVER, [Version, DataPathId]).
-
-stop_child(ChildPid, Reason) ->
-    simple_ne_stats:stop(ChildPid, Reason),
-    ok.
-    
+{application, stats_poller,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  lager,
+                  folsom,
+                  of_driver,
+                  ofs_handler
+                 ]},
+  {mod, { stats_poller_app, []}},
+  {env, [
+    {stats, [flow, table, aggregate, port, queue, group, meter]},
+    {stats_interval_sec, 10} % 'disable' to disable
+  ]}
+ ]}.

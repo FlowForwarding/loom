@@ -20,13 +20,13 @@
 %%% @doc
 %%% Publish OpenFlow stats into folsom.
 %%% @end
--module(simple_ne_folsom).
+-module(stats_poller_folsom).
 
 -behaviour(gen_server).
 -define(SERVER, ?MODULE).
--define(STATE, simple_ne_folsom_state).
+-define(STATE, stats_poller_folsom_state).
 
--include_lib("loom/include/loom_logger.hrl").
+-include("stats_poller_logger.hrl").
 -include_lib("of_protocol/include/of_protocol.hrl").
 -include("simple_ne_ofsh.hrl").
 

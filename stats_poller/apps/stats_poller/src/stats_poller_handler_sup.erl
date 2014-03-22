@@ -17,30 +17,36 @@
 %% @author Erlang Solutions Ltd. <openflow@erlang-solutions.com>
 %% @copyright 2014 FlowForwarding.org
 
--module(loom_sup).
+%%% @doc 
+%%% Supervisor for simple network exeuctive open flow stats collector
+%%% @end
+
+-module(stats_poller_handler_sup).
 
 -behaviour(supervisor).
 
-%% API
 -export([start_link/0]).
-
-%% Supervisor callbacks
 -export([init/1]).
+-export([start_child/2, stop_child/2]).
 
-%% Helper macro for declaring children of supervisor
--define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
-
-%% ===================================================================
-%% API functions
-%% ===================================================================
+-define(SERVER, ?MODULE).
 
 start_link() ->
-    supervisor:start_link({local, ?MODULE}, ?MODULE, []).
-
-%% ===================================================================
-%% Supervisor callbacks
-%% ===================================================================
+    supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, []} }.
+    C = stats_poller_handler,
+    RestartStrategy = simple_one_for_one,
+    MaxRestarts = 1000,
+    MaxSecondsBetweenRestarts = 3600,
+    SupFlags = {RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts},
+    {ok, {SupFlags,
+            [{C, {C, start_link, []}, temporary, 1000, worker, [C]}]}}.
 
+start_child(Version, DataPathId) ->
+    supervisor:start_child(?SERVER, [Version, DataPathId]).
+
+stop_child(ChildPid, Reason) ->
+    stats_poller_handler:stop(ChildPid, Reason),
+    ok.
+    

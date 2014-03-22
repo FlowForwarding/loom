@@ -21,13 +21,13 @@
 %%% Simple network exeuctive open flow stats poller.
 %%% @end
 
--module(simple_ne_stats).
+-module(stats_poller_handler).
 
 -behaviour(gen_server).
 -define(SERVER, ?MODULE).
--define(STATE, simple_ne_stats_state).
+-define(STATE, stats_poller_handler_state).
 
--include_lib("loom/include/loom_logger.hrl").
+-include("stats_poller_logger.hrl").
 
 -define(DEFAULT_STATS_INTERVAL, 10).
 -define(DEFAULT_STATS, [flow, table, aggregate, port, queue, group, meter]).
@@ -69,8 +69,8 @@ stop(Pid, Reason) ->
 %% ------------------------------------------------------------------
 
 init([Version, DatapathId]) ->
-    Stats = application:get_env(simple_ne, stats, ?DEFAULT_STATS),
-    StatsInterval = application:get_env(simple_ne, stats_interval_sec, ?DEFAULT_STATS_INTERVAL),
+    Stats = application:get_env(stats_poller, stats, ?DEFAULT_STATS),
+    StatsInterval = application:get_env(stats_poller, stats_interval_sec, ?DEFAULT_STATS_INTERVAL),
     State = #?STATE{stats = Stats,
                     stats_interval = StatsInterval,
                     of_version = Version,
@@ -122,7 +122,7 @@ poll_stats(Version, Stats, DatapathId) ->
     ok = ofs_handler:send_list(DatapathId, Requests).
 
 subscribe_reply(DatapathId, Stat) ->
-    ok = ofs_handler:subscribe(DatapathId, simple_ne_folsom, stats_reply(Stat)).
+    ok = ofs_handler:subscribe(DatapathId, stats_poller_folsom, stats_reply(Stat)).
 
 stats_msgs(Version, Stats) ->
     [stats_msg(Version, Stat) || Stat <- Stats].

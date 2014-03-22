@@ -21,7 +21,7 @@
 %%% Simple network executive supervisor.
 %%% @end
 
--module(simple_ne_sup).
+-module(stats_poller_sup).
 
 -behaviour(supervisor).
 
@@ -47,8 +47,7 @@ start_link() ->
 
 init([]) ->
     {ok, { {one_for_one, 5, 10}, [
-        ?CHILD(simple_ne_stats_sup, supervisor),
-        ?CHILD(simple_ne_logic, worker),
-        ?CHILD(simple_ne_folsom, worker)
-    ]} }.
-
+        ?CHILD(stats_poller_handler_sup, supervisor),
+        ?CHILD(stats_poller_logic, worker),
+        ?CHILD(stats_poller_folsom, worker)
+    ]}}.
