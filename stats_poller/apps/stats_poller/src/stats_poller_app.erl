@@ -33,7 +33,7 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-    stats_poller:start_link().
+    stats_poller_sup:start_link().
 
 stop(_State) ->
     ok.

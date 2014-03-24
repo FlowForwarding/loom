@@ -23,8 +23,7 @@
 
 -module(stats_poller_ofsh).
 
--include_lib("ofs_handler/include/ofs_handler.hrl").
--include_lib("of_protocol/include/of_protocol.hrl").
+-include("stats_poller_logger.hrl").
 -include("stats_poller_ofsh.hrl").
 
 -export([
@@ -37,19 +36,33 @@
     terminate/1
 ]).
 
+-type auxid() :: integer().
+-type connection() :: pid().
+-type datapath_id() :: term().
+-type features() :: term().
+-type handler_mode() :: active | standby.
+-type ipaddress() :: {integer(), integer(), integer(), integer()}.
+-type of_version() :: integer().
+-type options() :: term().
+-type error_reason() :: term().
+-type ofp_message() :: term().
+
 % callbacks from ofs_handler
 % The callback functions in turn call stats_poller_logic for processing.
+% TODO: handle standby connection
 -spec init(handler_mode(), ipaddress(), datapath_id(), features(), of_version(), connection(), options()) -> {ok, ofs_state()}.
-init(Mode, IpAddr, DatapathId, _Features, Version, Connection, _Opts) ->
+init(Mode, IpAddr, DatapathId, _Features, Version, _Connection, _Opts) ->
     % new main connection
-    ok = stats_poller_logic:ofsh_init(Mode, IpAddr, DatapathId, Version, Connection),
-    State = #?OFS_STATE{datapath_id = DatapathId},
+    ?INFO("new main connection: ~p ~p ~p", [Mode, IpAddr, DatapathId]),
+    {ok, Pid} = stats_poller_handler_sup:start_child(Version, DatapathId),
+    State = #?OFS_STATE{datapath_id = DatapathId, handler = Pid},
     {ok, State}.
 
 -spec connect(handler_mode(), ipaddress(), datapath_id(), features(), of_version(), connection(), auxid(), options()) -> {ok, ofs_state()}.
-connect(Mode, IpAddr, DatapathId, _Features, Version, Connection, AuxId, _Opts) ->
+connect(Mode, IpAddr, DatapathId, _Features, _Version, _Connection, AuxId, _Opts) ->
     % new auxiliary connection
-    ok = stats_poller_logic:ofsh_connect(Mode, IpAddr, DatapathId, Version, Connection, AuxId),
+    ?INFO("new aux connection: ~p ~p ~p ~p",
+                                        [Mode, IpAddr, AuxId, DatapathId]),
     State = #?OFS_STATE{datapath_id = DatapathId, aux_id = AuxId},
     {ok, State}.
 
@@ -60,29 +73,32 @@ disconnect(State) ->
         datapath_id = DatapathId,
         aux_id = AuxId
     } = State,
-    ok = stats_poller_logic:ofsh_disconnect(AuxId, DatapathId).
+    ?INFO("disconnect aux connection: ~p ~p", [AuxId, DatapathId]),
+    ok.
 
 -spec failover(ofs_state()) -> ok.
 failover(State) ->
     % State of new active
     % TODO: not failover not implement in ofs_handler
-    ok = stats_poller_logic:ofsh_failover(),
     {ok, State}.
 
 -spec handle_error(error_reason(), ofs_state()) -> ok.
 handle_error(Reason, State) ->
     % Error on the connection
     DatapathId = State#?OFS_STATE.datapath_id,
-    ok = stats_poller_logic:ofsh_handle_error(DatapathId, Reason).
+    ?INFO("error on connection: ~p ~p", [DatapathId, Reason]),
+    {ok, State}.
 
 -spec handle_message(ofp_message(), ofs_state()) -> ok.
 handle_message(Msg, State) ->
     % received a message on the connection
     DatapathId = State#?OFS_STATE.datapath_id,
-    ok = stats_poller_logic:ofsh_handle_message(DatapathId, Msg).
+    ?INFO("message in: ~p ~p", [DatapathId, Msg]),
+    {ok, State}.
 
 -spec terminate(ofs_state()) -> ok.
-terminate(State) ->
+terminate(#?OFS_STATE{handler = Handler,
+                      datapath_id = DatapathId}) ->
     % lost the main connection
-    DatapathId = State#?OFS_STATE.datapath_id,
-    ok = stats_poller_logic:ofsh_terminate(DatapathId).
+    ?INFO("lost main connection: ~p", [DatapathId]),
+    ok = stats_poller_handler_sup:stop_child(Handler, normal).

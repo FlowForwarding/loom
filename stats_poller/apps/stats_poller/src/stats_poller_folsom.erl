@@ -26,9 +26,9 @@
 -define(SERVER, ?MODULE).
 -define(STATE, stats_poller_folsom_state).
 
--include("stats_poller_logger.hrl").
 -include_lib("of_protocol/include/of_protocol.hrl").
--include("simple_ne_ofsh.hrl").
+-include("stats_poller_logger.hrl").
+-include("stats_poller_ofsh.hrl").
 
 -record(?STATE, {
     stats :: term(),

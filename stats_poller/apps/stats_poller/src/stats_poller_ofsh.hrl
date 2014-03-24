@@ -17,16 +17,10 @@
 %% @author Erlang Solutions Ltd. <openflow@erlang-solutions.com>
 %% @copyright 2014 FlowForwarding.org
 
-%%% @doc
-%%% Simple network executive callback handler for ofs_handler.
-%%% @end
-
-% State held by ofs_handler.
-% This state holds onto the datapath id and aux connection id.
-% There is one state for each connection.  
--define(OFS_STATE, simple_ne_ofs_state).
+-define(OFS_STATE, stats_poller_ofs_handler_state).
 -record(?OFS_STATE, {
                     datapath_id,
-                    aux_id = 0
+                    aux_id = 0,
+                    handler
                 }).
 -type ofs_state() :: #?OFS_STATE{}.

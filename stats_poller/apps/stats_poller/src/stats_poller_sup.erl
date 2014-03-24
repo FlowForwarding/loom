@@ -48,6 +48,5 @@ start_link() ->
 init([]) ->
     {ok, { {one_for_one, 5, 10}, [
         ?CHILD(stats_poller_handler_sup, supervisor),
-        ?CHILD(stats_poller_logic, worker),
         ?CHILD(stats_poller_folsom, worker)
     ]}}.
