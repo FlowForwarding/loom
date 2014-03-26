@@ -1,13 +1,13 @@
 PODS:
-  - NCICharts (1.0.1)
+  - NCICharts (1.0.2)
   - SocketRocket (0.3.1-beta2)
 
 DEPENDENCIES:
-  - NCICharts (~> 1.0.1)
+  - NCICharts (~> 1.0.2)
   - SocketRocket (~> 0.3.1-beta2)
 
 SPEC CHECKSUMS:
-  NCICharts: 7f1c2b7ab51b6c424d5d99f4d0544d1eecde2c06
+  NCICharts: 375a02a4d41c9b9ee96378cf623541ddaab8e67c
   SocketRocket: 7ac946bcce46287a791dfff3c1f8daa692821dae
 
 COCOAPODS: 0.29.0
