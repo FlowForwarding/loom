@@ -28,7 +28,7 @@
 		2A02D07E1844F2210065B0E9 /* NCIGraphController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D07B1844F2210065B0E9 /* NCIGraphController.m */; };
 		2A02D07F1844F2210065B0E9 /* NCIWebSocketConnector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D07D1844F2210065B0E9 /* NCIWebSocketConnector.m */; };
 		2A3BBB0D18576EBF006ECC2B /* NCIConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3BBB0C18576EBF006ECC2B /* NCIConstants.m */; };
-		2A846CFF18465ABC000CAA2F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2A846CFE18465ABC000CAA2F /* Localizable.strings */; };
+		2A90431B18E392AA008CEBB8 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2A90431D18E392AA008CEBB8 /* Localizable.strings */; };
 		2AF134E0185E31E50087D685 /* UIColor+WithHex.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AF134DF185E31E50087D685 /* UIColor+WithHex.m */; };
 		BF1E73678289457C8D232F84 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06D5AAF19A074DA0BABE9A8B /* libPods.a */; };
 /* End PBXBuildFile section */
@@ -81,7 +81,8 @@
 		2A3BBB0C18576EBF006ECC2B /* NCIConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIConstants.m; sourceTree = "<group>"; };
 		2A6DDE0618637A420013D202 /* libNCIChart.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libNCIChart.a; path = "NCIChart/build/Debug-iphoneos/libNCIChart.a"; sourceTree = "<group>"; };
 		2A6DDE0A1864523B0013D202 /* libNCIChart.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libNCIChart.a; path = "NCIChart/build/Debug-iphoneos/libNCIChart.a"; sourceTree = "<group>"; };
-		2A846CFE18465ABC000CAA2F /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		2A90431C18E392AA008CEBB8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		2A90431E18E392BA008CEBB8 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2AF134DE185E31E50087D685 /* UIColor+WithHex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+WithHex.h"; sourceTree = "<group>"; };
 		2AF134DF185E31E50087D685 /* UIColor+WithHex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+WithHex.m"; sourceTree = "<group>"; };
 		873D91FA5DF341DBB1741EE2 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
@@ -169,7 +170,7 @@
 		2A02D00D1844F16C0065B0E9 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				2A846CFE18465ABC000CAA2F /* Localizable.strings */,
+				2A90431D18E392AA008CEBB8 /* Localizable.strings */,
 				2A02D00E1844F16C0065B0E9 /* Tapestry-Info.plist */,
 				2A02D00F1844F16C0065B0E9 /* InfoPlist.strings */,
 				2A02D0121844F16C0065B0E9 /* main.m */,
@@ -279,6 +280,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				ja,
 			);
 			mainGroup = 2A02CFFA1844F16B0065B0E9;
 			productRefGroup = 2A02D0041844F16B0065B0E9 /* Products */;
@@ -297,7 +299,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2A02D0111844F16C0065B0E9 /* InfoPlist.strings in Resources */,
-				2A846CFF18465ABC000CAA2F /* Localizable.strings in Resources */,
+				2A90431B18E392AA008CEBB8 /* Localizable.strings in Resources */,
 				2A02D0191844F16C0065B0E9 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -398,6 +400,16 @@
 				2A02D0291844F16C0065B0E9 /* en */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		2A90431D18E392AA008CEBB8 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2A90431C18E392AA008CEBB8 /* en */,
+				2A90431E18E392BA008CEBB8 /* ja */,
+			);
+			name = Localizable.strings;
+			path = ..;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

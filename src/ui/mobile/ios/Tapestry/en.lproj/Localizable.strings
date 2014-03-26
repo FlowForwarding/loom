@@ -2,10 +2,8 @@
   Localizable.strings
   Tapestry
 
-  Created by Infoblox Inc on 11/11/13.
-  Copyright (c) 2013 FlowForwarding.Org. All rights reserved.
-//  Licensed under the Apache License, Version 2.0 
-//  http://www.apache.org/licenses/LICENSE-2.0
+  Created by Ira on 3/27/14.
+  Copyright (c) 2014 FlowForwarding.Org. All rights reserved.
 */
 "Tapestry: A Network Complexity Analyzer" = "Tapestry: A Network Complexity Analyzer";
 "updated %@" = "updated %@";
