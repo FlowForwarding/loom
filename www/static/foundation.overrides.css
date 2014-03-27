@@ -95,7 +95,7 @@
 	position: absolute;
 	background-image: url(images/infoicon.png);
 	width: 30px;
-	height: 30px;
+    height: 30px;
 }
 
 .zoom-panel a.selected {

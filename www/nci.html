@@ -8,8 +8,7 @@
   	    <link rel="stylesheet" href="static/libs/foundation/foundation.min.css"/> 
         <link rel="stylesheet" href="static/foundation.overrides.css"/> 
 	
-		<script src='static/libs/jquery/jquery.min.js'></script>
-		<script src='static/libs/dygraph/dygraph-combined.js'></script>	
+	    <script src='static/libs/foundation/modernizr.js'></script> 
 		
 	</head>
 	<body>
@@ -41,7 +40,7 @@
 				<span id="qpsLatestValue"><val> &nbsp; </val> </span>
 			</div>	
 			<div class="large-4 small-2 columns">
-				<i data-reveal-id="infoModal" class="round-info"></i>
+				<i data-reveal-id="infoModal" class="round-info" data-reveal></i>
 			</div>	  
 		</div>  
 		<br><br>
@@ -61,23 +60,22 @@
 		    <div id="range-middle-date" style="width:50%; display:inline;"></div>
 		 </div>
 		
-		<div id="infoModal" class="reveal-modal">
+		<div id="infoModal" class="reveal-modal" data-reveal>
 			<a href='http://www.infoblox.com/sites/infobloxcom/files/resources/infoblox-whitepaper-network-complexity.pdf' target='blank'>About NCI</a> <br><br>
 			<a href='http://www.flowforwarding.org/nci-article' target='blank'>NCI – Technical paper</a>  <br><br>
 			<a href='http://www.flowforwarding.org/about-us' target='blank'>About FlowForwarding.Org</a>
 			<a class="close-reveal-modal">&#215;</a>
 		</div>
 		
-		<script src='static/libs/foundation/custom.modernizr.js'></script> 
+		<script src='static/libs/jquery/jquery.min.js'></script>
+		<script src="static/libs/foundation/fastclick.js"></script>
+		<script src='static/libs/dygraph/dygraph-combined.js'></script>	
 		<script src='static/libs/foundation/foundation.min.js'></script>   
 		<script src='static/connection.js'></script>
 		<script src='static/nci.js'></script>
 		<script src='static/chart.js'></script>
 		<script type="text/javascript">
-			$(function(){
 		    	$(document).foundation();
-					  					  		   			
-			});
 		</script>
 	</body>
 </html>
