@@ -5,7 +5,8 @@ NCI.start_time; // no data exists on the server before
 NCI.time_adjustment = 0; //difference between client and server time in milliseconds
 NCI.numOfPoints = 200;
 
-NCI.Connection = new WebSocket("ws://" + location.host + "/clientsock.yaws");
+//NCI.Connection = new WebSocket("ws://" + location.host + "/clientsock.yaws");
+NCI.Connection = new WebSocket("ws://epamove.herokuapp.com");
 NCI.Connection.onopen = function () {
 	NCI.Connection.startData();
 };

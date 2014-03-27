@@ -7,7 +7,6 @@
   	    <link rel="stylesheet" href="static/libs/foundation/normalize.css" />
   	    <link rel="stylesheet" href="static/libs/foundation/foundation.min.css"/> 
         <link rel="stylesheet" href="static/foundation.overrides.css"/> 
-		<link rel="stylesheet" href="static/libs/font-awesome/css/font-awesome.min.css" />
 	
 		<script src='static/libs/jquery/jquery.min.js'></script>
 		<script src='static/libs/dygraph/dygraph-combined.js'></script>	
@@ -24,15 +23,14 @@
 		</nav> 
 		
 		<div class="row">
-			<div class="large-10 small-10 columns">
-			<div class="large-6 small-12 columns nci-label">
+			<div class="large-4 small-12 columns nci-label">
 				<div class="indexValue" style="padding-top:10px">
 					<name> NCI</name>
 					<span data-tooltip class="has-tip" title="Network Complexity Index"><i class="icon-question-sign"></i></span>
 					<span id="nciLatestValue"> <val> &nbsp; </val> </span>
 				</div><br>
 			</div>	
-			<div class="large-6 small-12 columns qps-value indexValue" style="padding-top:10px">  	
+			<div class="large-4 small-12 columns qps-value indexValue" style="padding-top:10px">  	
 				<name>Endpoints</name>
 				<span data-tooltip class="has-tip" title="Number of Connected Network Elements"> 
 					<i class="icon-question-sign"></i></span>	
@@ -42,9 +40,8 @@
 						<i class="icon-question-sign"></i></span>
 				<span id="qpsLatestValue"><val> &nbsp; </val> </span>
 			</div>	
-			</div>	
-			<div class="large-2 small-2 columns">
-				<i data-reveal-id="infoModal" class="round-info icon-info-sign"></i>
+			<div class="large-4 small-2 columns">
+				<i data-reveal-id="infoModal" class="round-info"></i>
 			</div>	  
 		</div>  
 		<br><br>

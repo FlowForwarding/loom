@@ -44,10 +44,11 @@
 	padding-left: 20px;;
 }
 
-.nci-label .icon-question-sign{
-    font-size: 20px;
-	position:relative;
-	top: -13px;
+.icon-question-sign{
+	background-image: url(images/helpicon.png);
+	position: absolute;
+	width: 15px;
+	height: 15px;
 }
 
 .nci-label .green {
@@ -62,11 +63,6 @@
 	color: black;
 }
 
-.qps-value .icon-question-sign{
-    font-size: 15px;
-	position:relative;
-	top: -7px;
-}
 
 .timePeriod small{
 	color: #565656;
@@ -96,9 +92,10 @@
 
 .round-info{
 	right: 20px;
-	position:absolute;
-	font-size: 35px;
-	top:0px;
+	position: absolute;
+	background-image: url(images/infoicon.png);
+	width: 30px;
+	height: 30px;
 }
 
 .zoom-panel a.selected {
