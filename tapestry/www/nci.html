@@ -1,0 +1,86 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title> Tapestry </title>
+		<link rel="shortcut icon" href="static/images/favicon.ico" >
+  	    <link rel="stylesheet" href="static/libs/foundation/normalize.css" />
+  	    <link rel="stylesheet" href="static/libs/foundation/foundation.min.css"/> 
+        <link rel="stylesheet" href="static/foundation.overrides.css"/> 
+	
+	    <script src='static/libs/foundation/modernizr.js'></script> 
+		
+	</head>
+	<body>
+        <!-- <dl id="copyright">
+           <dt title="Copyright">&copy;</dt>
+           <dd>2013 Infoblox Inc</dd>
+        </dl> -->
+        <!-- <a rel="license" href="http://www.apache.org/licenses/LICENSE-2.0"> Apache 2.0 License </a> -->
+		<nav class="top-bar">
+		    <ul class="title-area">
+		      <li class="name">
+		        <h1><a href="#">Tapestry: A Network Complexity Analyzer</a></h1>
+		      </li>
+		    </ul>
+			<i data-reveal-id="infoModal" class="round-info" data-reveal></i>
+		</nav> 
+		
+		<div class="row">
+			<div class="large-4 small-12 columns nci-label">
+				<div class="indexValue" style="padding-top:10px">
+					<name> NCI</name>
+					<span data-tooltip class="has-tip" title="Network Complexity Index"><i class="icon-question-sign"></i></span>
+					<span id="nciLatestValue"> <val> &nbsp; </val> </span>
+				</div><br>
+			</div>	
+			<div class="large-4 small-12 columns qps-value indexValue" style="padding-top:10px">  	
+				<name>Endpoints</name>
+				<span data-tooltip class="has-tip" title="Number of Connected Network Elements"> 
+					<i class="icon-question-sign"></i></span>	
+				<span id="nepLatestValue"><val> &nbsp; </val> </span>	<br> <br>
+				<name>Queries per Second </name>
+					<span data-tooltip class="has-tip" title="Successful DNS Query Responses per Second">
+						<i class="icon-question-sign"></i></span>
+				<span id="qpsLatestValue"><val> &nbsp; </val> </span>
+			</div>	
+			<div class="large-4 small-2 columns">
+				
+			</div>	  
+		</div>  
+		<br><br>
+		<div class="row zoom-panel"> <span class="radius secondary label">Zoom: </span>
+			 <a data-time="86400000">1d</a>&nbsp;
+			 <a data-time="432000000">5d</a>&nbsp;
+			 <a data-time="2592000000">1m</a>&nbsp;
+			 <a data-time="7776000000">3m</a>&nbsp;
+			 <a data-time="15552000000">6m</a>&nbsp;
+			 <a data-time="31104000000">1y</a>&nbsp;
+			 <a data-time="155520000000">5y</a>&nbsp;
+			 <a data-time="311040000000">10y</a></div> 
+		<br><br>
+		<div id="nciChart" class="nci-chart" style="width:90%;"></div>
+		<div class="nci-range-dates">
+			<div id="range-start-date" style="width:50%; display:inline-block;"></div>
+		    <div id="range-middle-date" style="width:50%; display:inline;"></div>
+		 </div>
+		
+		<div id="infoModal" class="reveal-modal" data-reveal>
+			<a href='http://www.infoblox.com/sites/infobloxcom/files/resources/infoblox-whitepaper-network-complexity.pdf' target='blank'>About NCI</a> <br><br>
+			<a href='http://www.flowforwarding.org/nci-article' target='blank'>NCI – Technical paper</a>  <br><br>
+			<a href='http://www.flowforwarding.org/about-us' target='blank'>About FlowForwarding.Org</a>
+			<a class="close-reveal-modal">&#215;</a>
+		</div>
+		
+		<script src='static/libs/jquery/jquery.min.js'></script>
+		<script src="static/libs/foundation/fastclick.js"></script>
+		<script src='static/libs/dygraph/dygraph-combined.js'></script>	
+		<script src='static/libs/foundation/foundation.min.js'></script>   
+		<script src='static/connection.js'></script>
+		<script src='static/nci.js'></script>
+		<script src='static/chart.js'></script>
+		<script type="text/javascript">
+		    	$(document).foundation();
+		</script>
+	</body>
+</html>
