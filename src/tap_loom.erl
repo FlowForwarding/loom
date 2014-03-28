@@ -15,18 +15,47 @@
 %%-----------------------------------------------------------------------------
 %%
 %% @author Infoblox Inc <info@infoblox.com>
-%% @copyright 2013 Infoblox Inc
+%% @copyright 2013,2014 Infoblox Inc
 %% @doc tap module for loom
 
 -module(tap_loom).
 
+-include_lib("../lib/loom/deps/ofs_handler/include/ofs_handler.hrl").
+-include_lib("../lib/loom/deps/of_protocol/include/of_protocol.hrl").
+-include_lib("../lib/loom/deps/of_protocol/include/ofp_v4.hrl").
+
 -compile([export_all]).
+
+-define(L_PRIORITY, 100).
+-define(H_PRIORITY, 101).
+-define(DNS_IP, {10,48,2,5}).
 
 start()->
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/deps/*/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/apps/*/ebin")],
-    loom_app:start().
+    [code:add_pathz(Path) || Path <- filelib:wildcard("./deps/*/ebin")],
+    application:start(mnesia),
+    application:start(syntax_tools),
+    application:start(compiler),
+    ok = application:start(lager),
+    lager:set_loglevel(lager_console_backend, error),
+    ok = application:start(eenum),
+    ok = application:start(folsom),
+    ok = application:start(of_protocol),
+    application:start(of_msg_lib),
+    application:load(of_driver),
+    application:set_env(of_driver, listen_ip, {0,0,0,0}),
+    application:set_env(of_driver, listen_port, 6653),
+    application:set_env(of_driver, callback_module, ofs_handler_driver),
+    ok = application:start(of_driver),
+    application:load(ofs_handler),
+    application:set_env(ofs_handler, callback_module, simple_ne_ofsh),
+    application:start(ofs_handler),
+    application:start(loom),
+    application:load(simple_ne),
+    application:set_env(simple_ne, stats_interval_sec, disable),
+    application:start(simple_ne).
     
 
 config()->
@@ -55,7 +84,7 @@ process_config([Config|Rest]) ->
 	_ -> process_config(Rest)
     end.
 
-process_config([],IP)->
+process_config([],_IP)->
     ok;
 process_config([Config|Rest],IP) ->
     case Config of
@@ -65,25 +94,24 @@ process_config([Config|Rest],IP) ->
     end.
 
 
-process_ofdps([],TargetIP)->
+process_ofdps([],_TargetIP)->
         ok;
 process_ofdps([OFDP|Rest],TargetIP) ->
     case OFDP of
 	{ofdp,{ip_addr,IPAddr},DNSPort,ClientPort,DNSIps} when (IPAddr == TargetIP)->
 	    error_logger:info_msg("processing: ~p~n",[OFDP]),
-%	    {ip_addr,IPAddr} = IP,
 	    {dns_port,Port1} = DNSPort,
 	    {client_port,Port2} = ClientPort,
 	    {dns_ips,IPs} = DNSIps,
-	    OFDPList = loom_ofdp:get_all(default),
+	    OFSwitchList = simple_ne_logic:switches(),
 	    lists:foreach(fun(X)->
-				  {OFDPIP,_} = loom_ofdp:get_address(X),
+				  {OFDPIP, DatapathId, Version, _, _} = X,
 				  case OFDPIP == IPAddr of
 				      true ->
-					  dns_tap([X],Port1,Port2,IPs);
+					  dns_tap([DatapathId],Version,Port1,Port2,IPs);
 				      false -> ok
 				  end
-			  end, OFDPList),
+			  end, OFSwitchList),
 	    process_ofdps(Rest,TargetIP);
 	_ -> process_ofdps(Rest,TargetIP)
     end.
@@ -101,127 +129,85 @@ process_ofdps([OFDP|Rest]) ->
 	    {dns_port,Port1} = DNSPort,
 	    {client_port,Port2} = ClientPort,
 	    {dns_ips,IPs} = DNSIps,
-	    OFDPList = loom_ofdp:get_all(default),
+	    OFSwitchList = simple_ne_logic:switches(),
 	    lists:foreach(fun(X)->
-				  {OFDPIP,_} = loom_ofdp:get_address(X),
+				  {OFDPIP, DatapathId, Version, _, _} = X,
 				  case OFDPIP == IPAddr of
 				      true ->
-					  dns_tap([X],Port1,Port2,IPs);
+					  dns_tap([DatapathId],Version,Port1,Port2,IPs);
 				      false -> ok
 				  end
-			  end, OFDPList),
+			  end, OFSwitchList),
 	    process_ofdps(Rest);
 	_ -> process_ofdps(Rest)
     end.
 
-    
+bridge(IPAddress,Port1,Port2) ->
+    OFSwitchList = simple_ne_logic:switches(),
+    lists:foreach(fun(X)->
+			  {OFDPIP, DatapathId, Version, _, _} = X,
+			  case OFDPIP == IPAddress of
+			      true ->
+				  ofs_handler:send(DatapathId, forward_mod(Version, Port1, [Port2])),
+				  ofs_handler:send(DatapathId, forward_mod(Version, Port2, [Port1]));
+			      false -> ok
+			  end
+		  end, OFSwitchList).
+
+clear_flows(IPAddress) -> 
+    OFSwitchList = simple_ne_logic:switches(),
+    lists:foreach(fun(X)->
+			  {OFDPIP, DatapathId, Version, _, _} = X,
+			  case OFDPIP == IPAddress of
+			      true ->
+				  ofs_handler:send(DatapathId, remove_all_flows_mod(Version));
+			      false -> ok
+			  end
+		  end, OFSwitchList).
 
 
-dns_tap([],_Port1,_Port2,_IPTupleList)->
+
+dns_tap([],_Version,_Port1,_Port2,_IPTupleList)->
     ok;
-dns_tap(OFDPL,Port1,Port2,IPTupleList)->
-    [OFDP|Rest] = OFDPL,
+dns_tap(OFDPL,Version,Port1,Port2,IPTupleList)->
+    [DatapathId|Rest] = OFDPL,
     IPList = [ list_to_binary(tuple_to_list(IPTuple)) || IPTuple <- IPTupleList ],
-    error_logger:info_msg("dns_tap: ~p, ~p, ~p, ~p~n",[OFDP,Port1,Port2,IPTupleList]),
-    loom_ofdp_lib:clear(OFDP),
-    lists:foreach(fun(X)->send_dns_tap_msg(Port1,Port2, controller, X, OFDP) end,IPList),
-    loom_ofdp_lib:forward(OFDP,Port2,[Port1]), 
-    loom_ofdp_lib:forward(OFDP, Port1,[Port2]),
-    dns_tap(Rest,Port1,Port2,IPTupleList).
+    error_logger:info_msg("dns_tap: ~p, ~p, ~p, ~p~n",[DatapathId,Port1,Port2,IPTupleList]),
+    ofs_handler:send(DatapathId, remove_all_flows_mod(Version)),
+    lists:foreach(fun(X)->ofs_handler:send(DatapathId, tap_dns_response(Version, Port1,Port2,controller,X)) end,IPList),
+    ofs_handler:send(DatapathId, forward_mod(Version, Port1, [Port2])),
+    ofs_handler:send(DatapathId, forward_mod(Version, Port2, [Port1])),
+    dns_tap(Rest,Version,Port1,Port2,IPTupleList).
 
 
-delete_flows(IPAddress) when is_tuple(IPAddress)->
-    io:format("delete_flows: deleting all flows ~p~n",[IPAddress]),
-    OFDPList = loom_ofdp:get_all(default),
-    lists:foreach(fun(X)->
-			  {OFDPIP,_} = loom_ofdp:get_address(X),
-			  case OFDPIP == IPAddress of
-			      true ->
-				  loom_ofdp_lib:clear(X);
-			      false -> ok
-			  end
-		  end, OFDPList).
+%tap packets to controller for udp traffic from DNS server IP address
+tap_dns_response(Version, Port1, Port2, Port3, IPv4Src) ->
+%     Matches = [{in_port, <<Port1:32>>}, {eth_type, 2048}, {ip_proto, <<17:8>>}],
+    Matches = [{in_port, <<Port1:32>>}, {eth_type, 2048}, {ip_proto, <<17:8>>}, {ipv4_src, IPv4Src} ],
+    Instructions = [{apply_actions, [{output, Port2, no_buffer}, {output, Port3, no_buffer}] }],
+    Opts = [{table_id,0}, {priority, ?H_PRIORITY}, {idle_timeout, 0}, {idle_timeout, 0},
+            {cookie, <<0,0,0,0,0,0,0,10>>}, {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
+    of_msg_lib:flow_add(Version, Matches, Instructions, Opts).
 
-bridge_ports(IPAddress,Port1,Port2) when is_tuple(IPAddress)->
-    io:format("bridge_ports: bringing Ports ~p and ~p on ~p~n",[Port1,Port2,IPAddress]),
-    OFDPList = loom_ofdp:get_all(default),
-    lists:foreach(fun(X)->
-			  {OFDPIP,_} = loom_ofdp:get_address(X),
-			  case OFDPIP == IPAddress of
-			      true ->
-				  loom_ofdp_lib:forward(X,Port2,[Port1]), 
-				  loom_ofdp_lib:forward(X, Port1,[Port2]);
-			      false -> ok
-			  end
-		  end, OFDPList).
+%forward packet on InPort to OutPorts using apply_actions
+forward_mod(Version,InPort,OutPorts)->
+    Matches = [{in_port, <<InPort:32>>}],
+    Instructions = [{apply_actions, [{output, OutPort, no_buffer} || OutPort <- OutPorts] } ],
+    io:format("Instructions=~p~n", [Instructions]),
+    Opts = [{table_id,0}, {priority,?L_PRIORITY}, {idle_timeout, 0}, {idle_timeout, 0},
+            {cookie, <<0,0,0,0,0,0,0,10>>}, {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
+    of_msg_lib:flow_add(Version, Matches, Instructions, Opts).    
 
-send_dns_tap_msg(Port1, Port2, Port3, IPv4Src, OFDP) ->    
-    error_logger:info_msg("send_dns_tap_msg: Port1 = ~p, Port2 = ~p, Port3 = ~p, IPv4src = ~p, OFDP = ~p~n",[Port1, Port2, Port3, IPv4Src, OFDP]),
-    M1 = loom_flow_lib:tap_dns_response(Port1, Port2, Port3, IPv4Src),
-    error_logger:info_msg("OFP_MSG: ~p~n",[M1]),
-    loom_ofdp:send_ofp_msg(OFDP, M1).
+% delete all flows in table 0
+remove_all_flows_mod(Version) ->
+    of_msg_lib:flow_delete(Version, [], [{table_id, 0}]).
 
 
-
-get_ofdp_recv_list()->
-    LoomSupTree = loom:get_sup_tree(),
-    get_ofdp_recv_list(LoomSupTree).
-
-get_ofdp_recv_list(LoomSupTree)->
-    TapLoom = lists:keyfind(dns_tap,1,LoomSupTree),
-    TapChildren = case TapLoom of
-		      false ->
-			  tapestry_not_running;
-		      {dns_tap,_,Children} -> Children
-		  end,
-    OFDPL = case TapChildren of
-		tapestry_not_running ->
-		    false;
-		[] -> false;
-		_ -> {OFDP,_Rest} = lists:partition(fun(X)->
-							   [Name | _Rest] = tuple_to_list(X),
-							   Name == loom_ofdp_recv_sup end,TapChildren),
-		     OFDP
-	    end,
-    Workers = case OFDPL of
-		  [] -> false;
-		  [{_,_,W}] -> W;
-		  _ -> false
-	      end,
-    lists:foldl(fun(X,AccIn)->case X of
-				  {_,Pid,worker,[loom_ofdp_recv]} ->
-				      [Pid|AccIn];
-				  _ -> AccIn
-			      end
-		end,[],Workers).
-	
-	     
-				     
-get_ofdp_recv_list_test()->
-    LoomSupTree = [{dns_tap,{dns_tap,"<0.111.0>",supervisor,
-                   [loom_controller_sup]},
-          [{loom_ofdp_recv_sup,{loom_ofdp_recv_sup,"<0.115.0>",
-                                                   supervisor,
-                                                   [loom_ofdp_recv_sup]},
-                               [{undefined,"<0.121.0>",worker,[loom_ofdp_recv]}]},
-           {loom_ofdp_sup,{loom_ofdp_sup,"<0.114.0>",supervisor,
-                                         [loom_ofdp_sup]},
-                          [{undefined,"<0.119.0>",worker,[loom_ofdp]}]},
-           {loom_c_listen_sup,{loom_c_listen_sup,"<0.113.0>",supervisor,
-                                                 [loom_c_listen_sup]},
-                              [{undefined,"<0.116.0>",worker,[loom_c_listen]}]},
-           {loom_controller,"<0.112.0>",worker,[loom_controller]}]},
- {default,{default,"<0.105.0>",supervisor,
-                   [loom_controller_sup]},
-          [{loom_ofdp_recv_sup,{loom_ofdp_recv_sup,"<0.109.0>",
-                                                   supervisor,
-                                                   [loom_ofdp_recv_sup]},
-                               [{undefined,"<0.120.0>",worker,[loom_ofdp_recv]}]},
-           {loom_ofdp_sup,{loom_ofdp_sup,"<0.108.0>",supervisor,
-                                         [loom_ofdp_sup]},
-                          [{undefined,"<0.118.0>",worker,[loom_ofdp]}]},
-           {loom_c_listen_sup,{loom_c_listen_sup,"<0.107.0>",supervisor,
-                                                 [loom_c_listen_sup]},
-                              [{undefined,"<0.110.0>",worker,[loom_c_listen]}]},
-           {loom_controller,"<0.106.0>",worker,[loom_controller]}]}],
-   get_ofdp_recv_list(LoomSupTree).
+    
+%%% Handling packet_in message
+%%-spec handle_message(ofp_message(), ofs_state()) -> ok.
+handle_message({packet_in, Xid, Body}, _State) ->
+    % received a message on the connection
+    Data = proplists:get_value(data, Body),
+    io:format("Data = ~p~n", [Data]),
+    ok.

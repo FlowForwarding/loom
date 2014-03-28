@@ -19,7 +19,7 @@ yawsUpdate:
 
 
 loom:
-	git clone https://github.com/sigstop/loom.git
+	git clone https://github.com/FlowForwarding/loom.git
 
 loomUpdate:
 	cd loom; git pull; make

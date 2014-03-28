@@ -21,7 +21,7 @@
 -module(tapestry).
 
 
--compile([all]).
+-compile(export_all).
 
 -export([start/0,start/1,nci_from_log_lines/1,nci_from_benchmark_data/1]).
 
@@ -39,11 +39,13 @@ start(Type)->
 
 start_loom()->
     error_logger:info_msg("Starting tapestry. Loom Mode. View $TAPESTRY_HOME/log/console.log for operational messages.~n"),
+    [code:add_pathz(Path) || Path <- filelib:wildcard("./deps/*/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/deps/*/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/apps/*/ebin")],
-    loom_app:start(),
-    loom_sup:launch_controller(dns_tap,6634),
+    tap_loom:start(),
+%    loom_app:start(),
+%    loom_sup:launch_controller(dns_tap,6634),
     tap_yaws:start(),
     Pid = tap_aggr:start(),
     error_logger:info_msg("Stared tapestry with Process ID ~p.~n",[Pid]),
@@ -57,11 +59,20 @@ start_grid()->
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/apps/*/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/bifrost/ebin")],
     [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/bifrost/deps/*/ebin")],
-    loom_app:start(),
     tap_yaws:start(),
     Pid = tap_ftpd:start(),
     error_logger:info_msg("Stared tapestry with Process ID ~p.~n",[Pid]),
     Pid.
+
+
+
+packet_in_subscribe()->
+    OFSwitchList = simple_ne_logic:switches(),
+    lists:foreach(fun(X)->
+			  {OFDPIP, DatapathId, Version, _, _} = X,
+			  ofs_handler:subscribe(DatapathId, loom_handler, packet_in)
+		  end, OFSwitchList).
+
 
 
 
