@@ -1,4 +1,4 @@
-.PHONY: rel compile lib get-deps update-deps test clean deep-clean
+.PHONY: rel compile get-deps update-deps test clean deep-clean
 
 rel: compile
 #	@./rebar generate -f
@@ -10,10 +10,7 @@ offline:
 #	@./rebar generate -f
 #	@./scripts/post_generate_hook
 
-lib:
-	cd lib; make all
-
-compile: lib get-deps update-deps
+compile: get-deps update-deps
 	@./rebar compile
 
 beams:
