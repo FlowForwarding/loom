@@ -20,9 +20,9 @@
 
 -module(tap_loom).
 
--include_lib("../lib/loom/deps/ofs_handler/include/ofs_handler.hrl").
--include_lib("../lib/loom/deps/of_protocol/include/of_protocol.hrl").
--include_lib("../lib/loom/deps/of_protocol/include/ofp_v4.hrl").
+-include_lib("ofs_handler/include/ofs_handler.hrl").
+-include_lib("of_protocol/include/of_protocol.hrl").
+-include_lib("of_protocol/include/ofp_v4.hrl").
 
 -compile([export_all]).
 

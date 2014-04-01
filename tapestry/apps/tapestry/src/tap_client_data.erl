@@ -22,7 +22,7 @@
 
 -compile([export_all]).
 
--include("../include/tapestry.hrl").
+-include("tapestry.hrl").
 
 -record(state,{start_time,clients,last_nci,nci_log,last_nep,last_int_nep,last_qps}).
 

@@ -21,7 +21,7 @@
 
 
 -module(tap_ftpd).
--include("../lib/bifrost/include/bifrost.hrl").
+-include_lib("bifrost/include/bifrost.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
 -behavior(gen_bifrost_server).

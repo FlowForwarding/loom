@@ -22,7 +22,7 @@
 
 -compile([export_all]).
 
--include("../include/tapestry.hrl").
+-include("tapestry.hrl").
 
 start()->
     {web_client,Port} = tap_config:get([ports,web_client]),

@@ -22,7 +22,7 @@
 
 -compile([export_all]).
 
--include("../include/tapestry.hrl").
+-include("tapestry.hrl").
 
 handle_message({text, <<"PING">>}) ->
     Pid = self(),

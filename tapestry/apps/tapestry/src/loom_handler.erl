@@ -3,10 +3,10 @@
 
 -compile(export_all).
 
--include_lib("../lib/loom/deps/ofs_handler/include/ofs_handler.hrl").
--include_lib("../lib/loom/deps/of_protocol/include/of_protocol.hrl").
--include_lib("../lib/loom/deps/of_protocol/include/ofp_v4.hrl").
--include_lib("../deps/pkt/include/pkt.hrl").
+-include_lib("ofs_handler/include/ofs_handler.hrl").
+-include_lib("of_protocol/include/of_protocol.hrl").
+-include_lib("of_protocol/include/ofp_v4.hrl").
+-include_lib("pkt/include/pkt.hrl").
 
 
 %%% Handling packet_in message
