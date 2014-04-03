@@ -23,6 +23,10 @@ init([]) ->
     TapYawsSup = {tap_yaws_sup,
                         {tap_yaws_sup, start_link, []},
                         permanent, infinity, supervisor, [tap_yaws_sup]},
+    FTP =        {tap_ftpd,
+                        {tap_ftpd, start_link, []},
+                        permanent, 5000, worker, [tap_ftpd]},
     {ok, {{one_for_one, 5, 10}, [
-        TapYawsSup
+        TapYawsSup,
+        FTP
     ]}}.

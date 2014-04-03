@@ -26,8 +26,8 @@
 
 -behavior(gen_bifrost_server).
 
--export([start/0,
-	 login/3, 
+-export([start_link/0]).
+-export([login/3, 
          init/2, 
          current_directory/1, 
          make_directory/2, 
@@ -57,12 +57,21 @@
           fs = new_directory("/")
          }).
 
+% -----------------------------------------------------------------------------
+% API
+% -----------------------------------------------------------------------------
 
-start()->
-    tap_ds:start(),
-    {ftpd,Port} = tap_config:get([ports,ftpd]),
-    {ok,Pid} = bifrost:start_link(?MODULE,[{ip_address, {0,0,0,0}}, {port, Port}]),
-    Pid.
+start_link() ->
+    {ftpd_port, Port} = tap_config:getconfig(ftpd_port),
+    {ftpd_address, IpAddr} = tap_config:getconfig(ftpd_address),
+    bifrost:start_link(?MODULE, [{ip_address, IpAddr}, {port, Port}]).
+
+% -----------------------------------------------------------------------------
+% bifrost callbacks
+% -----------------------------------------------------------------------------
+
+% TODO: remove unneeded file mamagnement code.  Ignore everything except
+% put file?
 
 init(InitialState, _) ->
     InitialState.
@@ -174,55 +183,20 @@ list_files(State, Directory) ->
             {error, State}
     end.
 
-% mode could be append or write, but we're only supporting
-% write.
-% FileRetrievalFun is fun(ByteCount) and retrieves up to ByteCount bytes,
-% or as many bytes as are available if ByteCount == 0
-%  and returns {ok, Bytes, Count} or done
-put_file(State, ProvidedFileName, _Mode, FileRetrievalFun) ->
-    FileName = lists:last(string:tokens(ProvidedFileName, "/")),
-    Target = absolute_path(State, FileName),
+% Ignore mode.  Assume write.
+% Decode the file and pass to data processor.
+%
+put_file(State, _ProvidedFileName, _Mode, FileRetrievalFun) ->
     ModState = get_module_state(State),
-    Fs = get_fs(ModState),
-    {ok, [FileBytes], FileSize} = read_from_fun(FileRetrievalFun),
-    {RF,UCRFSize} = decompress_file(FileBytes),
-    TDS = whereis(tap_ds),
-    Data = parse_file(RF,UCRFSize),
+    % TODO move decompress/decode out of the ftpd module into something else
+    % to avoid backing up the ftp server and crashing the server when
+    % bad data arrives
+    {ok, FileBytes, _FileSize} = FileRetrievalFun(),
+    {RF, UCRFSize} = decompress_file(FileBytes),
+    Data = parse_file(RF, UCRFSize),
     error_logger:info_msg("Data = ~p~n",[Data]),
-    TDS ! {bulk_data,Data},
-%    NewFs= set_path(Fs, Target, {file,
-%                                 FileBytes,
-%                                 new_file_info(FileName, file, FileSize)}),
-%    NewModState = ModState#msrv_state{fs=NewFs},
+    tap_ds ! {bulk_data, Data},
     {ok, set_module_state(State, ModState)}.
-
-decompress_file(FileBytes)->
-    {ok,RF} = ram_file:open(FileBytes,[binary,ram,read]),
-    {ok,Size} = ram_file:uncompress(RF),
-    {ok,FullData} = ram_file:read(RF,Size),
-    {ok,[{_,File},_,_,_]} = erl_tar:extract({binary,FullData},[memory]),
-    {ok,RealFile} = ram_file:open(File,[binary,ram,read]),
-    {ok,RealSize} = ram_file:get_size(RealFile),
-    {RealFile,RealSize}.
-
-parse_file(File,Size)->
-    NumLines = Size div 53,  %% 53 Characters per line
-    get_lines(File,NumLines,[]).
-
-get_lines(_File,0,Data)->
-    Data;
-get_lines(File,LinesLeft,Data) ->
-    {ok,BitString} = ram_file:read(File,53),
-    <<_Time:10/binary,_S:1/binary,ID1:20/binary,_S:1/binary,ID2:20/binary,_Rest/binary>> = BitString,
-    V1 = bitstring_to_list(ID1),
-    V2 = bitstring_to_list(ID2),
-    Interaction = {V1,V2},
-%    io:format("~p~n",[Interaction]),
-    get_lines(File,LinesLeft-1,Data ++ [Interaction]).
-    
-    
-
-    
 
 get_file(State, Path) ->
     Target = absolute_path(State, Path),
@@ -246,21 +220,38 @@ file_info(State, Path) ->
             {error, not_found}
     end.
 
-read_from_fun(Fun) ->
-    read_from_fun([], 0, Fun).
-read_from_fun(Buffer, Count, Fun) ->
-    case Fun(1) of
-        {ok, Bytes, ReadCount} ->
-%	    io:format("Bytes = ~p, ReadCount = ~p~n",[Bytes,ReadCount]),
-	    NewBuf = case Buffer of
-			 [] -> [Bytes];
-			 [BufBytes] -> [<<BufBytes/binary,Bytes/binary>>]
-	    end,
-	    read_from_fun(NewBuf, Count + ReadCount, Fun);
-        done ->
-%            io:format("DONE!"),
-            {ok, Buffer, Count}
-    end.
+site_command(_, _, _) ->
+    {error, not_found}.
+
+site_help(_) ->
+    {error, not_found}.
+
+% -----------------------------------------------------------------------------
+% private functions
+% -----------------------------------------------------------------------------
+
+decompress_file(FileBytes)->
+    {ok, RF} = ram_file:open(FileBytes,[binary,ram,read]),
+    {ok, Size} = ram_file:uncompress(RF),
+    {ok, FullData} = ram_file:read(RF,Size),
+    {ok, [{_, File}, _, _, _]} = erl_tar:extract({binary,FullData},[memory]),
+    {ok, RealFile} = ram_file:open(File,[binary,ram,read]),
+    {ok, RealSize} = ram_file:get_size(RealFile),
+    {RealFile, RealSize}.
+
+parse_file(File,Size)->
+    NumLines = Size div 53,  %% 53 Characters per line
+    get_lines(File,NumLines,[]).
+
+get_lines(_File, 0, Data)->
+    Data;
+get_lines(File, LinesLeft, Data) ->
+    {ok,BitString} = ram_file:read(File,53),
+    <<_Time:10/binary,_S:1/binary,ID1:20/binary,_S:1/binary,ID2:20/binary,_Rest/binary>> = BitString,
+    V1 = bitstring_to_list(ID1),
+    V2 = bitstring_to_list(ID2),
+    Interaction = {V1,V2},
+    get_lines(File,LinesLeft-1,Data ++ [Interaction]).
 
 reading_fun(State, Bytes) ->
     reading_fun(State, 1, Bytes).
@@ -276,13 +267,6 @@ reading_fun(State, Pos, Bytes) ->
             end
     end.
 
-site_command(_, _, _) ->
-    {error, not_found}.
-
-site_help(_) ->
-    {error, not_found}.
-
-%% priv
 get_module_state(State) ->
     State#connection_state.module_state.
 
@@ -399,7 +383,9 @@ set_path({dir, Root, FileInfo}, [Current | Rest], Val) ->
             FileInfo}
     end.
 
-%% Tests
+% -----------------------------------------------------------------------------
+% Tests
+% -----------------------------------------------------------------------------
 -ifdef(TEST).
 
 fs_with_paths([], State) ->
