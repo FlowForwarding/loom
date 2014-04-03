@@ -80,8 +80,8 @@ start_yaws(Supervisor) ->
     {web_port, Port} = tap_config:getconfig(web_port),
     {web_address, IpAddr} = tap_config:getconfig(web_address),
     {web_log, LogDir} = tap_config:getenv(web_log),
-    {web_doc_root, DocRoot} = tap_config:getenv(web_doc_root),
     {web_id, Id} = tap_config:getenv(web_id),
+    DocRoot = filename:join([code:priv_dir(tapestry), "www"]),
     GL = [
 	  {logdir, LogDir}],
     SL = [
