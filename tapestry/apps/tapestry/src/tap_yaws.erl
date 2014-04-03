@@ -68,7 +68,7 @@ handle_info(Msg, State) ->
 terminate(_Reason, _State) ->
     ok.
 
-code_change(OldVersion, State, Extra) ->
+code_change(_OldVersion, State, _Extra) ->
     {ok, State}.
 
 
@@ -78,7 +78,7 @@ code_change(OldVersion, State, Extra) ->
 
 start_yaws(Supervisor) ->
     {web_port, Port} = tap_config:getconfig(web_port),
-    {web_address, IpAddr} = tap_config:getenv(web_address),
+    {web_address, IpAddr} = tap_config:getconfig(web_address),
     {web_log, LogDir} = tap_config:getenv(web_log),
     {web_doc_root, DocRoot} = tap_config:getenv(web_doc_root),
     {web_id, Id} = tap_config:getenv(web_id),
@@ -87,7 +87,8 @@ start_yaws(Supervisor) ->
     SL = [
 	  {port, Port},
 	  {listen, IpAddr}], 
-    {ok, SCList, GC, ChildSpecs} = yaws_api:embedded_start_conf(DocRoot, SL, GL, Id),
+    {ok, SCList, GC, ChildSpecs} =
+                        yaws_api:embedded_start_conf(DocRoot, SL, GL, Id),
     [supervisor:start_child(Supervisor, CS) || CS <- ChildSpecs],
     yaws_api:setconf(GC, SCList),
     ok.

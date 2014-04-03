@@ -8,9 +8,6 @@
 %% Supervisor callbacks
 -export([init/1]).
 
-%% Helper macro for declaring children of supervisor
--define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
-
 %% ===================================================================
 %% API functions
 %% ===================================================================
@@ -23,6 +20,9 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    % tap_yaws_sup
-    {ok, { {one_for_one, 5, 10}, []} }.
-
+    TapYawsSup = {tap_yaws_sup,
+                        {tap_yaws_sup, start_link, []},
+                        permanent, infinity, supervisor, [tap_yaws_sup]},
+    {ok, {{one_for_one, 5, 10}, [
+        TapYawsSup
+    ]}}.
