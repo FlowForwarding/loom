@@ -28,35 +28,6 @@
 
 -define(L_PRIORITY, 100).
 -define(H_PRIORITY, 101).
--define(DNS_IP, {10,48,2,5}).
-
-start()->
-    [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/ebin")],
-    [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/deps/*/ebin")],
-    [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/apps/*/ebin")],
-    [code:add_pathz(Path) || Path <- filelib:wildcard("./deps/*/ebin")],
-    application:start(mnesia),
-    application:start(syntax_tools),
-    application:start(compiler),
-    ok = application:start(lager),
-    lager:set_loglevel(lager_console_backend, error),
-    ok = application:start(eenum),
-    ok = application:start(folsom),
-    ok = application:start(of_protocol),
-    application:start(of_msg_lib),
-    application:load(of_driver),
-    application:set_env(of_driver, listen_ip, {0,0,0,0}),
-    application:set_env(of_driver, listen_port, 6653),
-    application:set_env(of_driver, callback_module, ofs_handler_driver),
-    ok = application:start(of_driver),
-    application:load(ofs_handler),
-    application:set_env(ofs_handler, callback_module, simple_ne_ofsh),
-    application:start(ofs_handler),
-    application:start(loom),
-    application:load(simple_ne),
-    application:set_env(simple_ne, stats_interval_sec, disable),
-    application:start(simple_ne).
-    
 
 config()->
     ConfigFile = file:consult("tapestry.config"),
@@ -206,7 +177,7 @@ remove_all_flows_mod(Version) ->
     
 %%% Handling packet_in message
 %%-spec handle_message(ofp_message(), ofs_state()) -> ok.
-handle_message({packet_in, Xid, Body}, _State) ->
+handle_message({packet_in, _Xid, Body}, _State) ->
     % received a message on the connection
     Data = proplists:get_value(data, Body),
     io:format("Data = ~p~n", [Data]),

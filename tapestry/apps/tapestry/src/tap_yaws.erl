@@ -16,38 +16,78 @@
 %%
 %% @author Infoblox Inc <info@infoblox.com>
 %% @copyright 2013 Infoblox Inc
-%% @doc Network tap
+%% @doc Starts yaws.
 
 -module(tap_yaws).
 
--compile([export_all]).
+-behavior(gen_server).
 
 -include("tapestry.hrl").
 
-start()->
-    {web_client,Port} = tap_config:get([ports,web_client]),
-    start(?TAP_DEFAULT_HOST,?YAWS_DEFAULT_ADDRESS,Port).
+-export([start_link/1]).
 
-start(Servername,IPAddress,Port) ->
-    start(Servername,IPAddress,Port,[]).
-    
-start(_Servername,IPAddress,Port,ConfOptions) when is_list(ConfOptions) ->
-    crypto:start(),
-    {ok,ParsedAddress} = inet_parse:ipv4_address(IPAddress),
-    code:add_pathz(?YAWS_EBIN_DIR),
-    code:add_pathz(?JIFFY_EBIN_DIR),
-    file:make_dir(?YAWS_LOG_DIR),
-    error_logger:info_msg("Starting Embedded Yaws!~n"),
+-export([init/1,
+         handle_call/3,
+         handle_cast/2,
+         handle_info/2,
+         terminate/2,
+         code_change/3]).
+
+-define(STATE, tap_yaws_state).
+-record(?STATE, {
+                    supervisor
+                }).
+
+%------------------------------------------------------------------------------
+% API
+%------------------------------------------------------------------------------
+
+start_link(Supervisor) ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [Supervisor], []).
+
+%------------------------------------------------------------------------------
+% gen_server callbacks
+%------------------------------------------------------------------------------
+
+init([Supervisor]) ->
+    gen_server:cast(?MODULE, start),
+    {ok, #?STATE{supervisor = Supervisor}}.
+
+handle_call(Msg, From, State) ->
+    error({no_handle_call, ?MODULE}, [Msg, From, State]).
+
+handle_cast(start, State = #?STATE{supervisor = Supervisor}) ->
+    ok = start_yaws(Supervisor),
+    {noreply, State};
+handle_cast(Msg, State) ->
+    error({no_handle_cast, ?MODULE}, [Msg, State]).
+
+handle_info(Msg, State) ->
+    error({no_handle_info, ?MODULE}, [Msg, State]).
+
+terminate(_Reason, _State) ->
+    ok.
+
+code_change(OldVersion, State, Extra) ->
+    {ok, State}.
+
+
+%------------------------------------------------------------------------------
+% Local Functions
+%------------------------------------------------------------------------------
+
+start_yaws(Supervisor) ->
+    {web_port, Port} = tap_config:getconfig(web_port),
+    {web_address, IpAddr} = tap_config:getenv(web_address),
+    {web_log, LogDir} = tap_config:getenv(web_log),
+    {web_doc_root, DocRoot} = tap_config:getenv(web_doc_root),
+    {web_id, Id} = tap_config:getenv(web_id),
     GL = [
-	  {logdir,?YAWS_LOG_DIR},
-	  {ebin_dir, [?YAWS_EBIN_DIR]}],
+	  {logdir, LogDir}],
     SL = [
-	  {port,Port},
-	  {listen,ParsedAddress}], 
-    yaws:start_embedded(?YAWS_DOC_ROOT,SL,GL),
-    self().
-
-restart()->
-    yaws:stop(),
-    start().
-    
+	  {port, Port},
+	  {listen, IpAddr}], 
+    {ok, SCList, GC, ChildSpecs} = yaws_api:embedded_start_conf(DocRoot, SL, GL, Id),
+    [supervisor:start_child(Supervisor, CS) || CS <- ChildSpecs],
+    yaws_api:setconf(GC, SCList),
+    ok.

@@ -20,24 +20,26 @@
 
 -module(tap_config).
 
--compile([export_all]).
+-export([getenv/1, getconfig/1]).
 
-
-get(Param)->
-    ConfigFile = file:consult("tapestry.config"),
-    case ConfigFile of
-	{ok,Config}->
-	    get_value(Config,Param,{errork,not_found});
-	_ -> {error,no_config}
+getenv(Key) ->
+    case application:get_env(tapestry, Key) of
+        undefined -> {error, not_found};
+        {ok, Value} -> {Key, Value}
     end.
 
-get_value([],Param,_Result)->
-    {error,not_found};
-get_value(_Config,[],Result)->
-    Result;
-get_value([CH|CRest],[PH|PRest],Result) ->
-    {Type,Values} = CH,
-    case Type == PH of
-	true -> get_value(Values,PRest,CH);
-	false -> get_value(CRest,[PH|PRest],Result)
+getconfig(Key) ->
+    {config_file, ConfigFileName} = getenv(config_file),
+    ConfigFile = file:consult(ConfigFileName),
+    case ConfigFile of
+	{ok, Config}->
+	    {Key, proplists:get_value(Key, Config, env_value(Key))};
+	{error, Reason} ->
+            {error, no_config, Reason}
+    end.
+
+env_value(Key) ->
+    case application:get_env(tapestry, Key) of
+        undefined -> {error, not_found};
+        {ok, Value} -> Value
     end.
