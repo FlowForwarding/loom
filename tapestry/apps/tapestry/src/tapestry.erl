@@ -38,17 +38,8 @@ start(Type)->
 	   
 
 start_loom()->
-    error_logger:info_msg("Starting tapestry. Loom Mode. View $TAPESTRY_HOME/log/console.log for operational messages.~n"),
-    [code:add_pathz(Path) || Path <- filelib:wildcard("./deps/*/ebin")],
-    [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/ebin")],
-    [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/deps/*/ebin")],
-    [code:add_pathz(Path) || Path <- filelib:wildcard("./lib/loom/apps/*/ebin")],
     tap_loom:start(),
-%    loom_app:start(),
-%    loom_sup:launch_controller(dns_tap,6634),
-    tap_yaws:start(),
     Pid = tap_aggr:start(),
-    error_logger:info_msg("Stared tapestry with Process ID ~p.~n",[Pid]),
     Pid.
 
 start_grid()->

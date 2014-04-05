@@ -22,8 +22,6 @@
 
 -behavior(gen_server).
 
--include("tapestry.hrl").
-
 -export([start_link/1]).
 
 -export([init/1,
@@ -70,7 +68,6 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVersion, State, _Extra) ->
     {ok, State}.
-
 
 %------------------------------------------------------------------------------
 % Local Functions

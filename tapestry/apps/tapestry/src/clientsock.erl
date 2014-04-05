@@ -16,23 +16,19 @@
 %%
 %% @author Infoblox Inc <info@infoblox.com>
 %% @copyright 2013 Infoblox Inc
-%% @doc Client Socket module
+%% @doc Client Socket module - callback from yaws
 
 -module(clientsock).
 
--compile([export_all]).
+-export([handle_message/1, send/2]).
 
 -include("tapestry.hrl").
 
 handle_message({text, <<"PING">>}) ->
-    Pid = self(),
-    register(client,self()),
     error_logger:info_msg("Received PING:~n"),
-    error_logger:info_msg("Client Registered as {client,~p}~n",[Pid]),
     {reply, {text, <<"PONG">>}};
 handle_message({text, <<"START_DATA">>}) ->
     Pid = self(),
-    random:seed(),
     error_logger:info_msg("Received START_DATA:~n"),
     DataPid = whereis(tap_client_data),
     case DataPid of
@@ -69,8 +65,6 @@ handle_message(A)->
 send(Pid,Message) when is_pid(Pid) ->
     error_logger:info_msg("Sending ~p to ~p~n",[Message,Pid]),
     yaws_api:websocket_send(Pid, {text, Message}).
-
-
 
 decode(MessageBits)->
     error_logger:info_msg("decoding..."),	

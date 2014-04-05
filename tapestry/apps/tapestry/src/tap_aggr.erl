@@ -29,7 +29,7 @@ start()->
     Pid = spawn(?MODULE,start,[0,2,30]),
     Pid.
 
-start(Time,Interval,MsgTime)->
+start(Time, Interval, MsgTime)->
     Receivers = simple_ne_logic:switches(),
     case Receivers of
 	[] -> timer:sleep(Interval * 1000),

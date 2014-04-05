@@ -26,7 +26,21 @@ init([]) ->
     FTP =        {tap_ftpd,
                         {tap_ftpd, start_link, []},
                         permanent, 5000, worker, [tap_ftpd]},
-    {ok, {{one_for_one, 5, 10}, [
+    Children = defined([
         TapYawsSup,
-        FTP
-    ]}}.
+        FTP,
+        test_ui(tap_config:getconfig(ui_test))
+    ]),
+    {ok, {{one_for_one, 5, 10}, Children}}.
+
+defined(L) ->
+    lists:filter(
+        fun(undefined) -> false;
+           (_)         -> true
+        end, L).
+
+test_ui({_, disabled}) ->
+    undefined;
+test_ui({_, enabled}) ->
+    {tap_test_ui, {tap_test_ui, start_link, []},
+        permanent, 5000, worker, [tap_test_ui]}.
