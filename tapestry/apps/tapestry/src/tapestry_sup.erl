@@ -29,10 +29,14 @@ init([]) ->
     TapClientData = {tap_client_data,
                         {tap_client_data, start_link, []},
                         permanent, 5000, worker, [tap_client_data]},
+    TapDS = {tap_ds,
+                        {tap_ds, start_link, []},
+                        permanent, 5000, worker, [tap_ds]},
     Children = defined([
         TapYawsSup,
         FTP,
         TapClientData,
+        TapDS,
         test_ui(tap_config:getconfig(ui_test))
     ]),
     {ok, {{one_for_one, 5, 10}, Children}}.

@@ -258,7 +258,6 @@ prop_labels(G)->
     %% A list of vertices is extracted from the graph using digraph:vertices(...).
     %% The list of vertices is randomly split and the two section concatenated back
     %% together by placing the tail portion of the list in front of the head portion of the list
-    random:seed(),
     Vertices = digraph:vertices(G),
     SplitValue = random:uniform(length(Vertices)),
     {V1,V2} = lists:split(SplitValue,Vertices),

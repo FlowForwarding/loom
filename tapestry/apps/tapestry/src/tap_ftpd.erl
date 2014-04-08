@@ -195,7 +195,7 @@ put_file(State, _ProvidedFileName, _Mode, FileRetrievalFun) ->
     {RF, UCRFSize} = decompress_file(FileBytes),
     Data = parse_file(RF, UCRFSize),
     error_logger:info_msg("Data = ~p~n",[Data]),
-    tap_ds ! {bulk_data, Data},
+    tap_ds:ordered_edges(Data),
     {ok, set_module_state(State, ModState)}.
 
 get_file(State, Path) ->

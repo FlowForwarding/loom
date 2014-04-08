@@ -76,22 +76,22 @@ handle_cast(start, State) ->
     DataMaxAge = data_max_age(),
     {ok, NCITimer} = interval_timer(nci_min_interval(), push_nci),
     {ok, CleanTimer} = interval_timer(clean_interval(), clean_data),
-    {ok, State#?STATE{digraph = digraph:new(),
-                      nci_update_timer = NCITimer,
-                      clean_timer = CleanTimer,
-                      data_max_age = DataMaxAge}};
+    {noreply, State#?STATE{digraph = digraph:new(),
+                           nci_update_timer = NCITimer,
+                           clean_timer = CleanTimer,
+                           data_max_age = DataMaxAge}};
 handle_cast({ordered_edges, Edges}, State = #?STATE{digraph = Digraph}) ->
     add_edges(Digraph, Edges),
     {noreply, State};
 handle_cast(push_nci, State = #?STATE{digraph = Digraph}) ->
-    push_nci(Digraph),
-    {norpely, State};
+    push_nci(Digraph, digraph:no_vertices(Digraph)),
+    {noreply, State};
 handle_cast(clean_data, State = #?STATE{
                                     digraph = Digraph,
                                     data_max_age = DataMaxAge}) ->
     DateTime = calendar:universal_time(),
     clean(Digraph, DateTime, DataMaxAge),
-    {norpely, State};
+    {noreply, State};
 handle_cast(Msg, State) ->
     error({no_handle_cast, ?MODULE}, [Msg, State]).
 
@@ -137,9 +137,13 @@ add_edge(G, E, Time)->
         false -> error
     end.
 
-push_nci(Digraph) ->
+push_nci(_Digraph, 0) ->
+    % no data to process
+    ok;
+push_nci(Digraph, _NumVertices) ->
     spawn_link(
         fun() ->
+            random:seed(now()),
             NCI = nci:compute_from_graph(Digraph),
             tap_client_data:nci(NCI, calendar:universal_time())
         end).

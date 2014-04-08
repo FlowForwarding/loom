@@ -18,6 +18,8 @@
 %% @copyright 2013 Infoblox Inc
 %% @doc Random data generator for Tapestry. 
 
+% XXX not used?
+
 -module(gen_data).
 
 
