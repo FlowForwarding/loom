@@ -26,6 +26,9 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
+new_client(Pid) ->
+    gen_server:cast(?MODULE, {new_client, Pid}).
+
 %------------------------------------------------------------------------------
 % gen_server callbacks
 %------------------------------------------------------------------------------
@@ -36,7 +39,7 @@ init([]) ->
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
-handle_cast({newclient, Pid}, State) ->
+handle_cast({new_client, Pid}, State) ->
     ok = start_feeds(Pid),
     {noreply, State};
 handle_cast(Msg, State) ->

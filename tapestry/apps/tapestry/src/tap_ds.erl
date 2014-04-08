@@ -27,7 +27,6 @@
 start()->
     NCIMinInterval = get_config(nci_min_interval),
     DataMaxAge = days_to_seconds(get_config(data_max_age)),
-    tap_client_data:start(),
     timer:sleep(1000),
     TapClientData = whereis(tap_client_data),
     CurDateTime = calendar:universal_time(),

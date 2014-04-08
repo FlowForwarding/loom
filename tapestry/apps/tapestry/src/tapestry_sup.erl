@@ -26,9 +26,13 @@ init([]) ->
     FTP =        {tap_ftpd,
                         {tap_ftpd, start_link, []},
                         permanent, 5000, worker, [tap_ftpd]},
+    TapClientData = {tap_client_data,
+                        {tap_client_data, start_link, []},
+                        permanent, 5000, worker, [tap_client_data]},
     Children = defined([
         TapYawsSup,
         FTP,
+        TapClientData,
         test_ui(tap_config:getconfig(ui_test))
     ]),
     {ok, {{one_for_one, 5, 10}, Children}}.
