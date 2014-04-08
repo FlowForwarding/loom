@@ -20,154 +20,158 @@
 
 -module(tap_ds).
 
--compile([export_all]).
+-behavior(gen_server).
 
--record(state,{digraph,tap_client_data,nci_timestamp,nci_min_interval,cleaning_timestamp,data_max_age}).
+-export([start_link/0,
+         push_nci/0,
+         clean_data/0,
+         ordered_edge/1,
+         ordered_edges/1]).
 
-start()->
-    NCIMinInterval = get_config(nci_min_interval),
-    DataMaxAge = days_to_seconds(get_config(data_max_age)),
-    timer:sleep(1000),
-    TapClientData = whereis(tap_client_data),
-    CurDateTime = calendar:universal_time(),
-    {_CurDate,CurTime} = CurDateTime,
-    CurSeconds = calendar:time_to_seconds(CurTime),
-    Pid = spawn(?MODULE,listen,[#state{digraph = undefined,
-				       tap_client_data=TapClientData,
-				       nci_timestamp=CurSeconds,
-				       nci_min_interval=NCIMinInterval,
-				       cleaning_timestamp=CurDateTime,
-				       data_max_age=DataMaxAge}]),
-    Pid.
+-export([init/1,
+         handle_call/3,
+         handle_cast/2,
+         handle_info/2,
+         terminate/2,
+         code_change/3]).
 
+-define(STATE, tap_ds_state).
+-record(?STATE,{
+            digraph,
+            nci_update_timer,
+            clean_timer,
+            data_max_age}).
 
-listen(State)->
-    Digraph = State#state.digraph,
-    case Digraph of
-	undefined ->
-	    register(tap_ds,self()),
-	    listen(State#state{digraph = digraph:new()});
-	_ -> ok
-    end,
-    receive
-	{ordered_edge,OE}->
-	    add_edges_and_clean(State,[OE]);
-	{bulk_data,BulkData} when is_list(BulkData) ->
-	    add_edges_and_clean(State,BulkData);
-	Msg ->
-	    io:format("Msg: ~p, ~p~n",[Msg,State]),
-	    listen(State)
-    end.
+%------------------------------------------------------------------------------
+% API
+%------------------------------------------------------------------------------
 
+start_link() ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-add_edges_and_clean(State,Edges)->
-    Digraph = State#state.digraph,
-    TapClientData = State#state.tap_client_data,
-    NCITimeStamp = State#state.nci_timestamp,
-    NCIMinInterval = State#state.nci_min_interval,
-    CleaningTimeStamp = State#state.cleaning_timestamp,
-    DataMaxAge = State#state.data_max_age,
+push_nci() ->
+    gen_server:cast(?MODULE, push_nci).
+
+clean_data() ->
+    gen_server:cast(?MODULE, clean_data).
+
+ordered_edge(Edge) ->
+    ordered_edges([Edge]).
+
+ordered_edges(Edges) ->
+    gen_server:cast(?MODULE, {ordered_edges, Edges}).
+
+%------------------------------------------------------------------------------
+% gen_server callbacks
+%------------------------------------------------------------------------------
+
+init([]) ->
+    gen_server:cast(?MODULE, start),
+    {ok, #?STATE{}}.
+
+handle_call(Msg, From, State) ->
+    error({no_handle_call, ?MODULE}, [Msg, From, State]).
+
+handle_cast(start, State) ->
+    DataMaxAge = data_max_age(),
+    {ok, NCITimer} = interval_timer(nci_min_interval(), push_nci),
+    {ok, CleanTimer} = interval_timer(clean_interval(), clean_data),
+    {ok, State#?STATE{digraph = digraph:new(),
+                      nci_update_timer = NCITimer,
+                      clean_timer = CleanTimer,
+                      data_max_age = DataMaxAge}};
+handle_cast({ordered_edges, Edges}, State = #?STATE{digraph = Digraph}) ->
+    add_edges(Digraph, Edges),
+    {noreply, State};
+handle_cast(push_nci, State = #?STATE{digraph = Digraph}) ->
+    push_nci(Digraph),
+    {norpely, State};
+handle_cast(clean_data, State = #?STATE{
+                                    digraph = Digraph,
+                                    data_max_age = DataMaxAge}) ->
     DateTime = calendar:universal_time(),
-    {_Date,Time} = DateTime,
-    lists:foreach(fun(X)->add_edge(Digraph,X,DateTime) end,Edges),
-    TapClientData ! {num_endpoints,{digraph:no_vertices(Digraph),DateTime}},
-    TimeInSeconds = calendar:time_to_seconds(Time),
-    Elapsed = TimeInSeconds - NCITimeStamp,
-    case Elapsed < 0 of
-	true -> listen(State#state{nci_timestamp=TimeInSeconds});
-	false -> ok
-    end,
-    case Elapsed > NCIMinInterval of
-	true ->
-	    spawn_link(?MODULE,get_nci,[TapClientData,Digraph]),
-	    listen(State#state{nci_timestamp=TimeInSeconds});
-	false ->
-	    Age = calendar:time_difference(CleaningTimeStamp,DateTime),
-	    AgeSeconds = days_to_seconds(Age),
-%		    io:format("****~nAge = ~p~nAgeSeconds = ~p~nDataMaxAge = ~p~n",[Age,AgeSeconds,DataMaxAge]),
-	    case AgeSeconds > DataMaxAge of
-		true ->
-		    clean(Digraph,DateTime,DataMaxAge),
-		    listen(State#state{cleaning_timestamp=DateTime});
-		false ->
-		    listen(State)
-	    end
-    end.
-    
+    clean(Digraph, DateTime, DataMaxAge),
+    {norpely, State};
+handle_cast(Msg, State) ->
+    error({no_handle_cast, ?MODULE}, [Msg, State]).
 
+handle_info(Msg, State) ->
+    error({no_handle_info, ?MODULE}, [Msg, State]).
 
-clean(G,T,MaxAge)->
-    Vertices = digraph:vertices(G),
-    OldVertices = lists:filter(fun(X)->
-				       {_,TS} = digraph:vertex(G,X),
-				       Age = days_to_seconds(calendar:time_difference(TS,T)),
-				       Age > MaxAge
-			       end,
-			       Vertices),
-    error_logger:info_msg("~n**** Cleaning at Time ~p ****~nMaxAge = ~p~nStale Vertices = ~p~n****",[T,MaxAge,OldVertices]),
-    digraph:del_vertices(G,OldVertices).
+terminate(_Reason, _State) ->
+    ok.
 
+code_change(_OldVersion, State, _Extra) ->
+    {ok, State}.
 
-add_edge(G,E,Time)->
-    {A,B} = E,
+%------------------------------------------------------------------------------
+% local functions
+%------------------------------------------------------------------------------
+
+interval_timer(IntervalSec, Func) ->
+    timer:apply_interval(IntervalSec*1000, ?MODULE, Func, []).
+
+add_edges(Digraph, Edges)->
+    DateTime = calendar:universal_time(),
+    [add_edge(Digraph, E, DateTime) || E <- Edges],
+    tap_client_data:num_endpoints(digraph:no_vertices(Digraph), DateTime).
+
+clean(G, T, MaxAge)->
+    OldVertices = lists:filter(
+                    fun(X)->
+                        {_, TS} = digraph:vertex(G, X),
+                        Age = days_to_seconds(calendar:time_difference(TS, T)),
+                        Age > MaxAge
+                    end, digraph:vertices(G)),
+    error_logger:info_msg("~n**** Cleaning at Time ~p ****~nMaxAge = ~p~nStale Vertices = ~p~n****",[T, MaxAge, OldVertices]),
+    digraph:del_vertices(G, OldVertices).
+
+add_edge(G, E, Time)->
+    {A, B} = E,
     case A =/= B of
-	true ->
-	    V1 = digraph:add_vertex(G,A,Time),
-	    V2 = digraph:add_vertex(G,B,Time),
-	    find_edge(G,V1,V2,Time),
-	    find_edge(G,V2,V1,Time);
-	false -> error
+        true ->
+            V1 = digraph:add_vertex(G, A, Time),
+            V2 = digraph:add_vertex(G, B, Time),
+            update_edge(G, V1, V2, Time),
+            update_edge(G, V2, V1, Time);
+        false -> error
     end.
 
-	  
-
-get_nci(Pid,Digraph)->	  
-    NCI = nci:compute_from_graph(Digraph),
-    Pid ! {nci,{NCI,calendar:universal_time()}}.
-
-
-find_edge(G,V1,V2,Time)->
-    Edges = digraph:edges(G,V1),
-    Found = lists:filter(fun(X)-> 
-				 {_, FV1, FV2, _} = digraph:edge(G,X),
-				 (V1 == FV1) and (V2 == FV2)
-			 end,
-			 Edges),
+push_nci(Digraph) ->
+    spawn_link(
+        fun() ->
+            NCI = nci:compute_from_graph(Digraph),
+            tap_client_data:nci(NCI, calendar:universal_time())
+        end).
+            
+update_edge(G, V1, V2, Time)->
+    Found = lists:filter(
+                    fun(X)-> 
+                        {_, FV1, FV2, _} = digraph:edge(G, X),
+                        (V1 == FV1) and (V2 == FV2)
+                    end, digraph:edges(G, V1)),
     case Found of
-	[] ->
-	    digraph:add_edge(G,V1,V2,Time);
-	[E] -> digraph:add_edge(G,E,V1,V2,Time)
-    end.
-   
-
-get_config(Value)-> 
-    ConfigFile = file:consult("tapestry.config"),
-    case ConfigFile of
-	{ok,Config}->
-	    process_config(Value,Config);
-	_ -> {error,no_config}
+        [] -> digraph:add_edge(G, V1, V2, Time);
+        [E] -> digraph:add_edge(G, E, V1, V2, Time)
     end.
 
+nci_min_interval() ->
+    {nci_min_interval, {seconds, Time}} =
+                                tap_config:getconfig(nci_min_interval),
+    Time.
 
-process_config(_,[])->
-    error;
-process_config(Value,[Config|Rest]) ->
-    case Config of
-	{timers,Timers}->
-	    process_timers(Value,Timers);
-	_ -> process_config(Value,Rest)
-    end.
+data_max_age() ->
+    {data_max_age, LongTimeConfig} = tap_config:getconfig(data_max_age),
+    long_time_to_seconds(LongTimeConfig).
 
-process_timers(_,[])->
-    error;
-process_timers(nci_min_interval,[{nci_min_interval,{seconds,Time}}|_Rest]) ->
-    Time;
-process_timers(data_max_age,[{data_max_age,{{days,D},{hms,{H,M,S}}}}|_Rest]) ->
-    {D,{H,M,S}};
-process_timers(Value,[_H|Rest]) ->
-    process_timers(Value,Rest).
+clean_interval() ->
+    {clean_interval, LongTimeConfig} = tap_config:getconfig(clean_interval),
+    long_time_to_seconds(LongTimeConfig).
 
+long_time_to_seconds(LongTimeConfig) ->
+    days_to_seconds(
+        {proplists:get_value(days, LongTimeConfig),
+        proplists:get_value(hms, LongTimeConfig)}).
 
-days_to_seconds({D,{H,M,S}})->
-   ( D * 24 * 60 * 60) + (H * 60 * 60) + (M * 60) + S.
-
+days_to_seconds({D, {H, M, S}}) ->
+   (D * 24 * 60 * 60) + (H * 60 * 60) + (M * 60) + S.

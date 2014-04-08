@@ -25,8 +25,8 @@
 -behavior(gen_server).
 
 -export([start_link/0,
-         num_endpoints/1,
-         nci/1,
+         num_endpoints/2,
+         nci/2,
          qps/1,
          new_client/1,
          more_nci_data/4]).
@@ -54,11 +54,11 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-num_endpoints(Data) ->
-    gen_server:cast(?MODULE, {num_endpoints, Data}).
+num_endpoints(Endpoints, DateTime) ->
+    gen_server:cast(?MODULE, {num_endpoints, Endpoints, DateTime}).
 
-nci(Data) ->
-    gen_server:cast(?MODULE, {nci, Data}).
+nci(NCI, DateTime) ->
+    gen_server:cast(?MODULE, {nci, NCI, DateTime}).
 
 qps(Data) ->
     gen_server:cast(?MODULE, {qps, Data}).
@@ -92,9 +92,8 @@ handle_cast(start, State) ->
                       last_nep = LNEP,
                       last_int_nep = 0,
                       last_qps = LQPS}};
-handle_cast({num_endpoints, Data}, State = #?STATE{last_int_nep = LIntNEP,
+handle_cast({num_endpoints, NEP, UT}, State = #?STATE{last_int_nep = LIntNEP,
                                                    clients = Clients}) ->
-    {NEP, UT} = Data,
     NewState = case NEP =/= LIntNEP of
         true ->
             Time = list_to_binary(tap_utils:rfc3339(UT)),
@@ -104,9 +103,8 @@ handle_cast({num_endpoints, Data}, State = #?STATE{last_int_nep = LIntNEP,
         false -> State
     end,
     {noreply, NewState};
-handle_cast({nci, Data}, State = #?STATE{nci_log = NCILog,
+handle_cast({nci, NCI, UT}, State = #?STATE{nci_log = NCILog,
                                          clients = Clients}) ->
-    {NCI, UT} = Data,
     true = ets:insert(NCILog, {UT, NCI}),
     Time = list_to_binary(tap_utils:rfc3339(UT)),
     JSON = jiffy:encode({[{<<"Time">>, Time}, {<<"NCI">>, NCI}]}),
