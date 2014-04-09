@@ -20,105 +20,97 @@
 
 -module(tap_aggr).
 
--compile([export_all]).
+-behavior(gen_server).
 
--record(state,{tap_ds,tap_client_data,query_count,time_stamp}).
+-export([start_link/0,
+         push_qps/0]).
 
+-export([init/1,
+         handle_call/3,
+         handle_cast/2,
+         handle_info/2,
+         terminate/2,
+         code_change/3]).
 
-start()->
-    Pid = spawn(?MODULE,start,[0,2,30]),
-    Pid.
+-define(STATE, tap_aggr_state).
+-record(?STATE, {
+            last_qps_time,
+            qps_update_interval,
+            qps_timer,
+            query_count = 0
+        }).
 
-start(Time, Interval, MsgTime)->
-    Receivers = simple_ne_logic:switches(),
-    case Receivers of
-	[] -> timer:sleep(Interval * 1000),
-	      case Rem = Time rem MsgTime of
-		  Rem when Rem == 0 ->
-		      error_logger:info_msg("tap_aggr: waiting for data recievers for ~p seconds...~n",[Time]),
-		      start(Time+Interval,Interval,MsgTime);
-		  _ -> start(Time+Interval,Interval,MsgTime)
-		  end;
-	_ -> error_logger:info_msg("tap_aggr: starting...~n"),
-	     TapDS = tap_ds:start(),
-	     TCD = whereis(tap_client_data),
-	     {_Date,CurTime} = calendar:universal_time(),
-	     Pid = spawn(?MODULE,listen,[#state{tap_ds = TapDS,tap_client_data=TCD,query_count=0,time_stamp=calendar:time_to_seconds(CurTime)}]),
-	     register(tap_aggr,Pid),
-	     packet_in_subscribe(),
-	     Pid
-    end.
+%------------------------------------------------------------------------------
+% API
+%------------------------------------------------------------------------------
 
-listen(State)->
-    receive
-	{dns_reply,Reply}->
-	    TapDS = State#state.tap_ds,
-	    LastTimeStamp = State#state.time_stamp,
-	    QueryCount = State#state.query_count,
-	    {CurDate,CurTime} = calendar:universal_time(),
-	    CurTimeStamp = calendar:time_to_seconds(CurTime),
-	    OR = dns_reply_order(Reply),
-	    TapDS ! {ordered_edge,OR},
-	    Interval = CurTimeStamp - LastTimeStamp,
-	    NewState = case (Interval > 30) or (QueryCount > 9999) of
-			   true ->
-			       TCD = State#state.tap_client_data,
-			       QPS = QueryCount / Interval,
-			       TCD ! {qps,{QPS,{CurDate,CurTime}}},
-			       State#state{query_count=0,time_stamp=CurTimeStamp};
-			   false -> 
-			       State#state{query_count=QueryCount+1}
-		       end,
-	    listen(NewState);
-	Msg ->
-	    io:format("Msg: ~p~n",[Msg]),
-	    listen(State)
-    end.
+start_link() ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
+push_qps() ->
+    gen_server:cast(?MODULE, push_qps).
 
-packet_in_subscribe()->
-    OFSwitchList = simple_ne_logic:switches(),
-    lists:foreach(fun(X)->
-			  {OFDPIP, DatapathId, Version, _, _} = X,
-			  ofs_handler:subscribe(DatapathId, loom_handler, packet_in)
-		  end, OFSwitchList).
+%------------------------------------------------------------------------------
+% gen_server callbacks
+%------------------------------------------------------------------------------
 
+init([])->
+    gen_server:cast(?MODULE, start),
+    {ok, #?STATE{}}.
 
-test_raw_edge_list()->
-    [{{10,48,33,190},{74,125,239,40}},
-     {{10,48,33,190},{17,172,232,77}},
-     {{10,48,33,190},{23,56,125,15}},
-     {{10,48,33,190},{23,45,87,120}},
-     {{10,48,33,190},{23,56,125,15}},
-     {{10,48,33,190},{74,125,20,99}},
-     {{10,48,33,190},{17,172,232,79}},
-     {{10,48,33,190},{205,234,19,68}},
-     {{10,48,33,190},{205,234,19,68}},
-     {{10,48,33,190},{17,149,34,63}},
-     {{10,48,33,190},{205,234,19,68}},
-     {{10,48,33,190},{17,172,232,63}},
-     {{10,48,33,190},{17,172,232,97}},
-     {{10,48,33,190},{17,172,232,221}},
-     {{10,48,33,190},{74,125,239,47}},
-     {{10,48,33,190},{74,125,20,103}},
-     {{10,48,33,190},{74,125,239,47}},
-     {{10,48,33,190},{157,56,108,82}},
-     {{10,48,33,190},{91,190,218,68}},
-     {{10,48,33,190},{91,190,218,68}},
-     {{10,48,33,190},{205,234,19,68}},
-     {{10,48,33,190},{205,234,19,68}},
-     {{10,48,33,190},{205,234,19,68}},
-     {{10,48,33,190},{74,125,20,189}},
-     {{10,48,33,190},{66,196,120,100}},
-     {{10,48,33,190},{74,125,28,189}},
-     {{10,48,33,190},{67,195,141,201}},
-     {{10,48,33,190},{74,125,239,34}},
-     {{10,48,33,190},{134,170,18,79}}].
+handle_call(Msg, From, State) ->
+    error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
+handle_cast(start, State) ->
+    NewState = qps_timer(
+                    State#?STATE{last_qps_time = tap_time:now(),
+                    qps_update_interval = qps_update_interval()}),
+    {noreply, NewState};
+handle_cast(push_qps, State = #?STATE{query_count = QueryCount,
+                                      last_qps_time = LastUpdate}) ->
+    Now = tap_time:now(),
+    Interval = tap_time:diff(Now, LastUpdate),
+    QPS = QueryCount / Interval,
+    NewState = qps_timer(State),
+    tap_client_data:qps(QPS, tap_time:universal(Now)),
+    {noreply, NewState#?STATE{last_qps_time = Now, query_count = 0}};
+handle_cast({dns_reply, Reply}, State = #?STATE{query_count = QueryCount}) ->
+    tap_ds:ordered_edge(dns_reply_order(Reply)),
+    NewState = State#?STATE{query_count = QueryCount + 1},
+    maybe_push_qps(NewState),
+    {noreply, NewState};
+handle_cast(Msg, State) ->
+    error({no_handle_cast, ?MODULE}, [Msg, State]).
 
-dns_reply_order({A,B}=R)->
-    case A < B of
-	true ->
-	    R;
-	false -> {B,A}
-    end.
+handle_info(Msg, State) ->
+    error({no_handle_info, ?MODULE}, [Msg, State]).
+
+terminate(_Reason, _State) ->
+    ok.
+
+code_change(_OldVersion, State, _Extra) ->
+    {ok, State}.
+
+%------------------------------------------------------------------------------
+% local functions
+%------------------------------------------------------------------------------
+
+qps_update_interval() ->
+    {qps_max_interval, {seconds, Time}} =
+                                    tap_config:getconfig(qps_max_interval),
+    Time.
+
+qps_timer(State = #?STATE{qps_update_interval = After, qps_timer = OldTimer}) ->
+    timer:cancel(OldTimer), % ignore errors
+    {ok, NewTimer} = timer:apply_after(After*1000, ?MODULE, push_qps, []),
+    State#?STATE{qps_timer = NewTimer}.
+
+maybe_push_qps(#?STATE{query_count = _QueryCount, last_qps_time = _LastUpdate}) ->
+    % XXX some logic - query count > some maximum, time since last update at least some number of seconds
+    % push_qps(),
+    ok.
+
+dns_reply_order({A, B} = R) when A < B ->
+    R;
+dns_reply_order({A, B}) ->
+    {B, A}.

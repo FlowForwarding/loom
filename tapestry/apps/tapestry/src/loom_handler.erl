@@ -20,8 +20,6 @@ handle_message({packet_in, Xid, Body}, _State) ->
     process_packetin(Reason, TableId, Match, Data),
     ok.
 
-
-
 %packetin
 process_packetin(action, _TableId, _Match, Data) ->
     dns_reply(Data);
@@ -65,8 +63,6 @@ dns_reply(Data)->
 	Error ->
 	    lager:info("Decapsulation Error:~p Data: ~p~n",[Error,Data])
     end.
-
-
 
 match_reply({dns_rec,{dns_header,_,true,_,_,_,_,_,_,_},[{dns_query,_,a,in}],RRSet,_,_} )->
     Record = lists:keyfind(a,3,RRSet),

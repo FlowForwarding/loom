@@ -27,7 +27,7 @@
 -export([start_link/0,
          num_endpoints/2,
          nci/2,
-         qps/1,
+         qps/2,
          new_client/1,
          more_nci_data/4]).
 
@@ -60,8 +60,8 @@ num_endpoints(Endpoints, DateTime) ->
 nci(NCI, DateTime) ->
     gen_server:cast(?MODULE, {nci, NCI, DateTime}).
 
-qps(Data) ->
-    gen_server:cast(?MODULE, {qps, Data}).
+qps(QPS, DateTime) ->
+    gen_server:cast(?MODULE, {qps, QPS, DateTime}).
 
 new_client(Pid) ->
     gen_server:cast(?MODULE, {new_client, Pid}).
@@ -110,8 +110,7 @@ handle_cast({nci, NCI, UT}, State = #?STATE{nci_log = NCILog,
     JSON = jiffy:encode({[{<<"Time">>, Time}, {<<"NCI">>, NCI}]}),
     broadcast_msg(Clients, JSON),
     {noreply, State#?STATE{last_nci = JSON}};
-handle_cast({qps, Data}, State = #?STATE{clients = Clients}) ->
-    {QPS, UT} = Data,
+handle_cast({qps, QPS, UT}, State = #?STATE{clients = Clients}) ->
     Time = list_to_binary(tap_utils:rfc3339(UT)),
     JSON = jiffy:encode({[{<<"Time">>, Time}, {<<"QPS">>, QPS}]}),
     broadcast_msg(Clients, JSON),
