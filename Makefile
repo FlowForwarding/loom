@@ -1,4 +1,4 @@
-.PHONY: simple_new stats_poller
+.PHONY: simple_ne stats_poller
 
 all: simple_ne stats_poller
 
