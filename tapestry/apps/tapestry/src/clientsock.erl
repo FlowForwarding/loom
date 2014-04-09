@@ -74,7 +74,7 @@ decode(MessageBits)->
               {<<"end">>, End},
               {<<"max_items">>, MaxData}]} ->
                 % XXX log sending request
-                tap_client_data:more_nci_data(self(), tap_utils:rfc3339_to_epoch(binary_to_list(Start)), tap_utils:rfc3339_to_epoch(binary_to_list(End)), list_to_integer(binary_to_list(MaxData)));
+                tap_client_data:more_nci_data(self(), tap_time:rfc3339_to_epoch(binary_to_list(Start)), tap_time:rfc3339_to_epoch(binary_to_list(End)), list_to_integer(binary_to_list(MaxData)));
             _ -> 
                error_logger:info_msg("Unexpected Message:~p~n",[Message])
         end

@@ -86,20 +86,20 @@ feed_loop(Pid, Feed) ->
 nci()->
     Wait = random:uniform(4) * 500,
     NCI = random:uniform(100),
-    Time = list_to_binary(tap_utils:rfc3339(erlang:universaltime())),
+    Time = list_to_binary(tap_time:rfc3339(erlang:universaltime())),
     JSON = jiffy:encode({[{<<"Time">>,Time},{<<"NCI">>,NCI}]}),
     {JSON, Wait}.
 
 qps()->
     Wait = random:uniform(2) * 500,
     QPS = random:uniform(2000000) + 1000000,
-    Time = list_to_binary(tap_utils:rfc3339(erlang:universaltime())),
+    Time = list_to_binary(tap_time:rfc3339(erlang:universaltime())),
     JSON = jiffy:encode({[{<<"Time">>,Time},{<<"QPS">>,QPS}]}),
     {JSON, Wait}.
 
 nep()->
     Wait = random:uniform(10) * 500,
     NEP = random:uniform(50000) + 200000,
-    Time = list_to_binary(tap_utils:rfc3339(erlang:universaltime())),
+    Time = list_to_binary(tap_time:rfc3339(erlang:universaltime())),
     JSON = jiffy:encode({[{<<"Time">>,Time},{<<"NEP">>,NEP}]}),
     {JSON, Wait}.
