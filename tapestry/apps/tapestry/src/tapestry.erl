@@ -20,7 +20,6 @@
 
 -module(tapestry).
 
-
 -compile(export_all).
 
 -export([start/0,start/1,nci_from_log_lines/1,nci_from_benchmark_data/1]).

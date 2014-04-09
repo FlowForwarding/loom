@@ -8,6 +8,8 @@
 -include_lib("of_protocol/include/ofp_v4.hrl").
 -include_lib("pkt/include/pkt.hrl").
 
+% ofs_handler callback file
+
 
 %%% Handling packet_in message
 %%-spec handle_message(ofp_message(), ofs_state()) -> ok.
