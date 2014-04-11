@@ -53,7 +53,7 @@
 
 -module(nci).
 
--export([compute/1,compute_from_graph/1,clean_vertex/2]).
+-export([compute/1,compute_from_graph/1,clean_vertex/2,print_labels/1]).
 
 
 %% === compute(EdgeList) is the API function to be called by external calling code === 
@@ -306,7 +306,7 @@ prop_labels(G)->
 			  end,{0,0,G},V),
 
     
-    {NewStopCount,NewGoCount,G3} = RunCond,
+    {_NewStopCount,NewGoCount,G3} = RunCond,
 
     %% At this point in the code, 
     %%     NewStopCount represents how many vertices were NOT relabeled in this iternation and
@@ -330,8 +330,8 @@ prop_labels(G)->
 
 
 label_vertex(G,Vertex)->
-    {Vert,Label} = digraph:vertex(G,Vertex),
-    {NewLabel,Num} = calc_label(G,Vertex),
+    {_Vert,Label} = digraph:vertex(G,Vertex),
+    {NewLabel,_Num} = calc_label(G,Vertex),
     case NewLabel =/= Label of
 	true -> 
 	    digraph:add_vertex(G,Vertex,NewLabel),
