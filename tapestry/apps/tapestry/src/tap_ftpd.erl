@@ -185,7 +185,7 @@ list_files(State, Directory) ->
 
 % Ignore mode.  Assume write.  Send file batch loader.
 put_file(State, _ProvidedFileName, _Mode, FileRetrievalFun) ->
-    {ok, FileBytes, _FileSize} = FileRetrievalFun(),
+    {ok, FileBytes, _FileSize} = read_from_fun(FileRetrievalFun),
     tap_batch:load(FileBytes),
     {ok, State}.
 
@@ -220,6 +220,17 @@ site_help(_) ->
 % -----------------------------------------------------------------------------
 % private functions
 % -----------------------------------------------------------------------------
+
+read_from_fun(Fun) ->
+    read_from_fun([], 0, Fun).
+
+read_from_fun(Buffer, Count, Fun) ->
+    case Fun() of
+        {ok, Bytes, ReadCount} ->
+            read_from_fun([Bytes | Buffer], Count + ReadCount, Fun);
+        done ->
+            {ok, lists:reverse(Buffer), Count}
+    end.
 
 reading_fun(State, Bytes) ->
     reading_fun(State, 1, Bytes).

@@ -58,9 +58,9 @@ init([]) ->
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
-handle_cast({load, FtpData}, State) ->
-    {BinaryData, Size} = decompress_file(FtpData),
-    Data = parse_file(BinaryData, Size),
+handle_cast({load, FtpFile}, State) ->
+    BinaryFile = extract_file(FtpFile),
+    Data = parse_file(BinaryFile),
     error_logger:info_msg("Data = ~p~n",[Data]),
     tap_ds:ordered_edges(Data),
     {noreply, State};
@@ -80,32 +80,22 @@ code_change(_OldVersion, State, _Extra) ->
 % private functions
 % -----------------------------------------------------------------------------
 
-decompress_file(FileBytes)->
-% XXX use file interface with ram and compressed options?
-% XXX read file 53 bytes at a time?
-% XXX identify alternate format?
-    {ok, RF} = ram_file:open(FileBytes, [binary, ram, read]),
-    {ok, Size} = ram_file:uncompress(RF),
-    {ok, FullData} = ram_file:read(RF, Size),
-    % XXX use compress option on tar?
-    % XXX check file name?
-    {ok, [{_, File}, _, _, _]} = erl_tar:extract({binary, FullData}, [memory]),
-    {ok, RealFile} = ram_file:open(File, [binary, ram, read]),
-    {ok, RealSize} = ram_file:get_size(RealFile),
-    {RealFile, RealSize}.
+extract_file(CompressedTarBytes)->
+    % XXX look for .log?
+    {ok, [{_, BinaryFile}, _, _, _]} =
+        erl_tar:extract({binary, CompressedTarBytes}, [compressed, memory]),
+    BinaryFile.
 
-parse_file(File,Size)->
-    NumLines = Size div 53,  %% 53 Characters per line
-    get_lines(File,NumLines,[]).
+parse_file(BinaryData) ->
+    parse_file(BinaryData, []).
 
-get_lines(_File, 0, Data)->
-    lists:reverse(Data);
-get_lines(File, LinesLeft, Data) ->
-    {ok, BitString} = ram_file:read(File, 53),
+parse_file(<<BitString:53/binary, BinaryData/binary>>, Data) ->
     <<_Time:10/binary, _S:1/binary,
        ID1:20/binary, _S:1/binary,
        ID2:20/binary, _Rest/binary>> = BitString,
     V1 = bitstring_to_list(ID1),
     V2 = bitstring_to_list(ID2),
     Interaction = {V1, V2},
-    get_lines(File, LinesLeft - 1, [Interaction | Data]).
+    parse_file(BinaryData, [Interaction | Data]);
+parse_file(_BinaryData, Data)->
+    lists:reverse(Data).
