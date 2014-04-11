@@ -183,20 +183,11 @@ list_files(State, Directory) ->
             {error, State}
     end.
 
-% Ignore mode.  Assume write.
-% Decode the file and pass to data processor.
-%
+% Ignore mode.  Assume write.  Send file batch loader.
 put_file(State, _ProvidedFileName, _Mode, FileRetrievalFun) ->
-    ModState = get_module_state(State),
-    % TODO move decompress/decode out of the ftpd module into something else
-    % to avoid backing up the ftp server and crashing the server when
-    % bad data arrives
     {ok, FileBytes, _FileSize} = FileRetrievalFun(),
-    {RF, UCRFSize} = decompress_file(FileBytes),
-    Data = parse_file(RF, UCRFSize),
-    error_logger:info_msg("Data = ~p~n",[Data]),
-    tap_ds:ordered_edges(Data),
-    {ok, set_module_state(State, ModState)}.
+    tap_batch:load(FileBytes),
+    {ok, State}.
 
 get_file(State, Path) ->
     Target = absolute_path(State, Path),
@@ -229,29 +220,6 @@ site_help(_) ->
 % -----------------------------------------------------------------------------
 % private functions
 % -----------------------------------------------------------------------------
-
-decompress_file(FileBytes)->
-    {ok, RF} = ram_file:open(FileBytes,[binary,ram,read]),
-    {ok, Size} = ram_file:uncompress(RF),
-    {ok, FullData} = ram_file:read(RF,Size),
-    {ok, [{_, File}, _, _, _]} = erl_tar:extract({binary,FullData},[memory]),
-    {ok, RealFile} = ram_file:open(File,[binary,ram,read]),
-    {ok, RealSize} = ram_file:get_size(RealFile),
-    {RealFile, RealSize}.
-
-parse_file(File,Size)->
-    NumLines = Size div 53,  %% 53 Characters per line
-    get_lines(File,NumLines,[]).
-
-get_lines(_File, 0, Data)->
-    Data;
-get_lines(File, LinesLeft, Data) ->
-    {ok,BitString} = ram_file:read(File,53),
-    <<_Time:10/binary,_S:1/binary,ID1:20/binary,_S:1/binary,ID2:20/binary,_Rest/binary>> = BitString,
-    V1 = bitstring_to_list(ID1),
-    V2 = bitstring_to_list(ID2),
-    Interaction = {V1,V2},
-    get_lines(File,LinesLeft-1,Data ++ [Interaction]).
 
 reading_fun(State, Bytes) ->
     reading_fun(State, 1, Bytes).

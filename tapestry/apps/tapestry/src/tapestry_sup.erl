@@ -35,12 +35,16 @@ init([]) ->
     TapAggr = {tap_aggr,
                         {tap_aggr, start_link, []},
                         permanent, 5000, worker, [tap_aggr]},
+    TapBatch = {tap_batch,
+                        {tap_batch, start_link, []},
+                        permanent, 5000, worker, [tap_batch]},
     Children = defined([
         TapYawsSup,
         FTP,
         TapClientData,
         TapDS,
         TapAggr,
+        TapBatch,
         test_ui(tap_config:getconfig(ui_test))
     ]),
     {ok, {{one_for_one, 5, 10}, Children}}.
