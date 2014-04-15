@@ -1,15 +1,10 @@
 
 -module(loom_handler).
 
--compile(export_all).
+-export([handle_message/2]).
 
 -include("tap_logger.hrl").
--include_lib("ofs_handler/include/ofs_handler.hrl").
--include_lib("of_protocol/include/of_protocol.hrl").
--include_lib("of_protocol/include/ofp_v4.hrl").
 -include_lib("pkt/include/pkt.hrl").
-
-% ofs_handler callback file
 
 
 %%% Handling packet_in message

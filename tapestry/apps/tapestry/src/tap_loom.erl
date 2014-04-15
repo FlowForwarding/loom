@@ -171,16 +171,15 @@ install_flows(IpAddr, DatapathId, Version, Config) ->
             ?WARNING("No config for switch at ~p ~p~n", [IpAddr, DatapathId]),
             ok;
         SwitchConfigs ->
-            % remove flows
-            [do_install_flows(SwitchConfig, Version) || SwitchConfig <- SwitchConfigs]
+            % XXX remove flows
+            [do_install_flows(SwitchConfig, DatapathId, Version) || SwitchConfig <- SwitchConfigs]
     end.
 
 do_install_flows(#switch_config{
-                    dpid = DatapathId,
                     dns_port = Port1,
                     client_port = Port2,
                     dns_ips = IPs
-                 }, Version) ->
+                 }, DatapathId, Version) ->
     dns_tap([DatapathId], Version, Port1, Port2, IPs).
 
 get_switch_config(IpAddr, DatapathId, Config) ->
@@ -228,7 +227,6 @@ tap_dns_response(Version, Port1, Port2, Port3, IPv4Src) ->
 forward_mod(Version, InPort, OutPorts)->
     Matches = [{in_port, <<InPort:32>>}],
     Instructions = [{apply_actions, [{output, OutPort, no_buffer} || OutPort <- OutPorts] } ],
-    ?DEBUG("Instructions=~p~n", [Instructions]),
     Opts = [{table_id,0}, {priority,?L_PRIORITY}, {idle_timeout, 0}, {idle_timeout, 0},
             {cookie, <<0,0,0,0,0,0,0,10>>}, {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
     of_msg_lib:flow_add(Version, Matches, Instructions, Opts).    
