@@ -58,9 +58,9 @@ handle_message(A)->
 % local functions
 %------------------------------------------------------------------------------
 
-handle_start_data({ui_test, disabled}) ->
+handle_start_data(disabled) ->
     tap_test_ui:new_client(self());
-handle_start_data({ui_test, enabled}) ->
+handle_start_data(enabled) ->
     tap_client_data:new_client(self()).
 
 decode(MessageBits)->

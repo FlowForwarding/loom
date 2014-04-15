@@ -99,8 +99,7 @@ code_change(_OldVersion, State, _Extra) ->
 %------------------------------------------------------------------------------
 
 qps_update_interval() ->
-    {qps_max_interval, {seconds, Time}} =
-                                    tap_config:getconfig(qps_max_interval),
+    {seconds, Time} = tap_config:getconfig(qps_max_interval),
     Time.
 
 qps_timer(State = #?STATE{qps_update_interval = After, qps_timer = OldTimer}) ->

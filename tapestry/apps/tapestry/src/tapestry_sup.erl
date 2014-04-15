@@ -38,6 +38,9 @@ init([]) ->
     TapBatch = {tap_batch,
                         {tap_batch, start_link, []},
                         permanent, 5000, worker, [tap_batch]},
+    TapLoom = {tap_loom,
+                        {tap_loom, start_link, []},
+                        permanent, 5000, worker, [tap_batch]},
     Children = defined([
         TapYawsSup,
         FTP,
@@ -45,6 +48,7 @@ init([]) ->
         TapDS,
         TapAggr,
         TapBatch,
+        TapLoom,
         test_ui(tap_config:getconfig(ui_test))
     ]),
     {ok, {{one_for_one, 5, 10}, Children}}.
@@ -55,8 +59,8 @@ defined(L) ->
            (_)         -> true
         end, L).
 
-test_ui({_, disabled}) ->
+test_ui(disabled) ->
     undefined;
-test_ui({_, enabled}) ->
+test_ui(enabled) ->
     {tap_test_ui, {tap_test_ui, start_link, []},
         permanent, 5000, worker, [tap_test_ui]}.

@@ -62,8 +62,8 @@
 % -----------------------------------------------------------------------------
 
 start_link() ->
-    {ftpd_port, Port} = tap_config:getconfig(ftpd_port),
-    {ftpd_address, IpAddr} = tap_config:getconfig(ftpd_address),
+    Port = tap_config:getconfig(ftpd_port),
+    IpAddr = tap_config:getconfig(ftpd_address),
     bifrost:start_link(?MODULE, [{ip_address, IpAddr}, {port, Port}]).
 
 % -----------------------------------------------------------------------------

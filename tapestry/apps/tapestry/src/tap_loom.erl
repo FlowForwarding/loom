@@ -63,32 +63,33 @@ start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 ofsh_init(_Mode, IpAddr, DatapathId, Version, _Connection) ->
+    error_logger:info_msg("Connection from ~p ~p~n", [IpAddr, DatapathId]),
     gen_server:cast(?MODULE, {initialize_switch, IpAddr, DatapathId, Version}).
 
-ofsh_connect(_Mode, _IpAddr, _DatapathId, _Version, _Connection, _AuxId) ->
-    % log
-    % no action needed
+ofsh_connect(_Mode, IpAddr, DatapathId, _Version, _Connection, AuxId) ->
+    error_logger:info_msg("Connection from ~p ~p AuxId: ~p~n",
+                                                [IpAddr, DatapathId, AuxId]),
     ok.
 
-ofsh_disconnect(_AuxId, _DataPathId) ->
-    % log
-    % no action needed
+ofsh_disconnect(AuxId, DatapathId) ->
+    error_logger:info_msg("Disconnect from ~p AuxId: ~p~n",
+                                                        [DatapathId, AuxId]),
     ok.
 
 ofsh_failover() ->
     % not implemented in ofs_handler
     ok.
 
-ofsh_handle_error(_DatapathId, _Reason) ->
-    % XXX log
+ofsh_handle_error(DatapathId, Reason) ->
+    error_logger:info_msg("Error from ~p Error: ~p~n", [DatapathId, Reason]),
     ok.
 
-ofsh_handle_message(_DatapathId, _Msg) ->
-    % XXX log
+ofsh_handle_message(DatapathId, Msg) ->
+    error_logger:info_msg("Message from ~p Message: ~p~n", [DatapathId, Msg]),
     ok.
 
-ofsh_terminate(_DatapathId) ->
-    % XXX log
+ofsh_terminate(DatapathId) ->
+    error_logger:info_msg("Terminate Main Connection from ~p~n", [DatapathId]),
     ok.
 
 %------------------------------------------------------------------------------
@@ -127,7 +128,7 @@ code_change(_OldVersion, State, _Extra) ->
 %------------------------------------------------------------------------------
 
 read_config() ->
-    {switch, Switches} = tap_config:getallconfig(switch),
+    Switches = tap_config:getallconfig(switch),
     lists:foldl(
         fun(Switch, ConfigDict) ->
             {Key, SwitchConfig} = switch_config(Switch),
@@ -135,7 +136,7 @@ read_config() ->
         end, dict:new(), Switches).
 
 store_config(Key, SwitchConfig, ConfigDict) ->
-    case dict:is_key(Key) of
+    case dict:is_key(Key, ConfigDict) of
         false ->
             dict:append(Key, SwitchConfig, dict:store(Key, [], ConfigDict));
         true ->
@@ -166,6 +167,7 @@ switch_key(_, _) ->
 install_flows(IpAddr, DatapathId, Version, Config) ->
     case get_switch_config(IpAddr, DatapathId, Config) of
         no_switch_config ->
+            error_logger:info_msg("No config for switch at ~p ~p~n", [IpAddr, DatapathId]),
             ok;
         SwitchConfigs ->
             % remove flows
@@ -200,10 +202,11 @@ get_switch_config2([Key | Rest], Config) ->
 
 dns_tap([],_Version,_Port1,_Port2,_IPTupleList)->
     ok;
-dns_tap(OFDPL,Version,Port1,Port2,IPTupleList)->
+dns_tap(OFDPL, Version, Port1, Port2, IPTupleList)->
     [DatapathId|Rest] = OFDPL,
-    IPList = [ list_to_binary(tuple_to_list(IPTuple)) || IPTuple <- IPTupleList ],
-    error_logger:info_msg("dns_tap: ~p, ~p, ~p, ~p~n",[DatapathId,Port1,Port2,IPTupleList]),
+    IPList = [list_to_binary(tuple_to_list(IPTuple)) || IPTuple <- IPTupleList],
+    error_logger:info_msg("dns_tap: ~p, ~p, ~p, ~p~n",
+                                [DatapathId, Port1, Port2, IPTupleList]),
 % XXX only remove all flows once per switch
     ofs_handler:send(DatapathId, remove_all_flows_mod(Version)),
     lists:foreach(fun(X)->ofs_handler:send(DatapathId, tap_dns_response(Version, Port1,Port2,controller,X)) end,IPList),

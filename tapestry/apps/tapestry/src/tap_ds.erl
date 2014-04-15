@@ -160,16 +160,15 @@ update_edge(G, V1, V2, Time)->
     end.
 
 nci_min_interval() ->
-    {nci_min_interval, {seconds, Time}} =
-                                tap_config:getconfig(nci_min_interval),
+    {seconds, Time} = tap_config:getconfig(nci_min_interval),
     Time.
 
 data_max_age() ->
-    {data_max_age, LongTimeConfig} = tap_config:getconfig(data_max_age),
+    LongTimeConfig = tap_config:getconfig(data_max_age),
     long_time_to_seconds(LongTimeConfig).
 
 clean_interval() ->
-    {clean_interval, LongTimeConfig} = tap_config:getconfig(clean_interval),
+    LongTimeConfig = tap_config:getconfig(clean_interval),
     long_time_to_seconds(LongTimeConfig).
 
 long_time_to_seconds(LongTimeConfig) ->
