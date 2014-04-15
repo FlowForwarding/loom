@@ -20,6 +20,8 @@
 
 -module(clientsock).
 
+-include("tap_logger.hrl").
+
 -export([handle_message/1, send/2]).
 
 %------------------------------------------------------------------------------
@@ -27,7 +29,7 @@
 %------------------------------------------------------------------------------
 
 send(Pid,Message) when is_pid(Pid) ->
-    error_logger:info_msg("Sending ~p to ~p~n",[Message,Pid]),
+    ?DEBUG("Sending ~p to ~p~n",[Message,Pid]),
     yaws_api:websocket_send(Pid, {text, Message}).
 
 %------------------------------------------------------------------------------
@@ -35,7 +37,7 @@ send(Pid,Message) when is_pid(Pid) ->
 %------------------------------------------------------------------------------
 
 handle_message({text, <<"PING">>}) ->
-    error_logger:info_msg("Received PING:~n"),
+    ?DEBUG("Received PING:~n"),
     {reply, {text, <<"PONG">>}};
 handle_message({text, <<"{\"request\":\"start_data\"}">>})->
     handle_message({text, <<"START_DATA">>});
@@ -43,15 +45,15 @@ handle_message({text, <<"START_DATA">>}) ->
     handle_start_data(tap_config:getconfig(ui_test)),
     noreply;
 handle_message({text, MessageBits}) when is_bitstring(MessageBits) ->
-    error_logger:info_msg("Received:~p~n",[MessageBits]),
+    ?DEBUG("Received:~p~n",[MessageBits]),
     decode(MessageBits),
     noreply;
 handle_message({close, _, _})->
     % XXX ignore close, not needed
     noreply;
 handle_message(A)->
-    error_logger:info_msg("UNKNOWN MESSAGE RECEIVED:~n~p~n",[A]),
-    error_logger:info_msg("My Pid = ~p~n",[self()]),
+    ?INFO("UNKNOWN MESSAGE RECEIVED:~n~p~n",[A]),
+    ?DEBUG("My Pid = ~p~n",[self()]),
     noreply.
 
 %------------------------------------------------------------------------------
@@ -64,7 +66,7 @@ handle_start_data(enabled) ->
     tap_client_data:new_client(self()).
 
 decode(MessageBits)->
-    error_logger:info_msg("decoding..."),       
+    ?DEBUG("decoding..."),       
     try 
         % XXX might be in any order, sort first?
         Message = jiffy:decode(MessageBits),
@@ -76,9 +78,9 @@ decode(MessageBits)->
                 % XXX log sending request
                 tap_client_data:more_nci_data(self(), tap_time:rfc3339_to_epoch(binary_to_list(Start)), tap_time:rfc3339_to_epoch(binary_to_list(End)), list_to_integer(binary_to_list(MaxData)));
             _ -> 
-               error_logger:info_msg("Unexpected Message:~p~n",[Message])
+               ?INFO("Unexpected Message:~p~n", [Message])
         end
     catch 
         Error ->
-            error_logger:info_msg("Parse Error: ~p  on~p~n",[Error, MessageBits])
+            ?WARNING("Parse Error: ~p  on~p~n", [Error, MessageBits])
     end.

@@ -3,6 +3,7 @@
 
 -compile(export_all).
 
+-include("tap_logger.hrl").
 -include_lib("ofs_handler/include/ofs_handler.hrl").
 -include_lib("of_protocol/include/of_protocol.hrl").
 -include_lib("of_protocol/include/ofp_v4.hrl").
@@ -26,9 +27,9 @@ handle_message({packet_in, _Xid, Body}, _State) ->
 process_packetin(action, _TableId, _Match, Data) ->
     dns_reply(Data);
 process_packetin(nomatch, _TableId, _Match, _Data) ->
-    lager:info("packetin reason = nomatch~n");
+    ?DEBUG("packetin reason = nomatch~n");
 process_packetin(Reason, _TableId, _Match, _Data) ->
-    lager:info("packetin reason = ~p~n", [Reason]).
+    ?DEBUG("packetin reason = ~p~n", [Reason]).
 
 dns_reply(Data)->
     try
@@ -48,21 +49,21 @@ dns_reply(Data)->
 			Match = match_reply(DnsRec),
 			case Match of
 			    {error, _} ->
-                                lager:info("No match dropped: ~p~n",[Match]);
+                                ?DEBUG("No match dropped: ~p~n",[Match]);
 			    ID ->
 				R = list_to_tuple(
                                         binary_to_list(Header1#ipv4.daddr)),
 				SendValue = {R, ID},
-				lager:info("Sending: ~p~n",[SendValue]),
+				?DEBUG("Sending: ~p~n",[SendValue]),
                                 tap_aggr:dns_rpely(SendValue)
 			end;
-		    _ -> lager:info("No match dropped: ~p~n",[Result])
+		    _ -> ?DEBUG("No match dropped: ~p~n",[Result])
 		end;
-	    _ -> lager:info("No match dropped: ~p~n",[Packet])
+	    _ -> ?DEBUG("No match dropped: ~p~n",[Packet])
 	end
     catch
 	Error ->
-	    lager:info("Decapsulation Error:~p Data: ~p~n",[Error, Data])
+	    ?DEBUG("Decapsulation Error:~p Data: ~p~n",[Error, Data])
     end.
 
 match_reply({dns_rec, {dns_header, _, true, _, _, _, _, _, _, _},

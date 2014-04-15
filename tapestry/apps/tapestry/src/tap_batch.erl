@@ -34,6 +34,8 @@
          terminate/2,
          code_change/3]).
 
+-include("tap_logger.hrl").
+
 -define(STATE, tap_batch_state).
 -record(?STATE, {
     }).
@@ -61,7 +63,7 @@ handle_call(Msg, From, State) ->
 handle_cast({load, FtpFile}, State) ->
     BinaryFile = extract_file(FtpFile),
     Data = parse_file(BinaryFile),
-    error_logger:info_msg("Data = ~p~n",[Data]),
+    ?DEBUG("Data = ~p~n",[Data]),
     tap_ds:ordered_edges(Data),
     {noreply, State};
 handle_cast(Msg, State) ->

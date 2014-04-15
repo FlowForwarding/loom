@@ -38,6 +38,8 @@
          terminate/2,
          code_change/3]).
 
+-include("tap_logger.hrl").
+
 -define(STATE, tap_client_data_state).
 -record(?STATE,{start_time,
                 clients = [],
@@ -121,7 +123,7 @@ handle_cast({new_client, Pid}, State = #?STATE{clients = Clients,
                                                last_nep = LNEP,
                                                last_qps = LQPS}) ->
     NewClients = [Pid | Clients],
-    io:format("tap_client_data: added client Pid =  ~p~n",[Pid]),
+    ?DEBUG("tap_client_data: added client Pid =  ~p~n",[Pid]),
     HELLO = jiffy:encode({[{<<"start_time">>,
                                 list_to_binary(tap_time:rfc3339(StartTime))},
                            {<<"current_time">>,
@@ -137,7 +139,7 @@ handle_cast({remove_client, Pid}, State = #?STATE{clients = Clients}) ->
     {noreply, State#?STATE{clients = NewClients}};
 handle_cast({more_nci_data, Pid, Start, End, MaxData},
                                         State = #?STATE{nci_log = NCILog}) ->
-    error_logger:info_msg("tap_client_data: {more_nci_data,~p,~p,~p,~p}~n",[Pid,Start,End,MaxData]),
+    ?DEBUG("tap_client_data: {more_nci_data,~p,~p,~p,~p}~n",[Pid,Start,End,MaxData]),
     spawn(
         fun()->
             Target = ets:foldl(
@@ -169,7 +171,7 @@ handle_cast({more_nci_data, Pid, Start, End, MaxData},
                     end,
                     send_more_data(Pid, NewTarget);
                 false ->
-                    error_logger:info_msg("tap_client_data: NO RESULTS (i.e. empty set) for {more_nci_data,...} request from ~p~n",[Pid])
+                    ?DEBUG("tap_client_data: NO RESULTS (i.e. empty set) for {more_nci_data,...} request from ~p~n",[Pid])
             end
         end),
 {noreply, State};
@@ -190,7 +192,7 @@ code_change(_OldVersion, State, _Extra) ->
 %------------------------------------------------------------------------------
 
 send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
-    error_logger:info_msg("tap_client_data: sending more data ~p to ~p~n",[Data,Pid]),
+    ?DEBUG("tap_client_data: sending more data ~p to ~p~n",[Data,Pid]),
     JSONData = lists:foldl(
                     fun({Time, Value}, AccIn) ->
                         [{<<"Time">>, list_to_binary(tap_time:rfc3339(Time))},

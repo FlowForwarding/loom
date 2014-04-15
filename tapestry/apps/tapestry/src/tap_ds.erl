@@ -35,6 +35,8 @@
          terminate/2,
          code_change/3]).
 
+-include("tap_logger.hrl").
+
 -define(STATE, tap_ds_state).
 -record(?STATE,{
             digraph,
@@ -123,7 +125,7 @@ clean(G, T, MaxAge)->
                         Age = days_to_seconds(calendar:time_difference(TS, T)),
                         Age > MaxAge
                     end, digraph:vertices(G)),
-    error_logger:info_msg("~n**** Cleaning at Time ~p ****~nMaxAge = ~p~nStale Vertices = ~p~n****",[T, MaxAge, OldVertices]),
+    ?DEBUG("~n**** Cleaning at Time ~p ****~nMaxAge = ~p~nStale Vertices = ~p~n****",[T, MaxAge, OldVertices]),
     digraph:del_vertices(G, OldVertices).
 
 add_edge(G, E, Time)->
