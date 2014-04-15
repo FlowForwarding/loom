@@ -22,6 +22,7 @@
 -include_lib("eunit/include/eunit.hrl").
 
 -define(ENVKEY, eunit).
+-define(ALLENVKEY, config_list).
 -define(UNKNOWN_ENVKEY, not_a_key).
 -define(ENVVALUE, testvalue).
 -define(CONFIGFILE, "../test/tapestry_test.config").
@@ -43,6 +44,7 @@ tap_config_test_() ->
        ,{"getconfig no file", fun getconfig_nofile/0}
        ,{"getconfig no key", fun getconfig_nokey/0}
        ,{"getconfig no env key", fun getconfig_noenv/0}
+       ,{"getallconfig", fun getallconfig/0}
      ]
     }.
 
@@ -69,7 +71,7 @@ getconfig() ->
 
 getconfig_nofile() ->
     application:set_env(tapestry, config_file, ?UNKNOWN_CONFIGFILE),
-    ?assertEqual({error, no_config, enoent},
+    ?assertEqual({error, config, enoent},
                                     tap_config:getconfig(?UNKNOWN_CONFIGKEY)).
 
 getconfig_nokey() ->
@@ -78,5 +80,7 @@ getconfig_nokey() ->
 
 getconfig_noenv() ->
     application:set_env(tapestry, config_file, ?CONFIGFILE),
-    ?assertEqual({?UNKNOWN_ENVKEY, {error, not_found}},
-                                        tap_config:getconfig(?UNKNOWN_ENVKEY)).
+    ?assertEqual({error, env, not_found}, tap_config:getconfig(?UNKNOWN_ENVKEY)).
+
+getallconfig() ->
+    ?assertEqual({?ALLENVKEY, [a,b,c]}, tap_config:getallconfig(?ALLENVKEY)).

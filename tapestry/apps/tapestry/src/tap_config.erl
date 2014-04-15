@@ -20,7 +20,9 @@
 
 -module(tap_config).
 
--export([getenv/1, getconfig/1]).
+-export([getenv/1,
+         getconfig/1,
+         getallconfig/1]).
 
 getenv(Key) ->
     case application:get_env(tapestry, Key) of
@@ -28,18 +30,34 @@ getenv(Key) ->
         {ok, Value} -> {Key, Value}
     end.
 
+% return config value if present
+% return env value if config not present
+% return config value even if there is no env value
+% return error if no config or env value
 getconfig(Key) ->
-    {config_file, ConfigFileName} = getenv(config_file),
-    ConfigFile = file:consult(ConfigFileName),
-    case ConfigFile of
-	{ok, Config}->
-	    {Key, proplists:get_value(Key, Config, env_value(Key))};
-	{error, Reason} ->
-            {error, no_config, Reason}
+    case consult() of
+        {ok, Config} ->
+            case {proplists:get_value(Key, Config),
+                                        application:get_env(tapestry, Key)} of
+                {undefined, undefined} ->
+                    {error, env, not_found};
+                {undefined, {ok, Default}} ->
+                    {Key, Default};
+                {Value, _} ->
+                    {Key, Value}
+            end;
+        {error, Reason} ->
+            {error, config, Reason}
     end.
 
-env_value(Key) ->
-    case application:get_env(tapestry, Key) of
-        undefined -> {error, not_found};
-        {ok, Value} -> Value
+getallconfig(Key) ->
+    case consult() of
+	{ok, Config}->
+	    {Key, proplists:get_all_values(Key, Config)};
+	{error, Reason} ->
+            {error, config, Reason}
     end.
+
+consult() ->
+    {config_file, ConfigFileName} = getenv(config_file),
+    file:consult(ConfigFileName).
