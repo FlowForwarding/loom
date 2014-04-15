@@ -60,27 +60,27 @@ cleanup(ok) ->
 %%------------------------------------------------------------------------------
 
 getenv() ->
-    ?assertEqual({?ENVKEY, ?ENVVALUE}, tap_config:getenv(?ENVKEY)).
+    ?assertEqual(?ENVVALUE, tap_config:getenv(?ENVKEY)).
 
 getenv_nokey() ->
     ?assertEqual({error, not_found}, tap_config:getenv(?UNKNOWN_ENVKEY)).
 
 getconfig() ->
     application:set_env(tapestry, config_file, ?CONFIGFILE),
-    ?assertEqual({?CONFIGKEY, ?CONFIGVALUE}, tap_config:getconfig(?CONFIGKEY)).
+    ?assertEqual(?CONFIGVALUE, tap_config:getconfig(?CONFIGKEY)).
 
 getconfig_nofile() ->
     application:set_env(tapestry, config_file, ?UNKNOWN_CONFIGFILE),
-    ?assertEqual({error, config, enoent},
+    ?assertEqual({error, enoent},
                                     tap_config:getconfig(?UNKNOWN_CONFIGKEY)).
 
 getconfig_nokey() ->
     application:set_env(tapestry, config_file, ?CONFIGFILE),
-    ?assertEqual({?ENVKEY, ?ENVVALUE}, tap_config:getconfig(?ENVKEY)).
+    ?assertEqual(?ENVVALUE, tap_config:getconfig(?ENVKEY)).
 
 getconfig_noenv() ->
     application:set_env(tapestry, config_file, ?CONFIGFILE),
-    ?assertEqual({error, env, not_found}, tap_config:getconfig(?UNKNOWN_ENVKEY)).
+    ?assertEqual({error, not_found}, tap_config:getconfig(?UNKNOWN_ENVKEY)).
 
 getallconfig() ->
-    ?assertEqual({?ALLENVKEY, [a,b,c]}, tap_config:getallconfig(?ALLENVKEY)).
+    ?assertEqual([a,b,c], tap_config:getallconfig(?ALLENVKEY)).

@@ -27,7 +27,7 @@
 getenv(Key) ->
     case application:get_env(tapestry, Key) of
         undefined -> {error, not_found};
-        {ok, Value} -> {Key, Value}
+        {ok, Value} -> Value
     end.
 
 % return config value if present
@@ -40,24 +40,24 @@ getconfig(Key) ->
             case {proplists:get_value(Key, Config),
                                         application:get_env(tapestry, Key)} of
                 {undefined, undefined} ->
-                    {error, env, not_found};
+                    {error, not_found};
                 {undefined, {ok, Default}} ->
-                    {Key, Default};
+                    Default;
                 {Value, _} ->
-                    {Key, Value}
+                    Value
             end;
         {error, Reason} ->
-            {error, config, Reason}
+            {error, Reason}
     end.
 
 getallconfig(Key) ->
     case consult() of
 	{ok, Config}->
-	    {Key, proplists:get_all_values(Key, Config)};
+	    proplists:get_all_values(Key, Config);
 	{error, Reason} ->
-            {error, config, Reason}
+            {error, Reason}
     end.
 
 consult() ->
-    {config_file, ConfigFileName} = getenv(config_file),
+    ConfigFileName = getenv(config_file),
     file:consult(ConfigFileName).
