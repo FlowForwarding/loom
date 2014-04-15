@@ -50,6 +50,9 @@ start_link() ->
 push_qps() ->
     gen_server:cast(?MODULE, push_qps).
 
+dns_reply(Msg = {_Requester, _Response}) ->
+    gen_server:cast(?MODULE, {dns_reply, Msg}).
+
 %------------------------------------------------------------------------------
 % gen_server callbacks
 %------------------------------------------------------------------------------
