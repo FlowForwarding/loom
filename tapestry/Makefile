@@ -1,14 +1,11 @@
 .PHONY: rel compile get-deps update-deps test clean deep-clean
 
 rel: compile
-#	@./rebar generate -f
-#	@./scripts/post_generate_hook
+	@./rebar generate -f
 
 offline:
 	@./rebar compile
-#	erl -pa ebin
-#	@./rebar generate -f
-#	@./scripts/post_generate_hook
+	@./rebar generate
 
 compile: get-deps update-deps
 	@./rebar compile
