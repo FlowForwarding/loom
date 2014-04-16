@@ -50,7 +50,7 @@ dns_reply(Data)->
                                         binary_to_list(Header1#ipv4.daddr)),
 				SendValue = {R, ID},
 				?DEBUG("Sending: ~p~n",[SendValue]),
-                                tap_aggr:dns_rpely(SendValue)
+                                tap_aggr:dns_reply(SendValue)
 			end;
 		    _ -> ?DEBUG("No match dropped: ~p~n",[Result])
 		end;

@@ -7,7 +7,8 @@
 
 -behavior(gen_server).
 
--export([start_link/0]).
+-export([start_link/0,
+         new_client/1]).
 
 -export([init/1,
          handle_call/3,

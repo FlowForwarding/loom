@@ -23,7 +23,8 @@
 -behavior(gen_server).
 
 -export([start_link/0,
-         push_qps/0]).
+         push_qps/0,
+         dns_reply/1]).
 
 -export([init/1,
          handle_call/3,

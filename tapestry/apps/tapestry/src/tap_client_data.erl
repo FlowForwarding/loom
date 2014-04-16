@@ -202,4 +202,4 @@ send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
     clientsock:send(Pid, JSON).
 
 broadcast_msg(Clients, Msg) ->
-    [client_sock:send(C, Msg) || C <- Clients].
+    [clientsock:send(C, Msg) || C <- Clients].
