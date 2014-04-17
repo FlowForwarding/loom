@@ -41,6 +41,10 @@
             query_count = 0
         }).
 
+-define(MIN_UPDATE_TIME_MILLIS, 250).
+-define(MAX_UPDATE_TIME_MILLIS, 5000).
+-define(MAX_QUERY_COUNT_UPDATE, 1000).
+
 %------------------------------------------------------------------------------
 % API
 %------------------------------------------------------------------------------
@@ -108,9 +112,23 @@ qps_timer(State = #?STATE{qps_update_interval = After, qps_timer = OldTimer}) ->
     {ok, NewTimer} = timer:apply_after(After*1000, ?MODULE, push_qps, []),
     State#?STATE{qps_timer = NewTimer}.
 
-maybe_push_qps(#?STATE{query_count = _QueryCount, last_qps_time = _LastUpdate}) ->
-    % XXX some logic - query count > some maximum, time since last update at least some number of seconds
-    % push_qps(),
+maybe_push_qps(#?STATE{query_count = QueryCount, last_qps_time = LastUpdate}) ->
+    % push update if:
+    %   last update was not less than MIN_UPDATE_TIME_MILLIS seconds ago
+    %   last update was more than MAX_UPDATE_TIME_MILLIS seconds ago
+    %   more than MAX_QUERY_COUNT_UPDATE queries
+    Now = tap_time:now(),
+    LastUpdateAge = tap_time:diff_millis(Now, LastUpdate),
+    DoUpdate = if
+        LastUpdateAge < ?MIN_UPDATE_TIME_MILLIS -> false;
+        QueryCount > ?MAX_QUERY_COUNT_UPDATE -> true;
+        LastUpdateAge > ?MAX_UPDATE_TIME_MILLIS -> true;
+        true -> false
+    end,
+    case DoUpdate of
+        true -> push_qps();
+        _ -> ok
+    end,
     ok.
 
 dns_reply_order({A, B} = R) when A < B ->
