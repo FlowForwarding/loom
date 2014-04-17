@@ -22,7 +22,8 @@
 
 -behavior(gen_server).
 
--export([start_link/0]).
+-export([start_link/0,
+         connect/2]).
 
 -export([ofsh_init/5,
          ofsh_connect/6,
@@ -49,7 +50,8 @@
     dpid,
     dns_port,
     client_port,
-    dns_ips
+    dns_ips,
+    connect_to
 }).
 
 -include("tap_logger.hrl").
@@ -63,32 +65,40 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
+connect(IpAddr, Port) ->
+    gen_server:cast(?MODULE, {connect, IpAddr, Port}).
+
+% @hidden
 ofsh_init(_Mode, IpAddr, DatapathId, Version, _Connection) ->
     ?INFO("Connection from ~p ~p~n", [IpAddr, DatapathId]),
     gen_server:cast(?MODULE, {initialize_switch, IpAddr, DatapathId, Version}).
 
+% @hidden
 ofsh_connect(_Mode, IpAddr, DatapathId, _Version, _Connection, AuxId) ->
-    ?INFO("Connection from ~p ~p AuxId: ~p~n",
-                                                [IpAddr, DatapathId, AuxId]),
+    ?INFO("Connection from ~p ~p AuxId: ~p~n", [IpAddr, DatapathId, AuxId]),
     ok.
 
+% @hidden
 ofsh_disconnect(AuxId, DatapathId) ->
-    ?INFO("Disconnect from ~p AuxId: ~p~n",
-                                                        [DatapathId, AuxId]),
+    ?INFO("Disconnect from ~p AuxId: ~p~n", [DatapathId, AuxId]),
     ok.
 
+% @hidden
 ofsh_failover() ->
     % not implemented in ofs_handler
     ok.
 
+% @hidden
 ofsh_handle_error(DatapathId, Reason) ->
     ?INFO("Error from ~p Error: ~p~n", [DatapathId, Reason]),
     ok.
 
+% @hidden
 ofsh_handle_message(DatapathId, Msg) ->
     ?DEBUG("Message from ~p Message: ~p~n", [DatapathId, Msg]),
     ok.
 
+% @hidden
 ofsh_terminate(DatapathId) ->
     ?INFO("Terminate Main Connection from ~p~n", [DatapathId]),
     ok.
@@ -106,7 +116,11 @@ handle_call(Msg, From, State) ->
 
 handle_cast(start, State) ->
     Config = read_config(),
+    connect_to_switches(Config),
     {noreply, State#?STATE{config = Config}};
+handle_cast({connect, IpAddr, Port}, State) ->
+    connect_to_switch(IpAddr, Port),
+    {noreply, State};
 handle_cast({initialize_switch, IpAddr, DatapathId, Version},
                                         State = #?STATE{config = Config}) ->
     ofs_handler:subscribe(DatapathId, loom_handler, packet_in),
@@ -153,7 +167,8 @@ switch_config(ConfigList) ->
         dpid = DatapathId,
         dns_port = proplists:get_value(dns_port, ConfigList),
         client_port = proplists:get_value(client_port, ConfigList),
-        dns_ips = proplists:get_value(dns_ips, ConfigList)
+        dns_ips = proplists:get_value(dns_ips, ConfigList),
+        connect_to = proplists:get_value(connect_to, ConfigList)
      }}.
 
 switch_key(undefined, undefined) ->
@@ -164,6 +179,17 @@ switch_key(IpAddr, undefined) ->
     {ipaddr, IpAddr};
 switch_key(_, _) ->
     error({badconfig, switch, both_ipaddr_and_datapathid}).
+
+connect_to_switches(Config) ->
+    SwitchConfigs = lists:flatten([SCs || {_, SCs} <- dict:to_list(Config)]),
+    Addrs = lists:usort([SC#switch_config.connect_to || SC <- SwitchConfigs]),
+    ?DEBUG("connecting to ~p~n", [Addrs]),
+    [connect(IpAddr, Port) || {IpAddr, Port} <- Addrs],
+    ok.
+
+connect_to_switch(IpAddr, Port) ->
+    Response = of_driver:connect(IpAddr, Port),
+    ?INFO("connecting to switch ~p ~p: ~p~n", [IpAddr, Port, Response]).
 
 install_flows(IpAddr, DatapathId, Version, Config) ->
     case get_switch_config(IpAddr, DatapathId, Config) of
