@@ -22,6 +22,7 @@
 
 -export([now/0,
          diff/2,
+         diff_millis/2,
          universal/1,
          rfc3339/1,
          rfc3339_to_epoch/1]).
@@ -30,18 +31,15 @@ now() ->
     os:timestamp().
 
 diff(A, B) ->
-    timer:now_diff(A, B) div 1000000.
+    diff_millis(A, B) div 1000.
+
+diff_millis(A, B) ->
+    timer:now_diff(A, B) div 1000.
 
 universal(T) ->
     calendar:now_to_universal_time(T).
 
 rfc3339({{Year, Month, Day}, {Hour, Minute, Second}})->
-    SY = integer_to_list(Year),
-    SM = integer_to_list(Month),
-    SD = integer_to_list(Day),
-    Sh = integer_to_list(Hour),
-    Sm = integer_to_list(Minute),
-    Ss = integer_to_list(Second),
     lists:flatten(
         io_lib:format("~4.4.0w-~2.2.0w-~2.2.0wT~2.2.0w:~2.2.0w:~2.2.0wZ",
             [Year, Month, Day, Hour, Minute, Second])).
