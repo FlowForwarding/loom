@@ -288,7 +288,7 @@ prop_labels(G)->
     %% the list in front of the head portion of the list
     Vertices = digraph:vertices(G),
     SplitValue = random:uniform(length(Vertices)),
-    {V1, V2} = lists:split(SplitValue,Vertices),
+    {V1, V2} = lists:split(SplitValue, Vertices),
     V = V2 ++ V1,
 
     %% The next section of the code uses the lists:foldl(...) function
@@ -334,11 +334,11 @@ prop_labels(G)->
 				  Result = label_vertex(G, Vertex),
 				  case Result of
 				      go -> 
-					  {StopCount, GoCount+1, G2};
+					  {StopCount, GoCount + 1, G2};
 				      stop ->  
-					  {StopCount+1, GoCount, G2}
+					  {StopCount + 1, GoCount, G2}
 				  end
-			  end,{0,0,G},V),
+			  end,{0, 0, G}, V),
     {_NewStopCount, NewGoCount, G3} = RunCond,
 
     %% At this point in the code, 
@@ -410,7 +410,7 @@ max_count(ListLabelCount)->
                     end
 		end, 0, ListLabelCount).
 
-choose_label(Candidates)->
+choose_label(Candidates) ->
     Num = random:uniform(length(Candidates)),
     {Label, _} = lists:nth(Num, Candidates),
     {Label, length(Candidates)}.
