@@ -71,7 +71,7 @@ disconnect(State) ->
 -spec failover(ofs_state()) -> ok.
 failover(State) ->
     % State of new active
-    % TODO: not failover not implement in ofs_handler
+    % TODO: failover not implemented in ofs_handler
     ok = tap_loom:ofsh_failover(),
     {ok, State}.
 
