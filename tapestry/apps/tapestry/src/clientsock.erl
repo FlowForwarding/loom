@@ -49,7 +49,7 @@ handle_message({text, MessageBits}) when is_bitstring(MessageBits) ->
     decode(MessageBits),
     noreply;
 handle_message({close, _, _})->
-    % XXX ignore close, not needed
+    % ignore close, not needed
     noreply;
 handle_message(A)->
     ?INFO("UNKNOWN MESSAGE RECEIVED:~n~p~n",[A]),
