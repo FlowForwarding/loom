@@ -66,17 +66,21 @@ handle_start_data(disabled) ->
     tap_client_data:new_client(self()).
 
 decode(MessageBits)->
-    ?DEBUG("decoding..."),       
     try 
-        % XXX might be in any order, sort first?
         Message = jiffy:decode(MessageBits),
         case Message of
-            {[{<<"request">>, <<"more_data">>},
-              {<<"start">>, Start},
-              {<<"end">>, End},
-              {<<"max_items">>, MaxData}]} ->
-                % XXX log sending request
-                tap_client_data:more_nci_data(self(), tap_time:rfc3339_to_epoch(binary_to_list(Start)), tap_time:rfc3339_to_epoch(binary_to_list(End)), list_to_integer(binary_to_list(MaxData)));
+            {Request} ->
+                case lists:sort(Request) of
+                    [{<<"end">>, End},
+                     {<<"max_items">>, MaxData},
+                     {<<"request">>, <<"more_data">>},
+                     {<<"start">>, Start}] ->
+                        ?DEBUG("more_data: start ~p end ~p max_tems ~p~n",
+                                                    [Start, End, MaxData]),
+                        tap_client_data:more_nci_data(self(), tap_time:rfc3339_to_epoch(binary_to_list(Start)), tap_time:rfc3339_to_epoch(binary_to_list(End)), list_to_integer(binary_to_list(MaxData)));
+                    _ -> 
+                       ?INFO("Unexpected Message:~p~n", [Message])
+                end;
             _ -> 
                ?INFO("Unexpected Message:~p~n", [Message])
         end
