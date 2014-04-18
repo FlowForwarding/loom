@@ -83,10 +83,17 @@ code_change(_OldVersion, State, _Extra) ->
 % -----------------------------------------------------------------------------
 
 extract_file(CompressedTarBytes)->
-    % XXX look for .log?
-    {ok, [{_, BinaryFile}, _, _, _]} =
+    {ok, Files} =
         erl_tar:extract({binary, CompressedTarBytes}, [compressed, memory]),
-    BinaryFile.
+    locate_log_file(Files).
+
+locate_log_file([]) ->
+    <<>>;
+locate_log_file([{FileName, Binary} | Rest]) ->
+    case filename:extension(FileName) of
+        ".log" -> Binary;
+        _ -> locate_log_file(Rest)
+    end.
 
 parse_file(BinaryData) ->
     parse_file(BinaryData, []).
