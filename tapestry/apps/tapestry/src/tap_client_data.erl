@@ -122,8 +122,8 @@ handle_cast({new_client, Pid}, State = #?STATE{clients = Clients,
                                                last_nci = LNCI,
                                                last_nep = LNEP,
                                                last_qps = LQPS}) ->
-    NewClients = [Pid | Clients],
-    ?DEBUG("tap_client_data: added client Pid =  ~p~n",[Pid]),
+    monitor(process, Pid),
+    ?DEBUG("tap_client_data: new client ~p~n",[Pid]),
     HELLO = jiffy:encode({[{<<"start_time">>,
                                 list_to_binary(tap_time:rfc3339(StartTime))},
                            {<<"current_time">>,
@@ -132,11 +132,7 @@ handle_cast({new_client, Pid}, State = #?STATE{clients = Clients,
     clientsock:send(Pid, LNCI),
     clientsock:send(Pid, LNEP),
     clientsock:send(Pid, LQPS),
-    {noreply, State#?STATE{clients = NewClients}};
-handle_cast({remove_client, Pid}, State = #?STATE{clients = Clients}) ->
-    % TODO use monitor
-    NewClients = lists:delete(Pid, Clients),
-    {noreply, State#?STATE{clients = NewClients}};
+    {noreply, State#?STATE{clients = [Pid | Clients]}};
 handle_cast({more_nci_data, Pid, Start, End, MaxData},
                                         State = #?STATE{nci_log = NCILog}) ->
     ?DEBUG("tap_client_data: {more_nci_data,~p,~p,~p,~p}~n",[Pid,Start,End,MaxData]),
@@ -178,6 +174,9 @@ handle_cast({more_nci_data, Pid, Start, End, MaxData},
 handle_cast(Msg, State) ->
     error({no_handle_cast, ?MODULE}, [Msg, State]).
 
+handle_info({'DOWN', _, process, Pid, _}, State = #?STATE{clients = Clients}) ->
+    ?DEBUG("client down ~p~n", [Pid]),
+    {noreply, State#?STATE{clients = lists:delete(Pid, Clients)}};
 handle_info(Msg, State) ->
     error({no_handle_info, ?MODULE}, [Msg, State]).
 
