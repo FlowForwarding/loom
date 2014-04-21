@@ -137,35 +137,18 @@ handle_cast({more_nci_data, Pid, Start, End, MaxData},
                                         State = #?STATE{nci_log = NCILog}) ->
     ?DEBUG("tap_client_data: {more_nci_data,~p,~p,~p,~p}~n",[Pid,Start,End,MaxData]),
     spawn(
-        fun()->
+        fun() ->
             Target = ets:foldl(
                         fun(X, AccIn) ->
-                            {Time,_Value} = X,
+                            {Time, _Value} = X,
                             case (Time >= Start) and (Time =< End) of
                                 true -> [X | AccIn];
                                 false -> AccIn
                             end
                         end, [], NCILog),
-            Length = length(Target),
-            case Length > 0 of
+            case length(Target) > 0 of
                 true ->
-                    NewTarget = case (Length div MaxData) of
-                        Step when Step =< 1 ->
-                            Target;
-                        Step when Step > 1 ->
-                            {Subset, _} = lists:mapfoldl(
-                                                fun(X, AccIn) ->
-                                                    case (AccIn rem Step) of
-                                                        0 -> {X,AccIn+1};
-                                                        _ -> {false,AccIn+1}
-                                                    end 
-                                                end, 0, Target),
-                            lists:filter(
-                                    fun(X) ->
-                                        X /= false
-                                    end, Subset)
-                    end,
-                    send_more_data(Pid, NewTarget);
+                    send_more_data(Pid, tap_data:sample_down(Target, MaxData));
                 false ->
                     ?DEBUG("tap_client_data: NO RESULTS (i.e. empty set) for {more_nci_data,...} request from ~p~n",[Pid])
             end
