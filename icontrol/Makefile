@@ -2,12 +2,10 @@
 
 rel: compile
 	@./rebar generate -f
-	@./scripts/post_generate_hook
 
 offline:
 	@./rebar compile
 	@./rebar generate -f
-	@./scripts/post_generate_hook
 
 compile: get-deps update-deps
 	@./rebar compile
@@ -30,9 +28,3 @@ setup_dialyzer:
 
 dialyzer: compile
 	dialyzer apps/*/ebin
-
-dev_prepare: compile
-	./scripts/pre_develop_hook
-
-dev:
-	erl -env ERL_MAX_ETS_TABLES 3000 -pa apps/*/ebin apps/*/test deps/*/ebin -config rel/files/sys.config -args_file rel/files/vm.args -eval "lists:map(fun application:start/1, [kernel, stdlib, public_key, crypto, ssl, compiler, syntax_tools, runtime_tools, mnesia, loom])"
