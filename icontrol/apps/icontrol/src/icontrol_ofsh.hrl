@@ -24,7 +24,7 @@
 % State held by ofs_handler.
 % This state holds onto the datapath id and aux connection id.
 % There is one state for each connection.  
--define(OFS_STATE, simple_ne_ofs_state).
+-define(OFS_STATE, icontrol_ofs_state).
 -record(?OFS_STATE, {
                     datapath_id,
                     aux_id = 0

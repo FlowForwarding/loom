@@ -21,7 +21,7 @@
 %%% Simple network executive command line utility functions.
 %%% @end
 
--module(sne).
+-module(iof).
 
 -include_lib("ofs_handler/include/ofs_handler.hrl").
 -include_lib("of_protocol/include/of_protocol.hrl").
@@ -42,8 +42,8 @@ tr() ->
     dbg:tracer(),
     dbg:p(all, c),
     dbg:tpl(ofs_handler_logic, []),
-    dbg:tpl(simple_ne_logic, []),
-    dbg:tpl(simple_ne_ofsh, []),
+    dbg:tpl(icontrol_logic, []),
+    dbg:tpl(icontrol_ofsh, []),
     ok.
 
 %% @doc
@@ -53,21 +53,21 @@ tr() ->
 %% @end
 -spec send(ipaddress(), ofp_message()) -> not_found | ok | {error, error_reason()}.
 send(IpAddr, Msg) ->
-    simple_ne_logic:send(IpAddr, Msg).
+    icontrol_logic:send(IpAddr, Msg).
 
 %% @doc
 %% Send a message to the switch at ``IpAddr'' and wait for the reply.
 %% @end
 -spec sync_send(ipaddress(), ofp_message()) -> not_found | {ok, ofp_message()} | {error, error_reason()}.
 sync_send(IpAddr, Msg) ->
-    simple_ne_logic:sync_send(IpAddr, Msg).
+    icontrol_logic:sync_send(IpAddr, Msg).
 
 %% @doc
 %% Add a subscription.
 %% @end
 -spec subscribe(ipaddress(), subscription_item()) -> ok.
 subscribe(IpAddr, MsgType) ->
-    simple_ne_logic:subscribe(IpAddr, MsgType).
+    icontrol_logic:subscribe(IpAddr, MsgType).
 
 %% @doc
 %% send an echo request to the server.  To see the response, first create
@@ -90,7 +90,7 @@ ping(IpAddr) ->
     %Opts = [{table_id,0}, {priority, 100}, {idle_timeout, 0}, {idle_timeout, 0},
             %{cookie, <<0,0,0,0,0,0,0,10>>}, {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
     %Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
-    %simple_ne_logic:sync_send(IpAddr, Request).
+    %icontrol_logic:sync_send(IpAddr, Request).
 
 %% @doc
 %% Bridge port Port1 and Port2.
@@ -105,10 +105,10 @@ ping(IpAddr) ->
 %-spec clear_flows(ipaddress()) -> {ok, ofp_message()} | {error, error_reason()}.
 %clear_flows(IpAddr) ->
     %Request = of_msg_lib:flow_delete(4, [], [{table_id, 0}]),
-    %simple_ne_logic:sync_send(IpAddr, Request).
+    %icontrol_logic:sync_send(IpAddr, Request).
 
 %% @doc
-%% Get information about simple_ne state.
+%% Get information about icontrol state.
 %%
 %% ``switches'' - list the ip address, protocol version, and datapath id
 %% of the connected switches.
@@ -118,4 +118,4 @@ i(switches) ->
     lists:foreach(
         fun({IpAddr, DatapathId, Version, _}) ->
             io:format("~p: v~p ~p~n", [IpAddr, Version, DatapathId])
-        end, simple_ne_logic:switches()).
+        end, icontrol_logic:switches()).

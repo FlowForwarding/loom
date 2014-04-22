@@ -21,13 +21,13 @@
 %%% Simple Network executive logic.
 %%% @end
 
--module(simple_ne_logic).
+-module(icontrol_logic).
 
 -behaviour(gen_server).
 -define(SERVER, ?MODULE).
--define(STATE, simple_ne_logic_state).
+-define(STATE, icontrol_logic_state).
 
--include("simple_ne_logger.hrl").
+-include("icontrol_logger.hrl").
 -include_lib("ofs_handler/include/ofs_handler.hrl").
 -include_lib("of_protocol/include/of_protocol.hrl").
 
@@ -73,7 +73,7 @@ start_link() ->
 %% Callback API
 %% ----------------------------------------------------------------------------
 
-% These functions are called from simple_ne_ofsh.erl.
+% These functions are called from icontrol_ofsh.erl.
 -spec ofsh_init(handler_mode(), ipaddress(), datapath_id(), of_version(), connection()) -> ok.
 ofsh_init(active, IpAddr, DatapathId, Version, Connection) ->
     % new main connection
@@ -90,7 +90,7 @@ ofsh_init(standby, IpAddr, DatapathId, _Version, _Connection) ->
 ofsh_connect(active, _IpAddr, DatapathId, _Version, _Connection, AuxId) ->
     % new auxiliary connection
     % The simple network executive doesn't need to capture the auxiliary
-    % connections, so they are not passed to the simple_ne_logic pid.
+    % connections, so they are not passed to the icontrol_logic pid.
     ?INFO("new active aux connection: ~p ~p~n", [AuxId, DatapathId]),
     ok;
 ofsh_connect(standby, _IpAddr, DatapathId, _Version, _Connection, AuxId) ->
@@ -103,7 +103,7 @@ ofsh_connect(standby, _IpAddr, DatapathId, _Version, _Connection, AuxId) ->
 ofsh_disconnect(AuxId, DatapathId) ->
     % lost an auxiliary connection
     % The simple network executive is not tracking the auxiliary
-    % connections, so they are not passed to the simple_ne_logic pid.
+    % connections, so they are not passed to the icontrol_logic pid.
     ?INFO("disconnect aux connection: ~p ~p~n", [AuxId, DatapathId]),
     ok.
 
@@ -118,7 +118,7 @@ ofsh_failover() ->
 ofsh_handle_message(DatapathId, Msg) ->
     % process a message from the switch.
     % the simple network executive doesn't process any messages
-    % from the switch, so they are not passed to the simple_ne_logic pid.
+    % from the switch, so they are not passed to the icontrol_logic pid.
     ?INFO("message in: ~p ~p~n", [DatapathId, Msg]),
     ok.
 
@@ -141,7 +141,7 @@ ofsh_terminate(DatapathId) ->
 
 %% @doc
 %% Returns the list of connected switches.  The returned tuples have
-%% the IP address of the switch (for calling simple_ne_logic
+%% the IP address of the switch (for calling icontrol_logic
 %% functions), the datapath id (for calling ofs_handler),
 %% the open flow version number (for calling of_msg_lib), the
 %% connection (for calling of_driver).
@@ -270,5 +270,5 @@ do_subscribe(IpAddr, MsgType, State) ->
         not_found -> not_found;
         DatapathId ->
             % use our callback module to receive the handle_message.
-            ofs_handler:subscribe(DatapathId, simple_ne_ofsh, MsgType)
+            ofs_handler:subscribe(DatapathId, icontrol_ofsh, MsgType)
     end.
