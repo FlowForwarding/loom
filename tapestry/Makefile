@@ -1,4 +1,4 @@
-.PHONY: rel compile get-deps update-deps test clean deep-clean
+.PHONY: rel offline compile get-deps update-deps test clean deep-clean
 
 rel: compile
 	@./rebar generate -f
@@ -20,9 +20,6 @@ update-deps:
 	@./rebar update-deps
 
 test: offline
-	@./rebar skip_deps=true apps="loom" eunit
-
-test_us3: compile
 	@./rebar skip_deps=true apps="loom" eunit
 
 clean:
