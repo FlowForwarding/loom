@@ -25,7 +25,6 @@
 
 -include_lib("ofs_handler/include/ofs_handler.hrl").
 -include_lib("of_protocol/include/of_protocol.hrl").
--include("icontrol_ofsh.hrl").
 
 -export([
     init/7,
@@ -36,6 +35,16 @@
     handle_error/2,
     terminate/1
 ]).
+
+% State held by ofs_handler.
+% This state holds onto the datapath id and aux connection id.
+% There is one state for each connection.  
+-define(OFS_STATE, icontrol_ofs_state).
+-record(?OFS_STATE, {
+                    datapath_id,
+                    aux_id = 0
+                }).
+-type ofs_state() :: #?OFS_STATE{}.
 
 % callbacks from ofs_handler
 % The callback functions in turn call icontrol_logic for processing.
