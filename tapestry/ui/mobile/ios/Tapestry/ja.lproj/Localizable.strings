@@ -1,0 +1,21 @@
+/* 
+  Localizable.strings
+  Tapestry
+
+  Created by Ira on 3/27/14.
+  Copyright (c) 2014 FlowForwarding.Org. All rights reserved.
+*/
+"Tapestry: A Network Complexity Analyzer" = "Tapestry: ネットワーク複雑性アナライザ";
+"updated %@" = "updated %@";
+"NCI" = "NCI";
+"Endpoints" = "エンドポイント";
+"Queries per Second" = "1秒間あたりのクエリ数";
+"Network Complexity Index" = "ネットワーク複雑性指数";
+"Number of Connected Network Elements" = "ネットワークに接続されている数";
+"Successful DNS Query Responses per Second" = "DNSクエリ";
+"About NCI" = "NCIについて";
+"NCI – Technical paper" = "NCI-テクニカルペーパー";
+"About FlowForwarding.Org" = "FlowForwarding.Orgについて";
+"Tapestry Server:   ws://" = " Tapestryサーバ ws://";
+"Connect" = "Connect";
+"Loading..." = "ローディング中";

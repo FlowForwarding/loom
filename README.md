@@ -15,3 +15,11 @@ LOOM development is in its early stages and at this point provides an integratio
 
 * simple_ne - simple interactive controller intended for testing
 * stats_poller - collects OpenFlow stats and publishes the stats as folsom gagues.
+* tapestry - taps dns traffic to compute a network complexity index.
+* icontrol - simple interactive controller with utility functions to configure and manipulate connected switches.
+
+# Building
+
+Run _make_ at the top level to build all sample applications.
+
+To build a paritcular sample applications, cd into the subdir and run _make_.

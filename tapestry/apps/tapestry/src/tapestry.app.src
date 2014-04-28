@@ -1,0 +1,12 @@
+{application, tapestry,
+ [
+  {description, "Network Complexity Analyzer"},
+  {vsn, "0.1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, {tapestry_app, []}},
+  {env, []}
+ ]}.

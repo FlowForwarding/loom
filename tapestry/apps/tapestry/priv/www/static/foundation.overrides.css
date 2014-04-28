@@ -1,0 +1,108 @@
+.title-area {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+	width: 100%;
+}
+
+/*override dygraph styles, to show xAxes values better*/
+.dygraph-rangesel-fgcanvas, .dygraph-rangesel-bgcanvas{
+	margin-top:20px !important;
+}
+
+.nci-label .indexValue name{
+	font-size:24;
+	font-weight:700;
+	color:black;
+}
+
+.indexValue name{
+	font-size:14;
+	font-weight:500;
+	color: #565656;
+}
+
+.indexValue i{
+	font-size: 14px;
+	color: #565656;
+}
+
+.qps-value  val{
+	position: absolute;
+	left: 190px;
+	font-weight:500;
+	font-size:16;
+}
+
+.nci-label val{
+	font-size: 32px;
+	font-weight: 700;
+	padding-left: 20px;;
+}
+
+.icon-question-sign{
+	background-image: url(images/helpicon.png);
+	position: absolute;
+	width: 15px;
+	height: 15px;
+}
+
+.nci-label .green {
+	color: green;
+}
+
+.nci-label .red {
+	color: red;
+}
+
+.nci-label .black {
+	color: black;
+}
+
+
+.timePeriod small{
+	color: #565656;
+	font-size: 14px;
+}
+
+.timePeriod i{
+	font-size: 14px;
+	color: #565656;
+}
+
+.timePeriod{
+	font-size: 18px;
+	font-weight:500;
+}
+
+.nci-chart {
+	padding-left:20px;
+}
+
+.nci-range-dates {
+	font-size: 14px;
+	width: 90%;
+	padding-left: 70px;
+	padding-top: 25px;
+}
+
+.round-info{
+	right: 20px;
+	top: 5px;
+	position: absolute;
+	background-image: url(images/infoicon.png);
+	width: 30px;
+    height: 30px;
+}
+
+.zoom-panel a.selected {
+	text-decoration: underline;
+}
+
+.zoom-panel a.disabled {
+	color: lightgray;
+}
+
+
+
+

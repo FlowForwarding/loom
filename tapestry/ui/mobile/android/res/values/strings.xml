@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Tapestry</string>
+    
+    <string name="title">Tapestry: A Network Complexity Analyzer</string>
+    
+    <string name="about_nci">About NCI</string>
+    <string name="nci_technical_paper">NCI - Technical paper</string>
+    <string name="about_flowforwarding">About FlowForwarding.Org</string>
+    
+    <string name="about_nci_url">http://www.infoblox.com/sites/infobloxcom/files/resources/infoblox-whitepaper-network-complexity.pdf</string>
+    <string name="nci_technical_paper_url">http://www.flowforwarding.org/nci-article</string>
+    <string name="about_flowforwarding_url">http://www.flowforwarding.org/about-us</string>
+    
+    <string name="nciexamplecom28080clientsockyaws">nci.example.com:28080/clientsock.yaws</string>
+    <string name="demo">demo</string>
+  
+    <string name="tapestry_server_ws">Tapestry Server:  ws://</string>
+    
+    <string name="NCI">NCI</string>
+    <string name="endpoints">Endpoints</string>
+    <string name="queriesPerSecond">Queries per Second</string>
+    <string name="networkComplexityIndex">Network Complexity Index</string>
+    <string name="numberOfConnectedNetworkElements">Number of Connected\nNetwork Elements</string>
+    <string name="successfulDNSQueryResponsesPerSecond">Successful DNS Query\nResponses per Second</string>
+    
+    <string name="Loading">Loading&#8230;</string>
+    
+    <string name="d1">1d</string>
+    <string name="d5">5d</string>
+    <string name="m1">1m</string>
+    <string name="m3">3m</string>
+    <string name="m6">6m</string>
+    <string name="y1">1y</string>
+    <string name="y5">5y</string>
+    <string name="y10">10y</string>
+    
+</resources>

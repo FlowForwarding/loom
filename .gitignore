@@ -23,3 +23,8 @@ apps/*/.eunit
 ebin/
 erl_crash.dump
 Mnesia*
+.DS_Store
+xcuserdata
+Pods
+tapestry/src/ui/mobile/android/gen/android/
+tapestry/src/ui/mobile/android/gen/com/infoblox/tapestry/R.java
