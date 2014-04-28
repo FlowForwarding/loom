@@ -1,4 +1,4 @@
-# Tapestry: A Network Complexity Analyzer
+# icontrol: Interactive Open Flow Controller
 
 ## Overview
 
@@ -10,11 +10,13 @@ to be run in the console mode.
 
 Build icontrol:
 
-```cd icontrol
+```bash
+cd icontrol
 make
-'''
+```
 
 Run:
 
-```rel/icontrol/bin/icontrol console
-'''
+```bash
+rel/icontrol/bin/icontrol console
+```
