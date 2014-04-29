@@ -154,6 +154,30 @@ Configures all of the attached switches using information in Filename.
 Configures only the switch with the switch key Key using the information
 in Filename.
 
+## sys.config
+The Tapestry sys.config (node configuration) file is in rel/files/sys.config.
+The runtime copy is in rel/tapestry/releases/1/sys.config.  The files copy
+overwrites the releases copy when you make Tapestry.
+
+Section | Key | Example | Description
+------- | --- | ------- | -----------
+tapestry | config_file | "tapestry.config" | Name of the tapestry config file.
+tapestry | web_address | {127,0,0,1} | webserver listener IP address
+tapestry | web_port | 28080 | webserver listener port
+tapestry | web_log | "./log" | log directory for webserver
+tapestry | web_id | "tapestry" | webserver identifier
+tapestry | ftpd_address | {0,0,0,0} | ftp server listener IP address
+tapestry | ftpd_port | 7777 | ftp server listener port
+tapestry | openflow | enabled | enable or disable packetin processing
+tapestry | ftfpd | enabled | enable or disable ftp processing
+tapestry | ui_test | disabled | enable or disable ui test mode.
+tapestry | nci_min_interval | {seconds, 15} | shortest time between nci calculations
+tapestry | qps_max_interval | {seconds, 15} | longest time between Query/Sec ui updates
+tapestry | clean_interval | [{days,0},{hms,{1,0,0}}] | interval between purging old data from nci calculation
+tapestry | data_max_age | [{days,2},{hms,{0,0,0}}] | purge data older than data_max_age
+of_driver | listen_ip | {0,0,0,0} | open flow controller listener IP address
+of_driver | listen_port | 6653 | open flow controller listener port
+
 ## Additional Documentation
 >1. Technical White Paper: “[A Network Complexity Index for Networks of Networks] (http://www.flowforwarding.org/nci-article)” by Stuart Bailey and Robert L. Grossman
 >2. NCI White Paper: [Tapestry for Tracking Network Complexity Index (NCI)] (http://www.infoblox.com/downloads/resources/network-complexity/download)
