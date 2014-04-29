@@ -121,10 +121,8 @@ handle_cast(start, State) ->
 handle_cast({connect, IpAddr, Port}, State) ->
     connect_to_switch(IpAddr, Port),
     {noreply, State};
-handle_cast({initialize_switch, IpAddr, DatapathId, Version},
-                                        State = #?STATE{config = Config}) ->
+handle_cast({initialize_switch, _IpAddr, DatapathId, _Version}, State) ->
     ofs_handler:subscribe(DatapathId, loom_handler, packet_in),
-    install_flows(IpAddr, DatapathId, Version, Config),
     {noreply, State};
 handle_cast(Msg, State) ->
     error({no_handle_cast, ?MODULE}, [Msg, State]).
@@ -190,73 +188,3 @@ connect_to_switches(Config) ->
 connect_to_switch(IpAddr, Port) ->
     Response = of_driver:connect(IpAddr, Port),
     ?INFO("connecting to switch ~p ~p: ~p~n", [IpAddr, Port, Response]).
-
-install_flows(IpAddr, DatapathId, Version, Config) ->
-    case get_switch_config(IpAddr, DatapathId, Config) of
-        no_switch_config ->
-            ?WARNING("No config for switch at ~p ~p~n", [IpAddr, DatapathId]),
-            ok;
-        SwitchConfigs ->
-            % XXX remove flows
-            [do_install_flows(SwitchConfig, DatapathId, Version) || SwitchConfig <- SwitchConfigs]
-    end.
-
-do_install_flows(#switch_config{
-                    dns_port = Port1,
-                    client_port = Port2,
-                    dns_ips = IPs
-                 }, DatapathId, Version) ->
-    dns_tap([DatapathId], Version, Port1, Port2, IPs).
-
-get_switch_config(IpAddr, DatapathId, Config) ->
-    get_switch_config2([{dpid, DatapathId}, {ipaddr, IpAddr}], Config).
-
-get_switch_config2([], _Config) ->
-    no_switch_config;
-get_switch_config2([Key | Rest], Config) ->
-    case dict:find(Key, Config) of
-        error ->
-            get_switch_config2(Rest, Config);
-        {ok, SwitchConfigs} ->
-            SwitchConfigs
-    end.
-
-
--define(L_PRIORITY, 100).
--define(H_PRIORITY, 101).
-
-
-dns_tap([],_Version,_Port1,_Port2,_IPTupleList)->
-    ok;
-dns_tap(OFDPL, Version, Port1, Port2, IPTupleList)->
-    [DatapathId|Rest] = OFDPL,
-    IPList = [list_to_binary(tuple_to_list(IPTuple)) || IPTuple <- IPTupleList],
-    ?DEBUG("dns_tap: ~p, ~p, ~p, ~p~n",
-                                [DatapathId, Port1, Port2, IPTupleList]),
-% XXX only remove all flows once per switch
-    ofs_handler:send(DatapathId, remove_all_flows_mod(Version)),
-    lists:foreach(fun(X)->ofs_handler:send(DatapathId, tap_dns_response(Version, Port1,Port2,controller,X)) end,IPList),
-    ofs_handler:send(DatapathId, forward_mod(Version, Port1, [Port2])),
-    ofs_handler:send(DatapathId, forward_mod(Version, Port2, [Port1])),
-    dns_tap(Rest,Version,Port1,Port2,IPTupleList).
-
-%tap packets to controller for udp traffic from DNS server IP address
-tap_dns_response(Version, Port1, Port2, Port3, IPv4Src) ->
-%     Matches = [{in_port, <<Port1:32>>}, {eth_type, 2048}, {ip_proto, <<17:8>>}],
-    Matches = [{in_port, <<Port1:32>>}, {eth_type, 2048}, {ip_proto, <<17:8>>}, {ipv4_src, IPv4Src} ],
-    Instructions = [{apply_actions, [{output, Port2, no_buffer}, {output, Port3, no_buffer}] }],
-    Opts = [{table_id,0}, {priority, ?H_PRIORITY}, {idle_timeout, 0}, {idle_timeout, 0},
-            {cookie, <<0,0,0,0,0,0,0,10>>}, {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
-    of_msg_lib:flow_add(Version, Matches, Instructions, Opts).
-
-%forward packet on InPort to OutPorts using apply_actions
-forward_mod(Version, InPort, OutPorts)->
-    Matches = [{in_port, <<InPort:32>>}],
-    Instructions = [{apply_actions, [{output, OutPort, no_buffer} || OutPort <- OutPorts] } ],
-    Opts = [{table_id,0}, {priority,?L_PRIORITY}, {idle_timeout, 0}, {idle_timeout, 0},
-            {cookie, <<0,0,0,0,0,0,0,10>>}, {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
-    of_msg_lib:flow_add(Version, Matches, Instructions, Opts).    
-
-% delete all flows in table 0
-remove_all_flows_mod(Version) ->
-    of_msg_lib:flow_delete(Version, [], [{table_id, 0}]).
