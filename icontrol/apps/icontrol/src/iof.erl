@@ -96,7 +96,7 @@ send(Key, Msg = #ofp_message{}) ->
     icontrol_logic:sync_send(Key, Msg).
 
 %% @equiv ping(default)
-ping() ->;
+ping() ->
     ping(default).
 
 %% @doc
@@ -178,7 +178,7 @@ dns_tap(Priority, Port1, Port2, Port3, DnsIps) ->
 %% are installed in table 0 with priority Priority.
 %% If Key is ``default'', clear all flows on the default switch.
 %% @end
--spec dns_tap(switch_key(), integer(), integer(), integer(), integer(), ipaddress() | [ipaddress{}]) -> {ok, ofp_message()} | {error, error_reason()}.
+-spec dns_tap(switch_key(), integer(), integer(), integer(), integer(), ipaddress() | [ipaddress()]) -> {ok, ofp_message()} | {error, error_reason()}.
 dns_tap(Key, Priority, Port1, Port2, Port3, DnsIps) when is_list(DnsIps) ->
     [dns_tap(Key, Priority, Port1, Port2, Port3, DnsIp) || DnsIp <- DnsIps];
 dns_tap(Key, Priority, Port1, Port2, Port3, DnsIp = {_,_,_,_}) ->
@@ -198,7 +198,7 @@ dns_tap(Key, Priority, Port1, Port2, Port3, DnsIp = {_,_,_,_}) ->
     send(Key, Msg).
 
 %% @equiv tapestry_config(default, Port1, Port2, DnsIps)
--spec tapestry_config(integer(), integer(), integer(), [ipaddress{}]) -> ok.
+-spec tapestry_config(integer(), integer(), [ipaddress()]) -> ok.
 tapestry_config(Port1, Port2, DnsIps) ->
     tapestry_config(default, Port1, Port2, DnsIps).
 
@@ -208,7 +208,7 @@ tapestry_config(Port1, Port2, DnsIps) ->
 %% the controller.  Bridge between Port1 and Port2.
 %% If Key is ``default'', clear all flows on the default switch.
 %% @end
--spec tapestry_config(switch_key(), integer(), integer(), integer(), [ipaddress{}]) -> ok.
+-spec tapestry_config(switch_key(), integer(), integer(), [ipaddress()]) -> ok.
 tapestry_config(Key, Port1, Port2, DnsIps) ->
     ?DEBUG("clear_flows: ~p~n", [clear_flows(Key, 0)]),
     ?DEBUG("dns_tap: ~p~n",
@@ -217,7 +217,7 @@ tapestry_config(Key, Port1, Port2, DnsIps) ->
     ok.
 
 %% @equiv tapestry_config(default, Filename)
--sepc tapestry_config(string()) -> ok.
+-spec tapestry_config(string()) -> ok.
 tapestry_config(Filename) ->
     tapestry_config(default, Filename).
 
@@ -244,7 +244,7 @@ tapestry_config(Filename) ->
 %%           {dns_ips, [{10,0,2,60}, {10,48,2,5}]}
 %% ]}.
 %% @end
--sepc tapestry_config(all | switch_key(), string()) -> ok.
+-spec tapestry_config(all | switch_key(), string()) -> ok.
 tapestry_config(all, Filename) ->
     Switches = icontrol_logic:switches(),
     Configs = consult_config(Filename),
