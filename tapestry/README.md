@@ -31,13 +31,16 @@ Tapestry requires:
 
 ## Installation
 
-Download and compile the Tapestry collector
+Download and compile the LOOM examples
 
 ```bash
-% git clone https://github.com/FlowForwarding/tapestry
-% cd tapestry
+% git clone https://github.com/FlowForwarding/loom
 % make
 ```
+
+This builds the Tapestry collector (tapestry) and configuration node
+(icontrol).  To build only tapestry and icontrol, run make in the
+tapestry and icontrol directories.
 
 If required, download and compile LINC for the network switches
 
@@ -60,46 +63,96 @@ An example deployment diagram: ![alt text][Illustration]
 
 [Illustration]: https://raw.github.com/FlowForwarding/tapestry/master/docs/images/tapestry_deployment.jpg "Tapestry deployment"
 
-## Configure Tapestry Collector
-Tapestry Collector Configuration file is located in
-$TAPESTRY_ROOT/tapestry.config file
-
-In the below file, LINC Switch IP Address is 10.10.10.149 and DNS Server
-connected to Port 1 (as per LINC Switch's sys.config file) of the LINC
-Switch is 10.10.10.10.  Port 2 (as per LINC Switch's sys.config file) of
-the LINC Switch is connected to the Top of the Rack switch to act as a
-receptor for DNS Queries and responses.
-
-```erlang
-{ofdps,[{ofdp,{ip_addr,{10,10,10,149}},
-              {dns_port,1},
-              {client_port,2},
-              {dns_ips,[{10,10,10,10}]}
-         }]}.
-```
-
-
 ## Running Tapestry
 
 ### First Install Flows on the Switch and make sure everything is working
-```erlang
-# erl -pa ebin
-> tap_loom:start().
-> tap_loom:config().
-> q().
+
+Use icontrol to install the flows on the Switch
+
+Start the icontrol node
+```bash
+# cd icontrol
+# rel/icontrol/bin/icontrol console
 ```
+
+See which switches are connected
+
+```erlang
+> iof:switches().
+Switch-Key DatapathId                       IpAddr            Version
+---------- -------------------------------- ----------------- -------
+*1         {0,<<8,0,39,197,149,72>>}        {192,168,56,102}  4      
+ 2         {1,<<8,0,39,197,149,72>>}        {192,168,56,102}  4      
+ok
+```
+
+Identify the switch you want to configure.  Use the Switch-Key for that
+switch in the following commands.  The examples assume you want to configure
+the switch with the Switch-Key of 1 (datapath id is {0,<<8,0,39,197,149,72>>}).
+
+```erlang
+> iof:tapestry_config(1, 2, 3, [{10,2,3,4},{10,2,3,44}]).
+```
+
+Removes all the flows from table 0, copies udp traffic entering port 2
+to the controller from 10.2.3.4 and 10.2.3.44 (the DNS servers),
+and bridges ports 2 and 3.
+
+```erlang
+> iof:flows(1).
+```
+
+Shows all the flows installed on the switch by sending the flow_stats_request
+to the switch.
 
 Now test connectivity.  If the DNS Server IP address connected to Port 1 of the LINC Switch is 10.10.10.10, then
 ```bash
 # dig @10.10.10.10 flowforwarding.org
 ```
+
 Now you can start Tapestry Collector
 ```erlang
-# erl -pa ebin
-> tapestry:start().
+# cd tapestry
+# rel/tapestry/bin/tapestry start
 ```
 
 Using a browser, go to URL - http://<tapestry_collector_hostname:28080/nci.html to see NCI graph and number.
+
+### Tapestry configuration for icontrol
+
+You can create config files for icontrol to capture the tapestry configuration.
+The format of this file is:
+
+```erlang
+{switch, [{ip_addr, {192,168,56,102}},
+          {dns_port, 1},
+          {client_port, 2},
+          {dns_ips, [{10,0,2,60}, {10,48,2,5}]}
+]}.
+{switch, [{dpid, {0,<<8,0,39,197,149,72>>}},
+          {dns_port, 1},
+          {client_port, 2},
+          {dns_ips, [{10,0,2,60}, {10,48,2,5}]}
+]}.
+```
+
+Switches are identified by either ip address or datapath id (dpid).  The other
+fields are the port connected to the DNS server (dns_port), the port connected
+to the rest of the network (client_port) and the ip addresses of the
+DNS servers.  There can be any number of switch tuples in the config file.
+
+```erlang
+> iof:tapestry_config(all, Filename).
+```
+
+Configures all of the attached switches using information in Filename.
+
+```erlang
+> iof:tapestry_config(Key, Filename).
+```
+
+Configures only the switch with the switch key Key using the information
+in Filename.
 
 ## Additional Documentation
 >1. Technical White Paper: “[A Network Complexity Index for Networks of Networks] (http://www.flowforwarding.org/nci-article)” by Stuart Bailey and Robert L. Grossman
