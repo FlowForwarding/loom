@@ -42,17 +42,7 @@
 
 -define(STATE, tap_loom_state).
 -record(?STATE,{
-            config
             }).
-
--record(switch_config, {
-    ip_addr,
-    dpid,
-    dns_port,
-    client_port,
-    dns_ips,
-    connect_to
-}).
 
 -include("tap_logger.hrl").
 -include_lib("ofs_handler/include/ofs_handler.hrl").
@@ -115,9 +105,9 @@ handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
 handle_cast(start, State) ->
-    Config = read_config(),
-    connect_to_switches(Config),
-    {noreply, State#?STATE{config = Config}};
+    Addrs = tap_config:getallconfig(connect_to),
+    connect_to_switches(Addrs),
+    {noreply, State};
 handle_cast({connect, IpAddr, Port}, State) ->
     connect_to_switch(IpAddr, Port),
     {noreply, State};
@@ -140,47 +130,9 @@ code_change(_OldVersion, State, _Extra) ->
 % local functions
 %------------------------------------------------------------------------------
 
-read_config() ->
-    Switches = tap_config:getallconfig(switch),
-    lists:foldl(
-        fun(Switch, ConfigDict) ->
-            {Key, SwitchConfig} = switch_config(Switch),
-            store_config(Key, SwitchConfig, ConfigDict)
-        end, dict:new(), Switches).
-
-store_config(Key, SwitchConfig, ConfigDict) ->
-    case dict:is_key(Key, ConfigDict) of
-        false ->
-            dict:append(Key, SwitchConfig, dict:store(Key, [], ConfigDict));
-        true ->
-            dict:append(Key, SwitchConfig, ConfigDict)
-    end.
-
-switch_config(ConfigList) ->
-    IpAddr = proplists:get_value(ip_addr, ConfigList),
-    DatapathId = proplists:get_value(dpid, ConfigList),
-    {switch_key(IpAddr, DatapathId),
-     #switch_config{
-        ip_addr = IpAddr,
-        dpid = DatapathId,
-        dns_port = proplists:get_value(dns_port, ConfigList),
-        client_port = proplists:get_value(client_port, ConfigList),
-        dns_ips = proplists:get_value(dns_ips, ConfigList),
-        connect_to = proplists:get_value(connect_to, ConfigList)
-     }}.
-
-switch_key(undefined, undefined) ->
-    error({badconfig, switch, no_ipaddr_or_datapathid});
-switch_key(undefined, DatapathId) ->
-    {dpid, DatapathId};
-switch_key(IpAddr, undefined) ->
-    {ipaddr, IpAddr};
-switch_key(_, _) ->
-    error({badconfig, switch, both_ipaddr_and_datapathid}).
-
-connect_to_switches(Config) ->
-    SwitchConfigs = lists:flatten([SCs || {_, SCs} <- dict:to_list(Config)]),
-    Addrs = lists:usort([SC#switch_config.connect_to || SC <- SwitchConfigs]),
+connect_to_switches({error, _}) ->
+    ok;
+connect_to_switches(Addrs) ->
     ?DEBUG("connecting to ~p~n", [Addrs]),
     [connect(IpAddr, Port) || {IpAddr, Port} <- Addrs],
     ok.
