@@ -211,9 +211,9 @@ tapestry_config(Port1, Port2, DnsIps) ->
 -spec tapestry_config(switch_key(), integer(), integer(), [ipaddress()]) -> ok.
 tapestry_config(Key, Port1, Port2, DnsIps) ->
     ?DEBUG("clear_flows: ~p~n", [clear_flows(Key, 0)]),
+    ?DEBUG("bridge: ~p~n", [bridge(Key, 100, Port1, Port2)]),
     ?DEBUG("dns_tap: ~p~n",
                 [dns_tap(Key, 200, Port1, Port2, controller, DnsIps)]),
-    ?DEBUG("bridge: ~p~n", [bridge(Key, 100, Port1, Port2)]),
     ok.
 
 %% @equiv tapestry_config(default, Filename)
