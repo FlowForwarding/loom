@@ -105,6 +105,7 @@ handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
 handle_cast(start, State) ->
+    of_driver:listen(),
     Addrs = tap_config:getallconfig(connect_to),
     connect_to_switches(Addrs),
     {noreply, State};
