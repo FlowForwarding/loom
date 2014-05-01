@@ -82,6 +82,9 @@ tr() ->
     dbg:tpl(icontrol_ofsh, []),
     ok.
 
+%% @doc
+%% Turn on or off debug messages to console log.
+%% @end
 -spec debug(on|off) -> ok.
 debug(on) ->
     lager:set_loglevel(lager_console_backend, debug),
