@@ -40,6 +40,7 @@
 
 -export([
     tr/0,
+    debug/1,
     send/1,
     send/2,
     ping/0,
@@ -79,6 +80,14 @@ tr() ->
     dbg:tpl(ofs_handler_logic, []),
     dbg:tpl(icontrol_logic, []),
     dbg:tpl(icontrol_ofsh, []),
+    ok.
+
+-spec debug(on|off) -> ok.
+debug(on) ->
+    lager:set_loglevel(lager_console_backend, debug),
+    ok;
+debug(off) ->
+    lager:set_loglevel(lager_console_backend, warning),
     ok.
 
 %% @equiv send(default, Msg)
