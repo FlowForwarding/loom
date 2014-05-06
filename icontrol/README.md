@@ -271,11 +271,11 @@ Connects icontrol to the switch listening at 192.168.111.1.
 Turn on or off debugging output.  This can be helpful with icontrol
 is receiving a lot of asynchronous messages from the switch.
 
-### iof:send(Key, \#ofp_mesage{})
+### iof:send(Key, ofp_mesage{})
 
-Send a \#ofp_message{} record to the switch associated with Key, or the
+Send a ofp_message{} record to the switch associated with Key, or the
 default switch if Key is not given.  Use ofp_msg_lib to construct
-#ofp_message{} records.
+ofp_message{} records.
 
 ### iof:ping(Key)
 
