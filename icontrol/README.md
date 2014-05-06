@@ -399,7 +399,7 @@ switch entry should have one or the other, but not both.
 |Key|Example|Description|
 |---|-------|-----------|
 |ip_addr|{10,48,33,185}|IP address of switch|
-|dpid|{0,<<8,0,39,197,149,72>>}|Datapath ID of switch|
+|dpid|{0,\<\<8,0,39,197,149,72\>\>}|Datapath ID of switch|
 |dns_port|1|Port connected to DNS servers|
 |client_port|2|Port connected to clients|
 |dns_ip|[{10,0,2,60}]|List of DNS Sever IP Addresses|
