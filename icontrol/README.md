@@ -231,8 +231,8 @@ The format of the tapestry configuration file is described below.
 
 ### Sending open flow requests
 
-iof:send sends #ofp_message messages to the switch.  Use of_msg_lib
-to create the #ofp_message records.  iof:version returns the OF
+iof:send sends \#ofp_message messages to the switch.  Use of_msg_lib
+to create the \#ofp_message records.  iof:version returns the OF
 protocol version which is needed to call of_msg_lib.
 
 For example, to delete flows in table 3 on the default switch:
@@ -271,9 +271,9 @@ Connects icontrol to the switch listening at 192.168.111.1.
 Turn on or off debugging output.  This can be helpful with icontrol
 is receiving a lot of asynchronous messages from the switch.
 
-### iof:send(Key, #ofp_mesage{})
+### iof:send(Key, \#ofp_mesage{})
 
-Send a #ofp_message{} record to the switch associated with Key, or the
+Send a \#ofp_message{} record to the switch associated with Key, or the
 default switch if Key is not given.  Use ofp_msg_lib to construct
 #ofp_message{} records.
 
