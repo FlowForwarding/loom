@@ -40,6 +40,8 @@
 
 -export([
     tr/0,
+    version/0,
+    version/1,
     debug/1,
     send/1,
     send/2,
@@ -397,13 +399,20 @@ switches() ->
                 lists:sort(icontrol_logic:switches())],
     ok.
 
+%% @equiv version(default)
+version() ->
+    version(default).
+
+%% @doc
+%% show OF protocol version of switch associated with Key.
+%% @end
+version(Key) ->
+    check_version(icontrol_logic:ofs_version(Key)).
+
 format_default(Key, Key) ->
     "*";
 format_default(_, _) ->
     " ".
-
-version(Key) ->
-    check_version(icontrol_logic:ofs_version(Key)).
 
 check_version({error, Reason}) ->
     error(Reason);
