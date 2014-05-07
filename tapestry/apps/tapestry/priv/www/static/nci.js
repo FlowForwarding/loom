@@ -182,11 +182,13 @@ NCI.nciHistogram = (function(){
 	var barHeight = 5;
 	
 	var communities;
-	$.getJSON( "static/interactions.json", function( data ) {
-		communities = data.Communities;
-	});
 	
 	me.show = function(){
+		NCI.Connection.NCIDetails(NCI.nciUpdateDateServer);
+	};
+	
+	me.loadData = function(response){
+		var communities = response.Communities;
 		me.height(document.body.clientHeight);
 		me.css({'top': '0px'});
 		$("#nciHistogram").text('');
