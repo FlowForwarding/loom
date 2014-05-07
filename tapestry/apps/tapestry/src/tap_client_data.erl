@@ -85,6 +85,10 @@ init([])->
     gen_server:cast(?MODULE, start),
     {ok, #?STATE{}}.
 
+handle_call(nci_details, _From, State = #?STATE{
+                                            communities = Communities,
+                                            nci = NCI}) ->
+    {reply, json_nci_details(NCI, Communities), State};
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
@@ -123,13 +127,7 @@ handle_cast({nci, NCI, Communities, UT}, State = #?STATE{nci_log = NCILog,
 handle_cast({nci_details, Pid}, State = #?STATE{
                                             communities = Communities,
                                             nci = NCI}) ->
-    JSON = jiffy:encode({[
-        {<<"action">>,<<"NCIDetails">>},
-        {<<"NCI">>,NCI},
-        {<<"Time">>, list_to_binary(tap_time:rfc3339(calendar:universal_time()))},
-        {<<"Communities">>,communities(Communities)}
-    ]}),
-    clientsock:send(Pid, JSON),
+    clientsock:send(Pid, json_nci_details(NCI, Communities)),
     {noreply, State};
 handle_cast({qps, QPS, UT}, State = #?STATE{clients = Clients}) ->
     Time = list_to_binary(tap_time:rfc3339(UT)),
@@ -205,13 +203,21 @@ send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
 broadcast_msg(Clients, Msg) ->
     [clientsock:send(C, Msg) || C <- Clients].
 
+json_nci_details(NCI, Communities) ->
+    jiffy:encode({[
+        {<<"action">>,<<"NCIDetails">>},
+        {<<"NCI">>,NCI},
+        {<<"Time">>, list_to_binary(tap_time:rfc3339(calendar:universal_time()))},
+        {<<"Communities">>, communities(Communities)}
+    ]}).
+
 communities({Endpoints, Interactions}) ->
     Communities = intersect_keys(Endpoints, Interactions),
     [
-        [
+        {[
             {<<"Interactions">>, interactions(dict:fetch(C, Interactions))},
-            {<<"Endpoints">>, dict:fetch(C, Endpoints)}
-        ] || C <- Communities
+            {<<"Endpoints">>, endpoints(dict:fetch(C, Endpoints))}
+        ]} || C <- Communities
     ].
 
 intersect_keys(A, B) ->
@@ -220,4 +226,17 @@ intersect_keys(A, B) ->
         sets:from_list(dict:fetch_keys(B)))).
 
 interactions(L) ->
-    [[A, B] || {A, B} <- L].
+    [[endpoint(A), endpoint(B)] || {A, B} <- L].
+
+endpoints(L) ->
+    [endpoint(E) || E <- L].
+
+endpoint({A,B,C,D}) ->
+    list_to_binary([integer_to_list(A), ".", integer_to_list(B), ".", 
+                                integer_to_list(C), ".", integer_to_list(D)]);
+endpoint(B) when is_binary(B) ->
+    B;
+endpoint(S) when is_list(S) ->
+    list_to_binary(S);
+endpoint(_) ->
+    <<"invalid">>.
