@@ -4,11 +4,25 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title> Tapestry </title>
 		<link rel="shortcut icon" href="static/images/favicon.ico" >
-  	    <link rel="stylesheet" href="static/libs/foundation/normalize.css" />
-  	    <link rel="stylesheet" href="static/libs/foundation/foundation.min.css"/> 
+  	    <link rel="stylesheet" href="bower_components/foundation/css/normalize.css" />
+  	    <link rel="stylesheet" href="bower_components/foundation/css/foundation.min.css"/> 
         <link rel="stylesheet" href="static/foundation.overrides.css"/> 
 	
-	    <script src='static/libs/foundation/modernizr.js'></script> 
+	    <script src='bower_components/modernizr/modernizr.js'></script> 
+		
+		<style>
+
+		.node {
+		  stroke: #fff;
+		  stroke-width: 1.5px;
+		}
+
+		.link {
+		  stroke: #999;
+		  stroke-opacity: .6;
+		}
+
+		</style>
 		
 	</head>
 	<body>
@@ -28,25 +42,40 @@
 		
 		<div class="row">
 			<div class="large-4 small-12 columns nci-label">
-				<div class="indexValue" style="padding-top:10px">
+				<div class="indexValue" data-reveal-id="nciDetails" class="reveal-modal">
 					<name> NCI</name>
 					<span data-tooltip class="has-tip" title="Network Complexity Index"><i class="icon-question-sign"></i></span>
 					<span id="nciLatestValue"> <val> &nbsp; </val> </span>
 				</div><br>
 			</div>	
-			<div class="large-4 small-12 columns qps-value indexValue" style="padding-top:10px">  	
-				<name>Endpoints</name>
-				<span data-tooltip class="has-tip" title="Number of Connected Network Elements"> 
-					<i class="icon-question-sign"></i></span>	
-				<span id="nepLatestValue"><val> &nbsp; </val> </span>	<br> <br>
-				<name>Queries per Second </name>
-					<span data-tooltip class="has-tip" title="Successful DNS Query Responses per Second">
-						<i class="icon-question-sign"></i></span>
-				<span id="qpsLatestValue"><val> &nbsp; </val> </span>
+			<div class="large-4 small-12 columns"> 
+				<div class="indexValue qps-value" 
+				data-reveal-id="collectorsInfo" class="round-info" data-reveal> 	
+				    <span class="collectorLabel">Collectors</span>
+				    <span data-tooltip class="has-tip" title="Info about collectors"> 
+				    <i class="icon-question-sign"></i></span>	
+				    <span id="collectorsLatestValue"><val> &nbsp; </val> <br> <i>&nbsp;</i> </span>
+			    </div>
+				<div class="indexValue qps-value">
+				    <name>Endpoints</name>
+				    <span data-tooltip class="has-tip" title="Number of Connected Network Elements"> 
+				    <i class="icon-question-sign"></i></span>	
+				    <span id="nepLatestValue"><val> &nbsp; </val> <br> <i>&nbsp;</i> </span>
+				</div>
+				<div class="indexValue qps-value">
+				    <name>Queries per Second </name>
+				    <span data-tooltip class="has-tip" title="Successful DNS Query Responses per Second">
+				    <i class="icon-question-sign"></i></span>
+				    <span id="qpsLatestValue"><val> &nbsp; </val> <br> <i>&nbsp;</i> </span>
+				</div>
 			</div>	
 			<div class="large-4 small-2 columns">
-				
-			</div>	  
+				<a class='button' data-reveal-id="socialPopup" class="reveal-modal">Interactions</a>
+			</div>	 
+			
+			<div class="large-4 small-2 columns">
+				<a class='button' data-reveal-id="socialPopup2" class="reveal-modal">Interactions d3</a>
+			</div> 
 		</div>  
 		<br><br>
 		<div class="row zoom-panel"> <span class="radius secondary label">Zoom: </span>
@@ -72,15 +101,70 @@
 			<a class="close-reveal-modal">&#215;</a>
 		</div>
 		
-		<script src='static/libs/jquery/jquery.min.js'></script>
-		<script src="static/libs/foundation/fastclick.js"></script>
-		<script src='static/libs/dygraph/dygraph-combined.js'></script>	
-		<script src='static/libs/foundation/foundation.min.js'></script>   
+		<div id="collectorsInfo" class="reveal-modal" data-reveal>
+	
+				<h5 class="centrate collectorsGeneral"></h5>
+
+				<table class='centrate'>
+					<thead>
+						<tr><th width='150'>Collector</th>
+							<th>IP Address</th>
+							<th width='150'>Endpoints</th>
+							<th width='150'>QPS</th>
+						</tr>
+					</thead>
+					<tbody id="collectorsTableBody">
+				    </tbody>
+				</table>
+				<ul id="collectorsPagination" class="pagination centrate">
+				</ul>
+			<a class="close-reveal-modal">&#215;</a>
+		</div>	
+		
+		<div id="nciDetails" class="reveal-modal" data-reveal>
+			<h5 id="histogramGeneral"></b></h5>
+			<div class="row">
+				<div class="large-1 columns">
+					<div style="padding-top: 50px;" id="activityDetails"></div>
+				</div>
+				<div class="large-11 columns">
+			        <div id="nciHistogram" style="">
+			        </div>
+				</div>	
+					<!-- <div class="nciPoint" style="background:red;width:10px;height:10px;top: 35%;position: absolute; left: 180px;"></div> -->
+				<!-- </div> -->
+			</div>
+			<a class="close-reveal-modal">&#215;</a>
+		</div>	
+		
+		<div id="socialPopup" class="reveal-modal" data-reveal>
+	        <div id="socialGraph" style="width:800px;height:400px;">
+	        </div>
+			
+			<a class="close-reveal-modal">&#215;</a>
+		</div>
+		
+		<div id="socialPopup2" class="reveal-modal" data-reveal>
+	        <div id="socialGraph2" style="width:800px;height:400px;">
+	        </div>
+			
+			<a class="close-reveal-modal">&#215;</a>
+		</div>
+		
+		<script src='bower_components/jquery/dist/jquery.min.js'></script>
+		<script src="bower_components/fastclick/lib/fastclick.js"></script>
+		<script src='bower_components/dygraphs/dygraph-combined.js'></script>	
+		<script src='bower_components/foundation/js/foundation.min.js'></script>   
+		<script src='bower_components/d3/d3.min.js'></script> 
+		<script src='bower_components/d3/d3.min.js'></script> 
+		<script src='bower_components/jit/Jit/jit.js'></script> 
 		<script src='static/connection.js'></script>
 		<script src='static/nci.js'></script>
 		<script src='static/chart.js'></script>
+		<!--script src='static/server_emulator.js'></script-->
 		<script type="text/javascript">
 		    	$(document).foundation();
 		</script>
+				
 	</body>
 </html>
