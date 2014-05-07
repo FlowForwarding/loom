@@ -24,7 +24,7 @@
 
 -export([start_link/0,
          push_qps/0,
-         dns_reply/1]).
+         dns_reply/2]).
 
 -export([init/1,
          handle_call/3,
@@ -35,6 +35,7 @@
 
 -define(STATE, tap_aggr_state).
 -record(?STATE, {
+            dp_qps = dict:new(),
             last_qps_time,
             qps_update_interval,
             qps_timer,
@@ -44,6 +45,9 @@
 -define(MIN_UPDATE_TIME_MILLIS, 250).
 -define(MAX_UPDATE_TIME_MILLIS, 5000).
 -define(MAX_QUERY_COUNT_UPDATE, 1000).
+
+-define(TOTAL_QCOUNT, queries).
+-define(DP_QCOUNT(Dp), {queries, Dp}).
 
 %------------------------------------------------------------------------------
 % API
@@ -55,8 +59,8 @@ start_link() ->
 push_qps() ->
     gen_server:cast(?MODULE, push_qps).
 
-dns_reply(Msg = {_Requester, _Response}) ->
-    gen_server:cast(?MODULE, {dns_reply, Msg}).
+dns_reply(Msg = {_Requester, _Response}, DatapathId) ->
+    gen_server:cast(?MODULE, {dns_reply, Msg, DatapathId}).
 
 %------------------------------------------------------------------------------
 % gen_server callbacks
@@ -82,7 +86,8 @@ handle_cast(push_qps, State = #?STATE{query_count = QueryCount,
     NewState = qps_timer(State),
     tap_client_data:qps(QPS, tap_time:universal(Now)),
     {noreply, NewState#?STATE{last_qps_time = Now, query_count = 0}};
-handle_cast({dns_reply, Reply}, State = #?STATE{query_count = QueryCount}) ->
+handle_cast({dns_reply, Reply, _DatapathId},
+                            State = #?STATE{query_count = QueryCount}) ->
     tap_ds:ordered_edge(dns_reply_order(Reply)),
     NewState = State#?STATE{query_count = QueryCount + 1},
     maybe_push_qps(NewState),

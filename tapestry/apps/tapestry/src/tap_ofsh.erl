@@ -82,6 +82,11 @@ handle_error(Reason, State) ->
     ok = tap_loom:ofsh_handle_error(DatapathId, Reason).
 
 -spec handle_message(ofp_message(), ofs_state()) -> ok.
+handle_message({packet_in, _Xid, Body}, State) ->
+    % Handling packet_in message
+    DatapathId = State#?OFS_STATE.datapath_id,
+    tap_loom:packet_in(DatapathId, Body),
+    ok;
 handle_message(Msg, State) ->
     % received a message on the connection
     DatapathId = State#?OFS_STATE.datapath_id,
