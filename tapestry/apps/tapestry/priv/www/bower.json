@@ -1,0 +1,9 @@
+{
+  "name": "Tapestry Web",
+  "dependencies": {
+      "d3" : "3.4.4",
+      "dygraphs" : "1.0.1",
+      "foundation" : "5.2.1",
+      "jit": "2.0.2"
+  }
+}

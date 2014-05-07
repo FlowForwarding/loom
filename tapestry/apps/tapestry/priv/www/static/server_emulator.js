@@ -8,20 +8,56 @@ if (typeof NCI === 'undefined')
    
 NCI.Emulator = {};  
 NCI.Emulator.liveDataFrequency = 5000; //in mseconds ( 5 second updates)
-NCI.Emulator.dataAvailablePeriod = NCI.chartPeriods.threeyears;  //in mseconds
-NCI.Emulator.dataAvailableTill = NCI.chartPeriods.sixmnth; //time from now in mseconds - last nci value update
+NCI.Emulator.dataAvailablePeriod = NCI.chartPeriods.twodays;  //in mseconds
+//NCI.Emulator.dataAvailableTill = NCI.chartPeriods.sixmnth; //time from now in mseconds - last nci value update
 NCI.Emulator.serverResponceDelay = 1500;  //in mseconds
 
 NCI.Emulator.startData = new Date();
 
-NCI.Emulator.liveNCIData = function(){
+NCI.Emulator.liveData = function(){
 	// server returns 
 	// {"Time":"2013-11-04T12:54:41Z","NCI":5}
 	// {"Time":"2013-11-04T12:54:41Z","NEP":87}
 	// {"Time":"2013-11-04T12:54:16Z","QPS":16.451612903225808} 
 	var event = {};
-	event.data = JSON.stringify({Time:  new Date(), NCI: Math.floor((Math.random()*3)+5)});
+	var nciValue = Math.floor((Math.random()*3)+5);
+	var activities = [];
+	var numOfActivities = nciValue + Math.floor((Math.random()*3)+2);
+	for (var i=0; i<numOfActivities; i++){
+		activities.push({
+			name: "Activity " + i + " name", 
+			size: i+1, 
+			endpoints: i+1,
+			details: "activity " + i +  " details"
+		});
+	};
+	event.data = JSON.stringify({Time:  new Date(), 
+		NCI: Math.floor((Math.random()*3)+5),
+		activities: activities
+	});
 	NCI.Connection.onmessage(event);
+	
+	var nepEvent = {};
+	nepEvent.data = JSON.stringify({Time:  new Date(), NEP: Math.floor((Math.random()*40)+5)});
+	NCI.Connection.onmessage(nepEvent);
+	
+	var qpsEvent = {};
+	qpsEvent.data = JSON.stringify({Time:  new Date(), QPS: Math.floor((Math.random()*40)+5)});
+	NCI.Connection.onmessage(qpsEvent);
+	
+	var collectorEvent = {};
+	var collectors = [];
+	var numOfCollectors = (Math.random()*30)+1;
+	for (var i=0; i<numOfCollectors; i++){
+		collectors.push({
+			name: "Collector" + i,
+			ip: "10.32.3.154",
+			nep: (Math.random()*100)+5,
+			qps: (Math.random()*1000)+5
+		});
+	}
+	collectorEvent.data = JSON.stringify({Time:  new Date(), COLLECTORS: collectors});
+	NCI.Connection.onmessage(collectorEvent);
 };
 
 //overriders   
@@ -32,7 +68,7 @@ NCI.Connection.startData = function() {
 	event.data = JSON.stringify({start_time: new Date(new Date() - NCI.Emulator.dataAvailablePeriod), 
 		current_time:  new Date()});
 	NCI.Connection.onmessage(event);
-	setInterval(NCI.Emulator.liveNCIData, NCI.Emulator.liveDataFrequency) ;
+	setInterval(NCI.Emulator.liveData, NCI.Emulator.liveDataFrequency) ;
 }; 
 
 NCI.Connection.moreData = function(startTime, endTime, pointsNum) {
