@@ -187,7 +187,6 @@ NCI.nciHistogram = (function(){
 	};
 	
 	me.loadData = function(response){
-		//console.log(response.NCI);
 		communities = response.Communities;
 		communities.sort(function(a, b){
 			return a.Endpoints.length < b.Endpoints.length;
@@ -211,7 +210,7 @@ NCI.nciHistogram = (function(){
 		    .range([width - margin.left - margin.right, 0]);
 
 		var y = d3.scale.linear()
-		    .domain([0, communities.length])
+		    .domain([0, Math.max(communities.length, response.NCI)])
 		    .range([height - margin.top - margin.bottom, 0]);
 
 		var xAxis = d3.svg.axis()
@@ -267,6 +266,15 @@ NCI.nciHistogram = (function(){
 		    .attr('transform', 'translate(' + (width - margin.right - margin.left) + ')')
 		    .call(yAxis);
 			
+		svg.append("circle").attr("cy", y(response.NCI))
+		                    .attr("cx", x(response.NCI) ).style("fill", "red").attr("r", 6);	
+							
+	    svg.append("circle").attr("cy", y(0))
+		    .attr("cx", x(response.NCI) ).style("fill", "red").attr("r", 4);
+		
+		svg.append("circle").attr("cy", y(response.NCI))
+		    .attr("cx", x(0) ).style("fill", "red").attr("r", 4);
+																			
 		svg.append('text').text('ENDPOINTS').attr('x', width/2).attr('y', height - 40);
 		svg.append('text').text('COMMUNITIES').attr('x', -height/2).attr('y', width - 40)
 		.attr('transform', 'rotate(-90)');
