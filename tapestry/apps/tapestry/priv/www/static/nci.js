@@ -185,7 +185,6 @@ NCI.nciHistogram = (function(){
 	var barHeight = 5;
 	
 	me.show = function(){
-		$("#nciHistogram").html('<div class="large-4 small-2 columns"><a class="button" data-reveal-id="socialPopup" class="reveal-modal">Interactions d3</a></div> ');
 		NCI.Connection.NCIDetails(NCI.nciUpdateDateServer);
 	};
 	
@@ -300,7 +299,7 @@ NCI.socialGraph = (function(){
 		    $.each(community.Endpoints, function(index2, endpoint){
 			    graph.nodes.push({
 				    "name": endpoint,
-				    "group": index
+				    "group": 0
 			    });
 		    });
 		});
@@ -366,10 +365,6 @@ NCI.socialGraph = (function(){
 	return me;
 }());
 
-$(document).on('opened', '#socialPopup', function () {
-	console.log('test');
-	NCI.socialGraph.show();
-});
 
 $(document).on('opened', '#nciDetails', function () {
 	//if (NCI.nciActivities.length > 0)
@@ -386,3 +381,9 @@ $('body').on('touchend', function(){
 	$('.tooltip').hide();
 });
 
+$('#nciDetailsTabs').on('toggled', function (event, tab) {
+	if (tab[0].id == "panel2-2"){
+		console.log(tab[0].id);
+		NCI.socialGraph.show();
+	}
+});

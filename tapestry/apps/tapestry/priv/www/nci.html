@@ -117,27 +117,33 @@
 		
 		<div id="nciDetails" class="reveal-modal" data-reveal>
 			<h5 id="histogramGeneral"></b></h5>
-			<div class="row">
-				<div class="large-1 columns">
-					<div style="padding-top: 50px;" id="activityDetails"></div>
+			<div class="row">		
+				<dl class="tabs" data-tab id="nciDetailsTabs">
+					<dd class="active"><a href="#panel2-1">Communities</a></dd>
+					<dd><a href="#panel2-2">Endpoints</a></dd>
+					<dd><a href="#panel2-3">Devided</a></dd>
+					<dd><a href="#panel2-4">Clustered</a></dd>
+				</dl>
+				<div class="tabs-content">
+					<div class="content active" id="panel2-1">
+				        <div id="nciHistogram" style="">
+				        </div>
+					</div>
+					<div class="content" id="panel2-2">
+				        <div id="socialGraph" style="">
+				        </div>
+					</div>
+					<div class="content" id="panel2-3">
+						<p>Third panel content goes here...</p>
+					</div>
+					<div class="content" id="panel2-4">
+						<p>Fourth panel content goes here...</p>
+					</div>
 				</div>
-				<div class="large-11 columns">
-			        <div id="nciHistogram" style="">
-			        </div>
-				</div>	
-					<!-- <div class="nciPoint" style="background:red;width:10px;height:10px;top: 35%;position: absolute; left: 180px;"></div> -->
-				<!-- </div> -->
 			</div>
 			<a class="close-reveal-modal">&#215;</a>
 		</div>	
-		
-		<div id="socialPopup" class="reveal-modal" data-reveal>
-	        <div id="socialGraph" style="width:800px;height:400px;">
-	        </div>
 			
-			<a class="close-reveal-modal">&#215;</a>
-		</div>
-		
 		
 		<script src='bower_components/jquery/dist/jquery.min.js'></script>
 		<script src="bower_components/fastclick/lib/fastclick.js"></script>
