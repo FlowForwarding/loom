@@ -174,6 +174,9 @@ NCI.collectorsTable = (function(){
 	return me;
 }());
 
+
+var communities;
+
 NCI.nciHistogram = (function(){
 	var me = $('#nciDetails');
 	var activityDetails = $('#activityDetails');
@@ -181,17 +184,15 @@ NCI.nciHistogram = (function(){
 	var histogramGeneral = $("#histogramGeneral");
 	var barHeight = 5;
 	
-	var communities;
-	
 	me.show = function(){
+		$("#nciHistogram").html('<div class="large-4 small-2 columns"><a class="button" data-reveal-id="socialPopup" class="reveal-modal">Interactions d3</a></div> ');
 		NCI.Connection.NCIDetails(NCI.nciUpdateDateServer);
 	};
 	
 	me.loadData = function(response){
-		var communities = response.Communities;
+		communities = response.Communities;
 		me.height(document.body.clientHeight);
 		me.css({'top': '0px'});
-		$("#nciHistogram").text('');
 		activityDetails.text('');
 		histogramGeneral.html("<b>The NETWORK COMPLEXITY INDEX at &nbsp;&nbsp;</b> <i>" + NCI.nciUpdateDate + "</i>" );
 	   // activities = [].concat(NCI.nciActivities);
@@ -278,13 +279,7 @@ NCI.nciHistogram = (function(){
 NCI.socialGraph = (function(){
 	var me = $('#socialGraph');
 	
-	var communities;
-	$.getJSON( "static/interactions.json", function( data ) {
-		communities = data.Communities;
-	});
-	
 	me.show = function(){
-		console.log(communities);
 		me.text("");
 		
 		var	graph = {
