@@ -329,7 +329,7 @@ NCI.socialGraph = (function(){
 		    .linkDistance(30)
 		    .size([ me.width(), 400]);
 
-		var svg = d3.select('#socialGraph2').append("svg")
+		var svg = d3.select('#socialGraph').append("svg")
 		    .attr("width", me.width())
 		    .attr("height", 400);
 
