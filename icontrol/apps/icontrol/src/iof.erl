@@ -199,6 +199,7 @@ dns_tap(Key, Priority, Port1, Port2, Port3, DnsIp = {_,_,_,_}) ->
     Version = version(Key),
     IPv4Src = list_to_binary(tuple_to_list(DnsIp)),
     Matches = [{in_port, <<Port1:32>>},
+               {udp_src, <<53:16>>},
                {eth_type, 2048},
                {ip_proto, <<17:8>>},
                {ipv4_src, IPv4Src}],

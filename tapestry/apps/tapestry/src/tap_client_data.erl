@@ -26,10 +26,11 @@
 
 -export([start_link/0,
          num_endpoints/2,
-         nci/2,
+         nci/3,
          qps/2,
          new_client/1,
-         more_nci_data/4]).
+         more_nci_data/4,
+         nci_details/1]).
 
 -export([init/1,
          handle_call/3,
@@ -47,7 +48,9 @@
                 nci_log,
                 last_nep,
                 last_int_nep = 0,
-                last_qps}).
+                last_qps,
+                nci,
+                communities = {dict:new(), dict:new()}}).
 
 %------------------------------------------------------------------------------
 % API
@@ -59,8 +62,8 @@ start_link() ->
 num_endpoints(Endpoints, DateTime) ->
     gen_server:cast(?MODULE, {num_endpoints, Endpoints, DateTime}).
 
-nci(NCI, DateTime) ->
-    gen_server:cast(?MODULE, {nci, NCI, DateTime}).
+nci(NCI, Communities, DateTime) ->
+    gen_server:cast(?MODULE, {nci, NCI, Communities, DateTime}).
 
 qps(QPS, DateTime) ->
     gen_server:cast(?MODULE, {qps, QPS, DateTime}).
@@ -71,6 +74,9 @@ new_client(Pid) ->
 more_nci_data(Pid, Start, End, Max) ->
     gen_server:cast(?MODULE, {more_nci_data, Pid, Start, End, Max}).
 
+nci_details(Pid) ->
+    gen_server:cast(?MODULE, {nci_details, Pid}).
+
 %------------------------------------------------------------------------------
 % gen_server callbacks
 %------------------------------------------------------------------------------
@@ -79,6 +85,10 @@ init([])->
     gen_server:cast(?MODULE, start),
     {ok, #?STATE{}}.
 
+handle_call(nci_details, _From, State = #?STATE{
+                                            communities = Communities,
+                                            nci = NCI}) ->
+    {reply, json_nci_details(NCI, Communities), State};
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
@@ -105,13 +115,20 @@ handle_cast({num_endpoints, NEP, UT}, State = #?STATE{last_int_nep = LIntNEP,
         false -> State
     end,
     {noreply, NewState};
-handle_cast({nci, NCI, UT}, State = #?STATE{nci_log = NCILog,
-                                         clients = Clients}) ->
+handle_cast({nci, NCI, Communities, UT}, State = #?STATE{nci_log = NCILog,
+                                                         clients = Clients}) ->
     true = ets:insert(NCILog, {UT, NCI}),
     Time = list_to_binary(tap_time:rfc3339(UT)),
     JSON = jiffy:encode({[{<<"Time">>, Time}, {<<"NCI">>, NCI}]}),
     broadcast_msg(Clients, JSON),
-    {noreply, State#?STATE{last_nci = JSON}};
+    {noreply, State#?STATE{last_nci = JSON,
+                           nci = NCI,
+                           communities = Communities}};
+handle_cast({nci_details, Pid}, State = #?STATE{
+                                            communities = Communities,
+                                            nci = NCI}) ->
+    clientsock:send(Pid, json_nci_details(NCI, Communities)),
+    {noreply, State};
 handle_cast({qps, QPS, UT}, State = #?STATE{clients = Clients}) ->
     Time = list_to_binary(tap_time:rfc3339(UT)),
     JSON = jiffy:encode({[{<<"Time">>, Time}, {<<"QPS">>, QPS}]}),
@@ -185,3 +202,41 @@ send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
 
 broadcast_msg(Clients, Msg) ->
     [clientsock:send(C, Msg) || C <- Clients].
+
+json_nci_details(NCI, Communities) ->
+    jiffy:encode({[
+        {<<"action">>,<<"NCIDetails">>},
+        {<<"NCI">>,NCI},
+        {<<"Time">>, list_to_binary(tap_time:rfc3339(calendar:universal_time()))},
+        {<<"Communities">>, communities(Communities)}
+    ]}).
+
+communities({Endpoints, Interactions}) ->
+    Communities = intersect_keys(Endpoints, Interactions),
+    [
+        {[
+            {<<"Interactions">>, interactions(dict:fetch(C, Interactions))},
+            {<<"Endpoints">>, endpoints(dict:fetch(C, Endpoints))}
+        ]} || C <- Communities
+    ].
+
+intersect_keys(A, B) ->
+    sets:to_list(sets:intersection(
+        sets:from_list(dict:fetch_keys(A)),
+        sets:from_list(dict:fetch_keys(B)))).
+
+interactions(L) ->
+    [[endpoint(A), endpoint(B)] || {A, B} <- L].
+
+endpoints(L) ->
+    [endpoint(E) || E <- L].
+
+endpoint({A,B,C,D}) ->
+    list_to_binary([integer_to_list(A), ".", integer_to_list(B), ".", 
+                                integer_to_list(C), ".", integer_to_list(D)]);
+endpoint(B) when is_binary(B) ->
+    B;
+endpoint(S) when is_list(S) ->
+    list_to_binary(S);
+endpoint(_) ->
+    <<"invalid">>.

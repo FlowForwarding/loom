@@ -5,21 +5,44 @@
 	width: 100%;
 }
 
+.centrate{
+	margin-left: auto !important;
+	margin-right: auto;
+	display: table !important;
+}
+
 /*override dygraph styles, to show xAxes values better*/
 .dygraph-rangesel-fgcanvas, .dygraph-rangesel-bgcanvas{
 	margin-top:20px !important;
+}
+
+.nci-label, .qps-value {
+	padding-top:15px;
 }
 
 .nci-label .indexValue name{
 	font-size:24;
 	font-weight:700;
 	color:black;
+    text-decoration: underline;
+}
+
+.nci-label val{
+	font-size: 32px;
+	font-weight: 700;
+	padding-left: 20px;;
 }
 
 .indexValue name{
 	font-size:14;
 	font-weight:500;
 	color: #565656;
+}
+
+.collectorLabel{
+	font-size:16;
+	font-weight:700;	
+	text-decoration: underline;
 }
 
 .indexValue i{
@@ -32,12 +55,6 @@
 	left: 190px;
 	font-weight:500;
 	font-size:16;
-}
-
-.nci-label val{
-	font-size: 32px;
-	font-weight: 700;
-	padding-left: 20px;;
 }
 
 .icon-question-sign{
@@ -104,5 +121,27 @@
 }
 
 
+#nciHistogram text{
+	font: 12px sans-serif;
+}
 
+.collectorsGeneral{
+	font-weight: 500;
+}
 
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+/*.axis text {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}*/

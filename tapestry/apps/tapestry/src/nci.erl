@@ -483,5 +483,34 @@ compute_from_graph(InG)->
 		  Edges),
     prop_labels(G),
     NCI = calc_nci(G),
+    Communities = communities(G),
     digraph:delete(G),
-    NCI.
+    {NCI, Communities}.
+
+communities(G) ->
+    % list of endpooints per community
+    EPs = comm_endpoints(G),
+    IAs = comm_interactions(G),
+    {EPs, IAs}.
+
+comm_endpoints(G) ->
+    lists:foldl(
+        fun(V, D) ->
+            {V, C} = digraph:vertex(G, V),
+            dict:append(C, V, D)
+        end, dict:new(), digraph:vertices(G)).
+
+comm_interactions(G) ->
+    lists:foldl(
+        fun(E, D) ->
+            {E, V1, V2, _} = digraph:edge(G, E),
+            {V1, C1} = digraph:vertex(G, V1),
+            {V2, C2} = digraph:vertex(G, V2),
+            case {C1, C2} of
+                {C, C} ->
+                    dict:append(C, {V1, V2}, D);
+                {C1, C2} ->
+                    D1 = dict:append(C1, {V1, V2}, D),
+                    dict:append(C2, {V1, V2}, D1)
+            end
+        end, dict:new(), digraph:edges(G)).

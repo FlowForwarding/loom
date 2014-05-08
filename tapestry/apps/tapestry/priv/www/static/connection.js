@@ -16,7 +16,7 @@ NCI.lastRedrawTimeVal = new Date();
 
 NCI.Connection.onmessage  = function (e) {
 	var data = eval("tmp = " + e.data );
-	//console.log(e.data);
+
 	if (data.start_time){
 		// to show utc time
 		// NCI.time_adjustment = new Date() - new Date(data.current_time) - new Date().getTimezoneOffset()*1000*60;
@@ -31,13 +31,12 @@ NCI.Connection.onmessage  = function (e) {
 			NCI.Connection.moreData(new Date() - NCI.curChartPeriod, new Date(), NCI.numOfPoints);
 		};
 		return;
-	};
-	
-	if (e.data.length < 60){
+	} else if (e.data.split("NCI").length < 3){
 		var dateVal = new Date(data.Time);
 		if (data.NCI){
 			NCI.lastUpdateTimeVal = dateVal;
-			NCI.setNciLatestValue(data.NCI, NCI.parceDateForLastUpdate(data.Time));
+			NCI.nciUpdateDateServer = data.Time;
+			NCI.setNciLatestValue(data.NCI, NCI.parceDateForLastUpdate(data.Time), data.activities);
 			if (!NCI.chart){
 				 NCI.initChart(new Date(data.Time) - NCI.time_adjustment);
 			} else {
@@ -73,12 +72,15 @@ NCI.Connection.onmessage  = function (e) {
 					});
 				}
 			};
-		};
-
+		} ;
 		if (data.QPS !== undefined)
 			NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS, 1), NCI.parceDateForLastUpdate(data.Time));
 		if (data.NEP !== undefined)
 			NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDateForLastUpdate(data.Time));
+		if (data.COLLECTORS !== undefined)	
+		    NCI.setCollectorsLatestValue(data.COLLECTORS, NCI.parceDateForLastUpdate(data.Time));
+	} else if (data.action == "NCIDetails"){
+			NCI.nciHistogram.loadData(data);
 	} else {
 		//we recieve such format:
 		// {"Time":"2013-10-27T13:01:09Z","NCI":99,
@@ -148,6 +150,10 @@ NCI.DetectRangesForPeiod = function(detailedChartPeriod, chartData){
 		var startRangeDate = endRangeDate - detailedChartPeriod;
 	};
 	return [startRangeDate, new Date().getTime()];
+};
+
+NCI.Connection.NCIDetails = function(time){
+    NCI.Connection.send('{"action":"NCIDetails","Time": "' + time + '"}');
 };
 
 NCI.Connection.startData = function() {

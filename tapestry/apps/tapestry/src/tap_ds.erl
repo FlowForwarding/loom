@@ -146,8 +146,8 @@ push_nci(Digraph, _NumVertices) ->
     spawn_link(
         fun() ->
             random:seed(now()),
-            NCI = nci:compute_from_graph(Digraph),
-            tap_client_data:nci(NCI, calendar:universal_time())
+            {NCI, Communities} = nci:compute_from_graph(Digraph),
+            tap_client_data:nci(NCI, Communities, calendar:universal_time())
         end).
             
 update_edge(G, V1, V2, Time)->
