@@ -15,11 +15,9 @@ NCI.currentNCI = 0;
 NCI.collectors = [];
 NCI.collectorsUpdateDate = "";
 NCI.nciUpdateDate = "";
-NCI.nciActivities = [];
 
 NCI.setNciLatestValue = function (val, time, activities) {
 	NCI.nciUpdateDate = time;
-	NCI.nciActivities = activities;
 	var colorClass = val > NCI.currentNCI ? 'green' : val == NCI.currentNCI ? 'black' : 'red';
 	NCI.currentNCI = val;
 	var newVal = NCI.parceNumberForView(val);
@@ -189,12 +187,16 @@ NCI.nciHistogram = (function(){
 	};
 	
 	me.loadData = function(response){
+		//console.log(response.NCI);
 		communities = response.Communities;
+		communities.sort(function(a, b){
+			return a.Endpoints.length < b.Endpoints.length;
+		});
 		me.height($(window).height());
 		me.css({'top': '0px'});
 		activityDetails.text('');
-		histogramGeneral.html("<b>The NETWORK COMPLEXITY INDEX at &nbsp;&nbsp;</b> <i>" + NCI.nciUpdateDate + "</i>" );
-	   // activities = [].concat(NCI.nciActivities);
+		histogramGeneral.html("<b>The NETWORK COMPLEXITY INDEX at &nbsp;&nbsp;</b> <i>" + NCI.nciUpdateDate + "</i>" +
+		    "&nbsp;&nbsp;&nbsp;<span class='button alert'>NCI " + response.NCI + "</span>" );
 		
 		var scale = 30;
 		
@@ -378,15 +380,14 @@ NCI.socialGraph  = (function(){
 	return me;
 }());
 
-
-
 $(document).on('opened', '#nciDetails', function () {
-	//if (NCI.nciActivities.length > 0)
-	    NCI.nciHistogram.show();
+	NCI.nciHistogram.show();
 });
 
 $(document).on('close', '#nciDetails', function () {
 	NCI.socialGraph.text("");
+	 $('#nciDetailsTabs').find("a").first().click();
+	$("#nciHistogram").text("");
 });
 
 $(document).on('open', '#collectorsInfo', function () {
