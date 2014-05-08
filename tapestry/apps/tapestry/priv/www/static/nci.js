@@ -274,6 +274,7 @@ NCI.nciHistogram = (function(){
 	return me;
 }());
 
+
 NCI.socialGraph = (function(){
 	var me = $('#socialGraph');
 	
@@ -282,147 +283,8 @@ NCI.socialGraph = (function(){
 		communities = data.Communities;
 	});
 	
-	var labelType, useGradients, nativeTextSupport, animate;
-	var ua = navigator.userAgent,
-    iStuff = ua.match(/iPhone/i) || ua.match(/iPad/i),
-    typeOfCanvas = typeof HTMLCanvasElement,
-    nativeCanvasSupport = (typeOfCanvas == 'object' || typeOfCanvas == 'function'),
-    textSupport = nativeCanvasSupport && (typeof document.createElement('canvas').getContext('2d').fillText == 'function');
-    //ExCanvas provides text support for IE
-    //and that as of today iPhone/iPad current text support is lame
-    labelType = (!nativeCanvasSupport || (textSupport && !iStuff))? 'Native' : 'HTML';
-    nativeTextSupport = labelType == 'Native';
-    useGradients = nativeCanvasSupport;
-    animate = !(iStuff || !nativeCanvasSupport);
-    
 	me.show = function(){
-		$("#socialGraph").text('');
-		var json = [];
-	
-        var colors = ["#557EAA", "#91C82F", " #E52B50", "#FDEE00", "#ED872D", "#8B0000", "#FF8C00", "#B0E0E6", "#00CED1", "#9400D3"];	
-		$.each(communities, function(index, community){
-			var interactions = community.Interactions;
-			$.each(interactions, function(index, interacton){
-				json.push({
-					     "adjacencies": [{
-					         "nodeTo": interacton[1],
-					         "nodeFrom": interacton[0]
-					     }],
-						 "data": { "$color": "#00"},
-						 "id": interacton[0]
-				});	
-				$.each(communities, function(index, community){
-					var communityData = { "$color": colors[index]};
-				$.each(community.Endpoints, function(index, endpoint){
-					json.push({
-						"data": communityData,
-						"id": endpoint
-					});
-				});
-				});
-			
-				
-			});
-		});
-			
-        // init ForceDirected
-        var fd = new $jit.ForceDirected({
-            //id of the visualization container
-			injectInto: 'socialGraph',
-	        Navigation: {
-             enable: true,
-             panning: 'avoid nodes',
-             zooming: 10 //zoom speed. higher is more sensible
-	        },
-	        Node: {
-               overridable: true
-	        },
-	        Label: {  
-	            type: labelType, //Native or HTML  
-	            size: 10,  
-	            style: 'bold'  
-	        }, 
-	        Edge: {
-                overridable: true,
-                color: 'black',
-                lineWidth: 0.4
-	        },
-            //Native canvas text styling
-	        Label: {
-               type: labelType, //Native or HTML
-               size: 0
-	    },
-            //Add Tips
-	    Tips: {
-        enable: true,
-        onShow: function(tip, node) {
-	        var count = 0;
-	        node.eachAdjacency(function() { count++; });
-	        tip.innerHTML = "<div class=\"tip-title\">" + node.id + "</div>"
-            + "<div class=\"tip-text\"><b>connections:</b> " + count + "</div>";
-        }
-	    },
-            // Add node events
-	    Events: {
-        enable: true,
-        type: 'Native',
-        onMouseEnter: function() {
-	        fd.canvas.getElement().style.cursor = 'move';
-        },
-        onMouseLeave: function() {
-	        fd.canvas.getElement().style.cursor = '';
-        },
-        onDragMove: function(node, eventInfo, e) {
-            var pos = eventInfo.getPos();
-            node.pos.setc(pos.x, pos.y);
-            fd.plot();
-        },
-        onTouchMove: function(node, eventInfo, e) {
-	        $jit.util.event.stop(e); //stop default touchmove event
-	        this.onDragMove(node, eventInfo, e);
-        },
-        onClick: function(node) {
-	        if(!node) return;
-	        var html = "<h4>" + node.name + "</h4> connections: d",
-            list = [];
-	        node.eachAdjacency(function(adj){
-                list.push(adj.nodeTo.name);
-	        });
-        }
-	    },
-	    levelDistance: 130,
-	    onCreateLabel: function(domElement, node){
-            domElement.innerHTML = node.name;
-            var style = domElement.style;
-            style.fontSize = "0.8em";
-            style.color = "#ddd";
-	    }
-        });
-        
-        fd.loadJSON(json);	  
-        fd.computeIncremental({
-	    onComplete: function(){
-            fd.animate({
-	        modes: ['linear'],
-	        duration: 500
-            });
-	    }
-        });
-	};
-    
-	return me;
-}());
-
-
-NCI.socialGraph2 = (function(){
-	var me = $('#socialGraph2');
-	
-	var communities;
-	$.getJSON( "static/interactions.json", function( data ) {
-		communities = data.Communities;
-	});
-	
-	me.show = function(){
+		console.log(communities);
 		me.text("");
 		
 		var	graph = {
@@ -510,12 +372,8 @@ NCI.socialGraph2 = (function(){
 }());
 
 $(document).on('opened', '#socialPopup', function () {
+	console.log('test');
 	NCI.socialGraph.show();
-});
-
-
-$(document).on('opened', '#socialPopup2', function () {
-	NCI.socialGraph2.show();
 });
 
 $(document).on('opened', '#nciDetails', function () {
