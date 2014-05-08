@@ -190,7 +190,7 @@ NCI.nciHistogram = (function(){
 	
 	me.loadData = function(response){
 		communities = response.Communities;
-		me.height(document.body.clientHeight);
+		me.height($(window).height());
 		me.css({'top': '0px'});
 		activityDetails.text('');
 		histogramGeneral.html("<b>The NETWORK COMPLEXITY INDEX at &nbsp;&nbsp;</b> <i>" + NCI.nciUpdateDate + "</i>" );
@@ -275,100 +275,118 @@ NCI.nciHistogram = (function(){
 }());
 
 
-NCI.socialGraph = (function(){
-	var me = $('#socialGraph');
+NCI.socialGraph  = (function(){
+	var me = $("#socialGraph");
 	
-	me.show = function(){
-		me.text("");
-		
-		var	graph = {
-			"nodes":[],
-			"links": []};
-			
-			
-			var nodeIndex = function(ip){
-				var val = 0;
-				$.each(graph.nodes, function(index, node){
-					if (node.name == ip)
-					   val = index;
-				});
-				return val;
-			};	
+	var force;
+	var color = d3.scale.category10();
+	
+	me.show = function(devided, clustered){
+		if (me.text().length<20){	
+			me.draw(devided, clustered);
+		} else {
+			me.node.style("fill", function(d) { return devided ? color(d.group) : color(0); });
+			if (clustered){
+				force.linkStrength(1);
+			} else {
+				force.linkStrength(0);
+			};
+	  	    force.start();
+		}
+	};
+	
+	var nodeIndex = function(ip){
+		var val = 0;
+		$.each(me.graph.nodes, function(index, node){
+			if (node.name == ip)
+			   val = index;
+		});
+		return val;
+	};	
+	
+	me.draw = function(devided, clustered){
+	
+	    me.graph = {
+		   "nodes":[],
+		   "links": []};
 		
 		$.each(communities, function(index, community){
-		    $.each(community.Endpoints, function(index2, endpoint){
-			    graph.nodes.push({
-				    "name": endpoint,
-				    "group": 0
-			    });
-		    });
+			$.each(community.Endpoints, function(index2, endpoint){
+				me.graph.nodes.push({
+					"name": endpoint,
+					"group": index
+				});
+			});
 		});
 		
 		$.each(communities, function(index, community){
 			var interactions = community.Interactions;
 			$.each(interactions, function(index2, interacton){
-				
-				graph.links.push({
+				me.graph.links.push({
 					"source": nodeIndex(interacton[1]),
 					"target": nodeIndex(interacton[0]),
-					"value":1});					
+					"value":1});
+				});
 			});
+		
+		force = d3.layout.force()
+			.charge(-60)
+			.linkDistance(30)
+			.size([ me.width(), NCI.nciHistogram.height() - 150]);
+	    
+		if (clustered){
+			force.linkStrength(1);
+		} else {
+			force.linkStrength(0);
+		};
+			
+	    me.svg = d3.select("#socialGraph").append("svg")
+			.attr("width", me.width())
+			.attr("height", NCI.nciHistogram.height() - 150);
+			
+		force.nodes(me.graph.nodes).links(me.graph.links).start();
+	  
+	  
+	  var link = me.svg.selectAll(".link")
+  	      .data(me.graph.links)
+  	      .enter().append("line")
+  	      .attr("class", "link")
+  	      .style("stroke-width", function(d) { return Math.sqrt(d.value); });  	
+		  
+	  me.node = me.svg.selectAll(".node")
+	      .data(me.graph.nodes)
+	      .enter().append("circle")
+	      .attr("class", "node")
+	      .attr("r", 5)
+	      .style("fill", function(d) { return devided ? color(d.group) : color(0);})
+	      .call(force.drag);
+		  
+	   me.node.append("title")
+	      .text(function(d) { return d.name; });
+
+	   force.on("tick", function() { 
+	        link.attr("x1", function(d) { return d.source.x; })
+	            .attr("y1", function(d) { return d.source.y; })
+	            .attr("x2", function(d) { return d.target.x; })
+	            .attr("y2", function(d) { return d.target.y; });
+
+	        me.node.attr("cx", function(d) { return d.x; })
+	            .attr("cy", function(d) { return d.y; });
 		});
-		
-	
-		var color = d3.scale.category20();
-
-		var force = d3.layout.force()
-		    .charge(-120)
-		    .linkDistance(30)
-		    .size([ me.width(), 400]);
-
-		var svg = d3.select('#socialGraph').append("svg")
-		    .attr("width", me.width())
-		    .attr("height", 400);
-
-		  force
-		      .nodes(graph.nodes)
-		      .links(graph.links)
-		      .start();
-
-		  var link = svg.selectAll(".link")
-		      .data(graph.links)
-		    .enter().append("line")
-		      .attr("class", "link")
-		      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
-
-		  var node = svg.selectAll(".node")
-		      .data(graph.nodes)
-		    .enter().append("circle")
-		      .attr("class", "node")
-		      .attr("r", 5)
-		      .style("fill", function(d) { return color(d.group); })
-		      .call(force.drag);
-
-		  node.append("title")
-		      .text(function(d) { return d.name; });
-
-		  force.on("tick", function() {
-		    link.attr("x1", function(d) { return d.source.x; })
-		        .attr("y1", function(d) { return d.source.y; })
-		        .attr("x2", function(d) { return d.target.x; })
-		        .attr("y2", function(d) { return d.target.y; });
-
-		    node.attr("cx", function(d) { return d.x; })
-		        .attr("cy", function(d) { return d.y; });
-		  });
-	
-		
-	};
+	}
 	
 	return me;
 }());
 
 
+
 $(document).on('opened', '#nciDetails', function () {
 	//if (NCI.nciActivities.length > 0)
 	    NCI.nciHistogram.show();
+});
+
+$(document).on('close', '#nciDetails', function () {
+	NCI.socialGraph.text("");
 });
 
 $(document).on('open', '#collectorsInfo', function () {
@@ -383,7 +401,12 @@ $('body').on('touchend', function(){
 
 $('#nciDetailsTabs').on('toggled', function (event, tab) {
 	if (tab[0].id == "panel2-2"){
-		console.log(tab[0].id);
-		NCI.socialGraph.show();
+		NCI.socialGraph.show( false, false);
+	} else if(tab[0].id == "panel2-3"){
+	    NCI.socialGraph.show(true, false);
+	} else if (tab[0].id == "panel2-4"){
+		NCI.socialGraph.show(true, true);
+	} else {
+		NCI.socialGraph.text("");
 	}
 });
