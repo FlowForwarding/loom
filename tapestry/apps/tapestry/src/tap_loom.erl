@@ -98,7 +98,7 @@ ofsh_terminate(DatapathId) ->
 
 % @hidden
 % Handling packet_in message
-packet_in(DatapathId, IpAddr, {packet_in, _Xid, Body}) ->
+packet_in(DatapathId, IpAddr, Body) ->
     % received a message on the connection
     % this is processed by the callback pid, not this server
     Reason = proplists:get_value(reason, Body),

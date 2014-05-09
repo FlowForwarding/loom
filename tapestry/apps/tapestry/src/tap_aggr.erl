@@ -82,11 +82,11 @@ handle_cast(start, State) ->
     {noreply, NewState};
 handle_cast(push_qps, State = #?STATE{collectors = Collectors}) ->
     Now = tap_time:now(),
-    Collectors = [{ofswitch,
+    CollectorStats = [{ofswitch,
                     DatapathId, IpAddr, per_sec(?DP_QCOUNT(DatapathId))} ||
                             {DatapathId, IpAddr} <- dict:to_list(Collectors)],
     NewState = qps_timer(State),
-    tap_client_data:qps(per_sec(?TOTAL_QCOUNT), Collectors,
+    tap_client_data:qps(per_sec(?TOTAL_QCOUNT), CollectorStats,
                                                     tap_time:universal(Now)),
     {noreply, NewState#?STATE{last_qps_time = Now, query_count = 0}};
 handle_cast({dns_reply, Reply, DatapathId, IpAddr},
@@ -149,15 +149,15 @@ new_metrics() ->
     new_metric(?TOTAL_QCOUNT).
 
 new_metric(Metric) ->
-    folsom_metric:new_spiral(Metric).
+    folsom_metrics:new_spiral(Metric).
 
 update_metrics(DatapathId, IpAddr, State) ->
     % update the metrics for data received from the datapathid.
-    folsom_metric:notify(?TOTAL_QCOUNT, 1),
+    folsom_metrics:notify(?TOTAL_QCOUNT, 1),
     DPMetric = ?DP_QCOUNT(DatapathId),
     NewCollectors = maybe_new_metric(DatapathId, IpAddr, DPMetric,
                                                     State#?STATE.collectors),
-    folsom_metric:notify(DPMetric, 1),
+    folsom_metrics:notify(DPMetric, 1),
     State#?STATE{collectors = NewCollectors}.
 
 % if metric is not in the existing set, create the metrfic and add
@@ -172,4 +172,4 @@ maybe_new_metric(DatapathId, IpAddr, Metric, Collectors) ->
     end.
 
 per_sec(Metric) ->
-    proplists:get_value(one, folsom_metric:get_metric_value(Metric), 0) / 60.
+    proplists:get_value(one, folsom_metrics:get_metric_value(Metric), 0) / 60.
