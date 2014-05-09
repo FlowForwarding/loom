@@ -30,7 +30,8 @@
          qps/3,
          new_client/1,
          more_nci_data/4,
-         nci_details/1]).
+         nci_details/1,
+         collectors/1]).
 
 -export([init/1,
          handle_call/3,
@@ -78,6 +79,9 @@ more_nci_data(Pid, Start, End, Max) ->
 nci_details(Pid) ->
     gen_server:cast(?MODULE, {nci_details, Pid}).
 
+collectors(Pid) ->
+    gen_server:cast(?MODULE, {collectors, Pid}).
+
 %------------------------------------------------------------------------------
 % gen_server callbacks
 %------------------------------------------------------------------------------
@@ -86,9 +90,12 @@ init([])->
     gen_server:cast(?MODULE, start),
     {ok, #?STATE{}}.
 
+% for debugging
 handle_call(nci_details, _From, State = #?STATE{communities = Communities,
                                                 nci = NCI}) ->
     {reply, json_nci_details(NCI, Communities), State};
+handle_call(collectors, _From, State = #?STATE{collectors = Collectors}) ->
+    {reply, json_collectors(Collectors), State};
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
@@ -248,26 +255,28 @@ json_collectors(Collectors) ->
     jiffy:encode({[
         {<<"action">>,<<"collectors">>},
         {<<"Time">>, list_to_binary(tap_time:rfc3339(calendar:universal_time()))},
-        {<<"Collectors">>, collectors(Collectors)}
+        {<<"Collectors">>, format_collectors(Collectors)}
     ]}).
 
-collectors(Collectors) ->
-    lists:mapfoldl(
+format_collectors(Collectors) ->
+    {JSON, _} = lists:mapfoldl(
         fun(C, Index) ->
             Name = list_to_binary(["Collector", integer_to_list(Index)]),
             {{[{<<"name">>,Name} | collector(C)]}, Index + 1}
-        end, 0, Collectors).
+        end, 0, Collectors),
+    JSON.
 
 collector({ofswitch, DatapathId, IpAddr, QPS}) ->
-    {[
+    [
         {<<"collector_type">>,<<"ofswitch">>},
         {<<"ip">>,endpoint(IpAddr)},
         {<<"datapath_id">>,datapathid(DatapathId)},
         {<<"qps">>,format_qps(QPS)}
-    ]}.
+    ].
 
 datapathid({I, MAC}) ->
-    string:join([integer_to_hex(D) || <<D>> <= <<I:16, MAC/binary>>], ":").
+    list_to_binary(
+        string:join([integer_to_hex(D) || <<D>> <= <<I:16, MAC/binary>>], ":")).
 
 integer_to_hex(I) ->
     case integer_to_list(I, 16) of

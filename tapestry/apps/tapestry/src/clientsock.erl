@@ -75,13 +75,17 @@ decode(MessageBits)->
                      {<<"max_items">>, MaxData},
                      {<<"request">>, <<"more_data">>},
                      {<<"start">>, Start}] ->
-                        ?DEBUG("more_data: start ~p end ~p max_tems ~p~n",
+                        ?DEBUG("action more_data: start ~p end ~p max_tems ~p~n",
                                                     [Start, End, MaxData]),
                         tap_client_data:more_nci_data(self(), tap_time:rfc3339_to_epoch(binary_to_list(Start)), tap_time:rfc3339_to_epoch(binary_to_list(End)), list_to_integer(binary_to_list(MaxData)));
                     [{<<"Time">>, _Time},
                      {<<"action">>, <<"NCIDetails">>}] ->
-                        ?DEBUG("NCIDetails~n"),
+                        ?DEBUG("action NCIDetails~n"),
                         tap_client_data:nci_details(self());
+                    [{<<"Time">>, _Time},
+                     {<<"action">>, <<"collectors">>}] ->
+                        ?DEBUG("action Collectors~n"),
+                        tap_client_data:collectors(self());
                     _ -> 
                        ?INFO("Unexpected Message:~p~n", [Message])
                 end;
