@@ -488,26 +488,19 @@ folsom_name(BaseName, Name) ->
     list_to_binary([BaseName, Name]).
 
 folsom_corename(DatapathId, {flow_stats_reply, _, _}) ->
-    list_to_binary([datapathid_to_binary(DatapathId),
-     <<"-flow-">>]);
+    list_to_binary([DatapathId, "-flow-"]);
 folsom_corename(DatapathId, {table_stats_reply, _, _}) ->
-    list_to_binary([datapathid_to_binary(DatapathId),
-     <<"-table-">>]);
+    list_to_binary([DatapathId, "-table-"]);
 folsom_corename(DatapathId, {aggregate_stats_reply, _, _}) ->
-    list_to_binary([datapathid_to_binary(DatapathId),
-     <<"-aggregate-">>]);
+    list_to_binary([DatapathId, "-aggregate-"]);
 folsom_corename(DatapathId, {port_stats_reply, _, _}) ->
-    list_to_binary([datapathid_to_binary(DatapathId),
-     <<"-port-">>]);
+    list_to_binary([DatapathId, "-port-"]);
 folsom_corename(DatapathId, {queue_stats_reply, _, _}) ->
-    list_to_binary([datapathid_to_binary(DatapathId),
-     <<"-queue-">>]); 
+    list_to_binary([DatapathId, "-queue-"]); 
 folsom_corename(DatapathId, {group_stats_reply, _, _}) ->
-    list_to_binary([datapathid_to_binary(DatapathId),
-     <<"-group-">>]);
+    list_to_binary([DatapathId, "-group-"]);
 folsom_corename(DatapathId, {meter_stats_reply, _, _}) ->
-    list_to_binary([datapathid_to_binary(DatapathId),
-     <<"-meter-">>]);
+    list_to_binary([DatapathId, "-meter-"]);
 folsom_corename(_DatapathId, _) ->
     <<>>.
 
@@ -635,9 +628,6 @@ folsom_stats(Stat = #band_stat{}) ->
     Base = [<<"band-">>, integer_to_list(BandId), $-],
     [{[Base, <<"packet_band_count">>], PCount},
      {[Base, <<"byte_band_count">>], BCount}].
-
-datapathid_to_binary({I, B}) ->
-    [integer_to_binary(I), $:, binary_to_hex(B)].
 
 binary_to_hex(Bin) when is_binary(Bin) ->
     [byte_to_hex(N1, N2) || <<N1:4, N2:4>> <= Bin].

@@ -270,19 +270,9 @@ collector({ofswitch, DatapathId, IpAddr, QPS}) ->
     [
         {<<"collector_type">>,<<"ofswitch">>},
         {<<"ip">>,endpoint(IpAddr)},
-        {<<"datapath_id">>,datapathid(DatapathId)},
+        {<<"datapath_id">>,list_to_binary(DatapathId)},
         {<<"qps">>,format_qps(QPS)}
     ].
-
-datapathid({I, MAC}) ->
-    list_to_binary(
-        string:join([integer_to_hex(D) || <<D>> <= <<I:16, MAC/binary>>], ":")).
-
-integer_to_hex(I) ->
-    case integer_to_list(I, 16) of
-        [D] -> [$0, D];
-        DD -> DD
-    end.
 
 format_qps(N) ->
     float_to_binary(float(N), [{decimals,4}, compact]).

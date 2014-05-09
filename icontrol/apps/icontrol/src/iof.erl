@@ -393,7 +393,7 @@ switches() ->
     io:format(
 "Switch-Key DatapathId                       IpAddr            Version~n"
 "---------- -------------------------------- ----------------- -------~n"),
-    [io:format("~1s~-9.10B ~-32w ~-17w ~-7.10B~n",
+    [io:format("~1s~-9.10B ~-32s ~-17w ~-7.10B~n",
         [format_default(SwitchKey, DefaultKey), SwitchKey,
                                         DatapathId, IpAddr, Version]) ||
             {SwitchKey, DatapathId, IpAddr, Version, _} <-
