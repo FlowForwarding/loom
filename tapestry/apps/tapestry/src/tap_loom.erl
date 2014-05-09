@@ -33,7 +33,7 @@
          ofsh_handle_message/2,
          ofsh_terminate/1]).
 
--export([packet_in/2]).
+-export([packet_in/3]).
 
 -export([init/1,
          handle_call/3,
@@ -98,14 +98,14 @@ ofsh_terminate(DatapathId) ->
 
 % @hidden
 % Handling packet_in message
-packet_in(DatapathId, {packet_in, _Xid, Body}) ->
+packet_in(DatapathId, IpAddr, {packet_in, _Xid, Body}) ->
     % received a message on the connection
     % this is processed by the callback pid, not this server
     Reason = proplists:get_value(reason, Body),
     TableId = proplists:get_value(table_id, Body),
     Match = proplists:get_value(match, Body),
     Data = proplists:get_value(data, Body),
-    process_packetin(Reason, TableId, Match, Data, DatapathId),
+    process_packetin(Reason, TableId, Match, Data, DatapathId, IpAddr),
     ok.
 
 %------------------------------------------------------------------------------
@@ -128,7 +128,7 @@ handle_cast({connect, IpAddr, Port}, State) ->
     connect_to_switch(IpAddr, Port),
     {noreply, State};
 handle_cast({initialize_switch, _IpAddr, DatapathId, _Version}, State) ->
-    ofs_handler:subscribe(DatapathId, loom_handler, packet_in),
+    ofs_handler:subscribe(DatapathId, tap_ofsh, packet_in),
     {noreply, State};
 handle_cast(Msg, State) ->
     error({no_handle_cast, ?MODULE}, [Msg, State]).
@@ -158,14 +158,14 @@ connect_to_switch(IpAddr, Port) ->
     ?INFO("connecting to switch ~p ~p: ~p~n", [IpAddr, Port, Response]).
 
 %packetin
-process_packetin(action, _TableId, _Match, Data, DatapathId) ->
-    dns_reply(Data, DatapathId);
-process_packetin(nomatch, _TableId, _Match, _Data, _DatapathId) ->
+process_packetin(action, _TableId, _Match, Data, DatapathId, IpAddr) ->
+    dns_reply(Data, DatapathId, IpAddr);
+process_packetin(nomatch, _TableId, _Match, _Data, _DatapathId, _IpAddr) ->
     ?DEBUG("packetin reason = nomatch~n");
-process_packetin(Reason, _TableId, _Match, _Data, _DatapathId) ->
+process_packetin(Reason, _TableId, _Match, _Data, _DatapathId, _IpAddr) ->
     ?DEBUG("packetin reason = ~p~n", [Reason]).
 
-dns_reply(Data, DatapathId) ->
+dns_reply(Data, DatapathId, IpAddr) ->
     try
 	Packet = pkt:decapsulate({ether, Data}),
 	case Packet of 
@@ -189,7 +189,8 @@ dns_reply(Data, DatapathId) ->
                                         binary_to_list(Header1#ipv4.daddr)),
 				SendValue = {R, ID},
 				?DEBUG("Sending: ~p~n",[SendValue]),
-                                tap_aggr:dns_reply(DatapathId, SendValue)
+                                tap_aggr:dns_reply(DatapathId, IpAddr,
+                                                                    SendValue)
 			end;
 		    _ -> ?DEBUG("No match dropped: ~p~n",[Result])
 		end;

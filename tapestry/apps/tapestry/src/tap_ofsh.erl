@@ -39,6 +39,7 @@
 -define(OFS_STATE, tap_ofs_state).
 -record(?OFS_STATE, {
                     datapath_id,
+                    ipaddr,
                     aux_id = 0
                 }).
 -type ofs_state() :: #?OFS_STATE{}.
@@ -49,14 +50,16 @@
 init(Mode, IpAddr, DatapathId, _Features, Version, Connection, _Opts) ->
     % new main connection
     ok = tap_loom:ofsh_init(Mode, IpAddr, DatapathId, Version, Connection),
-    State = #?OFS_STATE{datapath_id = DatapathId},
+    State = #?OFS_STATE{ipaddr = IpAddr, datapath_id = DatapathId},
     {ok, State}.
 
 -spec connect(handler_mode(), ipaddress(), datapath_id(), features(), of_version(), connection(), auxid(), options()) -> {ok, ofs_state()}.
 connect(Mode, IpAddr, DatapathId, _Features, Version, Connection, AuxId, _Opts) ->
     % new auxiliary connection
     ok = tap_loom:ofsh_connect(Mode, IpAddr, DatapathId, Version, Connection, AuxId),
-    State = #?OFS_STATE{datapath_id = DatapathId, aux_id = AuxId},
+    State = #?OFS_STATE{ipaddr = IpAddr,
+                        datapath_id = DatapathId,
+                        aux_id = AuxId},
     {ok, State}.
 
 -spec disconnect(ofs_state()) -> ok.
@@ -82,10 +85,11 @@ handle_error(Reason, State) ->
     ok = tap_loom:ofsh_handle_error(DatapathId, Reason).
 
 -spec handle_message(ofp_message(), ofs_state()) -> ok.
-handle_message({packet_in, _Xid, Body}, State) ->
+handle_message({packet_in, _Xid, Body},
+                            #?OFS_STATE{ipaddr = IpAddr,
+                                        datapath_id = DatapathId}) ->
     % Handling packet_in message
-    DatapathId = State#?OFS_STATE.datapath_id,
-    tap_loom:packet_in(DatapathId, Body),
+    tap_loom:packet_in(DatapathId, IpAddr, Body),
     ok;
 handle_message(Msg, State) ->
     % received a message on the connection

@@ -27,7 +27,7 @@
 -export([start_link/0,
          num_endpoints/2,
          nci/3,
-         qps/2,
+         qps/3,
          new_client/1,
          more_nci_data/4,
          nci_details/1]).
@@ -50,6 +50,7 @@
                 last_int_nep = 0,
                 last_qps,
                 nci,
+                collectors = [],
                 communities = {dict:new(), dict:new()}}).
 
 %------------------------------------------------------------------------------
@@ -65,8 +66,8 @@ num_endpoints(Endpoints, DateTime) ->
 nci(NCI, Communities, DateTime) ->
     gen_server:cast(?MODULE, {nci, NCI, Communities, DateTime}).
 
-qps(QPS, DateTime) ->
-    gen_server:cast(?MODULE, {qps, QPS, DateTime}).
+qps(QPS, Collectors, DateTime) ->
+    gen_server:cast(?MODULE, {qps, QPS, Collectors, DateTime}).
 
 new_client(Pid) ->
     gen_server:cast(?MODULE, {new_client, Pid}).
@@ -85,9 +86,8 @@ init([])->
     gen_server:cast(?MODULE, start),
     {ok, #?STATE{}}.
 
-handle_call(nci_details, _From, State = #?STATE{
-                                            communities = Communities,
-                                            nci = NCI}) ->
+handle_call(nci_details, _From, State = #?STATE{communities = Communities,
+                                                nci = NCI}) ->
     {reply, json_nci_details(NCI, Communities), State};
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
@@ -129,11 +129,14 @@ handle_cast({nci_details, Pid}, State = #?STATE{
                                             nci = NCI}) ->
     clientsock:send(Pid, json_nci_details(NCI, Communities)),
     {noreply, State};
-handle_cast({qps, QPS, UT}, State = #?STATE{clients = Clients}) ->
+handle_cast({collectors, Pid}, State = #?STATE{collectors = Collectors}) ->
+    clientsock:send(Pid, json_collectors(Collectors)),
+    {noreply, State};
+handle_cast({qps, QPS, Collectors, UT}, State = #?STATE{clients = Clients}) ->
     Time = list_to_binary(tap_time:rfc3339(UT)),
     JSON = jiffy:encode({[{<<"Time">>, Time}, {<<"QPS">>, QPS}]}),
     broadcast_msg(Clients, JSON),
-    {noreply, State#?STATE{last_qps = JSON}};
+    {noreply, State#?STATE{last_qps = JSON, collectors = Collectors}};
 handle_cast({new_client, Pid}, State = #?STATE{clients = Clients,
                                                start_time = StartTime,
                                                last_nci = LNCI,
@@ -240,3 +243,37 @@ endpoint(S) when is_list(S) ->
     list_to_binary(S);
 endpoint(_) ->
     <<"invalid">>.
+
+json_collectors(Collectors) ->
+    jiffy:encode({[
+        {<<"action">>,<<"collectors">>},
+        {<<"Time">>, list_to_binary(tap_time:rfc3339(calendar:universal_time()))},
+        {<<"Collectors">>, collectors(Collectors)}
+    ]}).
+
+collectors(Collectors) ->
+    lists:mapfoldl(
+        fun(C, Index) ->
+            Name = list_to_binary(["Collector", integer_to_list(Index)]),
+            {{[{<<"name">>,Name} | collector(C)]}, Index + 1}
+        end, 0, Collectors).
+
+collector({ofswitch, DatapathId, IpAddr, QPS}) ->
+    {[
+        {<<"collector_type">>,<<"ofswitch">>},
+        {<<"ip">>,endpoint(IpAddr)},
+        {<<"datapath_id">>,datapathid(DatapathId)},
+        {<<"qps">>,format_qps(QPS)}
+    ]}.
+
+datapathid({I, MAC}) ->
+    string:join([integer_to_hex(D) || <<D>> <= <<I:16, MAC/binary>>], ":").
+
+integer_to_hex(I) ->
+    case integer_to_list(I, 16) of
+        [D] -> [$0, D];
+        DD -> DD
+    end.
+
+format_qps(N) ->
+    float_to_binary(float(N), [{decimals,4}, compact]).

@@ -24,7 +24,7 @@
 
 -export([start_link/0,
          push_qps/0,
-         dns_reply/2]).
+         dns_reply/3]).
 
 -export([init/1,
          handle_call/3,
@@ -39,7 +39,8 @@
             last_qps_time,
             qps_update_interval,
             qps_timer,
-            query_count = 0
+            query_count = 0,
+            collectors = dict:new()
         }).
 
 -define(MIN_UPDATE_TIME_MILLIS, 250).
@@ -59,8 +60,8 @@ start_link() ->
 push_qps() ->
     gen_server:cast(?MODULE, push_qps).
 
-dns_reply(Msg = {_Requester, _Response}, DatapathId) ->
-    gen_server:cast(?MODULE, {dns_reply, Msg, DatapathId}).
+dns_reply(DatapathId, IpAddr, Reply = {_Requester, _Response}) ->
+    gen_server:cast(?MODULE, {dns_reply, Reply, DatapathId, IpAddr}).
 
 %------------------------------------------------------------------------------
 % gen_server callbacks
@@ -74,22 +75,25 @@ handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
 handle_cast(start, State) ->
+    new_metrics(),
     NewState = qps_timer(
                     State#?STATE{last_qps_time = tap_time:now(),
                     qps_update_interval = qps_update_interval()}),
     {noreply, NewState};
-handle_cast(push_qps, State = #?STATE{query_count = QueryCount,
-                                      last_qps_time = LastUpdate}) ->
+handle_cast(push_qps, State = #?STATE{collectors = Collectors}) ->
     Now = tap_time:now(),
-    Interval = tap_time:diff(Now, LastUpdate),
-    QPS = QueryCount / Interval,
+    Collectors = [{ofswitch,
+                    DatapathId, IpAddr, per_sec(?DP_QCOUNT(DatapathId))} ||
+                            {DatapathId, IpAddr} <- dict:to_list(Collectors)],
     NewState = qps_timer(State),
-    tap_client_data:qps(QPS, tap_time:universal(Now)),
+    tap_client_data:qps(per_sec(?TOTAL_QCOUNT), Collectors,
+                                                    tap_time:universal(Now)),
     {noreply, NewState#?STATE{last_qps_time = Now, query_count = 0}};
-handle_cast({dns_reply, Reply, _DatapathId},
+handle_cast({dns_reply, Reply, DatapathId, IpAddr},
                             State = #?STATE{query_count = QueryCount}) ->
     tap_ds:ordered_edge(dns_reply_order(Reply)),
-    NewState = State#?STATE{query_count = QueryCount + 1},
+    NewState = update_metrics(DatapathId, IpAddr,
+                                State#?STATE{query_count = QueryCount + 1}),
     maybe_push_qps(NewState),
     {noreply, NewState};
 handle_cast(Msg, State) ->
@@ -140,3 +144,32 @@ dns_reply_order({A, B} = R) when A < B ->
     R;
 dns_reply_order({A, B}) ->
     {B, A}.
+
+new_metrics() ->
+    new_metric(?TOTAL_QCOUNT).
+
+new_metric(Metric) ->
+    folsom_metric:new_spiral(Metric).
+
+update_metrics(DatapathId, IpAddr, State) ->
+    % update the metrics for data received from the datapathid.
+    folsom_metric:notify(?TOTAL_QCOUNT, 1),
+    DPMetric = ?DP_QCOUNT(DatapathId),
+    NewCollectors = maybe_new_metric(DatapathId, IpAddr, DPMetric,
+                                                    State#?STATE.collectors),
+    folsom_metric:notify(DPMetric, 1),
+    State#?STATE{collectors = NewCollectors}.
+
+% if metric is not in the existing set, create the metrfic and add
+% the metric to the existing set.
+maybe_new_metric(DatapathId, IpAddr, Metric, Collectors) ->
+    case dict:is_key(DatapathId, Collectors) of
+        false ->
+            new_metric(Metric),
+            dict:store(DatapathId, IpAddr, Collectors);
+        _ ->
+            Collectors
+    end.
+
+per_sec(Metric) ->
+    proplists:get_value(one, folsom_metric:get_metric_value(Metric), 0) / 60.
