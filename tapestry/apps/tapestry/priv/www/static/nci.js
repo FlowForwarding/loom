@@ -275,8 +275,8 @@ NCI.nciHistogram = (function(){
 		svg.append("circle").attr("cy", y(response.NCI))
 		    .attr("cx", x(0) ).style("fill", "red").attr("r", 4);
 																			
-		svg.append('text').text('ENDPOINTS').attr('x', width/2).attr('y', height - 40);
-		svg.append('text').text('COMMUNITIES').attr('x', -height/2).attr('y', width - 40)
+		svg.append('text').text('Number of Endpoints per Activity').attr('x', width/2).attr('y', height - 40);
+		svg.append('text').text('Activities Sorted by Size').attr('x', -height/2).attr('y', width - 20)
 		.attr('transform', 'rotate(-90)');
 
 	};
