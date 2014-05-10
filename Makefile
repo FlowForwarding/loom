@@ -1,15 +1,36 @@
-.PHONY: simple_ne stats_poller tapestry icontrol
+.PHONY: rel offline compile get-deps update-deps test clean deep-clean
 
-all: simple_ne stats_poller tapestry icontrol
+rel: compile
+	@./rebar generate -f
 
-simple_ne:
-	cd simple_ne; make
+offline:
+	@./rebar compile
+	@./rebar generate
 
-stats_poller:
-	cd stats_poller; make
+compile: get-deps update-deps
+	@./rebar compile
 
-tapestry:
-	cd tapestry; make
+beams:
+	@./rebar compile
 
-icontrol:
-	cd icontrol; make
+get-deps:
+	@./rebar get-deps
+
+update-deps:
+	@./rebar update-deps
+
+test: offline
+	@./rebar skip_deps=true apps="loom" eunit
+
+clean:
+	@./rebar clean
+
+deep-clean: clean
+	@./rebar delete-deps
+
+setup_dialyzer:
+	dialyzer --build_plt --apps erts kernel stdlib mnesia compiler syntax_tools runtime_tools crypto tools inets ssl webtool public_key observer
+	dialyzer --add_to_plt deps/*/ebin
+
+dialyzer: compile
+	dialyzer */apps/*/ebin
