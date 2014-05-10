@@ -185,8 +185,9 @@ list_files(State, Directory) ->
 
 % Ignore mode.  Assume write.  Send file batch loader.
 put_file(State, _ProvidedFileName, _Mode, FileRetrievalFun) ->
+    {ok, {PeerIp, _Port}}  = inet:peername(State#connection_state.control_socket),
     {ok, FileBytes, _FileSize} = read_from_fun(FileRetrievalFun),
-    tap_batch:load(FileBytes),
+    tap_batch:load(PeerIp, FileBytes),
     {ok, State}.
 
 get_file(State, Path) ->
