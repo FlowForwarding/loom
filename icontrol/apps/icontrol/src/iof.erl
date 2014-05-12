@@ -198,10 +198,12 @@ dns_tap(Key, Priority, Port1, Port2, Port3, DnsIps) when is_list(DnsIps) ->
 dns_tap(Key, Priority, Port1, Port2, Port3, DnsIp = {_,_,_,_}) ->
     Version = version(Key),
     IPv4Src = list_to_binary(tuple_to_list(DnsIp)),
+    % Matches must be in a specific order, otherwise of_msg_lib will
+    % complain about missing or bad required fields.
     Matches = [{in_port, <<Port1:32>>},
-               {udp_src, <<53:16>>},
-               {eth_type, 2048},
+               {eth_type, <<8,0>>},
                {ip_proto, <<17:8>>},
+               {udp_src, <<53:16>>},
                {ipv4_src, IPv4Src}],
     Instructions = [{apply_actions, [{output, Port2, no_buffer},
                                      {output, Port3, no_buffer}]}],

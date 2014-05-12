@@ -25,7 +25,7 @@
 -behavior(gen_server).
 
 -export([start_link/0,
-         load/1]).
+         load/2]).
 
 -export([init/1,
          handle_call/3,
@@ -47,8 +47,8 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-load(Data) ->
-    gen_server:cast(?MODULE, {load, Data}).
+load(IpAddr, Data) ->
+    gen_server:cast(?MODULE, {load, IpAddr, Data}).
 
 % -----------------------------------------------------------------------------
 % bifrost callbacks
@@ -60,7 +60,7 @@ init([]) ->
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
-handle_cast({load, FtpFile}, State) ->
+handle_cast({load, IpAddr, FtpFile}, State) ->
     BinaryFile = extract_file(FtpFile),
     Data = parse_file(BinaryFile),
     ?DEBUG("Data = ~p~n",[Data]),
