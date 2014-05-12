@@ -181,16 +181,15 @@ var communities;
 
 NCI.nciHistogram = (function(){
 	var me = $('#nciHistogram');
-	var activityDetails = $("<div style=''>test</div>");
 	
 	var barHeight = 5;
+	var activityDetails;
 	
 	me.show = function(){
 		$("#nciHistogram").text("");
 		NCI.Communities.sort(function(a, b){
 			return a.Endpoints.length < b.Endpoints.length;
 		});
-		activityDetails.text('');
 		
 		var chart = d3.select("#nciHistogram");
 
@@ -228,10 +227,62 @@ NCI.nciHistogram = (function(){
 		    .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 
 		var showDetails = function(d){
-			console.log(d.Endpoints);
-			// todo show endpoints  activityDetails.text(d.details)
-		};
+			chart.select("#bar_endpoints").remove();
+			activityDetails = chart.append('svg')
+				.attr("id","bar_endpoints")
+				.attr('width', 300)
+			    .attr('height', height);
+				
+		    var graph = { "nodes":[], "links": []};
+   			$.each(d.Endpoints, function(index, endpoint){
+   				graph.nodes.push({"name": endpoint});
+   			});
+			var nodeIndex = function(ip){
+				$.each(graph.nodes, function(index, node){
+					if (node.name == ip)
+					   val = index;
+				});
+				return val;
+			};	
+   			$.each(d.Interactions, function(index, interacton){
+   				graph.links.push({
+   					"source": nodeIndex(interacton[1]),
+   					"target": nodeIndex(interacton[0]),
+   					"value":1});
+   			}); 
+			
+			force = d3.layout.force()
+				.charge(-60)
+				.linkDistance(30)
+				.size([ 300, height])
+				force.linkStrength(1).nodes(graph.nodes).links(graph.links).start();
+				
+			var link = activityDetails.selectAll(".link")
+			     .data(graph.links)
+				 .enter().append("line")
+				 .attr("class", "link")
+				 .style("stroke-width", function(d) { return Math.sqrt(d.value); });  	
+			  // 		  
+			var node = activityDetails.selectAll(".node")
+			      .data(graph.nodes)
+			      .enter().append("circle")
+			      .attr("class", "node")
+			      .attr("r", 5)
+			      .call(force.drag);
+			  		  
+			node.append("title")
+			      .text(function(d) { return d.name; });
 
+			force.on("tick", function() { 
+  			       link.attr("x1", function(d) { return d.source.x; })
+  			           .attr("y1", function(d) { return d.source.y; })
+  			           .attr("x2", function(d) { return d.target.x; })
+  			           .attr("y2", function(d) { return d.target.y; });
+   
+  			       node.attr("cx", function(d) { return d.x; })
+  			           .attr("cy", function(d) { return d.y; });
+			   });	  
+		};
 
         var index = 1;
 		svg.selectAll('g')
