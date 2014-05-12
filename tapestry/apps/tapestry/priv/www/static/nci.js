@@ -173,31 +173,24 @@ NCI.collectorsTable = (function(){
 }());
 
 
+NCI.Communities = [];
+NCI.timestampNCI;
+NCI.timestamp;
+
 var communities;
 
 NCI.nciHistogram = (function(){
-	var me = $('#nciDetails');
-	var activityDetails = $('#activityDetails');
+	var me = $('#nciHistogram');
+	var activityDetails = $("<div style=''>test</div>");
 	
-	var histogramGeneral = $("#histogramGeneral");
 	var barHeight = 5;
 	
 	me.show = function(){
-		NCI.Connection.NCIDetails(NCI.nciUpdateDateServer);
-	};
-	
-	me.loadData = function(response){
-		communities = response.Communities;
-		communities.sort(function(a, b){
+		$("#nciHistogram").text("");
+		NCI.Communities.sort(function(a, b){
 			return a.Endpoints.length < b.Endpoints.length;
 		});
-		me.height($(window).height());
-		me.css({'top': '0px'});
 		activityDetails.text('');
-		histogramGeneral.html("<b>The NETWORK COMPLEXITY INDEX at &nbsp;&nbsp;</b> <i>" + NCI.nciUpdateDate + "</i>" +
-		    "&nbsp;&nbsp;&nbsp;<span class='button alert'>NCI " + response.NCI + "</span>" );
-		
-		var scale = 30;
 		
 		var chart = d3.select("#nciHistogram");
 
@@ -206,11 +199,11 @@ NCI.nciHistogram = (function(){
 		    height = 300;
 
 		var x = d3.scale.linear()
-		    .domain([0, d3.max(communities, function(d) { return d.Endpoints.length; })])
+		    .domain([0, d3.max(NCI.Communities, function(d) { return d.Endpoints.length; })])
 		    .range([width - margin.left - margin.right, 0]);
 
 		var y = d3.scale.linear()
-		    .domain([0, Math.max(communities.length, response.NCI)])
+		    .domain([0, NCI.Communities.length])
 		    .range([height - margin.top - margin.bottom, 0]);
 
 		var xAxis = d3.svg.axis()
@@ -235,13 +228,14 @@ NCI.nciHistogram = (function(){
 		    .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 
 		var showDetails = function(d){
+			console.log(d.Endpoints);
 			// todo show endpoints  activityDetails.text(d.details)
 		};
 
 
         var index = 1;
 		svg.selectAll('g')
-		    .data(communities)
+		    .data(NCI.Communities)
 		    .enter().append('rect')
 		   // .attr('class', 'bar')
 		    .attr('x', function(d) { return   0 })
@@ -250,7 +244,7 @@ NCI.nciHistogram = (function(){
 		    .attr('height', barHeight)
 			.on("click", showDetails);
 			
-		svg.selectAll('rect').data(communities).transition()
+		svg.selectAll('rect').data(NCI.Communities).transition()
 		      .duration(1000)
 		      .attr("width", function(d) { return width - margin.left - margin.right -x(d.Endpoints.length)})
 			  .attr('x', function(d) { return   x(d.Endpoints.length) });
@@ -266,17 +260,17 @@ NCI.nciHistogram = (function(){
 		    .attr('transform', 'translate(' + (width - margin.right - margin.left) + ')')
 		    .call(yAxis);
 			
-		svg.append("circle").attr("cy", y(response.NCI))
-		                    .attr("cx", x(response.NCI) ).style("fill", "red").attr("r", 6);	
+		svg.append("circle").attr("cy", y(NCI.timestampNCI))
+		                    .attr("cx", x(NCI.timestampNCI) ).style("fill", "red").attr("r", 6);	
 							
 	    svg.append("circle").attr("cy", y(0))
-		    .attr("cx", x(response.NCI) ).style("fill", "red").attr("r", 4);
+		    .attr("cx", x(NCI.timestampNCI) ).style("fill", "red").attr("r", 4);
 		
-		svg.append("circle").attr("cy", y(response.NCI))
+		svg.append("circle").attr("cy", y(NCI.timestampNCI))
 		    .attr("cx", x(0) ).style("fill", "red").attr("r", 4);
 																			
-		svg.append('text').text('Number of Endpoints per Activity').attr('x', width/2).attr('y', height - 40);
-		svg.append('text').text('Activities Sorted by Size').attr('x', -height/2).attr('y', width - 20)
+		svg.append('text').text('Number of Endpoints per Activity').attr('x', width/2 - 150).attr('y', height - 45);
+		svg.append('text').text('Activities Sorted by Size').attr('x', -height/2 - 20).attr('y', width - 50)
 		.attr('transform', 'rotate(-90)');
 
 	};
@@ -290,8 +284,16 @@ NCI.socialGraph  = (function(){
 	
 	var force;
 	var color = d3.scale.category10();
+	me.clustered = false;
 	
 	me.show = function(devided, clustered){
+		if (me.clustered && !clustered){
+			NCI.socialGraph.text("");
+			me.draw(devided, clustered);
+			me.clustered  = clustered;
+			return;
+		}
+		me.clustered  = clustered;
 		if (me.text().length<20){	
 			me.draw(devided, clustered);
 		} else {
@@ -320,7 +322,7 @@ NCI.socialGraph  = (function(){
 		   "nodes":[],
 		   "links": []};
 		
-		$.each(communities, function(index, community){
+		$.each(NCI.Communities, function(index, community){
 			$.each(community.Endpoints, function(index2, endpoint){
 				me.graph.nodes.push({
 					"name": endpoint,
@@ -329,7 +331,7 @@ NCI.socialGraph  = (function(){
 			});
 		});
 		
-		$.each(communities, function(index, community){
+		$.each(NCI.Communities, function(index, community){
 			var interactions = community.Interactions;
 			$.each(interactions, function(index2, interacton){
 				me.graph.links.push({
@@ -342,7 +344,7 @@ NCI.socialGraph  = (function(){
 		force = d3.layout.force()
 			.charge(-60)
 			.linkDistance(30)
-			.size([ me.width(), NCI.nciHistogram.height() - 150]);
+			.size([ me.width(), $("#nciDetails").height() - 150]);
 	    
 		if (clustered){
 			force.linkStrength(1);
@@ -352,7 +354,7 @@ NCI.socialGraph  = (function(){
 			
 	    me.svg = d3.select("#socialGraph").append("svg")
 			.attr("width", me.width())
-			.attr("height", NCI.nciHistogram.height() - 150);
+			.attr("height", $("#nciDetails").height() - 150);
 			
 		force.nodes(me.graph.nodes).links(me.graph.links).start();
 	  
@@ -389,13 +391,16 @@ NCI.socialGraph  = (function(){
 }());
 
 $(document).on('opened', '#nciDetails', function () {
-	NCI.nciHistogram.show();
+	$('#nciDetails').height($(window).height());
+	$('#nciDetails').css({'top': '0px'});
+	NCI.Connection.NCIDetails(NCI.nciUpdateDateServer);
 });
 
 $(document).on('close', '#nciDetails', function () {
 	NCI.socialGraph.text("");
-	 $('#nciDetailsTabs').find("a").first().click();
 	$("#nciHistogram").text("");
+	$('#nciDetailsTabs').find("a").first().click();
+	
 });
 
 $(document).on('open', '#collectorsInfo', function () {
@@ -409,13 +414,14 @@ $('body').on('touchend', function(){
 });
 
 $('#nciDetailsTabs').on('toggled', function (event, tab) {
-	if (tab[0].id == "panel2-2"){
+	if (tab[0].id == "panelFlows"){
 		NCI.socialGraph.show( false, false);
-	} else if(tab[0].id == "panel2-3"){
+	} else if(tab[0].id == "panelActivities"){
 	    NCI.socialGraph.show(true, false);
-	} else if (tab[0].id == "panel2-4"){
+	} else if (tab[0].id == "panelActivitiesPretty"){
 		NCI.socialGraph.show(true, true);
 	} else {
+		NCI.nciHistogram.show();
 		NCI.socialGraph.text("");
 	}
 });
