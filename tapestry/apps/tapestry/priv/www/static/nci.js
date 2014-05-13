@@ -125,8 +125,10 @@ NCI.collectorsTable = (function(){
 	    for (var i = numOnPage*(page-1); i< lastIndex; i++){
 	   	    var collectorInfo = collectors[i];
 			content += "<tr><td>" +  collectorInfo.name + "</td><td>" +  
-			collectorInfo.ip + "</td><td>" +  NCI.parceNumberForView(collectorInfo.nep) + "</td><td>" +  
-			NCI.parceNumberForView(collectorInfo.qps) + "</td></tr>";
+			collectorInfo.ip + "</td><td>" +  
+			collectorInfo.datapath_id + "</td><td>" +  
+			NCI.parceNumberForView(collectorInfo.qps)  + "</td><td>" +  
+			collectorInfo.collector_type + "</td></tr>";
 		};
 		table.html(content);
 	};
@@ -140,7 +142,7 @@ NCI.collectorsTable = (function(){
 	
 	me.fillData = function(collectorsArray){
 		collectorsgeneral.html(collectorsArray.length + " collectors at &nbsp;&nbsp;" + NCI.collectorsUpdateDate);
-		collectors = [].concat(collectorsArray);
+		collectors = collectorsArray;
 		
 	  // this is dots
 	  // <li class="unavailable"><a href="">&hellip;</a></li>
@@ -416,8 +418,8 @@ NCI.prepareDataForForceGraph = function(communities){
 };
 
 $(document).on('opened', '#nciDetails', function () {
-	$('#nciDetails').height($(window).height());
-	$('#nciDetails').css({'top': '0px'});
+	$(this).height($(window).height());
+	$(this).css({'top': '0px'});
 	NCI.Connection.NCIDetails(NCI.nciUpdateDateServer);
 });
 
@@ -428,10 +430,10 @@ $(document).on('close', '#nciDetails', function () {
 	
 });
 
-$(document).on('open', '#collectorsInfo', function () {
-	var modal = $(this);
-	modal.height(470);
-	NCI.collectorsTable.fillData(NCI.collectors);
+$(document).on('opened', '#collectorsInfo', function () {
+	$(this).height($(window).height());
+	$(this).css({'top': '0px'});
+	NCI.Connection.CollectorsDetails(NCI.nciUpdateDateServer);
 });
 
 $('body').on('touchend', function(){

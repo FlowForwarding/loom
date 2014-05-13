@@ -31,6 +31,9 @@ NCI.Connection.onmessage  = function (e) {
 			NCI.Connection.moreData(new Date() - NCI.curChartPeriod, new Date(), NCI.numOfPoints);
 		};
 		return;
+	} else if (data.action == "collectors") {
+		//data.Time
+		 NCI.collectorsTable.fillData(data.Collectors);
 	} else if (e.data.split("NCI").length < 3){
 		var dateVal = new Date(data.Time);
 		if (data.NCI){
@@ -156,6 +159,10 @@ NCI.DetectRangesForPeiod = function(detailedChartPeriod, chartData){
 NCI.Connection.NCIDetails = function(time){
     NCI.Connection.send('{"action":"NCIDetails","Time": "' + time + '"}');
 };
+
+NCI.Connection.CollectorsDetails = function(time){
+	 NCI.Connection.send('{"action":"collectors","Time": "' + time + '"}');
+}
 
 NCI.Connection.startData = function() {
 	NCI.Connection.send('START_DATA');
