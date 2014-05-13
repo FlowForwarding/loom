@@ -516,14 +516,19 @@ folsom_basename(#table_stat{table_id = TableId}) ->
 folsom_basename(#aggregate_stat{}) ->
     <<>>;
 folsom_basename(#port_stat{port_no = Port}) ->
-    [integer_to_binary(Port), $-];
+    [port_no_to_binary(Port), $-];
 folsom_basename(#queue_stat{port_no = Port}) ->
     % XXX include queue id
-    [integer_to_binary(Port), $-];
+    [port_no_to_binary(Port), $-];
 folsom_basename(#group_stat{group_id = Group}) ->
     [integer_to_binary(Group), $-];
 folsom_basename(#meter_stat{meter_id = Meter}) ->
     [integer_to_binary(Meter), $-].
+
+port_no_to_binary(Port) when is_atom(Port) ->
+    atom_to_binary(Port, latin1);
+port_no_to_binary(Port) when is_integer(Port) ->
+    integer_to_binary(Port).
 
 folsom_stats(Stat = #flow_stat{}) ->
     #flow_stat{duration_sec = SDuration,
