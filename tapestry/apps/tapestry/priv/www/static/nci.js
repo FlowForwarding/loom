@@ -337,7 +337,7 @@ NCI.socialGraph  = (function(){
 	var color = d3.scale.category10();
 	me.clustered = false;
 	
-	me.show = function(devided, clustered){
+	me.show = function(devided, clustered, filtered){
 		if (me.clustered && !clustered){
 			NCI.socialGraph.text("");
 			me.draw(devided, clustered);
@@ -346,14 +346,16 @@ NCI.socialGraph  = (function(){
 		}
 		me.clustered  = clustered;
 		if (me.text().length<20){	
-			me.draw(devided, clustered);
+			me.draw(devided, clustered, filtered);
 		} else {
-			me.node.style("fill", function(d) { return devided ? color(d.group) : color(0); });
-			if (clustered){
-				force.linkStrength(1);
-			} else {
-				force.linkStrength(0);
-			};
+			me.node.style("fill", function(d) { 
+  			    if ( filtered && (d.name.search("10.") == 0 ||  d.name.search("192.168") == 0)){
+  				    return "#000000";
+  			    }
+  			    return devided ? color(d.group) : color(0);
+			});
+			me.node.attr("r", function(d) { return (filtered &&  (d.name.search("10.") == 0 ||  d.name.search("192.168") == 0)) ? 7 : 5})
+			force.linkStrength(clustered ? 1 : 0);
 	  	    force.start();
 		}
 	};
@@ -367,7 +369,7 @@ NCI.socialGraph  = (function(){
 		return val;
 	};	
 	
-	me.draw = function(devided, clustered){
+	me.draw = function(devided, clustered, filtered){
 	
 	    me.graph = {
 		   "nodes":[],
@@ -420,8 +422,13 @@ NCI.socialGraph  = (function(){
 	      .data(me.graph.nodes)
 	      .enter().append("circle")
 	      .attr("class", "node")
-	      .attr("r", 5)
-	      .style("fill", function(d) { return devided ? color(d.group) : color(0);})
+	      .attr("r", function(d) { return (filtered &&  (d.name.search("10.") == 0 ||  d.name.search("192.168") == 0)) ? 7 : 5})
+	      .style("fill", function(d) { 
+			  if ( filtered &&  (d.name.search("10.") == 0 ||  d.name.search("192.168") == 0)){
+				  return "#000000";
+			  }
+			  return devided ? color(d.group) : color(0);
+		  })
 	      .call(force.drag);
 		  
 	   me.node.append("title")
@@ -471,6 +478,8 @@ $('#nciDetailsTabs').on('toggled', function (event, tab) {
 	    NCI.socialGraph.show(true, false);
 	} else if (tab[0].id == "panelActivitiesPretty"){
 		NCI.socialGraph.show(true, true);
+	} else if (tab[0].id == "panelInternalNetwork"){
+		NCI.socialGraph.show(true, true, true);
 	} else {
 		NCI.nciHistogram.show();
 		NCI.socialGraph.text("");
