@@ -80,11 +80,7 @@ NCI.Connection.onmessage  = function (e) {
 		if (data.COLLECTORS !== undefined)	
 		    NCI.setCollectorsLatestValue(data.COLLECTORS, NCI.parceDateForLastUpdate(data.Time));
 	} else if (data.action == "NCIDetails"){
-		NCI.Communities = data.Communities;
-		NCI.timestampNCI = data.NCI;
-		NCI.timestamp = data.Time;
-		$("#histogramGeneral").html("<b>NETWORK COMPLEXITY INDEX at &nbsp;&nbsp;</b> <i>" + NCI.timestamp + "</i>" +
-		    "&nbsp;&nbsp;&nbsp;<span class='button alert'>NCI " + NCI.timestampNCI + "</span>" );
+		NCI.setupCommunities(data)
 		NCI.socialGraph.show();
 	} else {
 		//we recieve such format:
