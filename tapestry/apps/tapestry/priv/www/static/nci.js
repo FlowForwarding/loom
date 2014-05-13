@@ -125,10 +125,10 @@ NCI.collectorsTable = (function(){
 	    for (var i = numOnPage*(page-1); i< lastIndex; i++){
 	   	    var collectorInfo = collectors[i];
 			content += "<tr><td>" +  collectorInfo.name + "</td><td>" +  
+			collectorInfo.collector_type + "</td><td>" +  
 			collectorInfo.ip + "</td><td>" +  
-			collectorInfo.datapath_id + "</td><td>" +  
-			NCI.parceNumberForView(collectorInfo.qps)  + "</td><td>" +  
-			collectorInfo.collector_type + "</td></tr>";
+			collectorInfo.datapath_id  + "</td><td>" +  
+			NCI.parceNumberForView(collectorInfo.qps) + "</td></tr>";
 		};
 		table.html(content);
 	};
