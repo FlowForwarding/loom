@@ -34,7 +34,13 @@ NCI.Connection.onmessage  = function (e) {
 	} else if (data.action == "collectors") {
 		//data.Time
 		 NCI.collectorsTable.fillData(data.Collectors);
-	} else if (e.data.split("NCI").length < 3){
+	} else if (data.action == "QPS") {
+			NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS, 1), NCI.parceDateForLastUpdate(data.Time));
+	} else if (data.action == "NEP") {
+			NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDateForLastUpdate(data.Time));
+	} else if (data.action == "Collectors")	{
+		    NCI.setCollectorsLatestValue(NCI.parceNumberForView(data.COLLECTORS), NCI.parceDateForLastUpdate(data.Time));	 
+	} else if (data.action == "NCI"){
 		var dateVal = new Date(data.Time);
 		if (data.NCI){
 			NCI.lastUpdateTimeVal = dateVal;
@@ -76,12 +82,6 @@ NCI.Connection.onmessage  = function (e) {
 				}
 			};
 		} ;
-		if (data.QPS !== undefined)
-			NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS, 1), NCI.parceDateForLastUpdate(data.Time));
-		if (data.NEP !== undefined)
-			NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDateForLastUpdate(data.Time));
-		if (data.COLLECTORS !== undefined)	
-		    NCI.setCollectorsLatestValue(data.COLLECTORS, NCI.parceDateForLastUpdate(data.Time));
 	} else if (data.action == "NCIDetails"){
 		NCI.setupCommunities(data)
 		NCI.socialGraph.show();
