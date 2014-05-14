@@ -46,6 +46,9 @@
         qps_timer
     }).
 
+-define(MIN_UPDATE_TIME_MILLIS, 250).
+-define(MAX_UPDATE_TIME_MILLIS, 5000).
+
 % -----------------------------------------------------------------------------
 % API
 % -----------------------------------------------------------------------------
@@ -71,20 +74,20 @@ handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
 handle_cast(start, State) ->
-    NewState = qps_timer(
-                    State#?STATE{last_qps_time = tap_time:now(),
-                    qps_update_interval = qps_update_interval()}),
-    {noreply, NewState};
+    NewState = qps_timer(State),
+    {noreply, NewState#?STATE{last_qps_time = tap_time:now()}};
 handle_cast({load, IpAddr, FtpFile}, State) ->
     BinaryFile = extract_file(FtpFile),
     Data = parse_file(BinaryFile),
     ?DEBUG("ftp data length from ~p: ~p~n",[IpAddr, length(Data)]),
     tap_ds:ordered_edges(Data),
-    NewState = add_collector(IpAddr, length(Data), State),
-    {noreply, NewState};
+    State1 = add_collector(IpAddr, length(Data), State),
+    maybe_push_qps(State1),
+    {noreply, State1};
 handle_cast(push_qps, State) ->
-    NewState = push_qps(State),
-    {noreply, NewState};
+    State1 = push_qps(State),
+    State2 = qps_timer(State1),
+    {noreply, State2};
 handle_cast(Msg, State) ->
     error({no_handle_cast, ?MODULE}, [Msg, State]).
 
@@ -101,13 +104,10 @@ code_change(_OldVersion, State, _Extra) ->
 % private functions
 % -----------------------------------------------------------------------------
 
-qps_update_interval() ->
-    {seconds, Time} = tap_config:getconfig(qps_max_interval),
-    Time.
-
-qps_timer(State = #?STATE{qps_update_interval = After, qps_timer = OldTimer}) ->
+qps_timer(State = #?STATE{qps_timer = OldTimer}) ->
     timer:cancel(OldTimer), % ignore errors
-    {ok, NewTimer} = timer:apply_after(After*1000, ?MODULE, push_qps, []),
+    {ok, NewTimer} = timer:apply_after(?MAX_UPDATE_TIME_MILLIS,
+                                                    ?MODULE, push_qps, []),
     State#?STATE{qps_timer = NewTimer}.
 
 add_collector(IpAddr, Count, State = #?STATE{
@@ -115,6 +115,16 @@ add_collector(IpAddr, Count, State = #?STATE{
                                         collectors = Collectors}) ->
     NewCollectors = dict:store(IpAddr, {tap_time:now(), Count}, Collectors),
     State#?STATE{total_count = TCount + Count, collectors = NewCollectors}.
+
+maybe_push_qps(#?STATE{last_qps_time = LastUpdate}) ->
+    % push update if:
+    %   last update was more than MIN_UPDATE_TIME_MILLIS seconds ago
+    Now = tap_time:now(),
+    LastUpdateAge = tap_time:diff_millis(Now, LastUpdate),
+    case LastUpdateAge > ?MIN_UPDATE_TIME_MILLIS of
+        true -> push_qps();
+        _ -> ok
+    end.
 
 push_qps(State = #?STATE{
                     collectors = Collectors,
@@ -128,7 +138,10 @@ push_qps(State = #?STATE{
     State#?STATE{total_count = 0, last_qps_time = Now}.
         
 per_sec(Count, LastTime) ->
-    Count / tap_time:since(LastTime).
+    safe_div(Count, tap_time:since(LastTime)).
+
+safe_div(_, 0) -> 0;
+safe_div(N, D) -> N/D.
 
 extract_file(CompressedTarBytes)->
     {ok, Files} =
