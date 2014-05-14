@@ -33,10 +33,7 @@ NCI.setQpsLatestValue = function (newVal, time) {
 	NCI.qpsLatestValue.html('<val>' + newVal + '</val> <br><i>updated &nbsp;' + time + '</i>');
 };
 
-NCI.setCollectorsLatestValue = function (collectors, time) {
-	var newVal = NCI.parceNumberForView(collectors.length);
-	NCI.collectors = collectors;
-	NCI.collectorsUpdateDate =  time;
+NCI.setCollectorsLatestValue = function (newVal, time) {
 	NCI.collectorsLatestValue.html('<val>' + newVal + 
 	    '</val> <br><i>updated &nbsp;' + NCI.parceDateForLastUpdate(time) + '</i>');
 };
