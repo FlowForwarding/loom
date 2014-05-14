@@ -25,14 +25,14 @@ NCI.nciHistogram = (function(){
 		    .range([0, height - margin.top - margin.bottom]);
 
 		var activitiesScale = d3.scale.linear()
-		    .domain([NCI.Communities.length, 0])
+		    .domain([1, NCI.Communities.length + 1])
 		    .range([width - margin.right - margin.left, margin.left]);
 
 		var activitiesAxis = d3.svg.axis()
 		    .scale(activitiesScale)
 		    .orient('bottom')
 		    .tickSize(0)
-			.tickFormat(d3.format("d"))
+			.tickFormat("")
 		    .tickPadding(8);
 
 		var endpointsAxis = d3.svg.axis()
@@ -58,11 +58,14 @@ NCI.nciHistogram = (function(){
 		    .attr('width', function(d) { return barWidth})
 		    .attr('height',function(d) { return height - margin.top - margin.bottom - endpointsScale(d.Endpoints.length) })
 			.on("click", me.showDetails);
-		// barChartSvg.selectAll('rect').data(NCI.Communities).transition()
-		//     .duration(1000)
-		// 	.attr("y", function(d) { return height - margin.top - margin.bottom - endpointsScale(d.Endpoints.length) })
-		// 	.attr('height', function(d) { return   endpointsScale(d.Endpoints.length) });		
-		//draw NCI point	
+			
+		for (var i = 0; i< NCI.Communities.length; i++){
+			barChartSvg.append('text')
+				.text( NCI.Communities.length - i)
+				.attr('dx', activitiesScale(i+1))
+				.attr('y', height - 60);	
+		}
+
 		barChartSvg.append("circle").attr("cy", endpointsScale(NCI.timestampNCI))
 		    .attr("cx", activitiesScale(NCI.timestampNCI) ).style("fill", "red").attr("r", 6);	
 	    barChartSvg.append("circle").attr("cy", endpointsScale(0))
