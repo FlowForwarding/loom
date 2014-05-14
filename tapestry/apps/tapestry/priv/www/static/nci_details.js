@@ -26,7 +26,7 @@ NCI.nciHistogram = (function(){
 		    .range([0, height - margin.top - margin.bottom]);
 
 		var activitiesScale = d3.scale.linear()
-		    .domain([1, NCI.Communities.length + 1])
+		    .domain([NCI.Communities.length + 1, 0])
 		    .range([width - margin.right - margin.left, margin.left]);
 
 		var activitiesAxis = d3.svg.axis()
@@ -50,11 +50,11 @@ NCI.nciHistogram = (function(){
 		    .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 
         //draw and animate bars
-        var index = 1;
+        var index = 0;
 		barChartSvg.selectAll('g')
 		    .data(NCI.Communities)
 		    .enter().append('rect')
-		    .attr('x', function(d) { return activitiesScale(index++) - barWidth/2})
+		    .attr('x', function(d) { return activitiesScale(NCI.Communities.length - index++) - barWidth/2})
 		    .attr('y', function(d) { return   endpointsScale(d.Endpoints.length)}) //- selfwidth
 		    .attr('width', function(d) { return barWidth})
 		    .attr('height',function(d) { return height - margin.top - margin.bottom - endpointsScale(d.Endpoints.length) })
@@ -62,7 +62,7 @@ NCI.nciHistogram = (function(){
 			
 		for (var i = 0; i< NCI.Communities.length; i++){
 			barChartSvg.append('text')
-				.text( NCI.Communities.length - i)
+				.text(i+1)
 				.attr('dx', activitiesScale(i+1))
 				.attr('y', height - 60);	
 		}
