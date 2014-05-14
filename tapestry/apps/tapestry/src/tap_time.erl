@@ -21,6 +21,7 @@
 -module(tap_time).
 
 -export([now/0,
+         since/1,
          diff/2,
          diff_millis/2,
          universal/1,
@@ -29,6 +30,9 @@
 
 now() ->
     os:timestamp().
+
+since(A) ->
+    diff(tap_time:now(), A).
 
 diff(A, B) ->
     diff_millis(A, B) div 1000.

@@ -25,7 +25,8 @@
 -behavior(gen_server).
 
 -export([start_link/0,
-         load/2]).
+         load/2,
+         push_qps/0]).
 
 -export([init/1,
          handle_call/3,
@@ -38,6 +39,11 @@
 
 -define(STATE, tap_batch_state).
 -record(?STATE, {
+        collectors = dict:new(),
+        total_count = 0,
+        last_qps_time,
+        qps_update_interval,
+        qps_timer
     }).
 
 % -----------------------------------------------------------------------------
@@ -50,22 +56,35 @@ start_link() ->
 load(IpAddr, Data) ->
     gen_server:cast(?MODULE, {load, IpAddr, Data}).
 
+push_qps() ->
+    gen_server:cast(?MODULE, push_qps).
+
 % -----------------------------------------------------------------------------
 % bifrost callbacks
 % -----------------------------------------------------------------------------
 
 init([]) ->
+    gen_server:cast(?MODULE, start),
     {ok, #?STATE{}}.
 
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
+handle_cast(start, State) ->
+    NewState = qps_timer(
+                    State#?STATE{last_qps_time = tap_time:now(),
+                    qps_update_interval = qps_update_interval()}),
+    {noreply, NewState};
 handle_cast({load, IpAddr, FtpFile}, State) ->
     BinaryFile = extract_file(FtpFile),
     Data = parse_file(BinaryFile),
-    ?DEBUG("Data = ~p~n",[Data]),
+    ?DEBUG("ftp data length from ~p: ~p~n",[IpAddr, length(Data)]),
     tap_ds:ordered_edges(Data),
-    {noreply, State};
+    NewState = add_collector(IpAddr, length(Data), State),
+    {noreply, NewState};
+handle_cast(push_qps, State) ->
+    NewState = push_qps(State),
+    {noreply, NewState};
 handle_cast(Msg, State) ->
     error({no_handle_cast, ?MODULE}, [Msg, State]).
 
@@ -81,6 +100,35 @@ code_change(_OldVersion, State, _Extra) ->
 % -----------------------------------------------------------------------------
 % private functions
 % -----------------------------------------------------------------------------
+
+qps_update_interval() ->
+    {seconds, Time} = tap_config:getconfig(qps_max_interval),
+    Time.
+
+qps_timer(State = #?STATE{qps_update_interval = After, qps_timer = OldTimer}) ->
+    timer:cancel(OldTimer), % ignore errors
+    {ok, NewTimer} = timer:apply_after(After*1000, ?MODULE, push_qps, []),
+    State#?STATE{qps_timer = NewTimer}.
+
+add_collector(IpAddr, Count, State = #?STATE{
+                                        total_count = TCount,
+                                        collectors = Collectors}) ->
+    NewCollectors = dict:store(IpAddr, {tap_time:now(), Count}, Collectors),
+    State#?STATE{total_count = TCount + Count, collectors = NewCollectors}.
+
+push_qps(State = #?STATE{
+                    collectors = Collectors,
+                    total_count = TCount,
+                    last_qps_time = TTime}) ->
+    Now = tap_time:now(),
+    CollectorStats = [{grid, IpAddr, per_sec(Count, Time)} ||
+                        {IpAddr, {Time, Count}} <- dict:to_list(Collectors)],
+    tap_client_data:qps(per_sec(TCount, TTime), CollectorStats,
+                                                    tap_time:universal(Now)),
+    State#?STATE{total_count = 0, last_qps_time = Now}.
+        
+per_sec(Count, LastTime) ->
+    Count / tap_time:since(LastTime).
 
 extract_file(CompressedTarBytes)->
     {ok, Files} =

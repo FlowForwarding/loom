@@ -50,6 +50,7 @@
                 last_nep,
                 last_int_nep = 0,
                 last_qps,
+                last_col,
                 nci,
                 collectors = [],
                 communities = {dict:new(), dict:new()}}).
@@ -102,21 +103,23 @@ handle_call(Msg, From, State) ->
 handle_cast(start, State) ->
     StartTime = calendar:universal_time(),
     Time = list_to_binary(tap_time:rfc3339(StartTime)),
-    LNCI = jiffy:encode({[{<<"Time">>, Time}, {<<"NCI">>, 1}]}),
-    LNEP = jiffy:encode({[{<<"Time">>, Time}, {<<"NEP">>, 1}]}),
-    LQPS = jiffy:encode({[{<<"Time">>, Time}, {<<"QPS">>, 1}]}),
+    COLS = encode_cols(Time, 0),
+    LNCI = encode_nci(Time, 1),
+    LNEP = encode_nep(Time, 1),
+    LQPS = encode_qps(Time, 1),
     {noreply, State#?STATE{start_time = StartTime,
                       last_nci = LNCI,
                       nci_log = ets:new(nci_log, [ordered_set]),
                       last_nep = LNEP,
                       last_int_nep = 0,
-                      last_qps = LQPS}};
+                      last_qps = LQPS,
+                      last_col = COLS}};
 handle_cast({num_endpoints, NEP, UT}, State = #?STATE{last_int_nep = LIntNEP,
                                                    clients = Clients}) ->
     NewState = case NEP =/= LIntNEP of
         true ->
             Time = list_to_binary(tap_time:rfc3339(UT)),
-            JSON = jiffy:encode({[{<<"Time">>, Time}, {<<"NEP">>, NEP}]}),
+            JSON = encode_nep(Time, NEP),
             broadcast_msg(Clients, JSON),
             State#?STATE{last_nep = JSON, last_int_nep = NEP};
         false -> State
@@ -126,7 +129,7 @@ handle_cast({nci, NCI, Communities, UT}, State = #?STATE{nci_log = NCILog,
                                                          clients = Clients}) ->
     true = ets:insert(NCILog, {UT, NCI}),
     Time = list_to_binary(tap_time:rfc3339(UT)),
-    JSON = jiffy:encode({[{<<"Time">>, Time}, {<<"NCI">>, NCI}]}),
+    JSON = encode_nci(Time, NCI),
     broadcast_msg(Clients, JSON),
     {noreply, State#?STATE{last_nci = JSON,
                            nci = NCI,
@@ -141,14 +144,19 @@ handle_cast({collectors, Pid}, State = #?STATE{collectors = Collectors}) ->
     {noreply, State};
 handle_cast({qps, QPS, Collectors, UT}, State = #?STATE{clients = Clients}) ->
     Time = list_to_binary(tap_time:rfc3339(UT)),
-    JSON = jiffy:encode({[{<<"Time">>, Time}, {<<"QPS">>, QPS}]}),
-    broadcast_msg(Clients, JSON),
-    {noreply, State#?STATE{last_qps = JSON, collectors = Collectors}};
+    QPSMsg = encode_qps(Time, QPS),
+    broadcast_msg(Clients, QPSMsg),
+    COLMsg = encode_cols(Time, length(Collectors)),
+    broadcast_msg(Clients, COLMsg),
+    {noreply, State#?STATE{last_qps = QPSMsg,
+                           last_col = COLMsg,
+                           collectors = Collectors}};
 handle_cast({new_client, Pid}, State = #?STATE{clients = Clients,
                                                start_time = StartTime,
                                                last_nci = LNCI,
                                                last_nep = LNEP,
-                                               last_qps = LQPS}) ->
+                                               last_qps = LQPS,
+                                               last_col = COLS}) ->
     monitor(process, Pid),
     ?DEBUG("tap_client_data: new client ~p~n",[Pid]),
     HELLO = jiffy:encode({[{<<"start_time">>,
@@ -159,6 +167,7 @@ handle_cast({new_client, Pid}, State = #?STATE{clients = Clients,
     clientsock:send(Pid, LNCI),
     clientsock:send(Pid, LNEP),
     clientsock:send(Pid, LQPS),
+    clientsock:send(Pid, COLS),
     {noreply, State#?STATE{clients = [Pid | Clients]}};
 handle_cast({more_nci_data, Pid, Start, End, MaxData},
                                         State = #?STATE{nci_log = NCILog}) ->
@@ -276,3 +285,23 @@ collector({ofswitch, DatapathId, IpAddr, QPS}) ->
 
 format_qps(N) ->
     float_to_binary(float(N), [{decimals,4}, compact]).
+
+encode_cols(Time, Cols) ->
+    jiffy:encode({[{<<"action">>, <<"Collectors">>},
+                   {<<"Time">>, Time},
+                   {<<"COLLECTORS">>, Cols}]}).
+
+encode_nci(Time, Nci) ->
+    jiffy:encode({[{<<"action">>, <<"NCI">>},
+                   {<<"Time">>, Time},
+                   {<<"NCI">>, Nci}]}).
+
+encode_nep(Time, Nep) ->
+    jiffy:encode({[{<<"action">>, <<"NEP">>},
+                   {<<"Time">>, Time},
+                   {<<"NEP">>, Nep}]}).
+
+encode_qps(Time, QPS) ->
+    jiffy:encode({[{<<"action">>, <<"QPS">>},
+                   {<<"Time">>, Time},
+                   {<<"QPS">>, QPS}]}).
