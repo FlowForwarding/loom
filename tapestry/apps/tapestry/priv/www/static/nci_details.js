@@ -1,5 +1,6 @@
 NCI.setupCommunities = function(data){
 	NCI.Communities = data.Communities;
+	
 	NCI.Communities.sort(function(a, b){
 		return a.Endpoints.length > b.Endpoints.length;
 	});
@@ -112,8 +113,7 @@ NCI.nciHistogram = (function(){
 		var node = activityDetails.selectAll(".node")
 		    .data(graph.nodes)
 		    .enter().append("circle")
-		    .attr("r", 5)
-		    .call(force.drag);
+		    .attr("r", 5);
 		  		  
 		node.append("title").text(function(d) { return d.name; });
 
@@ -150,17 +150,21 @@ NCI.socialGraph  = (function(){
 		if (me.text().length<20){	
 			me.draw(devided, clustered, filtered);
 		} else {
-			me.node.style("fill", function(d) { 
-  			    if ( filtered && (d.name.search("10.") == 0 ||  d.name.search("192.168") == 0)){
-  				    return networkColor;
-  			    }
-  			    return devided ? color(d.group) : color(0);
-			});
-			me.node.attr("r", function(d) { return (filtered &&  (d.name.search("10.") == 0 ||  d.name.search("192.168") == 0)) ? 7 : 5})
-			force.linkStrength(clustered ? 1 : 0);
+			me.setupNodes(filtered, devided, clustered);
 	  	    force.start();
 		}
 	};
+	
+	me.setupNodes = function(filtered, devided, clustered){
+		me.node.style("fill", function(d) { 
+		    if ( filtered && (d.name.indexOf("10.") == 0 ||  d.name.indexOf("192.168") == 0)){
+			    return networkColor;
+		    }
+		    return devided ? color(d.group) : color(0);
+		});
+		me.node.attr("r", function(d) { return (filtered &&  (d.name.indexOf("10.") == 0 ||  d.name.indexOf("192.168") == 0)) ? 7 : 5})
+		force.linkStrength(clustered ? 1 : 0);
+	}
 	
 	me.draw = function(devided, clustered, filtered){
 		d3.select("#activities_graph").remove();
@@ -187,16 +191,8 @@ NCI.socialGraph  = (function(){
 		me.node = me.activitiesGraphSvg.selectAll(".node")
 		    .data(me.graph.nodes)
 			.enter().append("circle")
-			.attr("class", "node")
-			.attr("r", function(d) { return (filtered &&  (d.name.search("10.") == 0 ||  d.name.search("192.168") == 0)) ? 7 : 5})
-			.style("fill", function(d) { 
-				if ( filtered &&  (d.name.search("10.") == 0 ||  d.name.search("192.168") == 0)){
-				  return networkColor;
-			    }
-				return devided ? color(d.group) : color(0);
-			})
-			.call(force.drag);
-		
+			.attr("class", "node");
+		me.setupNodes(filtered, devided, clustered);
 		me.node.append("title").text(function(d) { return d.name; });
 
 	    force.on("tick", function() { 
