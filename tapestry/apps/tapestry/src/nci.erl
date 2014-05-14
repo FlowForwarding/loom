@@ -191,10 +191,10 @@ calc_nci(LabeledGraph)->
     %% Using the example C above,  SC = [{c,55},{a,10},{f,3}].
 
     %% We now call a two parameter function 
-    NCI = calc_nci(SC,1),
+    NCI = calc_nci(SC,0),
     %% NCI computation results in a one to big, maybe?
     %% XXX requires more study.
-    NCI-1.
+    NCI.
 
 %%
 %% WARNING: Recursive function
