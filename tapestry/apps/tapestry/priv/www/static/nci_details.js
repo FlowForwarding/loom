@@ -1,7 +1,7 @@
 NCI.setupCommunities = function(data){
 	NCI.Communities = data.Communities;
 	
-	// for (var k = 0; k < 200; k++){
+	// for (var k = 0; k < 50; k++){
 	// 	var fakeEndpoints = [];
 	// 	var fakeInteractions = [];
 	//     for (var i=1; i< 5; i++){
@@ -11,8 +11,8 @@ NCI.setupCommunities = function(data){
 	// 	    fakeInteractions.push([k*5 + 1 + "", k*5 + j + ""]);
 	//     }
 	//     NCI.Communities.push({"Endpoints" : fakeEndpoints, "Interactions" : fakeInteractions});
-	//     }
-	
+	// };
+	// 
 	NCI.Communities.sort(function(a, b){
 		return a.Endpoints.length > b.Endpoints.length;
 	});
@@ -25,7 +25,7 @@ NCI.setupCommunities = function(data){
 NCI.nciHistogram = (function(){
 	var me = $('#nciHistogram');
 	
-	var barWidth = 6;
+	var barWidth = 4;
 	var chart = d3.select("#nciHistogram");
 	var margin = {top: 40, right: 40, bottom: 40, left:40},
 	    width = 600,
@@ -45,17 +45,24 @@ NCI.nciHistogram = (function(){
 		}
 		endpointsScale.domain([endpointsMax, endpointsMin])
 				.range([0, height - margin.top - margin.bottom]);
-
-
-		var activitiesScale = d3.scale.linear()
-		    .domain([NCI.Communities.length + 1, 0])
-		    .range([width - margin.right - margin.left, margin.left]);
+		
+		var activitiesScale;
+		var activitiesMin;
+		if (NCI.Communities.length > 60) {
+			activitiesMin = 0.9;
+			activitiesScale = d3.scale.log();
+		} else {
+			activitiesMin = 0;
+			activitiesScale = d3.scale.linear();
+		}
+		activitiesScale.domain([NCI.Communities.length + 1, activitiesMin])
+					    .range([width - margin.right - margin.left, margin.left]);
 
 		var activitiesAxis = d3.svg.axis()
 		    .scale(activitiesScale)
 		    .orient('bottom')
 		    .tickSize(0)
-			.tickFormat("")
+			.ticks(10,  d3.format("d"))
 		    .tickPadding(8);
 
 		var endpointsAxis = d3.svg.axis()
@@ -81,20 +88,13 @@ NCI.nciHistogram = (function(){
 		    .attr('width', function(d) { return barWidth})
 		    .attr('height',function(d) { return height - margin.top - margin.bottom - endpointsScale(d.Endpoints.length) })
 			.on("click", me.showDetails);
-			
-		for (var i = 0; i< NCI.Communities.length; i++){
-			barChartSvg.append('text')
-				.text(i+1)
-				.attr('dx', activitiesScale(i+1))
-				.attr('y', height - 60);	
-		}
 
 		barChartSvg.append("circle").attr("cy", endpointsScale(NCI.timestampNCI))
 		    .attr("cx", activitiesScale(NCI.timestampNCI) ).style("fill", "red").attr("r", 6);	
 	    barChartSvg.append("circle").attr("cy", endpointsScale(endpointsMin))
 		    .attr("cx", activitiesScale(NCI.timestampNCI) ).style("fill", "red").attr("r", 4);
 		barChartSvg.append("circle").attr("cy", endpointsScale(NCI.timestampNCI))
-		    .attr("cx", activitiesScale(0) ).style("fill", "red").attr("r", 4);
+		    .attr("cx", activitiesScale(activitiesMin) ).style("fill", "red").attr("r", 4);
 		//draw axis 	
 		barChartSvg.append('g')
 		    .attr('class', 'x axis')
