@@ -35,7 +35,7 @@ NCI.setQpsLatestValue = function (newVal, time) {
 
 NCI.setCollectorsLatestValue = function (newVal, time) {
 	NCI.collectorsLatestValue.html('<val>' + newVal + 
-	    '</val> <br><i>updated &nbsp;' + NCI.parceDateForLastUpdate(time) + '</i>');
+	    '</val> <br><i>updated &nbsp;' + time + '</i>');
 };
 
 NCI.convertDateForServer = function(date){
