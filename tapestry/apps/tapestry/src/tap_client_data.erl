@@ -104,9 +104,9 @@ handle_cast(start, State) ->
     StartTime = calendar:universal_time(),
     Time = list_to_binary(tap_time:rfc3339(StartTime)),
     COLS = encode_cols(Time, 0),
-    LNCI = encode_nci(Time, 1),
-    LNEP = encode_nep(Time, 1),
-    LQPS = encode_qps(Time, 1),
+    LNCI = encode_nci(Time, 0),
+    LNEP = encode_nep(Time, 0),
+    LQPS = encode_qps(Time, 0),
     {noreply, State#?STATE{start_time = StartTime,
                       last_nci = LNCI,
                       nci_log = ets:new(nci_log, [ordered_set]),
@@ -222,6 +222,8 @@ send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
 broadcast_msg(Clients, Msg) ->
     [clientsock:send(C, Msg) || C <- Clients].
 
+json_nci_details(undefined, Communities) ->
+    json_nci_details(0, Communities);
 json_nci_details(NCI, Communities) ->
     jiffy:encode({[
         {<<"action">>,<<"NCIDetails">>},
