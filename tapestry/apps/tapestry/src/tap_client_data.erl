@@ -277,15 +277,16 @@ format_collectors(Collectors) ->
 
 collector({ofswitch, DatapathId, IpAddr, QPS}) ->
     [
-        {<<"collector_type">>,<<"OpenFlow">>},
+        {<<"collector_type">>,<<"OF1.3 Switch">>},
         {<<"ip">>,endpoint(IpAddr)},
         {<<"datapath_id">>,list_to_binary(DatapathId)},
         {<<"qps">>,format_qps(QPS)}
     ];
 collector({grid, IpAddr, QPS}) ->
     [
-        {<<"collector_type">>,<<"FTP">>},
+        {<<"collector_type">>,<<"IB Grid Member">>},
         {<<"ip">>,endpoint(IpAddr)},
+        {<<"datapath_id">>,<<>>},
         {<<"qps">>,format_qps(QPS)}
     ].
 
