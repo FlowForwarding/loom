@@ -62,7 +62,7 @@ NCI.nciHistogram = (function(){
 		    .scale(activitiesScale)
 		    .orient('bottom')
 		    .tickSize(0)
-			.ticks(10,  d3.format("d"))
+			.ticks(Math.min(NCI.Communities.length + 2, 10),  d3.format("d"))
 		    .tickPadding(8);
 
 		var endpointsAxis = d3.svg.axis()
@@ -105,9 +105,14 @@ NCI.nciHistogram = (function(){
 			.attr('transform', 'translate(' + margin.left + ')')
 			.call(endpointsAxis);	
 		//draw axis labels																					
-		barChartSvg.append('text').text('Activities Sorted by Size').attr('x', width/2 - 100).attr('y', height - 45);
-		barChartSvg.append('text').text('Number of Endpoints per Activity').attr('x', -height/2 - 40).attr('y', 0)
+		barChartSvg.append('text').
+		attr('style', 'font-weight:bold').
+		html('Activities Sorted by Size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j').attr('x', width/2 - 100).attr('y', height - 45);
+		barChartSvg.append('text').
+		attr('style', 'font-weight:bold').
+		html('Number of Endpoints per Activity&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x[j]').attr('x', -height/2 - 40).attr('y', 0)
 		.attr('transform', 'rotate(-90)');
+		//axis names, formula
 
 	};
 	
