@@ -1,15 +1,17 @@
 NCI.setupCommunities = function(data){
 	NCI.Communities = data.Communities;
 	
-	// var fakeEndpoints = [];
-	// var fakeInteractions = [];
-	// for (var i=1; i< 500; i++){
-	// 	fakeEndpoints.push(i+ "");
-	// }
-	// for (var j=2; j< 500; j++){
-	// 	fakeInteractions.push(["1", j+""]);
-	// }
-	// NCI.Communities.push({"Endpoints" : fakeEndpoints, "Interactions" : fakeInteractions});
+	// for (var k = 0; k < 200; k++){
+	// 	var fakeEndpoints = [];
+	// 	var fakeInteractions = [];
+	//     for (var i=1; i< 5; i++){
+	// 	    fakeEndpoints.push(k*5 + i + "");
+	//     }
+	//     for (var j=2; j< 5; j++){
+	// 	    fakeInteractions.push([k*5 + 1 + "", k*5 + j + ""]);
+	//     }
+	//     NCI.Communities.push({"Endpoints" : fakeEndpoints, "Interactions" : fakeInteractions});
+	//     }
 	
 	NCI.Communities.sort(function(a, b){
 		return a.Endpoints.length > b.Endpoints.length;
@@ -27,13 +29,23 @@ NCI.nciHistogram = (function(){
 	var chart = d3.select("#nciHistogram");
 	var margin = {top: 40, right: 40, bottom: 40, left:40},
 	    width = 600,
-	    height = 300;
+	    height = 350;
 	
 	me.show = function(){
 		chart.text("");
-		var endpointsScale = d3.scale.linear()
-		    .domain([d3.max(NCI.Communities, function(d) { return d.Endpoints.length; }), 0])
-		    .range([0, height - margin.top - margin.bottom]);
+		var endpointsMax = d3.max(NCI.Communities, function(d) { return d.Endpoints.length; });
+		var endpointsMin;
+		var endpointsScale;
+		if (endpointsMax > 100) {
+			endpointsMin = 1;
+			endpointsScale = d3.scale.log();
+		} else {
+			endpointsMin = 0;
+			endpointsScale = d3.scale.linear();
+		}
+		endpointsScale.domain([endpointsMax, endpointsMin])
+				.range([0, height - margin.top - margin.bottom]);
+
 
 		var activitiesScale = d3.scale.linear()
 		    .domain([NCI.Communities.length + 1, 0])
@@ -50,7 +62,7 @@ NCI.nciHistogram = (function(){
 		    .scale(endpointsScale)
 		    .orient('left')
 			.tickSize(0)
-			.tickFormat(d3.format("d"))
+			.ticks(10,  d3.format("d"))
 		    .tickPadding(10);
 
 		var barChartSvg = chart.append('svg')
@@ -79,7 +91,7 @@ NCI.nciHistogram = (function(){
 
 		barChartSvg.append("circle").attr("cy", endpointsScale(NCI.timestampNCI))
 		    .attr("cx", activitiesScale(NCI.timestampNCI) ).style("fill", "red").attr("r", 6);	
-	    barChartSvg.append("circle").attr("cy", endpointsScale(0))
+	    barChartSvg.append("circle").attr("cy", endpointsScale(endpointsMin))
 		    .attr("cx", activitiesScale(NCI.timestampNCI) ).style("fill", "red").attr("r", 4);
 		barChartSvg.append("circle").attr("cy", endpointsScale(NCI.timestampNCI))
 		    .attr("cx", activitiesScale(0) ).style("fill", "red").attr("r", 4);
@@ -101,17 +113,18 @@ NCI.nciHistogram = (function(){
 	
 	me.showDetails = function(d){
 		chart.select("#bar_endpoints").remove();
+		var detailsDim = 300;
 		var activityDetails = chart.append('svg')
 			.attr("id","bar_endpoints")
-			.attr('width', height)
-		    .attr('height', height);
+			.attr('width', detailsDim)
+		    .attr('height', detailsDim);
 			
 	    var graph = NCI.prepareDataForForceGraph([d]);
 		
 		var force = d3.layout.force()
-			.charge(-200)
+			.charge(-60)
 			.linkDistance(30)
-			.size([ height, height])
+			.size([detailsDim, detailsDim])
 			.linkStrength(1).nodes(graph.nodes).links(graph.links).start();
 			
 		var link = activityDetails.selectAll(".link")
