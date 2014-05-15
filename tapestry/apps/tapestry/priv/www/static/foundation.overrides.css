@@ -120,7 +120,6 @@
 	color: lightgray;
 }
 
-
 #nciHistogram text{
 	font: 12px sans-serif;
 }
@@ -132,16 +131,11 @@
 .axis path, .axis line {
   fill: none;
   stroke: #000;
-  shape-rendering: crispEdges;
+  stroke-width: 2;
 }
 
-/*.axis text {
-  font: 10px sans-serif;
+.activities_link {
+  stroke: #999;
+  stroke-opacity: .6;
 }
 
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}*/

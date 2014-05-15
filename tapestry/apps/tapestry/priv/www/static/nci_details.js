@@ -1,6 +1,16 @@
 NCI.setupCommunities = function(data){
 	NCI.Communities = data.Communities;
 	
+	// var fakeEndpoints = [];
+	// var fakeInteractions = [];
+	// for (var i=1; i< 500; i++){
+	// 	fakeEndpoints.push(i+ "");
+	// }
+	// for (var j=2; j< 500; j++){
+	// 	fakeInteractions.push(["1", j+""]);
+	// }
+	// NCI.Communities.push({"Endpoints" : fakeEndpoints, "Interactions" : fakeInteractions});
+	
 	NCI.Communities.sort(function(a, b){
 		return a.Endpoints.length > b.Endpoints.length;
 	});
@@ -99,7 +109,7 @@ NCI.nciHistogram = (function(){
 	    var graph = NCI.prepareDataForForceGraph([d]);
 		
 		var force = d3.layout.force()
-			.charge(-60)
+			.charge(-200)
 			.linkDistance(30)
 			.size([ height, height])
 			.linkStrength(1).nodes(graph.nodes).links(graph.links).start();
@@ -107,7 +117,7 @@ NCI.nciHistogram = (function(){
 		var link = activityDetails.selectAll(".link")
 		    .data(graph.links)
 			.enter().append("line")
-			.attr("class", "link")
+			.attr("class", "activities_link")
 			.style("stroke-width", function(d) { return Math.sqrt(d.value); });  	
 				  
 		var node = activityDetails.selectAll(".node")
@@ -162,7 +172,7 @@ NCI.socialGraph  = (function(){
 		    }
 		    return devided ? color(d.group) : color(0);
 		});
-		me.node.attr("r", function(d) { return (filtered &&  (d.name.indexOf("10.") == 0 ||  d.name.indexOf("192.168") == 0)) ? 7 : 5})
+		me.node.attr("r", function(d) { return (filtered &&  (d.name.indexOf("10.") == 0 ||  d.name.indexOf("192.168") == 0)) ? 6 : 4})
 		force.linkStrength(clustered ? 1 : 0);
 	}
 	
@@ -171,27 +181,29 @@ NCI.socialGraph  = (function(){
 	    me.graph = NCI.prepareDataForForceGraph(NCI.Communities);
 		
 		force = d3.layout.force()
-			.charge(-60)
+		    .charge(-20)
 			.linkDistance(30)
-			.size([ me.width(), $('#nciDetails').height() - 150])
+			.size([$('#nciDetails').width(),  $('#nciDetails').height() - 200 ])
+			//.resume()
+			//.gravity(0.1)
 			.linkStrength(clustered ? 1 : 0)
 			.nodes(me.graph.nodes).links(me.graph.links).start();
 			
 	    me.activitiesGraphSvg = d3.select("#socialGraph").append("svg")
 		    .attr("id","activities_graph")
-			.attr("width", me.width())
-			.attr("height", me.height());
+			.attr("width", $('#nciDetails').width())
+			.attr("height", $('#nciDetails').height() - 200);
 	  
 		var link = me.activitiesGraphSvg.selectAll(".link")
 		    .data(me.graph.links)
 			.enter().append("line")
-			.attr("class", "link")
+			.attr("class", "activities_link")
 			.style("stroke-width", function(d) { return Math.sqrt(d.value); });  	
 		  
 		me.node = me.activitiesGraphSvg.selectAll(".node")
 		    .data(me.graph.nodes)
-			.enter().append("circle")
-			.attr("class", "node");
+			.enter().append("circle");
+			//.classed("fixed",  function(d) {d.fixed = true})
 		me.setupNodes(filtered, devided, clustered);
 		me.node.append("title").text(function(d) { return d.name; });
 
