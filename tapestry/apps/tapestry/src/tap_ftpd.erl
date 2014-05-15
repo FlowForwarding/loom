@@ -189,6 +189,7 @@ put_file(State, ProvidedFileName, _Mode, FileRetrievalFun) ->
     {ok, {PeerIp, _Port}}  = inet:peername(State#connection_state.control_socket),
     {ok, FileBytes, _FileSize} = read_from_fun(FileRetrievalFun),
     ?DEBUG("tap_ftpd: ~p sending ~p~n", [PeerIp, ProvidedFileName]),
+    save_file(ProvidedFileName, FileBytes),
     tap_batch:load(PeerIp, FileBytes),
     {ok, State}.
 
@@ -363,6 +364,12 @@ set_path({dir, Root, FileInfo}, [Current | Rest], Val) ->
                         set_path(new_directory(Current), Rest, Val),
                         Root),
             FileInfo}
+    end.
+
+save_file(Name, Data) ->
+    case tap_config:getconfig(save_files) of
+        true -> file:write_file(Name, Data);
+        _ -> ok
     end.
 
 % -----------------------------------------------------------------------------
