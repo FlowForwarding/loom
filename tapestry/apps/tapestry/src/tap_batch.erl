@@ -144,9 +144,13 @@ safe_div(_, 0) -> 0;
 safe_div(N, D) -> N/D.
 
 extract_file(CompressedTarBytes)->
-    {ok, Files} =
-        erl_tar:extract({binary, CompressedTarBytes}, [compressed, memory]),
-    locate_log_file(Files).
+    case erl_tar:extract({binary, CompressedTarBytes}, [compressed, memory]) of
+        {ok, Files} ->
+            locate_log_file(Files);
+        Error ->
+            ?DEBUG("can't process tar file ~p~n", [Error]),
+            bad_file
+    end.
 
 locate_log_file([]) ->
     <<>>;
@@ -156,6 +160,8 @@ locate_log_file([{FileName, Binary} | Rest]) ->
         _ -> locate_log_file(Rest)
     end.
 
+parse_file(bad_file) ->
+    [];
 parse_file(BinaryData) ->
     parse_file(BinaryData, []).
 

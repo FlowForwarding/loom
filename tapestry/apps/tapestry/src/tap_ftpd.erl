@@ -23,6 +23,7 @@
 -module(tap_ftpd).
 -include_lib("bifrost/include/bifrost.hrl").
 -include_lib("eunit/include/eunit.hrl").
+-include("tap_logger.hrl").
 
 -behavior(gen_bifrost_server).
 
@@ -184,9 +185,10 @@ list_files(State, Directory) ->
     end.
 
 % Ignore mode.  Assume write.  Send file batch loader.
-put_file(State, _ProvidedFileName, _Mode, FileRetrievalFun) ->
+put_file(State, ProvidedFileName, _Mode, FileRetrievalFun) ->
     {ok, {PeerIp, _Port}}  = inet:peername(State#connection_state.control_socket),
     {ok, FileBytes, _FileSize} = read_from_fun(FileRetrievalFun),
+    ?DEBUG("tap_ftpd: ~p sending ~p~n", [PeerIp, ProvidedFileName]),
     tap_batch:load(PeerIp, FileBytes),
     {ok, State}.
 
