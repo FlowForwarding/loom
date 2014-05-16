@@ -143,7 +143,7 @@ NCI.nciHistogram = (function(){
 		    .enter().append("circle")
 		    .attr("r", 5);
 		  		  
-		node.append("title").text(function(d) { return d.name; });
+		node.append("title").html(function(d) {  return d.name + "<br>" + d.neighbours + " connections" ;});
 
 		force.on("tick", function() { 
 			link.attr("x1", function(d) { return d.source.x; })
@@ -223,7 +223,8 @@ NCI.socialGraph  = (function(){
 			.enter().append("circle");
 			//.classed("fixed",  function(d) {d.fixed = true})
 		me.setupNodes(filtered, devided, clustered);
-		me.node.append("title").text(function(d) { return d.name; });
+		// node.on("mouseover", function(d, e) { console.log( d); console.log(e) })
+		me.node.append("title").html(function(d) { return d.name + "<br>" + d.neighbours + " connections" ; });
 
 	    force.on("tick", function() { 
 	        link.attr("x1", function(d) { return d.source.x; })
@@ -243,7 +244,7 @@ NCI.prepareDataForForceGraph = function(communities){
     var graph = { "nodes":[], "links": []};
 	
 	var nodeIndex = function(ip){
-		var val = 0;
+		var val = -1;
 		$.each(graph.nodes, function(index, node){
 			if (node.name == ip)
 			   val = index;
@@ -262,9 +263,65 @@ NCI.prepareDataForForceGraph = function(communities){
 			graph.links.push({
 				"source": nodeIndex(interacton[1]),
 				"target": nodeIndex(interacton[0]),
-				"value":1});
+				"value": 1});
 		});
 	});
 	
+	//TODO optimaze calculations
+	$.each(graph.nodes, function(index, node){
+		var numOfConnections = 0;
+		$.each(graph.links, function(index, link){
+			if (graph.nodes[link.source].name == node.name || graph.nodes[link.target].name == node.name){
+				numOfConnections++;
+			}
+			if (graph.nodes[link.source].group != graph.nodes[link.target].group)
+			    node.hasExternalConnections = true;
+		});
+		node.neighbours = numOfConnections/2;
+	});	
+	
+	graph.nodes.sort(function(node1, node2){
+		return node2.neighbours - node1.neighbours;
+	});
+	console.log(graph.nodes[0].neighbours);
+	
+	var nodes = [];
+	$.each(graph.nodes, function(index, node){
+		if (index < 10 || node.hasExternalConnections){
+			nodes.push(node);
+		}
+	});
+	graph.nodes = nodes;
+	
+	graph.links = [];
+	
+	$.each(communities, function(index, community){
+	    $.each(community.Interactions, function(index, interacton){
+		    var sIndex = nodeIndex(interacton[1]);
+		    var tIndex = nodeIndex(interacton[0]);
+		    if (sIndex >= 0 && tIndex >= 0){
+			    graph.links.push({
+				    "source": sIndex,
+				    "target": tIndex,
+				    "value": 1});
+		    }
+	    });
+    });
+	
 	return graph;
 };
+
+// NCI.filterGraphInfo = function(graph){
+// 	$.each(graph.nodes, function(index, node){
+// 		//todo optimaze
+// 		var numOfConnections = 0;
+// 		$.each(graph.links, function(index, link){
+// 			if (graph.nodes[link.source].name == node.name || graph.nodes[link.target].name == node.name){
+// 				numOfConnections++;
+// 			}
+// 			if (graph.nodes[link.source].group != graph.nodes[link.target].group)
+// 			    node.hasExternalConnections = true;
+// 		});
+// 		node.neighbours = numOfConnections;
+// 	});	
+// };
