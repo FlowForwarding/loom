@@ -287,7 +287,7 @@ NCI.prepareDataForForceGraph = function(communities){
 	
 	var nodes = [];
 	$.each(graph.nodes, function(index, node){
-		if (index < 10 || node.hasExternalConnections){
+		if (index < 250 || node.hasExternalConnections){
 			nodes.push(node);
 		}
 	});
