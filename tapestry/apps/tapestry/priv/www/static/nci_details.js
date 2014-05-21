@@ -254,12 +254,14 @@ NCI.prepareDataForForceGraph = function(communities){
 	
 	$.each(communities, function(index, community){
 		$.each(community.Endpoints, function(index2, endpoint){
+			if (index2 < 30)
 			graph.nodes.push({
 				"name": endpoint,
 				"group": index
 			});
 		});
 		$.each(community.Interactions, function(index2, interacton){
+			if (nodeIndex(interacton[1]) > 0 && nodeIndex(interacton[0]) > 0)
 			graph.links.push({
 				"source": nodeIndex(interacton[1]),
 				"target": nodeIndex(interacton[0]),
@@ -267,46 +269,47 @@ NCI.prepareDataForForceGraph = function(communities){
 		});
 	});
 	
-	//TODO optimaze calculations
-	$.each(graph.nodes, function(index, node){
-		var numOfConnections = 0;
-		$.each(graph.links, function(index, link){
-			if (graph.nodes[link.source].name == node.name || graph.nodes[link.target].name == node.name){
-				numOfConnections++;
-			}
-			if (graph.nodes[link.source].group != graph.nodes[link.target].group)
-			    node.hasExternalConnections = true;
-		});
-		node.neighbours = numOfConnections/2;
-	});	
+	// //TODO optimaze calculations
+	// $.each(graph.nodes, function(index, node){
+	// 	var numOfConnections = 0;
+	// 	$.each(graph.links, function(index, link){
+	// 		if (link.source != -1 &&  link.target != -1)
+	// 		if (graph.nodes[link.source].name == node.name || graph.nodes[link.target].name == node.name){
+	// 			numOfConnections++;
+	// 		}
+	// 		if (link.source != -1 &&  link.target != -1)
+	// 		if (graph.nodes[link.source].group != graph.nodes[link.target].group)
+	// 		    node.hasExternalConnections = true;
+	// 	});
+	// 	node.neighbours = numOfConnections/2;
+	// });	
+	// 
+	// graph.nodes.sort(function(node1, node2){
+	// 	return node2.neighbours - node1.neighbours;
+	// });
 	
-	graph.nodes.sort(function(node1, node2){
-		return node2.neighbours - node1.neighbours;
-	});
-	console.log(graph.nodes[0].neighbours);
-	
-	var nodes = [];
-	$.each(graph.nodes, function(index, node){
-		if (index < 250 || node.hasExternalConnections){
-			nodes.push(node);
-		}
-	});
-	graph.nodes = nodes;
-	
-	graph.links = [];
-	
-	$.each(communities, function(index, community){
-	    $.each(community.Interactions, function(index, interacton){
-		    var sIndex = nodeIndex(interacton[1]);
-		    var tIndex = nodeIndex(interacton[0]);
-		    if (sIndex >= 0 && tIndex >= 0){
-			    graph.links.push({
-				    "source": sIndex,
-				    "target": tIndex,
-				    "value": 1});
-		    }
-	    });
-    });
+	// var nodes = [];
+	// $.each(graph.nodes, function(index, node){
+	// 	if (index < 50){
+	// 		nodes.push(node);
+	// 	}
+	// });
+	// graph.nodes = nodes;
+	// 
+	// graph.links = [];
+	// 
+	// $.each(communities, function(index, community){
+	//     $.each(community.Interactions, function(index, interacton){
+	// 	    var sIndex = nodeIndex(interacton[1]);
+	// 	    var tIndex = nodeIndex(interacton[0]);
+	// 	    if (sIndex >= 0 && tIndex >= 0){
+	// 		    graph.links.push({
+	// 			    "source": sIndex,
+	// 			    "target": tIndex,
+	// 			    "value": 1});
+	// 	    }
+	//     });
+	//     });
 	
 	return graph;
 };

@@ -7,6 +7,8 @@ NCI.numOfPoints = 200;
 
 NCI.Connection = new WebSocket("ws://" + location.host + "/clientsock.yaws");
 //NCI.Connection = new WebSocket("ws://epamove.herokuapp.com");
+//NCI.Connection = new WebSocket("ws://10.48.2.81:28080/clientsock.yaws");
+//http://10.48.2.81/
 NCI.Connection.onopen = function () {
 	NCI.Connection.startData();
 };
@@ -83,7 +85,7 @@ NCI.Connection.onmessage  = function (e) {
 			};
 		} ;
 	} else if (data.action == "NCIDetails"){
-		NCI.setupCommunities(data)
+		NCI.setupCommunities(data);
 		NCI.socialGraph.show();
 	} else {
 		//we recieve such format:
