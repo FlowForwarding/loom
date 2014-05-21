@@ -254,12 +254,13 @@ NCI.prepareDataForForceGraph = function(communities){
 	
 	$.each(communities, function(index, community){
 		$.each(community.Endpoints, function(index2, endpoint){
-			if (index2 < 50)
 			graph.nodes.push({
 				"name": endpoint,
 				"group": index
 			});
 		});
+	});	
+	$.each(communities, function(index, community){	
 		$.each(community.Interactions, function(index2, interacton){
 			if (nodeIndex(interacton[1]) > 0 && nodeIndex(interacton[0]) > 0)
 			graph.links.push({
