@@ -186,16 +186,14 @@ parse_file(<<BitString:53/binary, BinaryData/binary>>, Data) ->
     <<_Time:10/binary, _S:1/binary,
        ID1:20/binary, _S:1/binary,
        ID2:20/binary, _Rest/binary>> = BitString,
-    V1 = bitstring_to_list(ID1),
-    V2 = bitstring_to_list(ID2),
-    Interaction = {V1, V2},
+    Interaction = {ID1, ID2},
     parse_file(BinaryData, [Interaction | Data]);
 parse_file(_BinaryData, Data)->
     lists:reverse(Data).
 
 parse_logfile(ZBin) ->
     Bin =  safe_gunzip(ZBin),
-    Matches = case re:run(Bin,"client (.*)#.* UDP: query: (.*) IN A response: NOERROR.*? ([0-9]{1,3}\..[0-9]{1,3}\..[0-9]{1,3}\..[0-9]{1,3});", [global, {capture,[2,1,3],list}]) of
+    Matches = case re:run(Bin,"client (.*)#.* UDP: query: (.*) IN A response: NOERROR.*? ([0-9]{1,3}\..[0-9]{1,3}\..[0-9]{1,3}\..[0-9]{1,3});", [global, {capture,[2,1,3],binary}]) of
         {match, M} -> M;
         _ -> []
     end,
