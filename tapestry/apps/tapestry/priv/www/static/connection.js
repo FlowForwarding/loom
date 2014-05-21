@@ -85,7 +85,7 @@ NCI.Connection.onmessage  = function (e) {
 			};
 		} ;
 	} else if (data.action == "NCIDetails"){
-		NCI.setupCommunities(data);
+		NCI.setupCommunities(data)
 		NCI.socialGraph.show();
 	} else {
 		//we recieve such format:

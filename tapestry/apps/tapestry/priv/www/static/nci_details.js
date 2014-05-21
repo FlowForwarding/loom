@@ -14,7 +14,7 @@ NCI.setupCommunities = function(data){
 	// };
 	// 
 	NCI.Communities.sort(function(a, b){
-		return a.Endpoints.length > b.Endpoints.length;
+		return a.Endpoints.length - b.Endpoints.length;
 	});
 	NCI.timestampNCI = data.NCI;
 	NCI.timestamp = data.Time;
@@ -224,7 +224,7 @@ NCI.socialGraph  = (function(){
 			//.classed("fixed",  function(d) {d.fixed = true})
 		me.setupNodes(filtered, devided, clustered);
 		// node.on("mouseover", function(d, e) { console.log( d); console.log(e) })
-		me.node.append("title").html(function(d) { return d.name + "<br>" + d.neighbours + " connections" ; });
+		me.node.append("title").html(function(d) { return d.name });//+ "<br>" + d.neighbours + " connections" ; });
 
 	    force.on("tick", function() { 
 	        link.attr("x1", function(d) { return d.source.x; })
@@ -254,7 +254,7 @@ NCI.prepareDataForForceGraph = function(communities){
 	
 	$.each(communities, function(index, community){
 		$.each(community.Endpoints, function(index2, endpoint){
-			if (index2 < 30)
+			if (index2 < 50)
 			graph.nodes.push({
 				"name": endpoint,
 				"group": index
