@@ -194,6 +194,13 @@ parse_file(_BinaryData, Data)->
     lists:reverse(Data).
 
 parse_logfile(ZBin) ->
-    Bin =  zlib:gunzip(ZBin),
+    Bin =  safe_gunzip(ZBin),
     {match, Matches} = re:run(Bin,"client (.*)#.* UDP: query: (.*) IN A response: NOERROR.*? ([0-9]{1,3}\..[0-9]{1,3}\..[0-9]{1,3}\..[0-9]{1,3});", [global, {capture,[2,1,3],list}]),
     [{Requester, Resolved} || [_Query, Requester, Resolved] <- Matches].
+
+safe_gunzip(ZBin) ->
+    try
+        zlib:gunzip(ZBin)
+    catch
+        error:data_error -> <<>>
+    end.
