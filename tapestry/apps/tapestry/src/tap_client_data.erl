@@ -232,12 +232,12 @@ json_nci_details(NCI, Communities) ->
         {<<"Communities">>, communities(Communities)}
     ]}).
 
-communities({Endpoints, Interactions}) ->
+communities({Endpoints, Interactions, Leaves}) ->
     Communities = intersect_keys(Endpoints, Interactions),
     [
         {[
-            {<<"Interactions">>, interactions(dict:fetch(C, Interactions))},
-            {<<"Endpoints">>, endpoints(dict:fetch(C, Endpoints))}
+            {<<"Interactions">>, interactions(dict:fetch(C, Interactions), Leaves)},
+            {<<"Endpoints">>, endpoints(dict:fetch(C, Endpoints), Leaves)}
         ]} || C <- Communities
     ].
 
@@ -246,11 +246,23 @@ intersect_keys(A, B) ->
         sets:from_list(dict:fetch_keys(A)),
         sets:from_list(dict:fetch_keys(B)))).
 
-interactions(L) ->
-    [[endpoint(A), endpoint(B)] || {A, B} <- L].
+interactions(L, Leaves) ->
+    [[leafcount(A, endpoint(A), Leaves),
+      leafcount(B, endpoint(B), Leaves)] || {A, B} <- L].
 
-endpoints(L) ->
-    [endpoint(E) || E <- L].
+endpoints(L, Leaves) ->
+    [leafcount(E, endpoint(E), Leaves) || E <- L].
+
+leafcount(K, S, Leaves) ->
+    <<S/binary, (fetch_leafcount(K, Leaves))/binary>>.
+
+fetch_leafcount(K, Leaves) ->
+    case dict:find(K, Leaves) of
+        {ok, LeafCount} ->
+            <<<<":">>/binary, (integer_to_binary(LeafCount))/binary>>;
+        error ->
+            <<>>
+    end.
 
 endpoint({A,B,C,D}) ->
     list_to_binary([integer_to_list(A), ".", integer_to_list(B), ".", 

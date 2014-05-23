@@ -59,7 +59,7 @@
 -module(nci).
 
 -export([compute/1,
-         compute_from_graph/1,
+         compute_from_graph/2,
          clean_vertex/2,
          print_labels/1]).
 
@@ -474,7 +474,7 @@ add_edges(G, Edges)->
     [add_edge(G, Edge) || Edge <- Edges],
     G.
 
-compute_from_graph(InG)->
+compute_from_graph(InG, MaxVertices)->
     G = digraph:new(),
     Vertices = digraph:vertices(InG),
     lists:foreach(fun(X)-> digraph:add_vertex(G,X,X) end, Vertices),
@@ -485,11 +485,36 @@ compute_from_graph(InG)->
 		  Edges),
     prop_labels(G),
     NCI = calc_nci(G),
-    Communities = communities(G),
+    % !!! warning, communities mangles G
+    Communities = communities(G, MaxVertices),
     digraph:delete(G),
     {NCI, Communities}.
 
-communities(G) ->
+communities(G, MaxVertices) ->
+    communities(G, digraph:no_vertices(G), MaxVertices).
+
+communities(G, VerticesCount, MaxVertices) when VerticesCount > MaxVertices ->
+    % remove leaves before extracting communities
+    % make a list of vertices to remove
+    {Leaves, LeafCount}  = lists:foldl(
+        fun(V, {L, D}) ->
+            case digraph:in_degree(G, V) == 1 andalso digraph:out_degree(G, V) == 1 of
+                true ->
+                    [NV] = digraph:out_neighbours(G, V),
+                    {[V|L], dict:update_counter(NV, 1, D)};
+                _ ->
+                    {L, D}
+            end
+        end, {[], dict:new()}, digraph:vertices(G)),
+    % remove the leaves
+    [digraph:del_vertex(G, V) || V <- Leaves],
+    {EPs, IAs} = compute_communities(G),
+    {EPs, IAs, LeafCount};
+communities(G, _, _) ->
+    {EPs, IAs} = compute_communities(G),
+    {EPs, IAs, dict:new()}.
+
+compute_communities(G) ->
     % list of endpooints per community
     EPs = comm_endpoints(G),
     IAs = comm_interactions(G),
