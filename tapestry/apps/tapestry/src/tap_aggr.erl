@@ -24,7 +24,8 @@
 
 -export([start_link/0,
          push_qps/0,
-         dns_reply/3]).
+         dns_reply/3,
+         new_collector/2]).
 
 -export([init/1,
          handle_call/3,
@@ -63,6 +64,9 @@ push_qps() ->
 dns_reply(DatapathId, IpAddr, Reply = {_Requester, _Response}) ->
     gen_server:cast(?MODULE, {dns_reply, Reply, DatapathId, IpAddr}).
 
+new_collector(DatapathId, IpAddr) ->
+    gen_server:cast(?MODULE, {new_collector, DatapathId, IpAddr}).
+
 %------------------------------------------------------------------------------
 % gen_server callbacks
 %------------------------------------------------------------------------------
@@ -96,6 +100,11 @@ handle_cast({dns_reply, Reply, DatapathId, IpAddr},
                                 State#?STATE{query_count = QueryCount + 1}),
     maybe_push_qps(NewState),
     {noreply, NewState};
+handle_cast({new_collector, DatapathId, IpAddr},
+                                State = #?STATE{collectors = Collectors}) ->
+    DPMetric = ?DP_QCOUNT(DatapathId),
+    NewCollectors = maybe_new_metric(DatapathId, IpAddr, DPMetric, Collectors),
+    {noreply, State#?STATE{collectors = NewCollectors}};
 handle_cast(Msg, State) ->
     error({no_handle_cast, ?MODULE}, [Msg, State]).
 
