@@ -56,7 +56,7 @@ tap_ftpd(Mode) when Mode == anonymized; Mode == logfile ->
 tap_ftpd(_) ->
     [].
 
-tap_loom(packetin) ->
+tap_loom(packet_in) ->
     [{tap_loom, {tap_loom, start_link, []},
         permanent, 5000, worker, [tap_loom]},
     {tap_aggr,
