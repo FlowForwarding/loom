@@ -232,12 +232,13 @@ json_nci_details(NCI, Communities) ->
         {<<"Communities">>, communities(Communities)}
     ]}).
 
-communities({Endpoints, Interactions, Leaves}) ->
+communities({Endpoints, Interactions, Leaves, Sizes}) ->
     Communities = intersect_keys(Endpoints, Interactions),
     [
         {[
             {<<"Interactions">>, interactions(dict:fetch(C, Interactions), Leaves)},
-            {<<"Endpoints">>, endpoints(dict:fetch(C, Endpoints), Leaves)}
+            {<<"Endpoints">>, endpoints(dict:fetch(C, Endpoints), Leaves)},
+            {<<"Size">>, dict:fetch(C, Sizes)}
         ]} || C <- Communities
     ].
 

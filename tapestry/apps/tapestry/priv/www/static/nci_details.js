@@ -14,7 +14,7 @@ NCI.setupCommunities = function(data){
 	// };
 	// 
 	NCI.Communities.sort(function(a, b){
-		return a.Endpoints.length - b.Endpoints.length;
+		return a.Size- b.Size;
 	});
 	NCI.timestampNCI = data.NCI;
 	NCI.timestamp = data.Time;
@@ -33,7 +33,7 @@ NCI.nciHistogram = (function(){
 	
 	me.show = function(){
 		chart.text("");
-		var endpointsMax = d3.max(NCI.Communities, function(d) { return d.Endpoints.length; });
+		var endpointsMax = d3.max(NCI.Communities, function(d) { return d.Size; });
 		var endpointsMin;
 		var endpointsScale;
 		if (endpointsMax > 100) {
@@ -84,9 +84,9 @@ NCI.nciHistogram = (function(){
 		    .data(NCI.Communities)
 		    .enter().append('rect')
 		    .attr('x', function(d) { return activitiesScale(NCI.Communities.length - index++) - barWidth/2})
-		    .attr('y', function(d) { return   endpointsScale(d.Endpoints.length)}) //- selfwidth
+		    .attr('y', function(d) { return endpointsScale(d.Size)}) //- selfwidth
 		    .attr('width', function(d) { return barWidth})
-		    .attr('height',function(d) { return height - margin.top - margin.bottom - endpointsScale(d.Endpoints.length) })
+		    .attr('height',function(d) { return height - margin.top - margin.bottom - endpointsScale(d.Size) })
 			.on("click", me.showDetails);
 
 		barChartSvg.append("circle").attr("cy", endpointsScale(NCI.timestampNCI))
@@ -95,7 +95,7 @@ NCI.nciHistogram = (function(){
 		    .attr("cx", activitiesScale(NCI.timestampNCI) ).style("fill", "red").attr("r", 4);
 		barChartSvg.append("circle").attr("cy", endpointsScale(NCI.timestampNCI))
 		    .attr("cx", activitiesScale(activitiesMin) ).style("fill", "red").attr("r", 4);
-		//draw axis 	
+		//draw axis 
 		barChartSvg.append('g')
 		    .attr('class', 'x axis')
 			.attr('transform', 'translate(0,' + (height - margin.top - margin.bottom) + ')')
