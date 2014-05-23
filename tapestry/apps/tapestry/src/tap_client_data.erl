@@ -249,8 +249,19 @@ intersect_keys(A, B) ->
         sets:from_list(dict:fetch_keys(B)))).
 
 interactions(L, Leaves) ->
+    Interactions = lists:foldl(
+        fun(I, S) ->
+            NI = normalize_interaction(I),
+            sets:add_element(NI, S)
+        end, sets:new(), L),
     [[leafcount(A, endpoint(A), Leaves),
-      leafcount(B, endpoint(B), Leaves)] || {A, B} <- L].
+      leafcount(B, endpoint(B), Leaves)] ||
+                                    {A, B} <- sets:to_list(Interactions)].
+
+normalize_interaction({A, B}) when A > B ->
+    {A, B};
+normalize_interaction({A, B}) ->
+    {B, A}.
 
 endpoints(L, Leaves) ->
     [leafcount(E, endpoint(E), Leaves) || E <- L].
