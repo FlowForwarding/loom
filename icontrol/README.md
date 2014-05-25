@@ -191,7 +191,7 @@ Deletes all the flows in table 0 on the default switch.
 Tapestry users may use icontrol to configure the switch for tapestry.
 The iof:tapestry_config function:
 
-1. clears all flows in table 0
+1. optionally clears all flows in table 0
 2. bridges the DNS server and Client ports
 3. forwards UDP traffic from the DNS server port to the controller
 
@@ -216,6 +216,23 @@ This is the same as:
 > iof:bridge(3, 100, 1, 2).
 [{ok, noreply}, {ok, noreply}].
 > iof:dns_tap(3, 200, 1, 2, controller, [{10,4,2,2}, {10,4,2,3}]).
+{ok,noreply}
+```
+
+If you do not want to remove all the flows from Table 0, you can use
+iof:tapestry_config_add instead of iof:tapestry_config.  This is
+useful if you are using more than one pair of ports on your
+switch for tapestry.
+
+```erlang
+> iof:tapestry_config_add(3, 3, 4, [{10,4,2,2}, {10,4,2,3}]).
+ok
+```
+This is the same as:
+```erlang
+> iof:bridge(3, 100, 4, 4).
+[{ok, noreply}, {ok, noreply}].
+> iof:dns_tap(3, 200, 4, 4, controller, [{10,4,2,2}, {10,4,2,3}]).
 {ok,noreply}
 ```
 
@@ -371,27 +388,32 @@ The Tapestry config file has one Erlang term per switch.
 Example:
 
 ```erlang
-% BLACK switch
 {switch, [{ip_addr, {10,48,33,185}},
           {dns_port, 1},
           {client_port, 2},
           {dns_ips, [{10,102,3,50}, {10,48,2,5}]}
 ]}.
 
-% RED switch
 {switch, [{ip_addr, {10,32,1,39}},
           {dns_port, 1},
           {client_port, 2},
           {dns_ips, [{10,102,3,50}, {10,48,2,5}]}
 ]}.
 
-% PURPLE switch
-{switch, [{dpid, {0,<<8,0,39,197,149,72>>}},
+{switch, [{dpid, "00:00:08:00:27:C5:95:48"},
           {dns_port, 1},
           {client_port, 2},
-          {dns_ips, [{10,0,2,60}, {10,48,2,5}]}
+          {dns_ips, [{10,0,2,60}, {10,48,2,5}]},
+          {dns_port, 3},
+          {client_port, 4},
+          {dns_ips, [{10,0,2,70}, {10,48,2,85}]}
 ]}.
 ```
+
+The switch identified by datapath id 00:00:08:00:27:C5:95:48 has two
+pairs of ports for tapestry.  Port 1 and Port 2 are tapping
+DNS servers 10.0.2.60 and 10.48.2.5.  Port 3 and Port 4 are
+tapping DNS servers 10.0.2.70 and 10.48.2.85.
 
 Switches are identified by either IP Address or datapath id.  Each
 switch entry should have one or the other, but not both.
@@ -399,7 +421,7 @@ switch entry should have one or the other, but not both.
 |Key|Example|Description|
 |---|-------|-----------|
 |ip_addr|{10,48,33,185}|IP address of switch|
-|dpid|{0,\<\<8,0,39,197,149,72\>\>}|Datapath ID of switch|
+|dpid|00:00:08:00:27:C5:95:48|Datapath ID of switch|
 |dns_port|1|Port connected to DNS servers|
 |client_port|2|Port connected to clients|
 |dns_ip|[{10,0,2,60}]|List of DNS Sever IP Addresses|
