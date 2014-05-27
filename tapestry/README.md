@@ -81,8 +81,8 @@ See which switches are connected
 > iof:switches().
 Switch-Key DatapathId                       IpAddr            Version
 ---------- -------------------------------- ----------------- -------
-*1         {0,<<8,0,39,197,149,72>>}        {192,168,56,102}  4      
- 2         {1,<<8,0,39,197,149,72>>}        {192,168,56,102}  4      
+*1         00:01:08:00:27:C5:95:48          {192,168,56,102}  4      
+ 2         00:00:08:00:27:C5:95:48          {192,168,56,102}  4      
 ok
 ```
 
@@ -129,7 +129,7 @@ The format of this file is:
           {client_port, 2},
           {dns_ips, [{10,0,2,60}, {10,48,2,5}]}
 ]}.
-{switch, [{dpid, {0,<<8,0,39,197,149,72>>}},
+{switch, [{dpid, "00:00:08:00:27:C5:95:48"},
           {dns_port, 1},
           {client_port, 2},
           {dns_ips, [{10,0,2,60}, {10,48,2,5}]}
@@ -157,7 +157,7 @@ in Filename.
 ## sys.config
 The Tapestry sys.config (node configuration) file is in rel/files/sys.config.
 The runtime copy is in rel/tapestry/releases/1/sys.config.  The files copy
-overwrites the releases copy when you make Tapestry.
+overwrites the releases copy when you make Tapestry.  You may also override values in sys.config with values in tapestry.config.  The source copy of tapestry.config is in rel/files/tapestry.config.  The runtime copy is in rel/tapestry/tapestry.config.
 
 Section | Key | Example | Description
 ------- | --- | ------- | -----------
@@ -168,15 +168,21 @@ tapestry | web_log | "./log" | log directory for webserver
 tapestry | web_id | "tapestry" | webserver identifier
 tapestry | ftpd_address | {0,0,0,0} | ftp server listener IP address
 tapestry | ftpd_port | 7777 | ftp server listener port
-tapestry | openflow | enabled | enable or disable packetin processing
-tapestry | ftfpd | enabled | enable or disable ftp processing
-tapestry | ui_test | disabled | enable or disable ui test mode.
+tapestry | datasource | packet_in | identifies source of DNS information
 tapestry | nci_min_interval | {seconds, 15} | shortest time between nci calculations
+tapestry | max_vertices | 300 | maximum number of endpionts in the community graph before pruning leaves
 tapestry | qps_max_interval | {seconds, 15} | longest time between Query/Sec ui updates
 tapestry | clean_interval | [{days,0},{hms,{1,0,0}}] | interval between purging old data from nci calculation
 tapestry | data_max_age | [{days,2},{hms,{0,0,0}}] | purge data older than data_max_age
 of_driver | listen_ip | {0,0,0,0} | open flow controller listener IP address
 of_driver | listen_port | 6653 | open flow controller listener port
+
+datasource value|Description
+----------------|-----------
+packet_in | Receive and process packet_in messages from open flow switch
+test_ui | Generate random data (for UI testing)
+anonymized | Process anonymized logs from IB Grid
+logfile | Process logs from IB Grid
 
 ## Additional Documentation
 >1. Technical White Paper: “[A Network Complexity Index for Networks of Networks] (http://www.flowforwarding.org/nci-article)” by Stuart Bailey and Robert L. Grossman

@@ -46,11 +46,13 @@
 -record(?STATE,{start_time,
                 clients = [],
                 last_nci,
+                last_nci_time,
                 nci_log,
                 last_nep,
                 last_int_nep = 0,
                 last_qps,
                 last_col,
+                last_qps_time,
                 nci,
                 collectors = [],
                 communities = {dict:new(), dict:new()}}).
@@ -93,10 +95,12 @@ init([])->
 
 % for debugging
 handle_call(nci_details, _From, State = #?STATE{communities = Communities,
-                                                nci = NCI}) ->
-    {reply, json_nci_details(NCI, Communities), State};
-handle_call(collectors, _From, State = #?STATE{collectors = Collectors}) ->
-    {reply, json_collectors(Collectors), State};
+                                                nci = NCI,
+                                                last_nci_time = Time}) ->
+    {reply, json_nci_details(Time, NCI, Communities), State};
+handle_call(collectors, _From, State = #?STATE{collectors = Collectors,
+                                               last_qps_time = Time}) ->
+    {reply, json_collectors(Time, Collectors), State};
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
@@ -133,14 +137,17 @@ handle_cast({nci, NCI, Communities, UT}, State = #?STATE{nci_log = NCILog,
     broadcast_msg(Clients, JSON),
     {noreply, State#?STATE{last_nci = JSON,
                            nci = NCI,
+                           last_nci_time = Time,
                            communities = Communities}};
 handle_cast({nci_details, Pid}, State = #?STATE{
                                             communities = Communities,
-                                            nci = NCI}) ->
-    clientsock:send(Pid, json_nci_details(NCI, Communities)),
+                                            nci = NCI,
+                                            last_nci_time = Time}) ->
+    clientsock:send(Pid, json_nci_details(Time, NCI, Communities)),
     {noreply, State};
-handle_cast({collectors, Pid}, State = #?STATE{collectors = Collectors}) ->
-    clientsock:send(Pid, json_collectors(Collectors)),
+handle_cast({collectors, Pid}, State = #?STATE{collectors = Collectors,
+                                               last_qps_time = Time}) ->
+    clientsock:send(Pid, json_collectors(Time, Collectors)),
     {noreply, State};
 handle_cast({qps, QPS, Collectors, UT}, State = #?STATE{clients = Clients}) ->
     Time = list_to_binary(tap_time:rfc3339(UT)),
@@ -150,6 +157,7 @@ handle_cast({qps, QPS, Collectors, UT}, State = #?STATE{clients = Clients}) ->
     broadcast_msg(Clients, COLMsg),
     {noreply, State#?STATE{last_qps = QPSMsg,
                            last_col = COLMsg,
+                           last_qps_time = Time,
                            collectors = Collectors}};
 handle_cast({new_client, Pid}, State = #?STATE{clients = Clients,
                                                start_time = StartTime,
@@ -159,7 +167,8 @@ handle_cast({new_client, Pid}, State = #?STATE{clients = Clients,
                                                last_col = COLS}) ->
     monitor(process, Pid),
     ?DEBUG("tap_client_data: new client ~p~n",[Pid]),
-    HELLO = jiffy:encode({[{<<"start_time">>,
+    HELLO = jiffy:encode({[{<<"action">>, <<"hello">>},
+                           {<<"start_time">>,
                                 list_to_binary(tap_time:rfc3339(StartTime))},
                            {<<"current_time">>,
                                 list_to_binary(tap_time:rfc3339(calendar:universal_time()))}]}),
@@ -222,22 +231,23 @@ send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
 broadcast_msg(Clients, Msg) ->
     [clientsock:send(C, Msg) || C <- Clients].
 
-json_nci_details(undefined, Communities) ->
-    json_nci_details(0, Communities);
-json_nci_details(NCI, Communities) ->
+json_nci_details(Time, undefined, Communities) ->
+    json_nci_details(Time, 0, Communities);
+json_nci_details(Time, NCI, Communities) ->
     jiffy:encode({[
         {<<"action">>,<<"NCIDetails">>},
         {<<"NCI">>,NCI},
-        {<<"Time">>, list_to_binary(tap_time:rfc3339(calendar:universal_time()))},
+        {<<"Time">>, Time},
         {<<"Communities">>, communities(Communities)}
     ]}).
 
-communities({Endpoints, Interactions}) ->
+communities({Endpoints, Interactions, Leaves, Sizes}) ->
     Communities = intersect_keys(Endpoints, Interactions),
     [
         {[
-            {<<"Interactions">>, interactions(dict:fetch(C, Interactions))},
-            {<<"Endpoints">>, endpoints(dict:fetch(C, Endpoints))}
+            {<<"Interactions">>, interactions(dict:fetch(C, Interactions), Leaves)},
+            {<<"Endpoints">>, endpoints(dict:fetch(C, Endpoints), Leaves)},
+            {<<"Size">>, dict:fetch(C, Sizes)}
         ]} || C <- Communities
     ].
 
@@ -246,11 +256,34 @@ intersect_keys(A, B) ->
         sets:from_list(dict:fetch_keys(A)),
         sets:from_list(dict:fetch_keys(B)))).
 
-interactions(L) ->
-    [[endpoint(A), endpoint(B)] || {A, B} <- L].
+interactions(L, Leaves) ->
+    Interactions = lists:foldl(
+        fun(I, S) ->
+            NI = normalize_interaction(I),
+            sets:add_element(NI, S)
+        end, sets:new(), L),
+    [[leafcount(A, endpoint(A), Leaves),
+      leafcount(B, endpoint(B), Leaves)] ||
+                                    {A, B} <- sets:to_list(Interactions)].
 
-endpoints(L) ->
-    [endpoint(E) || E <- L].
+normalize_interaction({A, B}) when A > B ->
+    {A, B};
+normalize_interaction({A, B}) ->
+    {B, A}.
+
+endpoints(L, Leaves) ->
+    [leafcount(E, endpoint(E), Leaves) || E <- L].
+
+leafcount(K, S, Leaves) ->
+    <<S/binary, (fetch_leafcount(K, Leaves))/binary>>.
+
+fetch_leafcount(K, Leaves) ->
+    case dict:find(K, Leaves) of
+        {ok, LeafCount} ->
+            <<<<":">>/binary, (integer_to_binary(LeafCount))/binary>>;
+        error ->
+            <<>>
+    end.
 
 endpoint({A,B,C,D}) ->
     list_to_binary([integer_to_list(A), ".", integer_to_list(B), ".", 
@@ -262,10 +295,10 @@ endpoint(S) when is_list(S) ->
 endpoint(_) ->
     <<"invalid">>.
 
-json_collectors(Collectors) ->
+json_collectors(Time, Collectors) ->
     jiffy:encode({[
         {<<"action">>,<<"collectors">>},
-        {<<"Time">>, list_to_binary(tap_time:rfc3339(calendar:universal_time()))},
+        {<<"Time">>, Time},
         {<<"Collectors">>, format_collectors(Collectors)}
     ]}).
 

@@ -39,6 +39,7 @@
 
 -define(STATE, tap_batch_state).
 -record(?STATE, {
+        mode,
         collectors = dict:new(),
         total_count = 0,
         last_qps_time,
@@ -67,8 +68,9 @@ push_qps() ->
 % -----------------------------------------------------------------------------
 
 init([]) ->
+    Mode = tap_config:getconfig(datasource),
     gen_server:cast(?MODULE, start),
-    {ok, #?STATE{}}.
+    {ok, #?STATE{mode = Mode}}.
 
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
@@ -76,14 +78,12 @@ handle_call(Msg, From, State) ->
 handle_cast(start, State) ->
     NewState = qps_timer(State),
     {noreply, NewState#?STATE{last_qps_time = tap_time:now()}};
-handle_cast({load, IpAddr, FtpFile}, State) ->
-    BinaryFile = extract_file(FtpFile),
-    Data = parse_file(BinaryFile),
-    ?DEBUG("ftp data length from ~p: ~p~n",[IpAddr, length(Data)]),
-    tap_ds:ordered_edges(Data),
-    State1 = add_collector(IpAddr, length(Data), State),
-    maybe_push_qps(State1),
-    {noreply, State1};
+handle_cast({load, IpAddr, FtpFile}, State = #?STATE{mode = anonymized}) ->
+    NewState = load_tar(IpAddr, FtpFile, State),
+    {noreply, NewState};
+handle_cast({load, IpAddr, FtpFile}, State = #?STATE{mode = logfile}) ->
+    NewState = load_logfile(IpAddr, FtpFile, State),
+    {noreply, NewState};
 handle_cast(push_qps, State) ->
     State1 = push_qps(State),
     State2 = qps_timer(State1),
@@ -143,6 +143,23 @@ per_sec(Count, LastTime) ->
 safe_div(_, 0) -> 0;
 safe_div(N, D) -> N/D.
 
+load_tar(IpAddr, FtpFile, State) ->
+    BinaryFile = extract_file(FtpFile),
+    Data = parse_file(BinaryFile),
+    ?DEBUG("ftp tar data tar length from ~p: ~p~n",[IpAddr, length(Data)]),
+    tap_ds:ordered_edges(Data),
+    State1 = add_collector(IpAddr, length(Data), State),
+    maybe_push_qps(State1),
+    State1.
+
+load_logfile(IpAddr, FtpFile, State) ->
+    Data = parse_logfile(FtpFile),
+    ?DEBUG("ftp log data tar length from ~p: ~p~n",[IpAddr, length(Data)]),
+    tap_ds:ordered_edges(Data),
+    State1 = add_collector(IpAddr, length(Data), State),
+    maybe_push_qps(State1),
+    State1.
+
 extract_file(CompressedTarBytes)->
     case erl_tar:extract({binary, CompressedTarBytes}, [compressed, memory]) of
         {ok, Files} ->
@@ -169,9 +186,22 @@ parse_file(<<BitString:53/binary, BinaryData/binary>>, Data) ->
     <<_Time:10/binary, _S:1/binary,
        ID1:20/binary, _S:1/binary,
        ID2:20/binary, _Rest/binary>> = BitString,
-    V1 = bitstring_to_list(ID1),
-    V2 = bitstring_to_list(ID2),
-    Interaction = {V1, V2},
+    Interaction = {ID1, ID2},
     parse_file(BinaryData, [Interaction | Data]);
 parse_file(_BinaryData, Data)->
     lists:reverse(Data).
+
+parse_logfile(ZBin) ->
+    Bin =  safe_gunzip(ZBin),
+    Matches = case re:run(Bin,"client (.*)#.* UDP: query: (.*) IN A response: NOERROR.*? ([0-9]{1,3}\..[0-9]{1,3}\..[0-9]{1,3}\..[0-9]{1,3});", [global, {capture,[2,1,3],binary}]) of
+        {match, M} -> M;
+        _ -> []
+    end,
+    [{Requester, Resolved} || [_Query, Requester, Resolved] <- Matches].
+
+safe_gunzip(ZBin) ->
+    try
+        zlib:gunzip(ZBin)
+    catch
+        error:data_error -> <<>>
+    end.

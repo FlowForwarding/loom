@@ -14,7 +14,7 @@ NCI.setupCommunities = function(data){
 	// };
 	// 
 	NCI.Communities.sort(function(a, b){
-		return a.Endpoints.length > b.Endpoints.length;
+		return a.Size- b.Size;
 	});
 	NCI.timestampNCI = data.NCI;
 	NCI.timestamp = data.Time;
@@ -33,7 +33,7 @@ NCI.nciHistogram = (function(){
 	
 	me.show = function(){
 		chart.text("");
-		var endpointsMax = d3.max(NCI.Communities, function(d) { return d.Endpoints.length; });
+		var endpointsMax = d3.max(NCI.Communities, function(d) { return d.Size; });
 		var endpointsMin;
 		var endpointsScale;
 		if (endpointsMax > 100) {
@@ -84,9 +84,9 @@ NCI.nciHistogram = (function(){
 		    .data(NCI.Communities)
 		    .enter().append('rect')
 		    .attr('x', function(d) { return activitiesScale(NCI.Communities.length - index++) - barWidth/2})
-		    .attr('y', function(d) { return   endpointsScale(d.Endpoints.length)}) //- selfwidth
+		    .attr('y', function(d) { return endpointsScale(d.Size)}) //- selfwidth
 		    .attr('width', function(d) { return barWidth})
-		    .attr('height',function(d) { return height - margin.top - margin.bottom - endpointsScale(d.Endpoints.length) })
+		    .attr('height',function(d) { return height - margin.top - margin.bottom - endpointsScale(d.Size) })
 			.on("click", me.showDetails);
 
 		barChartSvg.append("circle").attr("cy", endpointsScale(NCI.timestampNCI))
@@ -95,7 +95,7 @@ NCI.nciHistogram = (function(){
 		    .attr("cx", activitiesScale(NCI.timestampNCI) ).style("fill", "red").attr("r", 4);
 		barChartSvg.append("circle").attr("cy", endpointsScale(NCI.timestampNCI))
 		    .attr("cx", activitiesScale(activitiesMin) ).style("fill", "red").attr("r", 4);
-		//draw axis 	
+		//draw axis 
 		barChartSvg.append('g')
 		    .attr('class', 'x axis')
 			.attr('transform', 'translate(0,' + (height - margin.top - margin.bottom) + ')')
@@ -224,7 +224,7 @@ NCI.socialGraph  = (function(){
 			//.classed("fixed",  function(d) {d.fixed = true})
 		me.setupNodes(filtered, devided, clustered);
 		// node.on("mouseover", function(d, e) { console.log( d); console.log(e) })
-		me.node.append("title").html(function(d) { return d.name + "<br>" + d.neighbours + " connections" ; });
+		me.node.append("title").html(function(d) { return d.name });//+ "<br>" + d.neighbours + " connections" ; });
 
 	    force.on("tick", function() { 
 	        link.attr("x1", function(d) { return d.source.x; })
@@ -259,7 +259,10 @@ NCI.prepareDataForForceGraph = function(communities){
 				"group": index
 			});
 		});
+	});	
+	$.each(communities, function(index, community){	
 		$.each(community.Interactions, function(index2, interacton){
+			if (nodeIndex(interacton[1]) > 0 && nodeIndex(interacton[0]) > 0)
 			graph.links.push({
 				"source": nodeIndex(interacton[1]),
 				"target": nodeIndex(interacton[0]),
@@ -267,46 +270,47 @@ NCI.prepareDataForForceGraph = function(communities){
 		});
 	});
 	
-	//TODO optimaze calculations
-	$.each(graph.nodes, function(index, node){
-		var numOfConnections = 0;
-		$.each(graph.links, function(index, link){
-			if (graph.nodes[link.source].name == node.name || graph.nodes[link.target].name == node.name){
-				numOfConnections++;
-			}
-			if (graph.nodes[link.source].group != graph.nodes[link.target].group)
-			    node.hasExternalConnections = true;
-		});
-		node.neighbours = numOfConnections/2;
-	});	
+	// //TODO optimaze calculations
+	// $.each(graph.nodes, function(index, node){
+	// 	var numOfConnections = 0;
+	// 	$.each(graph.links, function(index, link){
+	// 		if (link.source != -1 &&  link.target != -1)
+	// 		if (graph.nodes[link.source].name == node.name || graph.nodes[link.target].name == node.name){
+	// 			numOfConnections++;
+	// 		}
+	// 		if (link.source != -1 &&  link.target != -1)
+	// 		if (graph.nodes[link.source].group != graph.nodes[link.target].group)
+	// 		    node.hasExternalConnections = true;
+	// 	});
+	// 	node.neighbours = numOfConnections/2;
+	// });	
+	// 
+	// graph.nodes.sort(function(node1, node2){
+	// 	return node2.neighbours - node1.neighbours;
+	// });
 	
-	graph.nodes.sort(function(node1, node2){
-		return node2.neighbours - node1.neighbours;
-	});
-	console.log(graph.nodes[0].neighbours);
-	
-	var nodes = [];
-	$.each(graph.nodes, function(index, node){
-		if (index < 250 || node.hasExternalConnections){
-			nodes.push(node);
-		}
-	});
-	graph.nodes = nodes;
-	
-	graph.links = [];
-	
-	$.each(communities, function(index, community){
-	    $.each(community.Interactions, function(index, interacton){
-		    var sIndex = nodeIndex(interacton[1]);
-		    var tIndex = nodeIndex(interacton[0]);
-		    if (sIndex >= 0 && tIndex >= 0){
-			    graph.links.push({
-				    "source": sIndex,
-				    "target": tIndex,
-				    "value": 1});
-		    }
-	    });
-    });
+	// var nodes = [];
+	// $.each(graph.nodes, function(index, node){
+	// 	if (index < 50){
+	// 		nodes.push(node);
+	// 	}
+	// });
+	// graph.nodes = nodes;
+	// 
+	// graph.links = [];
+	// 
+	// $.each(communities, function(index, community){
+	//     $.each(community.Interactions, function(index, interacton){
+	// 	    var sIndex = nodeIndex(interacton[1]);
+	// 	    var tIndex = nodeIndex(interacton[0]);
+	// 	    if (sIndex >= 0 && tIndex >= 0){
+	// 		    graph.links.push({
+	// 			    "source": sIndex,
+	// 			    "target": tIndex,
+	// 			    "value": 1});
+	// 	    }
+	//     });
+	//     });
 	
 	return graph;
 };

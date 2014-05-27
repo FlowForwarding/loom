@@ -62,6 +62,8 @@
     tapestry_config/2,
     tapestry_config/3,
     tapestry_config/4,
+    tapestry_config_add/3,
+    tapestry_config_add/4,
     connect/2,
     disconnect/0,
     disconnect/1,
@@ -223,11 +225,28 @@ tapestry_config(Port1, Port2, DnsIps) ->
 %% Configure switch associated with Key for tapestry.  Remove all the
 %% flows on table 0, dns_tap with priority 200 from Port1 to Port2 and
 %% the controller.  Bridge between Port1 and Port2.
-%% If Key is ``default'', clear all flows on the default switch.
+%% If Key is ``default'', add tapestry flows to the default switch.
+%% Use tapestry_config to initialize a switch for tapestry.
 %% @end
 -spec tapestry_config(switch_key(), integer(), integer(), [ipaddress()]) -> ok.
 tapestry_config(Key, Port1, Port2, DnsIps) ->
     ?DEBUG("clear_flows: ~p~n", [clear_flows(Key, 0)]),
+    tapestry_config_add(Key, Port1, Port2, DnsIps).
+
+%% @equiv tapestry_config_add(default, Port1, Port2, DnsIps)
+-spec tapestry_config_add(integer(), integer(), [ipaddress()]) -> ok.
+tapestry_config_add(Port1, Port2, DnsIps) ->
+    tapestry_config_add(default, Port1, Port2, DnsIps).
+
+%% @doc
+%% Configure switch associated with Key for tapestry.
+%% dns_tap with priority 200 from Port1 to Port2 and
+%% the controller.  Bridge between Port1 and Port2.
+%% If Key is ``default'', add tapestry flows to the default switch.
+%% Use tapestry_config_add to add additional tapestry flows to the switch.
+%% @end
+-spec tapestry_config_add(switch_key(), integer(), integer(), [ipaddress()]) -> ok.
+tapestry_config_add(Key, Port1, Port2, DnsIps) ->
     ?DEBUG("bridge: ~p~n", [bridge(Key, 100, Port1, Port2)]),
     ?DEBUG("dns_tap: ~p~n",
                 [dns_tap(Key, 200, Port1, Port2, controller, DnsIps)]),
@@ -247,7 +266,7 @@ tapestry_config(Filename) ->
 %% and next matching IP addresses.  The format of the tapestry
 %% config file is:
 %%
-%% {switch, [{dpid, {0,<<8,0,39,197,149,72>>}},
+%% {switch, [{dpid, "00:01:00:00:00:00:00:02"},
 %%           {dns_port, 1},
 %%           {client_port, 2},
 %%           {dns_ips, [{10,0,2,60}, {10,48,2,5}]}
@@ -260,6 +279,18 @@ tapestry_config(Filename) ->
 %%           {client_port, 2},
 %%           {dns_ips, [{10,0,2,60}, {10,48,2,5}]}
 %% ]}.
+%%
+%% If there is more than one port pair on a single switch:
+%%
+%% {switch, [{ip_addr, {192,168,56,102}},
+%%           {dns_port, 1},
+%%           {client_port, 2},
+%%           {dns_ips, [{10,0,2,60}, {10,48,2,5}]},
+%%           {dns_port, 3},
+%%           {client_port, 4},
+%%           {dns_ips, [{10,0,2,70}, {10,48,2,85}]}
+%% ]}.
+%%
 %% @end
 -spec tapestry_config(all | switch_key(), string()) -> ok.
 tapestry_config(all, Filename) ->
@@ -270,7 +301,7 @@ tapestry_config(all, Filename) ->
 tapestry_config(Key, Filename) when is_integer(Key); Key == default ->
     do_tapestry_config(Key, find_config(Key, consult_config(Filename))).
 
-try_config({Key, DatapathId, IpAddr, _Version}, Configs) ->
+try_config({Key, DatapathId, IpAddr, _Version, _Connection}, Configs) ->
     case do_find_config(DatapathId, IpAddr, Configs) of
         no_config ->
             ok;
@@ -280,10 +311,15 @@ try_config({Key, DatapathId, IpAddr, _Version}, Configs) ->
 
 do_tapestry_config(Key, Config) ->
     ?DEBUG("configuring ~p with ~p~n", [Key, Config]),
-    Port1 = config_value(dns_port, Config),
-    Port2 = config_value(client_port, Config),
-    DnsIps = config_value(dns_ips, Config),
-    tapestry_config(Key, Port1, Port2, DnsIps).
+    Port1List = config_values(dns_port, Config),
+    Port2List = config_values(client_port, Config),
+    DnsIpsList = config_values(dns_ips, Config),
+    [{FirstPort1, FirstPort2, FirstDnsIps} | Rest] = 
+                                lists:zip3(Port1List, Port2List, DnsIpsList),
+    tapestry_config(Key, FirstPort1, FirstPort2, FirstDnsIps),
+    [tapestry_config_add(Key, Port1, Port2, DnsIps) ||
+        {Port1, Port2, DnsIps} <- Rest],
+    ok.
 
 consult_config(Filename) ->
     case file:consult(Filename) of
@@ -299,8 +335,8 @@ find_config(Key, Configs) ->
     end.
 
 do_find_config(DatapathId, IpAddr, Configs) ->
-    FoundConfigs = [find_config(dpid, DatapathId, Configs) |
-                        [find_config(ip_addr, IpAddr, Configs)]],
+    FoundConfigs = [find_config(dpid, DatapathId, Configs),
+                        find_config(ip_addr, IpAddr, Configs)],
     case FoundConfigs of
         [no_config, no_config] -> no_config;
         [no_config, Config] -> Config;
@@ -320,10 +356,10 @@ find_config(Identifier, Identity, Configs) ->
         [C | _] -> C
     end.
 
-config_value(Key, Config) ->
-    case proplists:get_value(Key, Config) of
-        undefined -> error({Key, no_config});
-        Value -> Value
+config_values(Key, Config) ->
+    case proplists:get_all_values(Key, Config) of
+        [] -> error({Key, no_config});
+        Values -> Values
     end.
 
 find_switch(default) ->

@@ -64,6 +64,7 @@ connect(IpAddr, Port) ->
 % @hidden
 ofsh_init(_Mode, IpAddr, DatapathId, Version, _Connection) ->
     ?INFO("Connection from ~p ~p~n", [IpAddr, DatapathId]),
+    tap_aggr:new_collector(DatapathId, IpAddr),
     gen_server:cast(?MODULE, {initialize_switch, IpAddr, DatapathId, Version}).
 
 % @hidden

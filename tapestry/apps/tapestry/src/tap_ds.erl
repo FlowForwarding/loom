@@ -42,7 +42,8 @@
             digraph,
             nci_update_timer,
             clean_timer,
-            data_max_age}).
+            data_max_age,
+            max_vertices}).
 
 %------------------------------------------------------------------------------
 % API
@@ -68,8 +69,9 @@ ordered_edges(Edges) ->
 %------------------------------------------------------------------------------
 
 init([]) ->
+    MaxVertices = tap_config:getconfig(max_vertices),
     gen_server:cast(?MODULE, start),
-    {ok, #?STATE{}}.
+    {ok, #?STATE{max_vertices = MaxVertices}}.
 
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
@@ -85,8 +87,9 @@ handle_cast(start, State) ->
 handle_cast({ordered_edges, Edges}, State = #?STATE{digraph = Digraph}) ->
     add_edges(Digraph, Edges),
     {noreply, State};
-handle_cast(push_nci, State = #?STATE{digraph = Digraph}) ->
-    push_nci(Digraph, digraph:no_vertices(Digraph)),
+handle_cast(push_nci, State = #?STATE{digraph = Digraph,
+                                      max_vertices = MaxVertices}) ->
+    push_nci(Digraph, digraph:no_vertices(Digraph), MaxVertices),
     {noreply, State};
 handle_cast(clean_data, State = #?STATE{
                                     digraph = Digraph,
@@ -139,14 +142,14 @@ add_edge(G, E, Time)->
         false -> error
     end.
 
-push_nci(_Digraph, 0) ->
+push_nci(_Digraph, 0, _MaxVertices) ->
     % no data to process
     ok;
-push_nci(Digraph, _NumVertices) ->
+push_nci(Digraph, _NumVertices, MaxVertices) ->
     spawn_link(
         fun() ->
             random:seed(now()),
-            {NCI, Communities} = nci:compute_from_graph(Digraph),
+            {NCI, Communities} = nci:compute_from_graph(Digraph, MaxVertices),
             tap_client_data:nci(NCI, Communities, calendar:universal_time())
         end).
             
