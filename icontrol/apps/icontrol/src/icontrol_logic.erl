@@ -36,7 +36,8 @@
 -record(?STATE, {
     next_switch_key = 1 :: integer(),
     switches_table :: term(), % ets table
-    default_switch :: switch_key()
+    default_switch :: switch_key(),
+    dg_state :: term()
 }).
 
 -record(switch_record, {
@@ -78,7 +79,8 @@
     close_connection/1,
     set_default/1,
     show_default/0,
-    ofs_version/1
+    ofs_version/1,
+    re_init_dg/0
 ]).
 
 start_link() ->
@@ -184,14 +186,20 @@ show_default() ->
 ofs_version(SwitchKey) ->
     gen_server:call(?SERVER, {ofs_version, SwitchKey}).
 
+re_init_dg() ->
+    gen_server:call(?SERVER, re_init_dg).
+
 %% ------------------------------------------------------------------
 %% gen_server Function Definitions
 %% ------------------------------------------------------------------
 
 init([]) ->
     SwitchesTable = ets:new(switches, [{keypos, 2}, set, protected]),
+    DGState = icontrol_dg:init(),
     State = #?STATE{switches_table = SwitchesTable,
-                    default_switch = undefined},
+                    default_switch = undefined,
+                    dg_state = DGState
+                   },
     {ok, State}.
 
 handle_call({init, IpAddr, DatapathId, Version, Connection}, _From, State) ->
@@ -227,6 +235,9 @@ handle_call(switches, _From, State) ->
             connection = Connection
         } <- do_get_switches(State)],
     {reply, Reply, State};
+handle_call(re_init_dg,_From,State) ->
+    DGState = icontrol_dg:init(),
+    {reply,DGState,State#?STATE{ dg_state = DGState }};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
@@ -248,7 +259,8 @@ code_change(_OldVsn, State, _Extra) ->
 
 register_switch(IpAddr, DatapathId, Version, Connection,
                             State = #?STATE{switches_table = Switches,
-                                            next_switch_key = SwitchKey}) ->
+                                            next_switch_key = SwitchKey,
+                                            dg_state = DGState }) ->
     SwitchRecord = #switch_record{
         switch_key = SwitchKey,
         ipaddr = IpAddr,
@@ -258,7 +270,13 @@ register_switch(IpAddr, DatapathId, Version, Connection,
     },
     true = ets:insert(Switches, SwitchRecord),
     NewState = maybe_set_switch_key(SwitchKey, State),
-    NewState#?STATE{next_switch_key = SwitchKey + 1}.
+
+    %% N: Only adding switces to DG not removing...
+    Labels = [{ip,IpAddr},{version,Version}],
+    NewDGState = icontrol_dg:add_switch(DGState,DatapathId,Labels,SwitchKey),
+
+    NewState#?STATE{next_switch_key = SwitchKey + 1,
+                    dg_state = NewDGState}.
 
 maybe_set_switch_key(Key, State = #?STATE{default_switch = undefined}) ->
     State#?STATE{default_switch = Key};
