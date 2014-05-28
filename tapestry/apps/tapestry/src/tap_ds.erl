@@ -43,6 +43,7 @@
             nci_update_timer,
             clean_timer,
             data_max_age,
+            calc_pid = no_process,
             max_vertices}).
 
 %------------------------------------------------------------------------------
@@ -88,9 +89,17 @@ handle_cast({ordered_edges, Edges}, State = #?STATE{digraph = Digraph}) ->
     add_edges(Digraph, Edges),
     {noreply, State};
 handle_cast(push_nci, State = #?STATE{digraph = Digraph,
-                                      max_vertices = MaxVertices}) ->
-    push_nci(Digraph, digraph:no_vertices(Digraph), MaxVertices),
-    {noreply, State};
+                                      max_vertices = MaxVertices,
+                                      calc_pid = CalcPid}) ->
+    NewState = case calculating(CalcPid) of
+        true ->
+            ?DEBUG("NCI Calculation already running, skipping this run"),
+            State;
+        false ->
+            Pid = push_nci(Digraph, digraph:no_vertices(Digraph), MaxVertices),
+            State#?STATE{calc_pid = Pid}
+    end,
+    {noreply, NewState};
 handle_cast(clean_data, State = #?STATE{
                                     digraph = Digraph,
                                     data_max_age = DataMaxAge}) ->
@@ -144,18 +153,19 @@ add_edge(G, E, Time)->
 
 push_nci(_Digraph, 0, _MaxVertices) ->
     % no data to process
-    ok;
+    no_process;
 push_nci(Digraph, _NumVertices, MaxVertices) ->
     Vertices = digraph:vertices(Digraph),
     Edges = [digraph:edge(Digraph, E) || E <- digraph:edges(Digraph)],
-    spawn_link(
+    Pid = spawn_link(
         fun() ->
             random:seed(now()),
             G = new_digraph(Vertices, Edges),
             {NCI, Communities} = nci:compute_from_graph(G, MaxVertices),
             tap_client_data:nci(NCI, Communities, calendar:universal_time()),
             digraph:delete(G)
-        end).
+        end),
+    Pid.
             
 update_edge(G, V1, V2, Time)->
     Found = lists:filter(
@@ -197,3 +207,8 @@ new_digraph(Vertices, Edges) ->
                               digraph:add_edge(G, V1, V2)
                           end, Edges),
             G.
+
+calculating(Pid) when is_pid(Pid) ->
+    is_process_alive(Pid);
+calculating(_) ->
+    false.

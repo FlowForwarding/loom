@@ -63,6 +63,8 @@
          clean_vertex/2,
          print_labels/1]).
 
+-include("tap_logger.hrl").
+
 %% === compute(EdgeList) === 
 %%
 %% compute(EdgeList) is the API function to be called by external calling code.
@@ -159,10 +161,13 @@ compute(EdgeList)->
     NCI.
 
 compute_from_graph(G, MaxVertices)->
+    ?DEBUG("Starting NCI Calculation"),
+    StartTime = tap_time:now(),
     prop_labels(G),
     NCI = calc_nci(G),
     % !!! warning, communities mangles G
     Communities = communities(G, MaxVertices),
+    ?INFO("NCI Calculation: ~p sec", [tap_time:since(StartTime)]),
     {NCI, Communities}.
 
 %% === calc_nci ===
