@@ -158,6 +158,13 @@ compute(EdgeList)->
     %% Return the NCI number.
     NCI.
 
+compute_from_graph(G, MaxVertices)->
+    prop_labels(G),
+    NCI = calc_nci(G),
+    % !!! warning, communities mangles G
+    Communities = communities(G, MaxVertices),
+    {NCI, Communities}.
+
 %% === calc_nci ===
 %% function is an internal function called by the externally
 %% callable compute(G) function
@@ -473,22 +480,6 @@ add_edge(G, {X, Y})->
 add_edges(G, Edges)->
     [add_edge(G, Edge) || Edge <- Edges],
     G.
-
-compute_from_graph(InG, MaxVertices)->
-    G = digraph:new(),
-    Vertices = digraph:vertices(InG),
-    lists:foreach(fun(X)-> digraph:add_vertex(G,X,X) end, Vertices),
-    Edges = digraph:edges(InG),
-    lists:foreach(fun(X)->
-			  {_, V1, V2, _} = digraph:edge(InG, X),
-			  digraph:add_edge(G, V1, V2) end,
-		  Edges),
-    prop_labels(G),
-    NCI = calc_nci(G),
-    % !!! warning, communities mangles G
-    Communities = communities(G, MaxVertices),
-    digraph:delete(G),
-    {NCI, Communities}.
 
 communities(G, MaxVertices) ->
     communities(G, digraph:no_vertices(G), MaxVertices).

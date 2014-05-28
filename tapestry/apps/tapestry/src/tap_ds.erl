@@ -146,11 +146,15 @@ push_nci(_Digraph, 0, _MaxVertices) ->
     % no data to process
     ok;
 push_nci(Digraph, _NumVertices, MaxVertices) ->
+    Vertices = digraph:vertices(Digraph),
+    Edges = [digraph:edge(Digraph, E) || E <- digraph:edges(Digraph)],
     spawn_link(
         fun() ->
             random:seed(now()),
-            {NCI, Communities} = nci:compute_from_graph(Digraph, MaxVertices),
-            tap_client_data:nci(NCI, Communities, calendar:universal_time())
+            G = new_digraph(Vertices, Edges),
+            {NCI, Communities} = nci:compute_from_graph(G, MaxVertices),
+            tap_client_data:nci(NCI, Communities, calendar:universal_time()),
+            digraph:delete(G)
         end).
             
 update_edge(G, V1, V2, Time)->
@@ -183,3 +187,13 @@ long_time_to_seconds(LongTimeConfig) ->
 
 days_to_seconds({D, {H, M, S}}) ->
    (D * 24 * 60 * 60) + (H * 60 * 60) + (M * 60) + S.
+
+new_digraph(Vertices, Edges) ->
+            G = digraph:new(),
+            lists:foreach(fun(X)->
+                              digraph:add_vertex(G,X,X)
+                          end, Vertices),
+            lists:foreach(fun({_, V1, V2, _}) ->
+                              digraph:add_edge(G, V1, V2)
+                          end, Edges),
+            G.
