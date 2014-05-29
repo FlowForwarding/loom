@@ -55,7 +55,7 @@
                 last_qps_time,
                 nci,
                 collectors = [],
-                communities = {dict:new(), dict:new()}}).
+                communities = no_communities}).
 
 %------------------------------------------------------------------------------
 % API
@@ -241,6 +241,8 @@ json_nci_details(Time, NCI, Communities) ->
         {<<"Communities">>, communities(Communities)}
     ]}).
 
+communities(no_communities) ->
+    [];
 communities({Endpoints, Interactions, Leaves, Sizes}) ->
     Communities = intersect_keys(Endpoints, Interactions),
     [
