@@ -181,7 +181,7 @@ $(document).on('opened', '#nciDetails', function () {
 $(document).on('close', '#nciDetails', function () {
 	NCI.socialGraph.text("");
 	NCI.nciHistogram.text("");
-	$('#nciDetailsTabs').find("a").first().click();
+	// $('#nciDetailsTabs').find("a").first().click();
 	
 });
 
