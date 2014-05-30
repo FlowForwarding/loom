@@ -549,10 +549,10 @@ comm_interactions(G) ->
             Vs = vsort(V1, V2),
             case {C1, C2} of
                 {C, C} ->
-                    true = ets:insert(T, {{C, Vs}});
+                    true = ets:insert(T, {C, Vs});
                 {C1, C2} ->
-                    true = ets:insert(T, {{C1, Vs}}),
-                    true = ets:insert(T, {{C2, Vs}})
+                    true = ets:insert(T, {C1, Vs}),
+                    true = ets:insert(T, {C2, Vs})
             end,
             T
         end, ets:new(interactions, [bag, private]), digraph:edges(G)),
@@ -561,9 +561,9 @@ comm_interactions(G) ->
     D.
 
 vsort(V1, V2) when V1 > V2 ->
-    V1;
-vsort(_, V2) ->
-    V2.
+    {V1, V2};
+vsort(V1, V2) ->
+    {V2, V1}.
 
 dict_from_interactions_table(T) ->
     dict_from_interactions_table(T, ets:first(T), dict:new()).
