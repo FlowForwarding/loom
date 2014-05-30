@@ -541,16 +541,36 @@ comm_endpoints(G) ->
         end, dict:new(), digraph:vertices(G)).
 
 comm_interactions(G) ->
-    lists:foldl(
-        fun(E, D) ->
+    TT = lists:foldl(
+        fun(E, T) ->
             {E, V1, V2, _} = digraph:edge(G, E),
             {V1, C1} = digraph:vertex(G, V1),
             {V2, C2} = digraph:vertex(G, V2),
+            Vs = vsort(V1, V2),
             case {C1, C2} of
                 {C, C} ->
-                    dict:append(C, {V1, V2}, D);
+                    true = ets:insert(T, {{C, Vs}});
                 {C1, C2} ->
-                    D1 = dict:append(C1, {V1, V2}, D),
-                    dict:append(C2, {V1, V2}, D1)
-            end
-        end, dict:new(), digraph:edges(G)).
+                    true = ets:insert(T, {{C1, Vs}}),
+                    true = ets:insert(T, {{C2, Vs}})
+            end,
+            T
+        end, ets:new(interactions, [bag, private]), digraph:edges(G)),
+    D = dict_from_interactions_table(TT),
+    true = ets:delete(TT),
+    D.
+
+vsort(V1, V2) when V1 > V2 ->
+    V1;
+vsort(_, V2) ->
+    V2.
+
+dict_from_interactions_table(T) ->
+    dict_from_interactions_table(T, ets:first(T), dict:new()).
+
+dict_from_interactions_table(_T, '$end_of_table', D) ->
+    D;
+dict_from_interactions_table(T, C, D) ->
+    Interactions = [{V1, V2} || {_, {V1, V2}} <- ets:lookup(T, C)],
+    D1 = dict:store(C, Interactions, D),
+    dict_from_interactions_table(T, ets:next(T, C), D1).
