@@ -65,6 +65,16 @@
 
 -include("tap_logger.hrl").
 
+-define(LOGDURATION(F),
+            begin
+                (fun() ->
+                    {TinMicro, R} = timer:tc(fun() -> F end),
+                    TinSec = TinMicro div 1000000,
+                    ?INFO("Time ~s:~B ~s: ~B sec", [?FILE, ?LINE, ??F, TinSec]),
+                    R
+                end)()
+            end).
+
 %% === compute(EdgeList) === 
 %%
 %% compute(EdgeList) is the API function to be called by external calling code.
@@ -162,12 +172,10 @@ compute(EdgeList)->
 
 compute_from_graph(G, MaxVertices)->
     ?DEBUG("Starting NCI Calculation"),
-    StartTime = tap_time:now(),
-    prop_labels(G),
+    ?LOGDURATION(prop_labels(G)),
     NCI = calc_nci(G),
     % !!! warning, communities mangles G
     Communities = communities(G, MaxVertices),
-    ?INFO("NCI Calculation: ~p sec", [tap_time:since(StartTime)]),
     {NCI, Communities}.
 
 %% === calc_nci ===
@@ -187,7 +195,7 @@ compute_from_graph(G, MaxVertices)->
 %%
 -spec calc_nci( LabeledGraph :: digraph() ) -> NCI :: integer().
 calc_nci(LabeledGraph)->
-    C = get_communities(LabeledGraph),
+    C = ?LOGDURATION(get_communities(LabeledGraph)),
 
     %% At this point in the code C refers to an unordered of community
     %% names with associated sizes
@@ -195,7 +203,7 @@ calc_nci(LabeledGraph)->
     %% of three communities a, f, and c
     %% which have 10, 3, and 55 members respectively
     
-    SC = rev_sort_labels(C),
+    SC = ?LOGDURATION(rev_sort_labels(C)),
 
     %% At this point, SC referes to a sorted list of communities with
     %% sizes which have been sorted by size
@@ -203,7 +211,7 @@ calc_nci(LabeledGraph)->
     %% Using the example C above,  SC = [{c,55},{a,10},{f,3}].
 
     %% We now call a two parameter function 
-    NCI = calc_nci(SC,0),
+    NCI = ?LOGDURATION(calc_nci(SC,0)),
     %% NCI computation results in a one to big, maybe?
     %% XXX requires more study.
     NCI.
@@ -487,13 +495,13 @@ add_edges(G, Edges)->
     G.
 
 communities(G, MaxVertices) ->
-    communities(G, digraph:no_vertices(G), MaxVertices).
+    ?LOGDURATION(communities(G, digraph:no_vertices(G), MaxVertices)).
 
 communities(G, VerticesCount, MaxVertices) when VerticesCount > MaxVertices ->
-    CommunitySizes = comm_sizes(G),
+    CommunitySizes = ?LOGDURATION(comm_sizes(G)),
     % remove leaves before extracting communities
     % make a list of vertices to remove
-    {Leaves, LeafCount}  = lists:foldl(
+    {Leaves, LeafCount} = lists:foldl(
         fun(V, {L, D}) ->
             case digraph:in_degree(G, V) == 1 andalso digraph:out_degree(G, V) == 1 of
                 true ->
@@ -508,14 +516,14 @@ communities(G, VerticesCount, MaxVertices) when VerticesCount > MaxVertices ->
     {EPs, IAs} = compute_communities(G),
     {EPs, IAs, LeafCount, CommunitySizes};
 communities(G, _, _) ->
-    CommunitySizes = comm_sizes(G),
+    CommunitySizes = ?LOGDURATION(comm_sizes(G)),
     {EPs, IAs} = compute_communities(G),
     {EPs, IAs, dict:new(), CommunitySizes}.
 
 compute_communities(G) ->
     % list of endpooints per community
-    EPs = comm_endpoints(G),
-    IAs = comm_interactions(G),
+    EPs = ?LOGDURATION(comm_endpoints(G)),
+    IAs = ?LOGDURATION(comm_interactions(G)),
     {EPs, IAs}.
 
 comm_sizes(G) ->
