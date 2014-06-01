@@ -168,6 +168,7 @@ push_nci(Digraph, _NumVertices, MaxVertices) ->
     Pid.
             
 update_edge(G, V1, V2, Time)->
+    % XXX use add_edge(G, {V1,V2}, V1, V2, Time) instead?
     Found = lists:filter(
                     fun(X)-> 
                         {_, FV1, FV2, _} = digraph:edge(G, X),

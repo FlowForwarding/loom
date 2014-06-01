@@ -238,12 +238,33 @@ json_nci_details(Time, NCI, Communities) ->
         {<<"action">>,<<"NCIDetails">>},
         {<<"NCI">>,NCI},
         {<<"Time">>, Time},
-        {<<"Communities">>, communities(Communities)}
+        {<<"Communities">>, community_details(Communities)},
+        {<<"CommunityGraph">>, community_graph(Communities)}
     ]}).
 
-communities(no_communities) ->
+community_graph(no_communities) ->
     [];
-communities({Endpoints, Interactions, Leaves, Sizes}) ->
+community_graph({_Endpoints, _Interactions, _Leaves, Sizes,
+                                        {Cendpoints, Cinteractions}}) ->
+    {[
+        {<<"Endpoints">>, cendpoints(Cendpoints, Sizes)},
+        {<<"Interactions">>, cinteractions(Cinteractions, Sizes)}
+    ]}.
+
+cendpointsize(C, Sizes) ->
+    Size = integer_to_binary(dict:fetch(C, Sizes)),
+    <<C/binary, $:, Size/binary>>.
+
+cendpoints(Endpoints, Sizes) ->
+    lists:map(fun(E) -> cendpointsize(E, Sizes) end, Endpoints).
+
+cinteractions(Interactions, Sizes) ->
+    [[cendpointsize(C1, Sizes),
+      cendpointsize(C2, Sizes)] || {C1,C2} <- Interactions].
+
+community_details(no_communities) ->
+    [];
+community_details({Endpoints, Interactions, Leaves, Sizes, _Comms}) ->
     Communities = intersect_keys(Endpoints, Interactions),
     [
         {[
@@ -252,6 +273,7 @@ communities({Endpoints, Interactions, Leaves, Sizes}) ->
             {<<"Size">>, dict:fetch(C, Sizes)}
         ]} || C <- Communities
     ].
+
 
 intersect_keys(A, B) ->
     sets:to_list(sets:intersection(

@@ -66,14 +66,12 @@
 -include("tap_logger.hrl").
 
 -define(LOGDURATION(F),
-            begin
                 (fun() ->
                     {TinMicro, R} = timer:tc(fun() -> F end),
                     TinSec = TinMicro div 1000000,
                     ?INFO("Time ~s:~B ~s: ~B sec", [?FILE, ?LINE, ??F, TinSec]),
                     R
-                end)()
-            end).
+                end)()).
 
 %% === compute(EdgeList) === 
 %%
@@ -400,12 +398,19 @@ label_vertex(G, Vertex)->
     end.
 
 calc_label(G, Vertex)->
+    % XXX don't add links in both directions, but instead use
+    % the union of in_neighbours and out_neighbours.
     N = digraph:out_neighbours(G, Vertex),
     case N =:= [] of
 	false ->
-	    NL = [ digraph:vertex(G, V) || V <- N],
+            % lists:foldl?
+	    NL = [digraph:vertex(G, V) || V <- N],
 	    Dict = dict:new(),
 	    LC = count_labels(Dict, NL),
+
+            % XXX combine into a single fold over dictionary?  fun()
+            % looks for max, if equal append, if less ignore, if
+            % greater, throw list away and start over.
 	    LLC = dict:to_list(LC),
 	    MaxCount = max_count(LLC),
 	    Candidates = lists:filter(fun({_, Count}) ->
@@ -452,6 +457,7 @@ clean_vertex(G, Vertex)->
     SortedNL = lists:keysort(1, NL),
     clean_neighbours(G, Vertex, SortedNL).
 
+% removes edges that point back to the same node
 clean_neighbours(G, V, SortedNL)->
     Dirt = clean_neighbours(G, V, SortedNL, {}, []),
     remove_dirt(G, V, Dirt).
@@ -494,6 +500,45 @@ add_edges(G, Edges)->
     [add_edge(G, Edge) || Edge <- Edges],
     G.
 
+% NCI - create communities
+% split into components
+% foreach components with endpoint count > N
+%   foreach community
+%     create endpoints, interactions, size, ID
+%   if endpoint count > N
+%     create new digraph with IDs as vertices
+%     foreach community
+%       tell vertex which community it is in
+% communities2(G, MaxVertices) ->
+%     [Components] = digraph_utils:components(G),
+%     Communities = lists:foldl(
+%         fun(ComponentVs, D) ->
+%             ComponentG = digraph_utils:subgraph(G, ComponentVs),
+%             Communities = communities_dict(ComponentG),
+% 
+%         end, dict:new(), Components).
+% 
+% -record(comm_info, {
+%     size,
+%     endpoints,
+%     interactions
+% }).
+% 
+% communities_dict(G) ->
+%     CommEndpoints = comm_endpoints(ComponentG),
+%     CommInteractions = comm_interactions(ComponentG),
+%     CommInfos = lists:foldl(
+%         fun(C, D) ->
+%             Endpoints = dict:fetch(C, CommEndpoints),
+%             CommInfo = #comm_info{
+%                 community = C,
+%                 size = length(Endpoints),
+%                 endpoints = Endpoints,
+%                 interactions = dict:fetch(C, CommInteractions)
+%             }
+%             dict:store(C, CommInfo, D)
+%         end, dict:new(), dict:fetch_keys(CommEndpoints))
+
 communities(G, MaxVertices) ->
     ?LOGDURATION(communities(G, digraph:no_vertices(G), MaxVertices)).
 
@@ -513,18 +558,19 @@ communities(G, VerticesCount, MaxVertices) when VerticesCount > MaxVertices ->
         end, {[], dict:new()}, digraph:vertices(G)),
     % remove the leaves
     [digraph:del_vertex(G, V) || V <- Leaves],
-    {EPs, IAs} = compute_communities(G),
-    {EPs, IAs, LeafCount, CommunitySizes};
+    {EPs, IAs, Coms} = compute_communities(G),
+    {EPs, IAs, LeafCount, CommunitySizes, Coms};
 communities(G, _, _) ->
     CommunitySizes = ?LOGDURATION(comm_sizes(G)),
-    {EPs, IAs} = compute_communities(G),
-    {EPs, IAs, dict:new(), CommunitySizes}.
+    {EPs, IAs, Coms} = compute_communities(G),
+    {EPs, IAs, dict:new(), CommunitySizes, Coms}.
 
 compute_communities(G) ->
     % list of endpooints per community
     EPs = ?LOGDURATION(comm_endpoints(G)),
     IAs = ?LOGDURATION(comm_interactions(G)),
-    {EPs, IAs}.
+    Coms = community_graph(G),
+    {EPs, IAs, Coms}.
 
 comm_sizes(G) ->
     lists:foldl(
@@ -574,3 +620,19 @@ dict_from_interactions_table(T, C, D) ->
     Interactions = [{V1, V2} || {_, {V1, V2}} <- ets:lookup(T, C)],
     D1 = dict:store(C, Interactions, D),
     dict_from_interactions_table(T, ets:next(T, C), D1).
+
+% create a graph of connected communities.  Each vertex is a community.
+community_graph(G) ->
+    {EndpointsSet, InteractionsSet} = lists:foldl(
+        fun(E, {EPs, IAs}) ->
+            {_, V1, V2, _} = digraph:edge(G, E),
+            {_, C1} = digraph:vertex(G, V1),
+            {_, C2} = digraph:vertex(G, V2),
+            {sets:add_element(C1,
+                sets:add_element(C2, EPs)),
+             case C1 == C2 of
+                true -> IAs;
+                false -> sets:add_element(vsort(C1,C2), IAs)
+            end}
+        end, {sets:new(), sets:new()}, digraph:edges(G)),
+    {sets:to_list(EndpointsSet), sets:to_list(InteractionsSet)}.
