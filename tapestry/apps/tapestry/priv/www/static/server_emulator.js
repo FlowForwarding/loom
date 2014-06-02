@@ -20,44 +20,21 @@ NCI.Emulator.liveData = function(){
 	// {"Time":"2013-11-04T12:54:41Z","NEP":87}
 	// {"Time":"2013-11-04T12:54:16Z","QPS":16.451612903225808} 
 	var event = {};
-	var nciValue = Math.floor((Math.random()*3)+5);
-	var activities = [];
-	var numOfActivities = nciValue + Math.floor((Math.random()*3)+2);
-	for (var i=0; i<numOfActivities; i++){
-		activities.push({
-			name: "Activity " + i + " name", 
-			size: i+1, 
-			endpoints: i+1,
-			details: "activity " + i +  " details"
-		});
-	};
-	event.data = JSON.stringify({Time:  new Date(), 
+	event.data = JSON.stringify({ 
 		NCI: Math.floor((Math.random()*3)+5),
-		activities: activities
+		Time:  new Date(),
+		action: 'NCI'
 	});
 	NCI.Connection.onmessage(event);
 	
 	var nepEvent = {};
-	nepEvent.data = JSON.stringify({Time:  new Date(), NEP: Math.floor((Math.random()*40)+5)});
+	nepEvent.data = JSON.stringify({Time:  new Date(), NEP: Math.floor((Math.random()*40)+5), action: 'NEP'});
 	NCI.Connection.onmessage(nepEvent);
 	
 	var qpsEvent = {};
-	qpsEvent.data = JSON.stringify({Time:  new Date(), QPS: Math.floor((Math.random()*40)+5)});
+	qpsEvent.data = JSON.stringify({Time:  new Date(), QPS: Math.floor((Math.random()*40)+5), action: 'QPS'});
 	NCI.Connection.onmessage(qpsEvent);
 	
-	var collectorEvent = {};
-	var collectors = [];
-	var numOfCollectors = (Math.random()*30)+1;
-	for (var i=0; i<numOfCollectors; i++){
-		collectors.push({
-			name: "Collector" + i,
-			ip: "10.32.3.154",
-			nep: (Math.random()*100)+5,
-			qps: (Math.random()*1000)+5
-		});
-	}
-	collectorEvent.data = JSON.stringify({Time:  new Date(), COLLECTORS: collectors});
-	NCI.Connection.onmessage(collectorEvent);
 };
 
 //overriders   
@@ -103,6 +80,31 @@ NCI.Connection.moreData = function(startTime, endTime, pointsNum) {
 	}
 	
 };   
+
+NCI.Connection.NCIDetails = function(time) {
+	var  communities = [];
+	for (var k = 0; k < 50; k++){
+		var fakeEndpoints = [];
+		var fakeInteractions = [];
+	    for (var i=1; i< 5; i++){
+		    fakeEndpoints.push(k*5 + i + "");
+	    }
+	    for (var j=2; j< 5; j++){
+		    fakeInteractions.push([k*5 + 1 + "", k*5 + j + ""]);
+	    }
+	    communities.push({"Endpoints" : fakeEndpoints, "Interactions" : fakeInteractions, Size: 4});
+	};
+	
+	
+	var event = {};
+	event.data = JSON.stringify({ 
+		NCI: Math.floor((Math.random()*3)+5),
+		Communities: communities,
+		Time:  new Date(),
+		action: 'NCIDetails'
+	});
+	NCI.Connection.onmessage(event);
+}
 
 //Override to do nothing, for the case if connection opened successfull in emulation mode
 NCI.Connection.onopen = function () {

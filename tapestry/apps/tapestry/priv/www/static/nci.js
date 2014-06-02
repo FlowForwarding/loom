@@ -171,19 +171,22 @@ NCI.collectorsTable = (function(){
 	return me;
 }());
 
-
-$(document).on('opened', '#nciDetails', function () {
-	$(this).height($(window).height());
-	$(this).css({'top': '0px'});
+$(".nci-label .indexValue").on('click', function(){
+	$('#nciDetails').show();
 	NCI.Connection.NCIDetails(NCI.nciUpdateDateServer);
 });
 
-$(document).on('close', '#nciDetails', function () {
-	NCI.socialGraph.text("");
-	NCI.nciHistogram.text("");
-	// $('#nciDetailsTabs').find("a").first().click();
-	
+$(".hide-ncidetails").on('click', function(){
+	$('#nciDetails').hide();
 });
+
+// 
+// $(document).on('close', '#nciDetails', function () {
+// 	NCI.socialGraph.text("");
+// 	NCI.nciHistogram.text("");
+// 	$('#nciDetailsTabs').find("a").first().click();
+// 	
+// });
 
 $(document).on('opened', '#collectorsInfo', function () {
 	$(this).height($(window).height());

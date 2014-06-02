@@ -139,3 +139,15 @@
   stroke-opacity: .6;
 }
 
+.details-view {
+	position: absolute;top: 45px;width: 100%;background:white;height:100%; display:none;z-index:50;
+}
+
+.hide-ncidetails {
+	background-image: url(images/back.png);
+	width: 30px;
+	height: 30px;
+	position: absolute;
+	top: 30px;
+	left: 20px;
+}

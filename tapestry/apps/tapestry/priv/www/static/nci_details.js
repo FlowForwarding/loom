@@ -1,25 +1,14 @@
 NCI.setupCommunities = function(data){
 	NCI.Communities = data.Communities;
 	
-	// for (var k = 0; k < 50; k++){
-	// 	var fakeEndpoints = [];
-	// 	var fakeInteractions = [];
-	//     for (var i=1; i< 5; i++){
-	// 	    fakeEndpoints.push(k*5 + i + "");
-	//     }
-	//     for (var j=2; j< 5; j++){
-	// 	    fakeInteractions.push([k*5 + 1 + "", k*5 + j + ""]);
-	//     }
-	//     NCI.Communities.push({"Endpoints" : fakeEndpoints, "Interactions" : fakeInteractions});
-	// };
-	// 
+
 	NCI.Communities.sort(function(a, b){
 		return a.Size- b.Size;
 	});
 	NCI.timestampNCI = data.NCI;
 	NCI.timestamp = data.Time;
-	$("#histogramGeneral").html("<b>NETWORK COMPLEXITY INDEX at &nbsp;&nbsp;</b> <i>" + NCI.parceDateForLastUpdate(NCI.timestamp) + "</i>" +
-	    "&nbsp;&nbsp;&nbsp;<span class='button alert'>NCI " + NCI.timestampNCI + "</span>" );
+	$("#histogramGeneral").html("NETWORK COMPLEXITY INDEX at &nbsp;&nbsp; <i>" + NCI.parceDateForLastUpdate(NCI.timestamp) + "</i>" +
+	    "&nbsp;&nbsp;&nbsp;<span class='round alert label'>NCI " + NCI.timestampNCI + "</span>" );
 };
 
 NCI.nciHistogram = (function(){
