@@ -602,7 +602,7 @@ comm_interactions(G) ->
             end,
             T
         end, ets:new(interactions, [bag, private]), digraph:edges(G)),
-    D = dict_from_interactions_table(TT),
+    D = ?LOGDURATION(dict_from_interactions_table(TT)),
     true = ets:delete(TT),
     D.
 
