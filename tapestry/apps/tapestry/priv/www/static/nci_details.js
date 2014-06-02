@@ -259,62 +259,6 @@ NCI.prepareDataForForceGraph = function(communities){
 		});
 	});
 	
-	// //TODO optimaze calculations
-	// $.each(graph.nodes, function(index, node){
-	// 	var numOfConnections = 0;
-	// 	$.each(graph.links, function(index, link){
-	// 		if (link.source != -1 &&  link.target != -1)
-	// 		if (graph.nodes[link.source].name == node.name || graph.nodes[link.target].name == node.name){
-	// 			numOfConnections++;
-	// 		}
-	// 		if (link.source != -1 &&  link.target != -1)
-	// 		if (graph.nodes[link.source].group != graph.nodes[link.target].group)
-	// 		    node.hasExternalConnections = true;
-	// 	});
-	// 	node.neighbours = numOfConnections/2;
-	// });	
-	// 
-	// graph.nodes.sort(function(node1, node2){
-	// 	return node2.neighbours - node1.neighbours;
-	// });
-	
-	// var nodes = [];
-	// $.each(graph.nodes, function(index, node){
-	// 	if (index < 50){
-	// 		nodes.push(node);
-	// 	}
-	// });
-	// graph.nodes = nodes;
-	// 
-	// graph.links = [];
-	// 
-	// $.each(communities, function(index, community){
-	//     $.each(community.Interactions, function(index, interacton){
-	// 	    var sIndex = nodeIndex(interacton[1]);
-	// 	    var tIndex = nodeIndex(interacton[0]);
-	// 	    if (sIndex >= 0 && tIndex >= 0){
-	// 		    graph.links.push({
-	// 			    "source": sIndex,
-	// 			    "target": tIndex,
-	// 			    "value": 1});
-	// 	    }
-	//     });
-	//     });
-	
 	return graph;
 };
 
-// NCI.filterGraphInfo = function(graph){
-// 	$.each(graph.nodes, function(index, node){
-// 		//todo optimaze
-// 		var numOfConnections = 0;
-// 		$.each(graph.links, function(index, link){
-// 			if (graph.nodes[link.source].name == node.name || graph.nodes[link.target].name == node.name){
-// 				numOfConnections++;
-// 			}
-// 			if (graph.nodes[link.source].group != graph.nodes[link.target].group)
-// 			    node.hasExternalConnections = true;
-// 		});
-// 		node.neighbours = numOfConnections;
-// 	});	
-// };

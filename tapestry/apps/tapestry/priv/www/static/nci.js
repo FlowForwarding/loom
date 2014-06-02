@@ -178,20 +178,18 @@ $(".nci-label .indexValue").on('click', function(){
 
 $(".hide-ncidetails").on('click', function(){
 	$('#nciDetails').hide();
+	$('#nciDetailsTabs').find("a").first().click();
+	NCI.nciHistogram.text("")
+	NCI.socialGraph.text("");
 });
 
-// 
-// $(document).on('close', '#nciDetails', function () {
-// 	NCI.socialGraph.text("");
-// 	NCI.nciHistogram.text("");
-// 	$('#nciDetailsTabs').find("a").first().click();
-// 	
-// });
-
-$(document).on('opened', '#collectorsInfo', function () {
-	$(this).height($(window).height());
-	$(this).css({'top': '0px'});
+$(".qps-value").on('click', function(){
+	$('#collectorsInfo').show();
 	NCI.Connection.CollectorsDetails(NCI.nciUpdateDateServer);
+});
+
+$(".hide-collectorsdetails").on('click', function(){
+	$('#collectorsInfo').hide();
 });
 
 $('body').on('touchend', function(){

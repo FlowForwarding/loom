@@ -143,7 +143,7 @@
 	position: absolute;top: 45px;width: 100%;background:white;height:100%; display:none;z-index:50;
 }
 
-.hide-ncidetails {
+.hide-ncidetails, .hide-collectorsdetails{
 	background-image: url(images/back.png);
 	width: 30px;
 	height: 30px;
