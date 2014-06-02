@@ -1,25 +1,14 @@
 NCI.setupCommunities = function(data){
 	NCI.Communities = data.Communities;
 	
-	// for (var k = 0; k < 50; k++){
-	// 	var fakeEndpoints = [];
-	// 	var fakeInteractions = [];
-	//     for (var i=1; i< 5; i++){
-	// 	    fakeEndpoints.push(k*5 + i + "");
-	//     }
-	//     for (var j=2; j< 5; j++){
-	// 	    fakeInteractions.push([k*5 + 1 + "", k*5 + j + ""]);
-	//     }
-	//     NCI.Communities.push({"Endpoints" : fakeEndpoints, "Interactions" : fakeInteractions});
-	// };
-	// 
+
 	NCI.Communities.sort(function(a, b){
 		return a.Size- b.Size;
 	});
 	NCI.timestampNCI = data.NCI;
 	NCI.timestamp = data.Time;
-	$("#histogramGeneral").html("<b>NETWORK COMPLEXITY INDEX at &nbsp;&nbsp;</b> <i>" + NCI.parceDateForLastUpdate(NCI.timestamp) + "</i>" +
-	    "&nbsp;&nbsp;&nbsp;<span class='button alert'>NCI " + NCI.timestampNCI + "</span>" );
+	$("#histogramGeneral").html("NETWORK COMPLEXITY INDEX at &nbsp;&nbsp; <i>" + NCI.parceDateForLastUpdate(NCI.timestamp) + "</i>" +
+	    "&nbsp;&nbsp;&nbsp;<span class='round alert label'>NCI " + NCI.timestampNCI + "</span>" );
 };
 
 NCI.nciHistogram = (function(){
@@ -48,7 +37,7 @@ NCI.nciHistogram = (function(){
 		
 		var activitiesScale;
 		var activitiesMin;
-		if (NCI.Communities.length > 60) {
+		if (NCI.Communities.length > 80) {
 			activitiesMin = 0.9;
 			activitiesScale = d3.scale.log();
 		} else {
@@ -118,6 +107,8 @@ NCI.nciHistogram = (function(){
 	
 	me.showDetails = function(d){
 		chart.select("#bar_endpoints").remove();
+		if (d.Size > 300)
+		return;
 		var detailsDim = 300;
 		var activityDetails = chart.append('svg')
 			.attr("id","bar_endpoints")
@@ -196,8 +187,16 @@ NCI.socialGraph  = (function(){
 	
 	me.draw = function(devided, clustered, filtered){
 		d3.select("#activities_graph").remove();
-	    me.graph = NCI.prepareDataForForceGraph(NCI.Communities);
+		var sum = 0;
+		$.each(NCI.Communities, function(index, community){
+			sum += community.Size;
+		});
 		
+		if (sum > 300)
+		   return;
+		
+	    me.graph = NCI.prepareDataForForceGraph(NCI.Communities);
+	
 		force = d3.layout.force()
 		    .charge(-20)
 			.linkDistance(30)
@@ -270,62 +269,6 @@ NCI.prepareDataForForceGraph = function(communities){
 		});
 	});
 	
-	// //TODO optimaze calculations
-	// $.each(graph.nodes, function(index, node){
-	// 	var numOfConnections = 0;
-	// 	$.each(graph.links, function(index, link){
-	// 		if (link.source != -1 &&  link.target != -1)
-	// 		if (graph.nodes[link.source].name == node.name || graph.nodes[link.target].name == node.name){
-	// 			numOfConnections++;
-	// 		}
-	// 		if (link.source != -1 &&  link.target != -1)
-	// 		if (graph.nodes[link.source].group != graph.nodes[link.target].group)
-	// 		    node.hasExternalConnections = true;
-	// 	});
-	// 	node.neighbours = numOfConnections/2;
-	// });	
-	// 
-	// graph.nodes.sort(function(node1, node2){
-	// 	return node2.neighbours - node1.neighbours;
-	// });
-	
-	// var nodes = [];
-	// $.each(graph.nodes, function(index, node){
-	// 	if (index < 50){
-	// 		nodes.push(node);
-	// 	}
-	// });
-	// graph.nodes = nodes;
-	// 
-	// graph.links = [];
-	// 
-	// $.each(communities, function(index, community){
-	//     $.each(community.Interactions, function(index, interacton){
-	// 	    var sIndex = nodeIndex(interacton[1]);
-	// 	    var tIndex = nodeIndex(interacton[0]);
-	// 	    if (sIndex >= 0 && tIndex >= 0){
-	// 		    graph.links.push({
-	// 			    "source": sIndex,
-	// 			    "target": tIndex,
-	// 			    "value": 1});
-	// 	    }
-	//     });
-	//     });
-	
 	return graph;
 };
 
-// NCI.filterGraphInfo = function(graph){
-// 	$.each(graph.nodes, function(index, node){
-// 		//todo optimaze
-// 		var numOfConnections = 0;
-// 		$.each(graph.links, function(index, link){
-// 			if (graph.nodes[link.source].name == node.name || graph.nodes[link.target].name == node.name){
-// 				numOfConnections++;
-// 			}
-// 			if (graph.nodes[link.source].group != graph.nodes[link.target].group)
-// 			    node.hasExternalConnections = true;
-// 		});
-// 		node.neighbours = numOfConnections;
-// 	});	
-// };
