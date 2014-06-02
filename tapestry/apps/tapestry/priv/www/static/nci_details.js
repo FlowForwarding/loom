@@ -37,7 +37,7 @@ NCI.nciHistogram = (function(){
 		
 		var activitiesScale;
 		var activitiesMin;
-		if (NCI.Communities.length > 60) {
+		if (NCI.Communities.length > 80) {
 			activitiesMin = 0.9;
 			activitiesScale = d3.scale.log();
 		} else {
@@ -107,6 +107,8 @@ NCI.nciHistogram = (function(){
 	
 	me.showDetails = function(d){
 		chart.select("#bar_endpoints").remove();
+		if (d.Size > 300)
+		return;
 		var detailsDim = 300;
 		var activityDetails = chart.append('svg')
 			.attr("id","bar_endpoints")
@@ -185,8 +187,16 @@ NCI.socialGraph  = (function(){
 	
 	me.draw = function(devided, clustered, filtered){
 		d3.select("#activities_graph").remove();
-	    me.graph = NCI.prepareDataForForceGraph(NCI.Communities);
+		var sum = 0;
+		$.each(NCI.Communities, function(index, community){
+			sum += community.Size;
+		});
 		
+		if (sum > 300)
+		   return;
+		
+	    me.graph = NCI.prepareDataForForceGraph(NCI.Communities);
+	
 		force = d3.layout.force()
 		    .charge(-20)
 			.linkDistance(30)
