@@ -69,7 +69,8 @@
                 (fun() ->
                     {TinMicro, R} = timer:tc(fun() -> F end),
                     TinSec = TinMicro div 1000000,
-                    ?INFO("Time ~s:~B ~s: ~B sec", [?FILE, ?LINE, ??F, TinSec]),
+                    ?DEBUG("Time ~s:~B ~s: ~B sec",
+                                                [?FILE, ?LINE, ??F, TinSec]),
                     R
                 end)()).
 
@@ -169,7 +170,8 @@ compute(EdgeList)->
     NCI.
 
 compute_from_graph(G, MaxVertices)->
-    ?DEBUG("Starting NCI Calculation"),
+    ?DEBUG("Starting NCI Calculation, ~B vertices, ~B edges",
+                        [digraph:no_vertices(G), digraph:no_edges(G)]),
     ?LOGDURATION(prop_labels(G)),
     NCI = calc_nci(G),
     % !!! warning, communities mangles G
@@ -583,43 +585,33 @@ comm_endpoints(G) ->
     lists:foldl(
         fun(V, D) ->
             {V, C} = digraph:vertex(G, V),
-            dict:append(C, V, D)
+            dict_append(C, V, D)
         end, dict:new(), digraph:vertices(G)).
 
 comm_interactions(G) ->
-    TT = lists:foldl(
-        fun(E, T) ->
+    lists:foldl(
+        fun(E, D) ->
             {E, V1, V2, _} = digraph:edge(G, E),
             {V1, C1} = digraph:vertex(G, V1),
             {V2, C2} = digraph:vertex(G, V2),
             Vs = vsort(V1, V2),
             case {C1, C2} of
                 {C, C} ->
-                    true = ets:insert(T, {C, Vs});
+                    dict_append(C, Vs, D);
                 {C1, C2} ->
-                    true = ets:insert(T, {C1, Vs}),
-                    true = ets:insert(T, {C2, Vs})
-            end,
-            T
-        end, ets:new(interactions, [bag, private]), digraph:edges(G)),
-    D = ?LOGDURATION(dict_from_interactions_table(TT)),
-    true = ets:delete(TT),
-    D.
+                    dict_append(C1, Vs, D),
+                    dict_append(C2, Vs, D)
+            end
+        end, dict:new(), digraph:edges(G)).
 
 vsort(V1, V2) when V1 > V2 ->
     {V1, V2};
 vsort(V1, V2) ->
     {V2, V1}.
 
-dict_from_interactions_table(T) ->
-    dict_from_interactions_table(T, ets:first(T), dict:new()).
-
-dict_from_interactions_table(_T, '$end_of_table', D) ->
-    D;
-dict_from_interactions_table(T, C, D) ->
-    Interactions = [{V1, V2} || {_, {V1, V2}} <- ets:lookup(T, C)],
-    D1 = dict:store(C, Interactions, D),
-    dict_from_interactions_table(T, ets:next(T, C), D1).
+% use set to remove duplicates?  Then convert to dict?
+dict_append(K, V, D) ->
+    dict:update(K, fun(Old) -> [V | Old] end, [V], D).
 
 % create a graph of connected communities.  Each vertex is a community.
 community_graph(G) ->
