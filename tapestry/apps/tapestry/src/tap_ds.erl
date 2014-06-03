@@ -26,7 +26,9 @@
          push_nci/0,
          clean_data/0,
          ordered_edge/1,
-         ordered_edges/1]).
+         ordered_edges/1,
+         save/1,
+         load/1]).
 
 -export([init/1,
          handle_call/3,
@@ -65,6 +67,12 @@ ordered_edge(Edge) ->
 ordered_edges(Edges) ->
     gen_server:cast(?MODULE, {ordered_edges, Edges}).
 
+save(Filename) ->
+    gen_server:call(?MODULE, {save_graph, Filename}).
+
+load(Filename) ->
+    gen_server:call(?MODULE, {load_graph, Filename}).
+
 %------------------------------------------------------------------------------
 % gen_server callbacks
 %------------------------------------------------------------------------------
@@ -74,6 +82,15 @@ init([]) ->
     gen_server:cast(?MODULE, start),
     {ok, #?STATE{max_vertices = MaxVertices}}.
 
+handle_call({save_graph, Filename}, _From,
+                                        State = #?STATE{digraph = Digraph}) ->
+    Reply = save_graph(Filename, Digraph),
+    {reply, Reply, State};
+handle_call({load_graph, Filename}, _From,
+                                        State = #?STATE{digraph = Digraph}) ->
+    digraph:delete(Digraph),
+    NewDigraph = load_graph(Filename),
+    {reply, ok, State#?STATE{digraph = NewDigraph}};
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
@@ -213,3 +230,22 @@ calculating(Pid) when is_pid(Pid) ->
     is_process_alive(Pid);
 calculating(_) ->
     false.
+
+save_graph(Filename, Digraph) ->
+    Data = lists:map(
+        fun(E) ->
+            {_, V1, V2, _} = digraph:edge(Digraph, E),
+            {V1, V2}
+        end, digraph:edges(Digraph)),
+    file:write_file(Filename, io_lib:format("~p.~n", [Data])).
+
+load_graph(Filename) ->
+    {ok, [Data]} = file:consult(Filename),
+    G = digraph:new(),
+    lists:foreach(
+        fun({V1, V2}) ->
+            digraph:add_vertex(G, V1),
+            digraph:add_vertex(G, V2),
+            digraph:add_edge(G, V1, V2)
+        end, Data),
+    G.
