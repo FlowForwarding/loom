@@ -25,7 +25,7 @@
 -behavior(gen_server).
 
 -export([start_link/0,
-         num_endpoints/2,
+         num_endpoints/3,
          nci/3,
          qps/3,
          new_client/1,
@@ -64,8 +64,8 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-num_endpoints(Endpoints, DateTime) ->
-    gen_server:cast(?MODULE, {num_endpoints, Endpoints, DateTime}).
+num_endpoints(Endpoints, Edges, DateTime) ->
+    gen_server:cast(?MODULE, {num_endpoints, Endpoints, Edges, DateTime}).
 
 nci(NCI, Communities, DateTime) ->
     gen_server:cast(?MODULE, {nci, NCI, Communities, DateTime}).
@@ -109,7 +109,7 @@ handle_cast(start, State) ->
     Time = list_to_binary(tap_time:rfc3339(StartTime)),
     COLS = encode_cols(Time, 0),
     LNCI = encode_nci(Time, 0),
-    LNEP = encode_nep(Time, 0),
+    LNEP = encode_nep(Time, 0, 0),
     LQPS = encode_qps(Time, 0),
     {noreply, State#?STATE{start_time = StartTime,
                       last_nci = LNCI,
@@ -118,12 +118,13 @@ handle_cast(start, State) ->
                       last_int_nep = 0,
                       last_qps = LQPS,
                       last_col = COLS}};
-handle_cast({num_endpoints, NEP, UT}, State = #?STATE{last_int_nep = LIntNEP,
-                                                   clients = Clients}) ->
+handle_cast({num_endpoints, NEP, NE, UT},
+                                    State = #?STATE{last_int_nep = LIntNEP,
+                                                    clients = Clients}) ->
     NewState = case NEP =/= LIntNEP of
         true ->
             Time = list_to_binary(tap_time:rfc3339(UT)),
-            JSON = encode_nep(Time, NEP),
+            JSON = encode_nep(Time, NEP, NE),
             broadcast_msg(Clients, JSON),
             State#?STATE{last_nep = JSON, last_int_nep = NEP};
         false -> State
@@ -362,9 +363,10 @@ encode_nci(Time, Nci) ->
                    {<<"Time">>, Time},
                    {<<"NCI">>, Nci}]}).
 
-encode_nep(Time, Nep) ->
+encode_nep(Time, Nep, NE) ->
     jiffy:encode({[{<<"action">>, <<"NEP">>},
                    {<<"Time">>, Time},
+                   {<<"NE">>, NE},
                    {<<"NEP">>, Nep}]}).
 
 encode_qps(Time, QPS) ->

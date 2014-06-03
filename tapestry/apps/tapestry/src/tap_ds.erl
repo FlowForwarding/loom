@@ -145,7 +145,8 @@ interval_timer(IntervalSec, Func) ->
 add_edges(Digraph, Edges)->
     DateTime = calendar:universal_time(),
     [add_edge(Digraph, E, DateTime) || E <- Edges],
-    tap_client_data:num_endpoints(digraph:no_vertices(Digraph), DateTime).
+    tap_client_data:num_endpoints(
+        digraph:no_vertices(Digraph), digraph:no_edges(Digraph), DateTime).
 
 clean(G, T, MaxAge)->
     OldVertices = lists:filter(
