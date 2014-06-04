@@ -177,7 +177,7 @@ NCI.socialGraph  = (function(){
 				d3.select("#socialGraph")
 				.append('text')
 				.attr("id","activities_graph")
-				.html('Number of points is ' + sum + '. Too much to draw');
+				.html('Too many endpoints to draw');
 				return;
 			};
 			me.graph = NCI.prepareDataForForceGraph(NCI.Communities);
