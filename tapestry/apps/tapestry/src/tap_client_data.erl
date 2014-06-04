@@ -266,19 +266,19 @@ cinteractions(Interactions, Sizes) ->
 community_details(no_communities) ->
     [];
 community_details({Endpoints, Interactions, Sizes, _Comms}) ->
-    Communities = intersect_keys(Endpoints, Interactions),
     [
         {[
-            {<<"Interactions">>, interactions(dict:fetch(C, Interactions))},
-            {<<"Endpoints">>, endpoints(dict:fetch(C, Endpoints))},
+            {<<"Interactions">>, interactions(dict_fetch(C, Interactions))},
+            {<<"Endpoints">>, endpoints(dict_fetch(C, Endpoints))},
             {<<"Size">>, dict:fetch(C, Sizes)}
-        ]} || C <- Communities
+        ]} || C <- dict:fetch_keys(Sizes)
     ].
 
-intersect_keys(A, B) ->
-    sets:to_list(sets:intersection(
-        sets:from_list(dict:fetch_keys(A)),
-        sets:from_list(dict:fetch_keys(B)))).
+dict_fetch(Key, Dict) ->
+    case dict:find(Key, Dict) of
+        {ok, V} -> V;
+        error -> []
+    end.
 
 interactions(L) ->
     Interactions = lists:foldl(

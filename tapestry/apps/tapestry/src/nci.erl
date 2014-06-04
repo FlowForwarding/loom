@@ -59,7 +59,7 @@
 -module(nci).
 
 -export([compute/1,
-         compute_from_graph/1,
+         compute_from_graph/2,
          clean_vertex/2,
          print_labels/1]).
 
@@ -169,13 +169,14 @@ compute(EdgeList)->
     %% Return the NCI number.
     NCI.
 
-compute_from_graph(G)->
+% Limits tuple with:
+%   {MaxVertices, MaxEdges, MaxCommunities}
+compute_from_graph(G, Limits)->
     ?DEBUG("Starting NCI Calculation, ~B vertices, ~B edges",
                         [digraph:no_vertices(G), digraph:no_edges(G)]),
     ?LOGDURATION(prop_labels(G)),
     NCI = calc_nci(G),
-    % !!! warning, communities mangles G
-    Communities = communities(G),
+    Communities = communities(G, Limits),
     {NCI, Communities}.
 
 %% === calc_nci ===
@@ -541,17 +542,47 @@ add_edges(G, Edges)->
 %             dict:store(C, CommInfo, D)
 %         end, dict:new(), dict:fetch_keys(CommEndpoints))
 
-communities(G) ->
+communities(G, Limits) ->
     CommunitySizes = ?LOGDURATION(comm_sizes(G)),
-    {EPs, IAs, Coms} = compute_communities(G),
+    {EPs, IAs} = compute_communities(G, Limits),
+    {_, _, MaxCommunities} = Limits,
+    CommunitiesForGraph = top_communities(CommunitySizes, MaxCommunities),
+    Coms = community_graph(G, CommunitiesForGraph),
     {EPs, IAs, CommunitySizes, Coms}.
 
-compute_communities(G) ->
-    % list of endpooints per community
-    EPs = ?LOGDURATION(comm_endpoints(G)),
-    IAs = ?LOGDURATION(comm_interactions(G)),
-    Coms = community_graph(G),
-    {EPs, IAs, Coms}.
+% returns set of communities to include in the result
+top_communities(CommunitySizes, Limit) ->
+    top_communities(CommunitySizes, dict:size(CommunitySizes), Limit).
+
+top_communities(CommunitySizes, Size, Limit) when Size > Limit ->
+    % sort communities by size
+    SortedSizes = lists:keysort(2, dict:to_list(CommunitySizes)),
+    sets:from_list([C || {C, _} <- lists_sublist(SortedSizes, Limit)]);
+top_communities(CommunitySizes, _, _) ->
+    sets:from_list(dict:fetch_keys(CommunitySizes)).
+
+lists_sublist(L, infinity) ->
+    L;
+lists_sublist(L, Limit) ->
+    lists:sublist(L, Limit).
+
+compute_communities(G, {MaxVertices, MaxEdges, _}) ->
+    case limit_check(digraph:no_vertices(G), MaxVertices) == overlimit orelse
+            limit_check(digraph:no_edges(G), MaxEdges) == overlimit of
+        true ->
+            ?DEBUG("overlimit: skipping comm_endpoints, comm_interactions"),
+            {dict:new(), dict:new()};
+        _ ->
+            % list of endpooints per community
+            EPs = ?LOGDURATION(comm_endpoints(G)),
+            % list of interactions per community
+            IAs = ?LOGDURATION(comm_interactions(G)),
+            {EPs, IAs}
+    end.
+
+limit_check(_V, infinity) -> not_overlimit;
+limit_check(V, L) when V < L -> not_overlimit;
+limit_check(_V, _L) -> overlimit.
 
 comm_sizes(G) ->
     lists:foldl(
@@ -593,17 +624,22 @@ dict_append(K, V, D) ->
     dict:update(K, fun(Old) -> [V | Old] end, [V], D).
 
 % create a graph of connected communities.  Each vertex is a community.
-community_graph(G) ->
+community_graph(G, CommunitiesForGraph) ->
     {EndpointsSet, InteractionsSet} = lists:foldl(
         fun(E, {EPs, IAs}) ->
             {_, V1, V2, _} = digraph:edge(G, E),
             {_, C1} = digraph:vertex(G, V1),
             {_, C2} = digraph:vertex(G, V2),
-            {sets:add_element(C1,
-                sets:add_element(C2, EPs)),
-             case C1 == C2 of
-                true -> IAs;
-                false -> sets:add_element(vsort(C1,C2), IAs)
-            end}
+            case sets:is_element(C1, CommunitiesForGraph) andalso
+                    sets:is_element(C2, CommunitiesForGraph) of
+                true ->
+                    {sets:add_element(C1, sets:add_element(C2, EPs)),
+                     case C1 == C2 of
+                        true -> IAs;
+                        false -> sets:add_element(vsort(C1,C2), IAs)
+                    end};
+                false ->
+                    {EPs, IAs}
+            end
         end, {sets:new(), sets:new()}, digraph:edges(G)),
     {sets:to_list(EndpointsSet), sets:to_list(InteractionsSet)}.

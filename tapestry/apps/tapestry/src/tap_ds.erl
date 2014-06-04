@@ -27,6 +27,7 @@
          clean_data/0,
          ordered_edge/1,
          ordered_edges/1,
+         setlimit/2,
          save/1,
          load/1]).
 
@@ -45,6 +46,7 @@
             nci_update_timer,
             clean_timer,
             data_max_age,
+            limits,
             calc_pid = no_process}).
 
 %------------------------------------------------------------------------------
@@ -72,14 +74,24 @@ save(Filename) ->
 load(Filename) ->
     gen_server:call(?MODULE, {load_graph, Filename}).
 
+setlimit(Limit, Value) ->
+    gen_server:call(?MODULE, {setlimit, Limit, Value}).
+
 %------------------------------------------------------------------------------
 % gen_server callbacks
 %------------------------------------------------------------------------------
 
 init([]) ->
     gen_server:cast(?MODULE, start),
-    {ok, #?STATE{}}.
+    MaxVertices = tap_config:getconfig(max_vertices),
+    MaxEdges = tap_config:getconfig(max_edges),
+    MaxCommunities = tap_config:getconfig(max_communities),
+    {ok, #?STATE{limits = {MaxVertices, MaxEdges, MaxCommunities}}}.
 
+handle_call({setlimit, Key, Value}, _From,
+                                        State = #?STATE{limits = Limits}) ->
+    NewLimits = update_limits(Limits, Key, Value),
+    {reply, NewLimits, State#?STATE{limits = NewLimits}};
 handle_call({save_graph, Filename}, _From,
                                         State = #?STATE{digraph = Digraph}) ->
     Reply = save_graph(Filename, Digraph),
@@ -104,13 +116,14 @@ handle_cast({ordered_edges, Edges}, State = #?STATE{digraph = Digraph}) ->
     add_edges(Digraph, Edges),
     {noreply, State};
 handle_cast(push_nci, State = #?STATE{digraph = Digraph,
-                                      calc_pid = CalcPid}) ->
+                                      calc_pid = CalcPid,
+                                      limits = Limits}) ->
     NewState = case calculating(CalcPid) of
         true ->
             ?DEBUG("NCI Calculation already running, skipping this run"),
             State;
         false ->
-            Pid = push_nci(Digraph, digraph:no_vertices(Digraph)),
+            Pid = push_nci(Digraph, digraph:no_vertices(Digraph), Limits),
             State#?STATE{calc_pid = Pid}
     end,
     {noreply, NewState};
@@ -135,6 +148,15 @@ code_change(_OldVersion, State, _Extra) ->
 %------------------------------------------------------------------------------
 % local functions
 %------------------------------------------------------------------------------
+
+update_limits({_MaxVertices, MaxEdges, MaxCommunities}, max_vertices, V) ->
+    {V, MaxEdges, MaxCommunities};
+update_limits({MaxVertices, _MaxEdges, MaxCommunities}, max_edges, V) ->
+    {MaxVertices, V, MaxCommunities};
+update_limits({MaxVertices, MaxEdges, _MaxCommunities}, max_communities, V) ->
+    {MaxVertices, MaxEdges, V};
+update_limits(Limits, _, _V) ->
+    Limits.
 
 interval_timer(IntervalSec, Func) ->
     timer:apply_interval(IntervalSec*1000, ?MODULE, Func, []).
@@ -166,17 +188,17 @@ add_edge(G, E, Time)->
         false -> error
     end.
 
-push_nci(_Digraph, 0) ->
+push_nci(_Digraph, 0, _Limits) ->
     % no data to process
     no_process;
-push_nci(Digraph, _NumVertices) ->
+push_nci(Digraph, _NumVertices, Limits) ->
     Vertices = digraph:vertices(Digraph),
     Edges = [digraph:edge(Digraph, E) || E <- digraph:edges(Digraph)],
     Pid = spawn_link(
         fun() ->
             random:seed(now()),
             G = new_digraph(Vertices, Edges),
-            {NCI, Communities} = nci:compute_from_graph(G),
+            {NCI, Communities} = nci:compute_from_graph(G, Limits),
             tap_client_data:nci(NCI, Communities, calendar:universal_time()),
             digraph:delete(G)
         end),
@@ -240,10 +262,11 @@ save_graph(Filename, Digraph) ->
 load_graph(Filename) ->
     {ok, [Data]} = file:consult(Filename),
     G = digraph:new(),
+    DateTime = calendar:universal_time(),
     lists:foreach(
         fun({V1, V2}) ->
-            digraph:add_vertex(G, V1),
-            digraph:add_vertex(G, V2),
-            digraph:add_edge(G, V1, V2)
+            digraph:add_vertex(G, V1, DateTime),
+            digraph:add_vertex(G, V2, DateTime),
+            digraph:add_edge(G, V1, V2, DateTime)
         end, Data),
     G.

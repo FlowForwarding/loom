@@ -154,6 +154,26 @@ Configures all of the attached switches using information in Filename.
 Configures only the switch with the switch key Key using the information
 in Filename.
 
+### Interactive tapestry
+
+You can change the limits on the community details at runtime.  Start
+tapestry with an interactive shell:
+
+```erlang
+# cd tapestry
+# rel/tapestry/bin/tapestry console
+```
+
+Then change the limits with:
+
+```erlang
+tap_ds:setlimit(max_vetrices, 1000)
+tap_ds:setlimit(max_edges, 10000)
+tap_ds:setlimit(max_communities, 100)
+```
+
+A limit of infinity sets no limit.
+
 ## sys.config
 The Tapestry sys.config (node configuration) file is in rel/files/sys.config.
 The runtime copy is in rel/tapestry/releases/1/sys.config.  The files copy
@@ -170,10 +190,13 @@ tapestry | ftpd_address | {0,0,0,0} | ftp server listener IP address
 tapestry | ftpd_port | 7777 | ftp server listener port
 tapestry | datasource | packet_in | identifies source of DNS information
 tapestry | nci_min_interval | {seconds, 15} | shortest time between nci calculations
-tapestry | max_vertices | 300 | maximum number of endpionts in the community graph before pruning leaves
+tapestry | max_vertices | 300 | maximum number of vertices before dropping communities detail
+tapestry | max_edges | 1000 | maximum number of edges before dropping communities detail
+tapestry | max_communities | 300 | maximum number communities in the communities graph
 tapestry | qps_max_interval | {seconds, 15} | longest time between Query/Sec ui updates
 tapestry | clean_interval | [{days,0},{hms,{1,0,0}}] | interval between purging old data from nci calculation
 tapestry | data_max_age | [{days,2},{hms,{0,0,0}}] | purge data older than data_max_age
+max_ | data_max_age | [{days,2},{hms,{0,0,0}}] | purge data older than data_max_age
 of_driver | listen_ip | {0,0,0,0} | open flow controller listener IP address
 of_driver | listen_port | 6653 | open flow controller listener port
 
