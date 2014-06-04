@@ -86,7 +86,8 @@ NCI.Connection.onmessage  = function (e) {
 		} ;
 	} else if (data.action == "NCIDetails"){
 		NCI.setupCommunities(data)
-	    NCI.socialGraph.show();
+		$('#nciDetailsTabs').find("a").first().click();
+	    NCI.socialGraph.show(false, false, false, true);
 	} else {
 		//we recieve such format:
 		// {"Time":"2013-10-27T13:01:09Z","NCI":99,
