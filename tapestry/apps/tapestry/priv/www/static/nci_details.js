@@ -1,5 +1,6 @@
 NCI.setupCommunities = function(data){
 	NCI.Communities = data.Communities;
+	NCI.CommunityGraph = data.CommunityGraph;
 	
 
 	NCI.Communities.sort(function(a, b){
@@ -157,21 +158,32 @@ NCI.socialGraph  = (function(){
 	var color = d3.scale.category10();
 	me.clustered = false;
 	var networkColor = "#000000";
+	var isCommunities = true;
 	
-	me.show = function(devided, clustered, filtered){
-		if (me.clustered && !clustered){
-			NCI.socialGraph.text("");
-			me.draw(devided, clustered);
-			me.clustered  = clustered;
+	me.show = function(devided, clustered, filtered, communities){
+		if (NCI.Communities.length == 0){
 			return;
-		}
-		me.clustered = clustered;
-		if (me.text().length<20){	
-			me.draw(devided, clustered, filtered);
+		};
+		d3.select("#activities_graph").remove();		
+		if (communities) {
+			me.graph = NCI.prepareDataForForceGraph([NCI.CommunityGraph]);
 		} else {
-			me.setupNodes(filtered, devided, clustered);
-	  	    force.start();
-		}
+			var sum = 0;
+			$.each(NCI.Communities, function(index, community){
+				sum += community.Size;
+			});
+		
+			if (sum > 300) {
+				d3.select("#socialGraph")
+				.append('text')
+				.attr("id","activities_graph")
+				.html('Number of points is ' + sum + '. Too much to draw');
+				return;
+			};
+			me.graph = NCI.prepareDataForForceGraph(NCI.Communities);
+		};
+		isCommunities = communities;
+		me.draw(devided, clustered, filtered);
 	};
 	
 	me.setupNodes = function(filtered, devided, clustered){
@@ -183,20 +195,9 @@ NCI.socialGraph  = (function(){
 		});
 		me.node.attr("r", function(d) { return (filtered &&  (d.name.indexOf("10.") == 0 ||  d.name.indexOf("192.168") == 0)) ? 6 : 4})
 		force.linkStrength(clustered ? 1 : 0);
-	}
+	};
 	
-	me.draw = function(devided, clustered, filtered){
-		d3.select("#activities_graph").remove();
-		var sum = 0;
-		$.each(NCI.Communities, function(index, community){
-			sum += community.Size;
-		});
-		
-		if (sum > 300)
-		   return;
-		
-	    me.graph = NCI.prepareDataForForceGraph(NCI.Communities);
-	
+	me.draw = function(devided, clustered, filtered){	
 		force = d3.layout.force()
 		    .charge(-20)
 			.linkDistance(30)
@@ -272,3 +273,19 @@ NCI.prepareDataForForceGraph = function(communities){
 	return graph;
 };
 
+$('#nciDetailsTabs').on('toggled', function (event, tab) {
+	if (tab[0].id == "panelFlows"){
+		NCI.socialGraph.show( false, false);
+	} else if (tab[0].id == "panelActivities"){
+	    NCI.socialGraph.show(true, false);
+	} else if (tab[0].id == "panelActivitiesPretty"){
+		NCI.socialGraph.show(true, true);
+	} else if (tab[0].id == "panelInternalNetwork"){
+		NCI.socialGraph.show(true, true, true);
+	} else if (tab[0].id == "panelCommunities"){
+		NCI.socialGraph.show(false, false, false, true);
+	} else {
+		NCI.nciHistogram.show();
+		NCI.socialGraph.text("");
+	}
+});

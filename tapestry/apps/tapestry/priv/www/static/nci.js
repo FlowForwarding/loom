@@ -174,13 +174,20 @@ NCI.collectorsTable = (function(){
 $(".nci-label .indexValue").on('click', function(){
 	$('#nciDetails').show();
 	NCI.Connection.NCIDetails(NCI.nciUpdateDateServer);
+	d3.select("#socialGraph")
+	.append('text')
+	.attr("id","activities_graph")
+	.html('Loading...');
+	$("#histogramGeneral").html("&nbsp;");
 });
 
 $(".hide-ncidetails").on('click', function(){
 	$('#nciDetails').hide();
 	$('#nciDetailsTabs').find("a").first().click();
-	NCI.nciHistogram.text("")
+	NCI.nciHistogram.text("");
 	NCI.socialGraph.text("");
+	NCI.CommunityGraph = [];
+	NCI.Communities = [];
 });
 
 $(".qps-value").on('click', function(){
@@ -194,19 +201,4 @@ $(".hide-collectorsdetails").on('click', function(){
 
 $('body').on('touchend', function(){
 	$('.tooltip').hide();
-});
-
-$('#nciDetailsTabs').on('toggled', function (event, tab) {
-	if (tab[0].id == "panelFlows"){
-		NCI.socialGraph.show( false, false);
-	} else if(tab[0].id == "panelActivities"){
-	    NCI.socialGraph.show(true, false);
-	} else if (tab[0].id == "panelActivitiesPretty"){
-		NCI.socialGraph.show(true, true);
-	} else if (tab[0].id == "panelInternalNetwork"){
-		NCI.socialGraph.show(true, true, true);
-	} else {
-		NCI.nciHistogram.show();
-		NCI.socialGraph.text("");
-	}
 });
