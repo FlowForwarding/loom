@@ -265,50 +265,36 @@ cinteractions(Interactions, Sizes) ->
 
 community_details(no_communities) ->
     [];
-community_details({Endpoints, Interactions, Leaves, Sizes, _Comms}) ->
+community_details({Endpoints, Interactions, Sizes, _Comms}) ->
     Communities = intersect_keys(Endpoints, Interactions),
     [
         {[
-            {<<"Interactions">>, interactions(dict:fetch(C, Interactions), Leaves)},
-            {<<"Endpoints">>, endpoints(dict:fetch(C, Endpoints), Leaves)},
+            {<<"Interactions">>, interactions(dict:fetch(C, Interactions))},
+            {<<"Endpoints">>, endpoints(dict:fetch(C, Endpoints))},
             {<<"Size">>, dict:fetch(C, Sizes)}
         ]} || C <- Communities
     ].
-
 
 intersect_keys(A, B) ->
     sets:to_list(sets:intersection(
         sets:from_list(dict:fetch_keys(A)),
         sets:from_list(dict:fetch_keys(B)))).
 
-interactions(L, Leaves) ->
+interactions(L) ->
     Interactions = lists:foldl(
         fun(I, S) ->
             NI = normalize_interaction(I),
             sets:add_element(NI, S)
         end, sets:new(), L),
-    [[leafcount(A, endpoint(A), Leaves),
-      leafcount(B, endpoint(B), Leaves)] ||
-                                    {A, B} <- sets:to_list(Interactions)].
+    [[endpoint(A), endpoint(B)] || {A, B} <- sets:to_list(Interactions)].
 
 normalize_interaction({A, B}) when A > B ->
     {A, B};
 normalize_interaction({A, B}) ->
     {B, A}.
 
-endpoints(L, Leaves) ->
-    [leafcount(E, endpoint(E), Leaves) || E <- L].
-
-leafcount(K, S, Leaves) ->
-    <<S/binary, (fetch_leafcount(K, Leaves))/binary>>.
-
-fetch_leafcount(K, Leaves) ->
-    case dict:find(K, Leaves) of
-        {ok, LeafCount} ->
-            <<<<":">>/binary, (integer_to_binary(LeafCount))/binary>>;
-        error ->
-            <<>>
-    end.
+endpoints(L) ->
+    [endpoint(E) || E <- L].
 
 endpoint({A,B,C,D}) ->
     list_to_binary([integer_to_list(A), ".", integer_to_list(B), ".", 

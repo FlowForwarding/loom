@@ -59,7 +59,7 @@
 -module(nci).
 
 -export([compute/1,
-         compute_from_graph/2,
+         compute_from_graph/1,
          clean_vertex/2,
          print_labels/1]).
 
@@ -169,13 +169,13 @@ compute(EdgeList)->
     %% Return the NCI number.
     NCI.
 
-compute_from_graph(G, MaxVertices)->
+compute_from_graph(G)->
     ?DEBUG("Starting NCI Calculation, ~B vertices, ~B edges",
                         [digraph:no_vertices(G), digraph:no_edges(G)]),
     ?LOGDURATION(prop_labels(G)),
     NCI = calc_nci(G),
     % !!! warning, communities mangles G
-    Communities = communities(G, MaxVertices),
+    Communities = communities(G),
     {NCI, Communities}.
 
 %% === calc_nci ===
@@ -541,31 +541,10 @@ add_edges(G, Edges)->
 %             dict:store(C, CommInfo, D)
 %         end, dict:new(), dict:fetch_keys(CommEndpoints))
 
-communities(G, MaxVertices) ->
-    ?LOGDURATION(communities(G, digraph:no_vertices(G), MaxVertices)).
-
-communities(G, VerticesCount, MaxVertices) when VerticesCount > MaxVertices ->
-    CommunitySizes = ?LOGDURATION(comm_sizes(G)),
-    % remove leaves before extracting communities
-    % make a list of vertices to remove
-    {Leaves, LeafCount} = lists:foldl(
-        fun(V, {L, D}) ->
-            case digraph:in_degree(G, V) == 1 andalso digraph:out_degree(G, V) == 1 of
-                true ->
-                    [NV] = digraph:out_neighbours(G, V),
-                    {[V|L], dict:update_counter(NV, 1, D)};
-                _ ->
-                    {L, D}
-            end
-        end, {[], dict:new()}, digraph:vertices(G)),
-    % remove the leaves
-    [digraph:del_vertex(G, V) || V <- Leaves],
-    {EPs, IAs, Coms} = compute_communities(G),
-    {EPs, IAs, LeafCount, CommunitySizes, Coms};
-communities(G, _, _) ->
+communities(G) ->
     CommunitySizes = ?LOGDURATION(comm_sizes(G)),
     {EPs, IAs, Coms} = compute_communities(G),
-    {EPs, IAs, dict:new(), CommunitySizes, Coms}.
+    {EPs, IAs, CommunitySizes, Coms}.
 
 compute_communities(G) ->
     % list of endpooints per community

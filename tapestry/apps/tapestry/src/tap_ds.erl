@@ -45,8 +45,7 @@
             nci_update_timer,
             clean_timer,
             data_max_age,
-            calc_pid = no_process,
-            max_vertices}).
+            calc_pid = no_process}).
 
 %------------------------------------------------------------------------------
 % API
@@ -78,9 +77,8 @@ load(Filename) ->
 %------------------------------------------------------------------------------
 
 init([]) ->
-    MaxVertices = tap_config:getconfig(max_vertices),
     gen_server:cast(?MODULE, start),
-    {ok, #?STATE{max_vertices = MaxVertices}}.
+    {ok, #?STATE{}}.
 
 handle_call({save_graph, Filename}, _From,
                                         State = #?STATE{digraph = Digraph}) ->
@@ -106,14 +104,13 @@ handle_cast({ordered_edges, Edges}, State = #?STATE{digraph = Digraph}) ->
     add_edges(Digraph, Edges),
     {noreply, State};
 handle_cast(push_nci, State = #?STATE{digraph = Digraph,
-                                      max_vertices = MaxVertices,
                                       calc_pid = CalcPid}) ->
     NewState = case calculating(CalcPid) of
         true ->
             ?DEBUG("NCI Calculation already running, skipping this run"),
             State;
         false ->
-            Pid = push_nci(Digraph, digraph:no_vertices(Digraph), MaxVertices),
+            Pid = push_nci(Digraph, digraph:no_vertices(Digraph)),
             State#?STATE{calc_pid = Pid}
     end,
     {noreply, NewState};
@@ -169,17 +166,17 @@ add_edge(G, E, Time)->
         false -> error
     end.
 
-push_nci(_Digraph, 0, _MaxVertices) ->
+push_nci(_Digraph, 0) ->
     % no data to process
     no_process;
-push_nci(Digraph, _NumVertices, MaxVertices) ->
+push_nci(Digraph, _NumVertices) ->
     Vertices = digraph:vertices(Digraph),
     Edges = [digraph:edge(Digraph, E) || E <- digraph:edges(Digraph)],
     Pid = spawn_link(
         fun() ->
             random:seed(now()),
             G = new_digraph(Vertices, Edges),
-            {NCI, Communities} = nci:compute_from_graph(G, MaxVertices),
+            {NCI, Communities} = nci:compute_from_graph(G),
             tap_client_data:nci(NCI, Communities, calendar:universal_time()),
             digraph:delete(G)
         end),
