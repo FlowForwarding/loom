@@ -245,7 +245,7 @@ json_nci_details(Time, NCI, Communities) ->
 
 community_graph(no_communities) ->
     [];
-community_graph({_Endpoints, _Interactions, _Leaves, Sizes,
+community_graph({_Endpoints, _Interactions, Sizes,
                                         {Cendpoints, Cinteractions}}) ->
     {[
         {<<"Endpoints">>, cendpoints(Cendpoints, Sizes)},
