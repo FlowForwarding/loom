@@ -1,5 +1,6 @@
 NCI.setupCommunities = function(data){
 	NCI.Communities = data.Communities;
+
 	NCI.CommunityGraph = data.CommunityGraph;
 	
 	NCI.Communities.sort(function(a, b){
@@ -157,32 +158,46 @@ NCI.socialGraph  = (function(){
 	var color = d3.scale.category10();
 	me.clustered = false;
 	var networkColor = "#000000";
-	var isCommunities = true;
+	var isCommunities = false;
 	
 	me.show = function(devided, clustered, filtered, communities){
 		if (NCI.Communities.length == 0){
 			return;
-		};
-		d3.select("#activities_graph").remove();		
+		};		
 		if (communities) {
-			me.graph = NCI.prepareDataForForceGraph([NCI.CommunityGraph]);
+			if (isCommunities != communities || !me.graph || (me.clustered && !clustered)){
+				d3.select("#activities_graph").remove();
+				me.graph = NCI.prepareDataForForceGraph([NCI.CommunityGraph]);
+				me.draw(devided, clustered, filtered);
+			} else {
+				me.setupNodes(filtered, devided, clustered);
+				force.start();
+			}
 		} else {
 			var sum = 0;
 			$.each(NCI.Communities, function(index, community){
 				sum += community.Size;
 			});
-		
+		    
 			if (sum > 300) {
+				d3.select("#activities_graph").remove();
 				d3.select("#socialGraph")
 				.append('text')
 				.attr("id","activities_graph")
 				.html('Too many endpoints to draw');
 				return;
 			};
-			me.graph = NCI.prepareDataForForceGraph(NCI.Communities);
+			if (isCommunities != communities || !me.graph || (me.clustered && !clustered)){
+				d3.select("#activities_graph").remove();
+				me.graph = NCI.prepareDataForForceGraph(NCI.Communities);
+				me.draw(devided, clustered, filtered);
+			} else {
+				me.setupNodes(filtered, devided, clustered);
+				force.start();
+			}
 		};
 		isCommunities = communities;
-		me.draw(devided, clustered, filtered);
+		me.clustered = clustered;
 	};
 	
 	me.setupNodes = function(filtered, devided, clustered){
@@ -276,17 +291,24 @@ NCI.prepareDataForForceGraph = function(communities){
 
 $('#nciDetailsTabs').on('toggled', function (event, tab) {
 	if (tab[0].id == "panelFlows"){
-		NCI.socialGraph.show( false, false);
+		NCI.socialGraph.show( false, false, false, false);
+	} else if (tab[0].id == "panelFlowsByActivities"){
+	    NCI.socialGraph.show(true, false, false, false);
+	} else if (tab[0].id == "panelFlowsPretty"){
+		NCI.socialGraph.show(true, true, false, false);
+	} else if (tab[0].id == "panelInternalFlows"){
+		NCI.socialGraph.show(true, true, true, false);
 	} else if (tab[0].id == "panelActivities"){
-	    NCI.socialGraph.show(true, false);
-	} else if (tab[0].id == "panelActivitiesPretty"){
-		NCI.socialGraph.show(true, true);
-	} else if (tab[0].id == "panelInternalNetwork"){
-		NCI.socialGraph.show(true, true, true);
-	} else if (tab[0].id == "panelCommunities"){
 		NCI.socialGraph.show(false, false, false, true);
+	} else if (tab[0].id == "panelActivitiesPretty"){
+		console.log("panelActivitiesPretty");
+		NCI.socialGraph.show(true, true, false, true);
+	} else if (tab[0].id == "panelActivitiesInternal"){
+		console.log("panelActivitiesInternal");
+		NCI.socialGraph.show(true, true, true, true);
 	} else {
 		NCI.nciHistogram.show();
 		NCI.socialGraph.text("");
+		NCI.socialGraph.graph = undefined;
 	}
 });

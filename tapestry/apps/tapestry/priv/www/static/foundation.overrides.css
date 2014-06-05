@@ -5,6 +5,10 @@
 	width: 100%;
 }
 
+.sub-nav dt, .sub-nav dd, .sub-nav li{
+	margin-left:0px;
+}
+
 .centrate{
 	margin-left: auto !important;
 	margin-right: auto;
