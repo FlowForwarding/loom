@@ -4,14 +4,11 @@ if (typeof NCI === 'undefined')
 NCI.start_time; // no data exists on the server before
 NCI.time_adjustment = 0; //difference between client and server time in milliseconds
 NCI.numOfPoints = 200;
-
-NCI.Connection = new WebSocket("ws://" + location.host + "/clientsock.yaws");
 //NCI.Connection = new WebSocket("ws://epamove.herokuapp.com");
-//NCI.Connection = new WebSocket("ws://10.48.2.81:28080/clientsock.yaws");
-//http://10.48.2.81/
-NCI.Connection.onopen = function () {
-	NCI.Connection.startData();
-};
+NCI.connectionURL = "ws://" + location.host + "/clientsock.yaws";
+//NCI.connectionURL = "ws://10.48.2.81:28080/clientsock.yaws";
+
+NCI.Connection = [];
 
 NCI.lastUpdateTimeVal = new Date();
 NCI.lastRedrawTimeVal = new Date();
@@ -160,28 +157,44 @@ NCI.DetectRangesForPeiod = function(detailedChartPeriod, chartData){
 };
 
 NCI.Connection.NCIDetails = function(time){
-    NCI.Connection.send('{"action":"NCIDetails","Time": "' + time + '"}');
+    NCI.Socket.send('{"action":"NCIDetails","Time": "' + time + '"}');
 };
 
 NCI.Connection.CollectorsDetails = function(time){
-	 NCI.Connection.send('{"action":"collectors","Time": "' + time + '"}');
+	 NCI.Socket.send('{"action":"collectors","Time": "' + time + '"}');
 }
 
 NCI.Connection.startData = function() {
-	NCI.Connection.send('START_DATA');
+	NCI.Socket.send('START_DATA');
 };
 
 NCI.Connection.moreData = function(startTime, endTime, pointsNum) {
 	startTime = NCI.convertDateForServer(startTime);
 	endTime = NCI.convertDateForServer(endTime);
-    NCI.Connection.send('{"request":"more_data","start": "' + 
+    NCI.Socket.send('{"request":"more_data","start": "' + 
 		startTime + '",' +  '"end": "' + endTime + '","max_items": "' + pointsNum + '"}');
 };
 
-NCI.Connection.onerror = function (e) {
-	console.log('error ' + e.data);
+NCI.initSocket = function(){
+	NCI.Socket = new WebSocket(NCI.connectionURL);
+	NCI.Socket.onerror = function (e) {
+		//$(".disconected").show();
+	};
+	NCI.Socket.onclose = function (e) {
+		$(".disconected").show();
+	};
+	NCI.Socket.onopen = function () {
+		$(".disconected").hide();
+		NCI.Connection.startData();
+	};
+	NCI.Socket.onmessage  = function (e) {
+		NCI.Connection.onmessage(e);
+	};
 };
 
-NCI.Connection.onclose = function (e) {
-	console.log('close ' + e.data);
-};
+NCI.initSocket();
+
+$(".disconected img").on('click', function(){
+	$(".disconected").hide();
+	NCI.initSocket();
+});

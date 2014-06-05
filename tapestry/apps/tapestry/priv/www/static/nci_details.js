@@ -2,7 +2,6 @@ NCI.setupCommunities = function(data){
 	NCI.Communities = data.Communities;
 	NCI.CommunityGraph = data.CommunityGraph;
 	
-
 	NCI.Communities.sort(function(a, b){
 		return a.Size- b.Size;
 	});
@@ -17,7 +16,7 @@ NCI.nciHistogram = (function(){
 	
 	var barWidth = 4;
 	var chart = d3.select("#nciHistogram");
-	var margin = {top: 40, right: 40, bottom: 40, left:40},
+	var margin = {top: 40, right: 60, bottom: 40, left:40},
 	    width = 600,
 	    height = 350;
 	
@@ -100,7 +99,7 @@ NCI.nciHistogram = (function(){
 		html('Activities Sorted by Size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j').attr('x', width/2 - 100).attr('y', height - 45);
 		barChartSvg.append('text').
 		attr('style', 'font-weight:bold').
-		html('Number of Endpoints per Activity&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x[j]').attr('x', -height/2 - 40).attr('y', 0)
+		html('Number of Endpoints per Activity&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x[j]').attr('x', -height/2 - 70).attr('y', -10)
 		.attr('transform', 'rotate(-90)');
 		//axis names, formula
 
@@ -262,10 +261,12 @@ NCI.prepareDataForForceGraph = function(communities){
 	});	
 	$.each(communities, function(index, community){	
 		$.each(community.Interactions, function(index2, interacton){
-			if (nodeIndex(interacton[1]) > 0 && nodeIndex(interacton[0]) > 0)
+			var secondIndex = nodeIndex(interacton[1]);
+			var firstIndex = nodeIndex(interacton[0]);
+			if (secondIndex >= 0 && firstIndex >= 0)
 			graph.links.push({
-				"source": nodeIndex(interacton[1]),
-				"target": nodeIndex(interacton[0]),
+				"source": secondIndex,
+				"target": firstIndex,
 				"value": 1});
 		});
 	});
