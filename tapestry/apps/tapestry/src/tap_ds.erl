@@ -69,10 +69,10 @@ ordered_edges(Edges) ->
     gen_server:cast(?MODULE, {ordered_edges, Edges}).
 
 save(Filename) ->
-    gen_server:call(?MODULE, {save_graph, Filename}).
+    gen_server:call(?MODULE, {save_graph, Filename}, infinity).
 
 load(Filename) ->
-    gen_server:call(?MODULE, {load_graph, Filename}).
+    gen_server:call(?MODULE, {load_graph, Filename}, infinity).
 
 setlimit(Limit, Value) ->
     gen_server:call(?MODULE, {setlimit, Limit, Value}).
