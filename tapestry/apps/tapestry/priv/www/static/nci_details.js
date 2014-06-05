@@ -135,10 +135,10 @@ NCI.nciHistogram = (function(){
 		    .enter().append("circle")
 		    .attr("r", 5);
 		  		  
-		node.append("title").html(function(d) {  return d.name + "<br>" + d.neighbours + " connections" ;});
+		node.append("title").html(function(d) {  return d.name  });//+ "<br>" + d.neighbours + " connections" ;});
 
 		force.on("tick", function() { 
-			link.attr("x1", function(d) { return d.source.x; })
+			link.attr("x1", function(d) { console.log(d); return d.source.x; })
 			    .attr("y1", function(d) { return d.source.y; })
 				.attr("x2", function(d) { return d.target.x; })
 				.attr("y2", function(d) { return d.target.y; });
