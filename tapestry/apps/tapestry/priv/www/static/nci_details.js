@@ -2,7 +2,6 @@ NCI.setupCommunities = function(data){
 	NCI.Communities = data.Communities;
 	NCI.CommunityGraph = data.CommunityGraph;
 	
-
 	NCI.Communities.sort(function(a, b){
 		return a.Size- b.Size;
 	});
@@ -262,10 +261,12 @@ NCI.prepareDataForForceGraph = function(communities){
 	});	
 	$.each(communities, function(index, community){	
 		$.each(community.Interactions, function(index2, interacton){
-			if (nodeIndex(interacton[1]) > 0 && nodeIndex(interacton[0]) > 0)
+			var secondIndex = nodeIndex(interacton[1]);
+			var firstIndex = nodeIndex(interacton[0]);
+			if (secondIndex >= 0 && firstIndex >= 0)
 			graph.links.push({
-				"source": nodeIndex(interacton[1]),
-				"target": nodeIndex(interacton[0]),
+				"source": secondIndex,
+				"target": firstIndex,
 				"value": 1});
 		});
 	});
