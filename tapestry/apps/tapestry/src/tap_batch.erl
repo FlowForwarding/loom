@@ -44,7 +44,8 @@
         total_count = 0,
         last_qps_time,
         qps_update_interval,
-        qps_timer
+        qps_timer,
+        last_qps = 0.0
     }).
 
 -define(MIN_UPDATE_TIME_MILLIS, 250).
@@ -110,6 +111,8 @@ qps_timer(State = #?STATE{qps_timer = OldTimer}) ->
                                                     ?MODULE, push_qps, []),
     State#?STATE{qps_timer = NewTimer}.
 
+add_collector(_IpAddr, 0, State) ->
+    State;
 add_collector(IpAddr, Count, State = #?STATE{
                                         total_count = TCount,
                                         collectors = Collectors}) ->
@@ -126,17 +129,28 @@ maybe_push_qps(#?STATE{last_qps_time = LastUpdate}) ->
         _ -> ok
     end.
 
-push_qps(State = #?STATE{
-                    collectors = Collectors,
-                    total_count = TCount,
-                    last_qps_time = TTime}) ->
-    Now = tap_time:now(),
+push_qps(State = #?STATE{collectors = Collectors}) ->
     CollectorStats = [{grid, IpAddr, per_sec(Count, Time)} ||
                         {IpAddr, {Time, Count}} <- dict:to_list(Collectors)],
-    tap_client_data:qps(per_sec(TCount, TTime), CollectorStats,
-                                                    tap_time:universal(Now)),
-    State#?STATE{total_count = 0, last_qps_time = Now}.
-        
+    Now = tap_time:now(),
+    {QPS, NewState} = update_qps(State),
+    tap_client_data:qps(QPS, CollectorStats, tap_time:universal(Now)),
+    NewState.
+
+update_qps(State = #?STATE{
+                        total_count = TCount,
+                        last_qps_time = TTime,
+                        last_qps = LastQPS}) ->
+    CurrentQPS = per_sec(TCount, TTime),
+    case CurrentQPS == 0 of
+        true ->
+            {LastQPS, State};
+        _ ->
+            {CurrentQPS, State#?STATE{total_count = 0,
+                                      last_qps_time = tap_time:now(),
+                                      last_qps = CurrentQPS}}
+    end.
+
 per_sec(Count, LastTime) ->
     safe_div(Count, tap_time:since(LastTime)).
 
