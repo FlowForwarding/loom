@@ -86,7 +86,8 @@ init([]) ->
     MaxVertices = tap_config:getconfig(max_vertices),
     MaxEdges = tap_config:getconfig(max_edges),
     MaxCommunities = tap_config:getconfig(max_communities),
-    {ok, #?STATE{limits = {MaxVertices, MaxEdges, MaxCommunities}}}.
+    CommSizeLimit = tap_config:getconfig(comm_size_limit),
+    {ok, #?STATE{limits = {MaxVertices, MaxEdges, CommSizeLimit, MaxCommunities}}}.
 
 handle_call({setlimit, Key, Value}, _From,
                                         State = #?STATE{limits = Limits}) ->
@@ -149,12 +150,14 @@ code_change(_OldVersion, State, _Extra) ->
 % local functions
 %------------------------------------------------------------------------------
 
-update_limits({_MaxVertices, MaxEdges, MaxCommunities}, max_vertices, V) ->
-    {V, MaxEdges, MaxCommunities};
-update_limits({MaxVertices, _MaxEdges, MaxCommunities}, max_edges, V) ->
-    {MaxVertices, V, MaxCommunities};
-update_limits({MaxVertices, MaxEdges, _MaxCommunities}, max_communities, V) ->
-    {MaxVertices, MaxEdges, V};
+update_limits({_MaxVertices, MaxEdges, MaxCommSize, MaxCommunities}, max_vertices, V) ->
+    {V, MaxEdges, MaxCommSize, MaxCommunities};
+update_limits({MaxVertices, _MaxEdges, MaxCommSize, MaxCommunities}, max_edges, V) ->
+    {MaxVertices, V, MaxCommSize, MaxCommunities};
+update_limits({MaxVertices, MaxEdges, _MaxCommSize, MaxCommunities}, comm_size_limit, V) ->
+    {MaxVertices, MaxEdges, V, MaxCommunities};
+update_limits({MaxVertices, MaxEdges, MaxCommSize, _MaxCommunities}, max_communities, V) ->
+    {MaxVertices, MaxEdges, MaxCommSize, V};
 update_limits(Limits, _, _V) ->
     Limits.
 

@@ -544,41 +544,42 @@ add_edges(G, Edges)->
 
 communities(G, Limits) ->
     CommunitySizes = ?LOGDURATION(comm_sizes(G)),
-    {EPs, IAs} = compute_communities(G, Limits),
-    {_, _, MaxCommunities} = Limits,
-    CommunitiesForGraph = top_communities(CommunitySizes, MaxCommunities),
+    % sort communities by size
+    SortedSizes = lists:keysort(2, dict:to_list(CommunitySizes)),
+    {EPs, IAs} = compute_communities(G, SortedSizes, Limits),
+    {_, _, _, MaxCommunities} = Limits,
+    CommunitiesForGraph = top_communities(SortedSizes, MaxCommunities),
     Coms = community_graph(G, CommunitiesForGraph),
     {EPs, IAs, CommunitySizes, Coms}.
 
 % returns set of communities to include in the result
-top_communities(CommunitySizes, Limit) ->
-    top_communities(CommunitySizes, dict:size(CommunitySizes), Limit).
-
-top_communities(CommunitySizes, Size, Limit) when Size > Limit ->
-    % sort communities by size
-    SortedSizes = lists:keysort(2, dict:to_list(CommunitySizes)),
-    sets:from_list([C || {C, _} <- lists_sublist(SortedSizes, Limit)]);
-top_communities(CommunitySizes, _, _) ->
-    sets:from_list(dict:fetch_keys(CommunitySizes)).
+top_communities(SortedSizes, Limit) ->
+    sets:from_list([C || {C, _} <- lists_sublist(SortedSizes, Limit)]).
 
 lists_sublist(L, infinity) ->
     L;
 lists_sublist(L, Limit) ->
     lists:sublist(L, Limit).
 
-compute_communities(G, {MaxVertices, MaxEdges, _}) ->
-    case limit_check(digraph:no_vertices(G), MaxVertices) == overlimit orelse
-            limit_check(digraph:no_edges(G), MaxEdges) == overlimit of
+compute_communities(G, SortedSizes,
+                            {MaxVertices, MaxEdges, CommSizeLimit, _}) ->
+    CommunitySet =
+        case
+            CommSizeLimit == infinity orelse
+            (limit_check(digraph:no_vertices(G), MaxVertices) ==
+                                                        not_overlimit andalso
+            limit_check(digraph:no_edges(G), MaxEdges) == not_overlimit) of
         true ->
-            ?DEBUG("overlimit: skipping comm_endpoints, comm_interactions"),
-            {dict:new(), dict:new()};
+            any;
         _ ->
-            % list of endpooints per community
-            EPs = ?LOGDURATION(comm_endpoints(G)),
-            % list of interactions per community
-            IAs = ?LOGDURATION(comm_interactions(G)),
-            {EPs, IAs}
-    end.
+            ?DEBUG("overlimit: clipping comm_endpoints, comm_interactions"),
+            sets:from_list([C || {C, S} <- SortedSizes, S =< CommSizeLimit])
+    end,
+    % list of endpooints per community
+    EPs = ?LOGDURATION(comm_endpoints(G, CommunitySet)),
+    % list of interactions per community
+    IAs = ?LOGDURATION(comm_interactions(G, CommunitySet)),
+    {EPs, IAs}.
 
 limit_check(_V, infinity) -> not_overlimit;
 limit_check(V, L) when V < L -> not_overlimit;
@@ -591,14 +592,17 @@ comm_sizes(G) ->
             dict:update_counter(C, 1, D)
         end, dict:new(), digraph:vertices(G)).
 
-comm_endpoints(G) ->
+comm_endpoints(G, CommunitySet) ->
     lists:foldl(
         fun(V, D) ->
             {V, C} = digraph:vertex(G, V),
-            dict_append(C, V, D)
+            for_this_community(
+                fun() ->
+                    dict_append(C, V, D)
+                end, D, C, CommunitySet)
         end, dict:new(), digraph:vertices(G)).
 
-comm_interactions(G) ->
+comm_interactions(G, CommunitySet) ->
     lists:foldl(
         fun(E, D) ->
             {E, V1, V2, _} = digraph:edge(G, E),
@@ -607,12 +611,31 @@ comm_interactions(G) ->
             Vs = vsort(V1, V2),
             case {C1, C2} of
                 {C, C} ->
-                    dict_append(C, Vs, D);
+                    for_this_community(
+                        fun() ->
+                            dict_append(C, Vs, D)
+                        end, D, C, CommunitySet);
                 {C1, C2} ->
-                    dict_append(C1, Vs, D),
-                    dict_append(C2, Vs, D)
+                    D1 = for_this_community(
+                        fun() ->
+                            dict_append(C1, Vs, D)
+                        end, D, C1, CommunitySet),
+                    for_this_community(
+                        fun() ->
+                            dict_append(C2, Vs, D1)
+                        end, D1, C2, CommunitySet)
             end
         end, dict:new(), digraph:edges(G)).
+
+for_this_community(Fn, _NoFun, _Element, any) ->
+    Fn();
+for_this_community(Fn, NoFun, Element, Set) ->
+    case sets:is_element(Element, Set) of
+        true ->
+            Fn();
+        _ ->
+            NoFun
+    end.
 
 vsort(V1, V2) when V1 > V2 ->
     {V1, V2};

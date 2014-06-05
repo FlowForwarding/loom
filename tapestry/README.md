@@ -170,6 +170,7 @@ Then change the limits with:
 tap_ds:setlimit(max_vetrices, 1000)
 tap_ds:setlimit(max_edges, 10000)
 tap_ds:setlimit(max_communities, 100)
+tap_ds:setlimit(comm_size_limit, 10)
 ```
 
 A limit of infinity sets no limit.
@@ -193,6 +194,7 @@ tapestry | nci_min_interval | {seconds, 15} | shortest time between nci calculat
 tapestry | max_vertices | 300 | maximum number of vertices before dropping communities detail
 tapestry | max_edges | 1000 | maximum number of edges before dropping communities detail
 tapestry | max_communities | 300 | maximum number communities in the communities graph
+tapestry | comm_size_limit | 300 | when dropping community details, drop details of communities larger than this limit
 tapestry | qps_max_interval | {seconds, 15} | longest time between Query/Sec ui updates
 tapestry | clean_interval | [{days,0},{hms,{1,0,0}}] | interval between purging old data from nci calculation
 tapestry | data_max_age | [{days,2},{hms,{0,0,0}}] | purge data older than data_max_age
