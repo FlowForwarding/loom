@@ -38,7 +38,7 @@ NCI.nciHistogram = (function(){
 		
 		var activitiesScale;
 		var activitiesMin;
-		if (NCI.Communities.length > 80) {
+		if (NCI.Communities.length > 100) {
 			activitiesMin = 0.9;
 			activitiesScale = d3.scale.log();
 		} else {
@@ -100,7 +100,7 @@ NCI.nciHistogram = (function(){
 		html('Activities Sorted by Size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j').attr('x', width/2 - 100).attr('y', height - 45);
 		barChartSvg.append('text').
 		attr('style', 'font-weight:bold').
-		html('Number of Endpoints per Activity&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x[j]').attr('x', -height/2 - 70).attr('y', -10)
+		html('Number of Endpoints per Activity&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X[j]').attr('x', -height/2 - 70).attr('y', -10)
 		.attr('transform', 'rotate(-90)');
 		//axis names, formula
 
@@ -157,7 +157,7 @@ NCI.socialGraph  = (function(){
 	var force;
 	var color = d3.scale.category10();
 	me.clustered = false;
-	var notNetworkColor = "#777777";
+	var notNetworkColor = "#999999";
 	var isCommunities = false;
 	
 	me.show = function(devided, clustered, filtered, communities){
