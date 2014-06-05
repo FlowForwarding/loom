@@ -157,7 +157,7 @@ NCI.socialGraph  = (function(){
 	var force;
 	var color = d3.scale.category10();
 	me.clustered = false;
-	var networkColor = "#000000";
+	var notNetworkColor = "#777777";
 	var isCommunities = false;
 	
 	me.show = function(devided, clustered, filtered, communities){
@@ -202,12 +202,12 @@ NCI.socialGraph  = (function(){
 	
 	me.setupNodes = function(filtered, devided, clustered){
 		me.node.style("fill", function(d) { 
-		    if ( filtered && (d.name.indexOf("10.") == 0 ||  d.name.indexOf("192.168") == 0)){
-			    return networkColor;
+		    if ( filtered && !(d.name.indexOf("10.") == 0 ||  d.name.indexOf("192.168") == 0)){
+			    return notNetworkColor;
 		    }
 		    return devided ? color(d.group) : color(0);
 		});
-		me.node.attr("r", function(d) { return (filtered &&  (d.name.indexOf("10.") == 0 ||  d.name.indexOf("192.168") == 0)) ? 6 : 4})
+		me.node.attr("r", function(d) { return 4;})
 		force.linkStrength(clustered ? 1 : 0);
 	};
 	
