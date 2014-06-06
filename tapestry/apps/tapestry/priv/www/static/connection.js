@@ -6,7 +6,7 @@ NCI.time_adjustment = 0; //difference between client and server time in millisec
 NCI.numOfPoints = 200;
 //NCI.Connection = new WebSocket("ws://epamove.herokuapp.com");
 NCI.connectionURL = "ws://" + location.host + "/clientsock.yaws";
-NCI.connectionURL = "ws://10.48.2.81:28080/clientsock.yaws";
+//NCI.connectionURL = "ws://10.48.2.81:28080/clientsock.yaws";
 
 NCI.Connection = [];
 
@@ -178,6 +178,7 @@ NCI.Connection.moreData = function(startTime, endTime, pointsNum) {
 NCI.initSocket = function(){
 	NCI.Socket = new WebSocket(NCI.connectionURL);
 	NCI.Socket.onerror = function (e) {
+		//NCI.chartData = [];
 		//$(".disconected").show();
 	};
 	NCI.Socket.onclose = function (e) {
