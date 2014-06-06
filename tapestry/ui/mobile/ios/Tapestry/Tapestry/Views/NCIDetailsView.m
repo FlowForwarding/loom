@@ -17,12 +17,16 @@
 }
 
 @property(nonatomic, strong)NCITabButton *flowsButton;
+@property(nonatomic, strong)NCITabButton *flowsByActivitiesButton;
+@property(nonatomic, strong)NCITabButton *flowsPrettyButton;
+@property(nonatomic, strong)NCITabButton *internalFlowsButton;
 @property(nonatomic, strong)NCITabButton *activitiesButton;
 @property(nonatomic, strong)NCITabButton *activitiesPrettyButton;
-@property(nonatomic, strong)NCITabButton *internalNetworkButton;
+@property(nonatomic, strong)NCITabButton *internalActivitiesButton;
 @property(nonatomic, strong)NCITabButton *activitiesSizesButton;
 @property(nonatomic, strong)NCIFlowsView *flowsView;
 @property(nonatomic, strong)NCIAcitvitiesSizesView *activitySizesView;
+@property(nonatomic, strong)UIScrollView *buttonPanel;
 
 @end
 
@@ -32,10 +36,17 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        float buttonWidth = frame.size.width/5;
+        float buttonWidth = 200;
         float buttonHeight = 50;
 
         __weak typeof(self) weakSelf = self;
+        _buttonPanel = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, buttonHeight)];
+        _buttonPanel.contentSize = CGSizeMake(buttonWidth*8, buttonHeight);
+        _buttonPanel.showsHorizontalScrollIndicator = NO;
+        _buttonPanel.bounces = NO;
+        [self.content addSubview:_buttonPanel];
+        
+        
         _flowsButton = [[NCITabButton alloc] initWithFrame:CGRectMake(0, 0, buttonWidth, buttonHeight)];
         [_flowsButton setTitle:@"Flows" forState:UIControlStateNormal];
         _flowsButton.selectAction = ^{
@@ -43,39 +54,67 @@
             [weakSelf showFlows];
         };
         _flowsButton.selected = YES;
-        [self.content addSubview:_flowsButton];
+        [_buttonPanel addSubview:_flowsButton];
         
-        _activitiesButton = [[NCITabButton alloc] initWithFrame:CGRectMake(buttonWidth, 0, buttonWidth, buttonHeight)];
-        [_activitiesButton setTitle:@"Activities" forState:UIControlStateNormal];
-        _activitiesButton.selectAction = ^(){
-            [weakSelf selectTab:weakSelf.activitiesButton];
+        _flowsByActivitiesButton = [[NCITabButton alloc] initWithFrame:CGRectMake(buttonWidth, 0, buttonWidth, buttonHeight)];
+        [_flowsByActivitiesButton setTitle:@"Flows(by Activities)" forState:UIControlStateNormal];
+        _flowsByActivitiesButton.selectAction = ^(){
+            [weakSelf selectTab:weakSelf.flowsByActivitiesButton];
             [weakSelf showActivities];
         };
-        [self.content addSubview:_activitiesButton];
+        [_buttonPanel addSubview:_flowsByActivitiesButton];
         
-        _activitiesPrettyButton = [[NCITabButton alloc] initWithFrame:CGRectMake(2*buttonWidth, 0, buttonWidth, buttonHeight)];
-        [_activitiesPrettyButton setTitle:@"Activities(Pretty)" forState:UIControlStateNormal];
-        _activitiesPrettyButton.selectAction = ^(){
-            [weakSelf selectTab:weakSelf.activitiesPrettyButton];
+        _flowsPrettyButton = [[NCITabButton alloc] initWithFrame:CGRectMake(2*buttonWidth, 0, buttonWidth, buttonHeight)];
+        [_flowsPrettyButton setTitle:@"Flows(Pretty)" forState:UIControlStateNormal];
+        _flowsPrettyButton.selectAction = ^(){
+            [weakSelf selectTab:weakSelf.flowsPrettyButton];
             [weakSelf showPrettyActivitites];
         };
-        [self.content addSubview:_activitiesPrettyButton];
+        [_buttonPanel addSubview:_flowsPrettyButton];
         
-        _internalNetworkButton = [[NCITabButton alloc] initWithFrame:CGRectMake(3*buttonWidth, 0, buttonWidth, buttonHeight)];
-        [_internalNetworkButton setTitle:@"Internal Network" forState:UIControlStateNormal];
-        _internalNetworkButton.selectAction = ^(){
-            [weakSelf selectTab:weakSelf.internalNetworkButton];
+        _internalFlowsButton = [[NCITabButton alloc] initWithFrame:CGRectMake(3*buttonWidth, 0, buttonWidth, buttonHeight)];
+        [_internalFlowsButton setTitle:@"Internal Flows" forState:UIControlStateNormal];
+        _internalFlowsButton.selectAction = ^(){
+            [weakSelf selectTab:weakSelf.internalFlowsButton];
             [weakSelf showInternalNetwork];
         };
-        [self.content addSubview:_internalNetworkButton];
+        [_buttonPanel addSubview:_internalFlowsButton];
         
-        _activitiesSizesButton = [[NCITabButton alloc] initWithFrame:CGRectMake(4*buttonWidth, 0, buttonWidth, buttonHeight)];
+        _activitiesButton = [[NCITabButton alloc] initWithFrame:CGRectMake(4*buttonWidth, 0, buttonWidth, buttonHeight)];
+        _activitiesButton.selectAction = ^(){
+            [weakSelf selectTab:weakSelf.activitiesButton];
+            [weakSelf.buttonPanel setContentOffset:
+             CGPointMake(weakSelf.buttonPanel.contentSize.width - weakSelf.frame.size.width, 0) animated:YES];
+//            [weakSelf activitiesSizes];
+        };
+        [_activitiesButton setTitle:@"Activities" forState:UIControlStateNormal];
+        [_buttonPanel addSubview:_activitiesButton];
+        
+        _activitiesPrettyButton = [[NCITabButton alloc] initWithFrame:CGRectMake(5*buttonWidth, 0, buttonWidth, buttonHeight)];
+        _activitiesPrettyButton.selectAction = ^(){
+            [weakSelf selectTab:weakSelf.activitiesPrettyButton];
+            //            [weakSelf activitiesSizes];
+        };
+        [_activitiesPrettyButton setTitle:@"Activities(Pretty)" forState:UIControlStateNormal];
+        [_buttonPanel addSubview:_activitiesPrettyButton];
+        
+       // internalActivitiesButton
+        
+        _internalActivitiesButton = [[NCITabButton alloc] initWithFrame:CGRectMake(6*buttonWidth, 0, buttonWidth, buttonHeight)];
+        _internalActivitiesButton.selectAction = ^(){
+            [weakSelf selectTab:weakSelf.internalActivitiesButton];
+            //            [weakSelf activitiesSizes];
+        };
+        [_internalActivitiesButton setTitle:@"Internal Activities" forState:UIControlStateNormal];
+        [_buttonPanel addSubview:_internalActivitiesButton];
+        
+        _activitiesSizesButton = [[NCITabButton alloc] initWithFrame:CGRectMake(7*buttonWidth, 0, buttonWidth, buttonHeight)];
         _activitiesSizesButton.selectAction = ^(){
             [weakSelf selectTab:weakSelf.activitiesSizesButton];
             [weakSelf activitiesSizes];
         };
         [_activitiesSizesButton setTitle:@"Activities Sizes" forState:UIControlStateNormal];
-        [self.content addSubview:_activitiesSizesButton];
+        [_buttonPanel addSubview:_activitiesSizesButton];
         
         generalInfo = [[UILabel alloc] initWithFrame:CGRectMake(0, 50, self.content.frame.size.width, 50)];
         generalInfo.textAlignment = NSTextAlignmentCenter;
@@ -120,10 +159,13 @@
 
 - (void)selectTab:(NCITabButton *)button{
     self.flowsButton.selected = NO;
+    self.flowsByActivitiesButton.selected = NO;
+    self.flowsPrettyButton.selected = NO;
+    self.internalFlowsButton.selected = NO;
+    self.activitiesSizesButton.selected = NO;
     self.activitiesButton.selected = NO;
     self.activitiesPrettyButton.selected = NO;
-    self.internalNetworkButton.selected = NO;
-    self.activitiesSizesButton.selected = NO;
+    self.internalActivitiesButton.selected = NO;
     button.selected = YES;
 }
 
