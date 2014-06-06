@@ -11,5 +11,7 @@
 @interface NCIFlowsView : UIView
 
 - (void)loadData:(NSArray *) communities;
+@property(nonatomic, strong) NSArray *communitiesData;
+@property(nonatomic) BOOL updating;
 
 @end

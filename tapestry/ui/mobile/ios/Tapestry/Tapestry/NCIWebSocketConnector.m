@@ -129,10 +129,16 @@ static NSString* websocketNCIDetailsRequest =
         NSMutableArray *communities = [[NSMutableArray alloc] init];
         for (int i = 0; i< (arc4random()%3 + 3); i ++){
             NSMutableArray *endpoints = [[NSMutableArray alloc] init];
-            for (int i=0; i< (arc4random() % 5 + 2); i ++){
-                [endpoints addObject:@"123"];
+            for (int j=0; j< (arc4random() % 5 + 20); j++){
+                [endpoints addObject:[NSString stringWithFormat:@"%d_%d", i, j]];
             }
             NSMutableArray *interactions = [[NSMutableArray alloc] init];
+            for (int k = 0; k < endpoints.count - 1; k++){
+                [interactions addObject:@[endpoints[k], endpoints[k+1]]];
+                for (int h=5; h < k/2; h++){
+                     [interactions addObject:@[endpoints[k], endpoints[h]]];
+                }
+            }
             [communities addObject:@{@"Endpoints": endpoints, @"Interactions": interactions}];
         }
         NSData *responseData = [NSJSONSerialization

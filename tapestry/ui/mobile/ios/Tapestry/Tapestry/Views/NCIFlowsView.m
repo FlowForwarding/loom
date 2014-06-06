@@ -27,11 +27,14 @@
         label.text = @"Connetions graph here";
         [self addSubview:label];
         animator = [[UIDynamicAnimator alloc] initWithReferenceView:self];
+        self.backgroundColor = [UIColor whiteColor];
     }
     return self;
 }
 
 - (void)loadData:(NSArray *) communities{
+    _updating = true;
+    _communitiesData = communities;
     groupColors = [[NSMutableArray alloc] initWithArray:@[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
     endpoints = [[NSMutableDictionary alloc] init];
     float pointDimention = 12;
@@ -48,6 +51,58 @@
             endpoints[ePoint] = ep;
         }
     }
+    
+    UIDynamicItemBehavior *behavior = [[UIDynamicItemBehavior alloc]  initWithItems:[endpoints allValues]];
+    behavior.friction = 1;
+    behavior.resistance = 1;
+    [animator addBehavior:behavior];
+    
+    
+    UICollisionBehavior *collision = [[UICollisionBehavior alloc]
+                                      initWithItems:[endpoints allValues]];
+    collision.translatesReferenceBoundsIntoBoundary = YES;
+    [animator addBehavior:collision];
+    
+    for (int i=0; i< communities.count; i++){
+        NSDictionary* community = communities[i];
+        for (NSArray *interaction in community[@"Interactions"]){
+            UIAttachmentBehavior *attachment = [[UIAttachmentBehavior alloc]
+                                                   initWithItem:endpoints[interaction[0]]
+                                                attachedToItem:endpoints[interaction[1]]];
+            [attachment setFrequency:10.0];
+            //[attachment setDamping:5.0];
+            [attachment setLength:100];
+            [animator addBehavior:attachment];
+        }
+    }
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        while (weakSelf.updating) {
+            [NSThread sleepForTimeInterval:0.05f];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self setNeedsDisplay];
+            });
+        }
+    });
+    
+}
+
+- (void)drawRect:(CGRect)rect{
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetLineWidth(context, 0.2);
+    CGContextBeginPath(context);
+    CGContextSetStrokeColorWithColor(context, [UIColor blackColor].CGColor);
+    for (int i=0; i< _communitiesData.count; i++){
+        NSDictionary* community = _communitiesData[i];
+        for (NSArray *interaction in community[@"Interactions"]){
+            UIView *p1 = endpoints[interaction[0]];
+            UIView *p2 = endpoints[interaction[1]];
+            CGContextMoveToPoint(context, p1.center.x, p1.center.y);
+            CGContextAddLineToPoint(context, p2.center.x, p2.center.y);
+            
+        }
+    }
+    CGContextStrokePath(context);
 }
 
 - (UIColor *)getColor:(int) i{

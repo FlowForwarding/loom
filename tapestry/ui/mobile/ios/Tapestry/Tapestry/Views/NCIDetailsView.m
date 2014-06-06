@@ -138,6 +138,13 @@
 - (void)hideActions{
     generalInfo.text = @"";
     self.flowsButton.selectAction();
+    self.flowsView.updating = NO;
+    
+    for (UIView *view in self.flowsView.subviews){
+        [view removeFromSuperview];
+    }
+    self.flowsView.communitiesData = @[];
+    [self.flowsView setNeedsDisplay];
 }
 
 
