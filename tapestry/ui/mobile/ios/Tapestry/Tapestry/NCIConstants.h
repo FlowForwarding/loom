@@ -15,5 +15,8 @@
 extern NSString *const demoUrl;
 extern NSString *const sampleUrl;
 extern float twoYearPeriod;
+extern float halfMonthPeriod;
+
++ (NSString *)processTime:(NSString *) time;
 
 @end

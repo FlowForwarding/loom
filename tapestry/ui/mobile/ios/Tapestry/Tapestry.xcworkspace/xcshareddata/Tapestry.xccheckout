@@ -5,36 +5,48 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>9E3B876F-C7A0-4C8C-91A3-C27864BF31CC</string>
+	<string>78688250-BEDC-4EF2-9D4C-9361EC390BCD</string>
 	<key>IDESourceControlProjectName</key>
 	<string>Tapestry</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>EC1F2ABB-64F7-41AC-9815-26FD6C7B9E01</key>
-		<string>ssh://github.com/FlowForwarding/tapestry.git</string>
+		<key>0B00F035-5426-4915-95FE-59AB1D288B77</key>
+		<string>https://github.com/FlowForwarding/loom</string>
+		<key>4C607212-6281-483A-B6E3-1C51C712069B</key>
+		<string>https://github.com/FlowForwarding/dynamiccharts</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>src/ui/mobile/ios/Tapestry/Tapestry.xcworkspace</string>
+	<string>tapestry/ui/mobile/ios/Tapestry/Tapestry.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>EC1F2ABB-64F7-41AC-9815-26FD6C7B9E01</key>
+		<key>0B00F035-5426-4915-95FE-59AB1D288B77</key>
 		<string>../../../../../..</string>
+		<key>4C607212-6281-483A-B6E3-1C51C712069B</key>
+		<string>../../../../../../../dynamiccharts</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>ssh://github.com/FlowForwarding/tapestry.git</string>
+	<string>https://github.com/FlowForwarding/loom</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>110</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>EC1F2ABB-64F7-41AC-9815-26FD6C7B9E01</string>
+	<string>0B00F035-5426-4915-95FE-59AB1D288B77</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>EC1F2ABB-64F7-41AC-9815-26FD6C7B9E01</string>
+			<string>4C607212-6281-483A-B6E3-1C51C712069B</string>
 			<key>IDESourceControlWCCName</key>
-			<string>tapestry</string>
+			<string>dynamiccharts</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>0B00F035-5426-4915-95FE-59AB1D288B77</string>
+			<key>IDESourceControlWCCName</key>
+			<string>loom</string>
 		</dict>
 	</array>
 </dict>

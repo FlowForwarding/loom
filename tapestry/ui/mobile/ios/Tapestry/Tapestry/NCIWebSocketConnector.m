@@ -28,6 +28,10 @@ static NSString* defaultWebsocketUrl = @"epamove.herokuapp.com";
 static NSString* websocketStartRequest = @"START_DATA";
 static NSString* websocketMoreDataRequest =
 @"{\"request\":\"more_data\",\"start\": \"%@Z\",\"end\": \"%@Z\",\"max_items\": \"800\"}";
+static NSString* websocketCollectorsDetailsRequest =
+@"{\"action\":\"collectors\",\"Time\": \"%@Z\"}";
+static NSString* websocketNCIDetailsRequest =
+@"{\"action\":\"NCIDetails\",\"Time\": \"%@Z\"}";
 
 @implementation NCIWebSocketConnector
 
@@ -96,6 +100,55 @@ static NSString* websocketMoreDataRequest =
     [socket send: [NSString stringWithFormat: websocketMoreDataRequest, startDateString, endDateString]];
 }
 
+- (void)requestCollecotrsDetails:(NSString *) date{
+    if (demoMode){
+        NSMutableArray *collecotrs = [[NSMutableArray alloc] init];
+        for (int i = 1; i<8; i++){
+            [collecotrs addObject:@{
+                                    @"name": [NSString stringWithFormat:@"collector %d", i],
+                                    @"collector_type": @"switch",
+                                    @"ip": @"",
+                                    @"datapath_id": @"",
+                                    @"qps": [NSString stringWithFormat:@"%d", arc4random() % 5 + 1]}];
+        }
+        NSData *responseData = [NSJSONSerialization
+                                dataWithJSONObject:@{
+                                                     @"action": @"collectors",
+                                                     @"Time": date,
+                                                     @"Collectors" : collecotrs
+                                                     }
+                                options:0 error:nil];
+        [self webSocket:nil didReceiveMessage: [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding]];
+    } else {
+       [socket send: [NSString stringWithFormat: websocketCollectorsDetailsRequest, date]];
+    }
+}
+
+- (void)requestNCIDetails:(NSString *) date{
+    if (demoMode){
+        NSMutableArray *communities = [[NSMutableArray alloc] init];
+        for (int i = 0; i< (arc4random()%3 + 3); i ++){
+            NSMutableArray *endpoints = [[NSMutableArray alloc] init];
+            for (int i=0; i< (arc4random() % 5 + 2); i ++){
+                [endpoints addObject:@"123"];
+            }
+            NSMutableArray *interactions = [[NSMutableArray alloc] init];
+            [communities addObject:@{@"Endpoints": endpoints, @"Interactions": interactions}];
+        }
+        NSData *responseData = [NSJSONSerialization
+                                dataWithJSONObject:@{
+                                                     @"action": @"NCIDetails",
+                                                     @"NCI": @3,
+                                                     @"Time": date,
+                                                     @"Communities": communities
+                                                     }
+                                options:0 error:nil];
+        [self webSocket:nil didReceiveMessage: [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding]];
+    } else {
+        [socket send: [NSString stringWithFormat: websocketNCIDetailsRequest, date]];
+    }
+}
+
 - (void)resetData{
     [self.periodSwitcherPanel resetButtons];
     [self.nciValue resetData];
@@ -126,7 +179,7 @@ static NSString* websocketMoreDataRequest =
 }
 
 - (void)generateDemoData{
-    float demoDatePeriod = twoYearPeriod/4.0;
+    float demoDatePeriod = halfMonthPeriod;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         int trendMiddle = 6;
         int trendStepCounter = 0;
@@ -140,12 +193,12 @@ static NSString* websocketMoreDataRequest =
         float step = demoDatePeriod/(numOfPoints - 1);
         int ind;
         for (ind = 0; ind < numOfPoints; ind ++){
-            if (trendStepCounter > 5){
+            if (trendStepCounter > 140){
                 trendStepCounter = 0;
                 trendMiddle += 1;
             }
             trendStepCounter += 1;
-            int complexity = trendMiddle + arc4random() % 5;
+            int complexity = trendMiddle + arc4random() % 3;
             moreResponse = [NSString stringWithFormat:@"%@\"Time\":\"%@\",\"NCI\":%d,",
                             moreResponse,
                             [self formatDataForServer:[[NSDate date] dateByAddingTimeInterval: (-demoDatePeriod + step*ind)]],
@@ -155,23 +208,31 @@ static NSString* websocketMoreDataRequest =
         [self sendDemoString:moreResponse];
         
         while (demoMode){
-            if (trendStepCounter > 5){
+            if (trendStepCounter > 140){
                 trendStepCounter = 0;
                 trendMiddle += 1;
             }
             trendStepCounter += 1;
-            int complexity = trendMiddle + arc4random() % 5;
-            NSDictionary *response = @{@"NCI":[NSString stringWithFormat: @"%d", complexity]
-                                       , @"Time": [self formatDataForServer: [NSDate date]]};
+            int complexity = trendMiddle + arc4random() % 3;
+            NSDictionary *response = @{@"NCI":[NSString stringWithFormat: @"%d", complexity],
+                                       @"Time": [self formatDataForServer: [NSDate date]],
+                                       @"action": @"NCI"};
             [self sendDemoData:response];
             int endpoints = 310 + arc4random() % 5;
             NSDictionary *response2 = @{@"NEP": [NSString stringWithFormat: @"%d", endpoints],
-                                        @"Time": [self formatDataForServer: [NSDate date]]};
+                                        @"Time": [self formatDataForServer: [NSDate date]],
+                                        @"action": @"NEP"};
             [self sendDemoData:response2];
             int quieries  = 230 + arc4random() % 5;
             NSDictionary *response3 = @{@"QPS":[NSString stringWithFormat: @"%d", quieries],
-                                        @"Time": [self formatDataForServer: [NSDate date]]};
+                                        @"Time": [self formatDataForServer: [NSDate date]],
+                                        @"action": @"QPS"};
             [self sendDemoData:response3];
+            int collectors = arc4random() % 4 + 1;
+            NSDictionary *response4 = @{@"COLLECTORS":[NSString stringWithFormat: @"%d", collectors],
+                                        @"Time": [self formatDataForServer: [NSDate date]],
+                                        @"action": @"Collectors"};
+            [self sendDemoData:response4];
             [NSThread sleepForTimeInterval:3.0f];
         }
     });
@@ -216,7 +277,46 @@ static NSString* websocketMoreDataRequest =
 {
     NSString *messageString = ((NSString *)message);
     NSArray *dataPieces = [[messageString substringWithRange:NSMakeRange(1, messageString.length -2) ] componentsSeparatedByString:@","];
-    if (dataPieces.count > 2){
+    NSDictionary *dataPoint = [NSJSONSerialization
+                               JSONObjectWithData:[message dataUsingEncoding:NSUTF8StringEncoding]
+                               options:NSJSONReadingMutableContainers error:NULL];
+    if ([dataPoint[@"action"] isEqualToString:@"NCI"]){
+        NSString *nci = dataPoint[@"NCI"];
+        self.progressLabel.hidden = YES;
+        [self.nciValue setIndValue:nci withDate:dataPoint[@"Time"]];
+        if (_currentDatePeriod == twoYearPeriod){
+            if (self.chartView.chartData.count > 0)
+                [self.chartView.chartData removeLastObject];
+            [self.chartView addPoint:[[self dateFromServerString: dataPoint[@"Time"]] timeIntervalSince1970] val:@[@([nci integerValue])]];
+            while ([[NSDate date] timeIntervalSince1970] - [self.chartView.chartData[0][0] doubleValue] > _currentDatePeriod){
+                [self.chartView.chartData removeObjectAtIndex:0];
+            }
+            [self.chartView addPoint:[[NSDate date] timeIntervalSince1970] val:@[[NSNull null]]];
+            [self.chartView drawChart];
+        }
+    } else if([dataPoint[@"action"] isEqualToString:@"NEP"]){
+        [self.nepValue setIndValue: dataPoint[@"NEP"] withDate:dataPoint[@"Time"]];
+    } else if([dataPoint[@"action"] isEqualToString:@"QPS"]) {
+        [self.qpsValue setIndValue:dataPoint[@"QPS"] withDate:dataPoint[@"Time"]];
+    } else if([dataPoint[@"action"] isEqualToString:@"Collectors"]){
+        [self.collectorsValue setIndValue:dataPoint[@"COLLECTORS"] withDate:dataPoint[@"Time"]];
+    } else if([dataPoint[@"action"] isEqualToString:@"collectors"]){
+        [self.collectorsDetailsView loadData:dataPoint];
+    } else if([dataPoint[@"action"] isEqualToString:@"NCIDetails"]){
+        [self.detailsView loadData:dataPoint];
+    } else if(dataPoint[@"start_time"]){
+         NSString *start_time = dataPoint[@"start_time"];
+        self.startDate = [self dateFromServerString:start_time];
+        //            NSString *current_time = dataPoint[@"current_time"];
+        //            NSDate *date = [self dateFromServerString:current_time];
+        //            timeAdjustment = [date timeIntervalSinceNow];
+        double askPeriod = [[NSDate date] timeIntervalSince1970] - [self.startDate timeIntervalSince1970];
+        if (askPeriod > twoYearPeriod){
+            askPeriod = twoYearPeriod;
+        }
+        _currentDatePeriod = twoYearPeriod;
+        [self requestLastDataForPeiodInSeconds:askPeriod];
+    } else {
         self.progressLabel.hidden = YES;
         [self.chartView resetChart];
         int i;
@@ -233,46 +333,6 @@ static NSString* websocketMoreDataRequest =
         self.chartView.minRangeVal = self.chartView.maxRangeVal - period /10.0;
         [self.chartView drawChart];
         
-    } else {
-        NSDictionary *dataPoint = [NSJSONSerialization
-                                   JSONObjectWithData:[message dataUsingEncoding:NSUTF8StringEncoding]
-                                   options:NSJSONReadingMutableContainers error:NULL];
-        
-        NSString *nci = dataPoint[@"NCI"];
-        NSString *nep = dataPoint[@"NEP"];
-        NSString *qps = dataPoint[@"QPS"];
-        if (nci){
-            self.progressLabel.hidden = YES;
-            [self.nciValue setIndValue:nci withDate:dataPoint[@"Time"]];
-            if (_currentDatePeriod == twoYearPeriod){
-                if (self.chartView.chartData.count > 0)
-                    [self.chartView.chartData removeLastObject];
-                [self.chartView addPoint:[[self dateFromServerString: dataPoint[@"Time"]] timeIntervalSince1970] val:@[@([nci integerValue])]];
-                while ([[NSDate date] timeIntervalSince1970] - [self.chartView.chartData[0][0] doubleValue] > _currentDatePeriod){
-                    [self.chartView.chartData removeObjectAtIndex:0];
-                }
-                [self.chartView addPoint:[[NSDate date] timeIntervalSince1970] val:@[[NSNull null]]];
-                [self.chartView drawChart];
-            }
-        } else if (nep) {
-            [self.nepValue setIndValue:nep  withDate:dataPoint[@"Time"]];
-        } else if (qps) {
-            [self.qpsValue setIndValue:qps withDate:dataPoint[@"Time"]];
-        }
-        //{"start_time":"2013-11-13T16:42:55Z","current_time":"2013-11-13T21:23:47Z"}
-        NSString *start_time = dataPoint[@"start_time"];
-        if (start_time){
-            self.startDate = [self dateFromServerString:start_time];
-//            NSString *current_time = dataPoint[@"current_time"];
-//            NSDate *date = [self dateFromServerString:current_time];
-//            timeAdjustment = [date timeIntervalSinceNow];
-            double askPeriod = [[NSDate date] timeIntervalSince1970] - [self.startDate timeIntervalSince1970];
-            if (askPeriod > twoYearPeriod){
-                askPeriod = twoYearPeriod;
-            }
-            _currentDatePeriod = twoYearPeriod;
-            [self requestLastDataForPeiodInSeconds:askPeriod];
-        }
     }
 }
 

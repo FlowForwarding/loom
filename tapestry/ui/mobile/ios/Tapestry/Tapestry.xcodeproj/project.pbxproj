@@ -27,8 +27,29 @@
 		2A02D05A1844F1BF0065B0E9 /* NCIPeriodSwitcherPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D0541844F1BF0065B0E9 /* NCIPeriodSwitcherPanel.m */; };
 		2A02D07E1844F2210065B0E9 /* NCIGraphController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D07B1844F2210065B0E9 /* NCIGraphController.m */; };
 		2A02D07F1844F2210065B0E9 /* NCIWebSocketConnector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A02D07D1844F2210065B0E9 /* NCIWebSocketConnector.m */; };
+		2A1B29A31925E111006CC710 /* NCIDetailsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A1B29A21925E111006CC710 /* NCIDetailsView.m */; };
+		2A3B81201941479800FC6824 /* NCIAxis.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B81051941479800FC6824 /* NCIAxis.m */; };
+		2A3B81211941479800FC6824 /* NCIBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B81071941479800FC6824 /* NCIBar.m */; };
+		2A3B81221941479800FC6824 /* NCIBarGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B81091941479800FC6824 /* NCIBarGraphView.m */; };
+		2A3B81231941479800FC6824 /* NCIBarGridView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B810B1941479800FC6824 /* NCIBarGridView.m */; };
+		2A3B81241941479800FC6824 /* NCIBtmGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B810D1941479800FC6824 /* NCIBtmGraphView.m */; };
+		2A3B81251941479800FC6824 /* NCIChartOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B810F1941479800FC6824 /* NCIChartOptions.m */; };
+		2A3B81261941479800FC6824 /* NCIChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B81111941479800FC6824 /* NCIChartView.m */; };
+		2A3B81271941479800FC6824 /* NCIHandspikeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B81131941479800FC6824 /* NCIHandspikeView.m */; };
+		2A3B81281941479800FC6824 /* NCILine.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B81151941479800FC6824 /* NCILine.m */; };
+		2A3B81291941479800FC6824 /* NCISimpleChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B81171941479800FC6824 /* NCISimpleChartView.m */; };
+		2A3B812A1941479800FC6824 /* NCISimpleGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B81191941479800FC6824 /* NCISimpleGraphView.m */; };
+		2A3B812B1941479800FC6824 /* NCISimpleGridView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B811B1941479800FC6824 /* NCISimpleGridView.m */; };
+		2A3B812C1941479800FC6824 /* NCITopGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B811D1941479800FC6824 /* NCITopGraphView.m */; };
+		2A3B812D1941479800FC6824 /* NCIZoomGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B811F1941479800FC6824 /* NCIZoomGraphView.m */; };
 		2A3BBB0D18576EBF006ECC2B /* NCIConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A3BBB0C18576EBF006ECC2B /* NCIConstants.m */; };
 		2A90431B18E392AA008CEBB8 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2A90431D18E392AA008CEBB8 /* Localizable.strings */; };
+		2AA6782919301BE500AD1C61 /* NCIEndpoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AA6782819301BE500AD1C61 /* NCIEndpoint.m */; };
+		2AC7FF9719266CA100EE5DC1 /* NCICollectorsDetailsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7FF9619266CA100EE5DC1 /* NCICollectorsDetailsView.m */; };
+		2AC7FF9A1926723B00EE5DC1 /* NCIDetails.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7FF991926723B00EE5DC1 /* NCIDetails.m */; };
+		2AC7FF9D1926B0F800EE5DC1 /* NCITabButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7FF9C1926B0F800EE5DC1 /* NCITabButton.m */; };
+		2AC7FFA91926BD5000EE5DC1 /* NCIFlowsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7FFA81926BD5000EE5DC1 /* NCIFlowsView.m */; };
+		2AC7FFAC1926BD6600EE5DC1 /* NCIAcitvitiesSizesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7FFAB1926BD6600EE5DC1 /* NCIAcitvitiesSizesView.m */; };
 		2AF134E0185E31E50087D685 /* UIColor+WithHex.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AF134DF185E31E50087D685 /* UIColor+WithHex.m */; };
 		BF1E73678289457C8D232F84 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06D5AAF19A074DA0BABE9A8B /* libPods.a */; };
 /* End PBXBuildFile section */
@@ -77,12 +98,54 @@
 		2A02D07B1844F2210065B0E9 /* NCIGraphController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIGraphController.m; sourceTree = "<group>"; };
 		2A02D07C1844F2210065B0E9 /* NCIWebSocketConnector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIWebSocketConnector.h; sourceTree = "<group>"; };
 		2A02D07D1844F2210065B0E9 /* NCIWebSocketConnector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIWebSocketConnector.m; sourceTree = "<group>"; };
+		2A1B29A11925E111006CC710 /* NCIDetailsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIDetailsView.h; sourceTree = "<group>"; };
+		2A1B29A21925E111006CC710 /* NCIDetailsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIDetailsView.m; sourceTree = "<group>"; };
+		2A3B81041941479800FC6824 /* NCIAxis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIAxis.h; sourceTree = "<group>"; };
+		2A3B81051941479800FC6824 /* NCIAxis.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIAxis.m; sourceTree = "<group>"; };
+		2A3B81061941479800FC6824 /* NCIBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIBar.h; sourceTree = "<group>"; };
+		2A3B81071941479800FC6824 /* NCIBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIBar.m; sourceTree = "<group>"; };
+		2A3B81081941479800FC6824 /* NCIBarGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIBarGraphView.h; sourceTree = "<group>"; };
+		2A3B81091941479800FC6824 /* NCIBarGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIBarGraphView.m; sourceTree = "<group>"; };
+		2A3B810A1941479800FC6824 /* NCIBarGridView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIBarGridView.h; sourceTree = "<group>"; };
+		2A3B810B1941479800FC6824 /* NCIBarGridView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIBarGridView.m; sourceTree = "<group>"; };
+		2A3B810C1941479800FC6824 /* NCIBtmGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIBtmGraphView.h; sourceTree = "<group>"; };
+		2A3B810D1941479800FC6824 /* NCIBtmGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIBtmGraphView.m; sourceTree = "<group>"; };
+		2A3B810E1941479800FC6824 /* NCIChartOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIChartOptions.h; sourceTree = "<group>"; };
+		2A3B810F1941479800FC6824 /* NCIChartOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIChartOptions.m; sourceTree = "<group>"; };
+		2A3B81101941479800FC6824 /* NCIChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIChartView.h; sourceTree = "<group>"; };
+		2A3B81111941479800FC6824 /* NCIChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIChartView.m; sourceTree = "<group>"; };
+		2A3B81121941479800FC6824 /* NCIHandspikeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIHandspikeView.h; sourceTree = "<group>"; };
+		2A3B81131941479800FC6824 /* NCIHandspikeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIHandspikeView.m; sourceTree = "<group>"; };
+		2A3B81141941479800FC6824 /* NCILine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCILine.h; sourceTree = "<group>"; };
+		2A3B81151941479800FC6824 /* NCILine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCILine.m; sourceTree = "<group>"; };
+		2A3B81161941479800FC6824 /* NCISimpleChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCISimpleChartView.h; sourceTree = "<group>"; };
+		2A3B81171941479800FC6824 /* NCISimpleChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCISimpleChartView.m; sourceTree = "<group>"; };
+		2A3B81181941479800FC6824 /* NCISimpleGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCISimpleGraphView.h; sourceTree = "<group>"; };
+		2A3B81191941479800FC6824 /* NCISimpleGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCISimpleGraphView.m; sourceTree = "<group>"; };
+		2A3B811A1941479800FC6824 /* NCISimpleGridView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCISimpleGridView.h; sourceTree = "<group>"; };
+		2A3B811B1941479800FC6824 /* NCISimpleGridView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCISimpleGridView.m; sourceTree = "<group>"; };
+		2A3B811C1941479800FC6824 /* NCITopGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCITopGraphView.h; sourceTree = "<group>"; };
+		2A3B811D1941479800FC6824 /* NCITopGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCITopGraphView.m; sourceTree = "<group>"; };
+		2A3B811E1941479800FC6824 /* NCIZoomGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIZoomGraphView.h; sourceTree = "<group>"; };
+		2A3B811F1941479800FC6824 /* NCIZoomGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIZoomGraphView.m; sourceTree = "<group>"; };
 		2A3BBB0B18576EBF006ECC2B /* NCIConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIConstants.h; sourceTree = "<group>"; };
 		2A3BBB0C18576EBF006ECC2B /* NCIConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIConstants.m; sourceTree = "<group>"; };
 		2A6DDE0618637A420013D202 /* libNCIChart.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libNCIChart.a; path = "NCIChart/build/Debug-iphoneos/libNCIChart.a"; sourceTree = "<group>"; };
 		2A6DDE0A1864523B0013D202 /* libNCIChart.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libNCIChart.a; path = "NCIChart/build/Debug-iphoneos/libNCIChart.a"; sourceTree = "<group>"; };
 		2A90431C18E392AA008CEBB8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2A90431E18E392BA008CEBB8 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		2AA6782719301BE500AD1C61 /* NCIEndpoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIEndpoint.h; sourceTree = "<group>"; };
+		2AA6782819301BE500AD1C61 /* NCIEndpoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIEndpoint.m; sourceTree = "<group>"; };
+		2AC7FF9519266CA100EE5DC1 /* NCICollectorsDetailsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCICollectorsDetailsView.h; sourceTree = "<group>"; };
+		2AC7FF9619266CA100EE5DC1 /* NCICollectorsDetailsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCICollectorsDetailsView.m; sourceTree = "<group>"; };
+		2AC7FF981926723B00EE5DC1 /* NCIDetails.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIDetails.h; sourceTree = "<group>"; };
+		2AC7FF991926723B00EE5DC1 /* NCIDetails.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIDetails.m; sourceTree = "<group>"; };
+		2AC7FF9B1926B0F800EE5DC1 /* NCITabButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCITabButton.h; sourceTree = "<group>"; };
+		2AC7FF9C1926B0F800EE5DC1 /* NCITabButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCITabButton.m; sourceTree = "<group>"; };
+		2AC7FFA71926BD5000EE5DC1 /* NCIFlowsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIFlowsView.h; sourceTree = "<group>"; };
+		2AC7FFA81926BD5000EE5DC1 /* NCIFlowsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIFlowsView.m; sourceTree = "<group>"; };
+		2AC7FFAA1926BD6600EE5DC1 /* NCIAcitvitiesSizesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIAcitvitiesSizesView.h; sourceTree = "<group>"; };
+		2AC7FFAB1926BD6600EE5DC1 /* NCIAcitvitiesSizesView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIAcitvitiesSizesView.m; sourceTree = "<group>"; };
 		2AF134DE185E31E50087D685 /* UIColor+WithHex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+WithHex.h"; sourceTree = "<group>"; };
 		2AF134DF185E31E50087D685 /* UIColor+WithHex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+WithHex.m"; sourceTree = "<group>"; };
 		873D91FA5DF341DBB1741EE2 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
@@ -150,6 +213,7 @@
 		2A02D00C1844F16C0065B0E9 /* Tapestry */ = {
 			isa = PBXGroup;
 			children = (
+				2A3B81031941477200FC6824 /* views */,
 				2A02D0481844F1BF0065B0E9 /* Views */,
 				2A02D0151844F16C0065B0E9 /* NCIAppDelegate.h */,
 				2A02D0161844F16C0065B0E9 /* NCIAppDelegate.m */,
@@ -212,8 +276,57 @@
 				2A02D0521844F1BF0065B0E9 /* NCIPeriodSwitcher.m */,
 				2A02D0531844F1BF0065B0E9 /* NCIPeriodSwitcherPanel.h */,
 				2A02D0541844F1BF0065B0E9 /* NCIPeriodSwitcherPanel.m */,
+				2A1B29A11925E111006CC710 /* NCIDetailsView.h */,
+				2A1B29A21925E111006CC710 /* NCIDetailsView.m */,
+				2AC7FF9519266CA100EE5DC1 /* NCICollectorsDetailsView.h */,
+				2AC7FF9619266CA100EE5DC1 /* NCICollectorsDetailsView.m */,
+				2AC7FF981926723B00EE5DC1 /* NCIDetails.h */,
+				2AC7FF991926723B00EE5DC1 /* NCIDetails.m */,
+				2AC7FF9B1926B0F800EE5DC1 /* NCITabButton.h */,
+				2AC7FF9C1926B0F800EE5DC1 /* NCITabButton.m */,
+				2AC7FFA71926BD5000EE5DC1 /* NCIFlowsView.h */,
+				2AC7FFA81926BD5000EE5DC1 /* NCIFlowsView.m */,
+				2AC7FFAA1926BD6600EE5DC1 /* NCIAcitvitiesSizesView.h */,
+				2AC7FFAB1926BD6600EE5DC1 /* NCIAcitvitiesSizesView.m */,
+				2AA6782719301BE500AD1C61 /* NCIEndpoint.h */,
+				2AA6782819301BE500AD1C61 /* NCIEndpoint.m */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		2A3B81031941477200FC6824 /* views */ = {
+			isa = PBXGroup;
+			children = (
+				2A3B81041941479800FC6824 /* NCIAxis.h */,
+				2A3B81051941479800FC6824 /* NCIAxis.m */,
+				2A3B81061941479800FC6824 /* NCIBar.h */,
+				2A3B81071941479800FC6824 /* NCIBar.m */,
+				2A3B81081941479800FC6824 /* NCIBarGraphView.h */,
+				2A3B81091941479800FC6824 /* NCIBarGraphView.m */,
+				2A3B810A1941479800FC6824 /* NCIBarGridView.h */,
+				2A3B810B1941479800FC6824 /* NCIBarGridView.m */,
+				2A3B810C1941479800FC6824 /* NCIBtmGraphView.h */,
+				2A3B810D1941479800FC6824 /* NCIBtmGraphView.m */,
+				2A3B810E1941479800FC6824 /* NCIChartOptions.h */,
+				2A3B810F1941479800FC6824 /* NCIChartOptions.m */,
+				2A3B81101941479800FC6824 /* NCIChartView.h */,
+				2A3B81111941479800FC6824 /* NCIChartView.m */,
+				2A3B81121941479800FC6824 /* NCIHandspikeView.h */,
+				2A3B81131941479800FC6824 /* NCIHandspikeView.m */,
+				2A3B81141941479800FC6824 /* NCILine.h */,
+				2A3B81151941479800FC6824 /* NCILine.m */,
+				2A3B81161941479800FC6824 /* NCISimpleChartView.h */,
+				2A3B81171941479800FC6824 /* NCISimpleChartView.m */,
+				2A3B81181941479800FC6824 /* NCISimpleGraphView.h */,
+				2A3B81191941479800FC6824 /* NCISimpleGraphView.m */,
+				2A3B811A1941479800FC6824 /* NCISimpleGridView.h */,
+				2A3B811B1941479800FC6824 /* NCISimpleGridView.m */,
+				2A3B811C1941479800FC6824 /* NCITopGraphView.h */,
+				2A3B811D1941479800FC6824 /* NCITopGraphView.m */,
+				2A3B811E1941479800FC6824 /* NCIZoomGraphView.h */,
+				2A3B811F1941479800FC6824 /* NCIZoomGraphView.m */,
+			);
+			name = views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -352,18 +465,39 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A3B81211941479800FC6824 /* NCIBar.m in Sources */,
+				2AC7FF9719266CA100EE5DC1 /* NCICollectorsDetailsView.m in Sources */,
 				2A02D07F1844F2210065B0E9 /* NCIWebSocketConnector.m in Sources */,
 				2A02D07E1844F2210065B0E9 /* NCIGraphController.m in Sources */,
+				2A3B81221941479800FC6824 /* NCIBarGraphView.m in Sources */,
+				2A3B812D1941479800FC6824 /* NCIZoomGraphView.m in Sources */,
 				2A02D0571844F1BF0065B0E9 /* NCIHintView.m in Sources */,
+				2A3B812C1941479800FC6824 /* NCITopGraphView.m in Sources */,
+				2A3B812A1941479800FC6824 /* NCISimpleGraphView.m in Sources */,
 				2AF134E0185E31E50087D685 /* UIColor+WithHex.m in Sources */,
 				2A3BBB0D18576EBF006ECC2B /* NCIConstants.m in Sources */,
+				2AC7FF9D1926B0F800EE5DC1 /* NCITabButton.m in Sources */,
+				2AC7FFA91926BD5000EE5DC1 /* NCIFlowsView.m in Sources */,
+				2AC7FF9A1926723B00EE5DC1 /* NCIDetails.m in Sources */,
+				2A3B812B1941479800FC6824 /* NCISimpleGridView.m in Sources */,
+				2AA6782919301BE500AD1C61 /* NCIEndpoint.m in Sources */,
 				2A02D0591844F1BF0065B0E9 /* NCIPeriodSwitcher.m in Sources */,
 				2A02D05A1844F1BF0065B0E9 /* NCIPeriodSwitcherPanel.m in Sources */,
+				2A1B29A31925E111006CC710 /* NCIDetailsView.m in Sources */,
 				2A02D0561844F1BF0065B0E9 /* NCIHelpView.m in Sources */,
+				2A3B81231941479800FC6824 /* NCIBarGridView.m in Sources */,
+				2A3B81291941479800FC6824 /* NCISimpleChartView.m in Sources */,
+				2A3B81251941479800FC6824 /* NCIChartOptions.m in Sources */,
+				2A3B81281941479800FC6824 /* NCILine.m in Sources */,
+				2AC7FFAC1926BD6600EE5DC1 /* NCIAcitvitiesSizesView.m in Sources */,
 				2A02D0581844F1BF0065B0E9 /* NCIIndexValueView.m in Sources */,
 				2A02D0131844F16C0065B0E9 /* main.m in Sources */,
+				2A3B81271941479800FC6824 /* NCIHandspikeView.m in Sources */,
 				2A02D0551844F1BF0065B0E9 /* NCIEditServerView.m in Sources */,
+				2A3B81261941479800FC6824 /* NCIChartView.m in Sources */,
 				2A02D0171844F16C0065B0E9 /* NCIAppDelegate.m in Sources */,
+				2A3B81241941479800FC6824 /* NCIBtmGraphView.m in Sources */,
+				2A3B81201941479800FC6824 /* NCIAxis.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -505,7 +639,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Ira D (TFH376NPXK)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tapestry/Tapestry-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -516,6 +651,7 @@
 				INFOPLIST_FILE = "Tapestry/Tapestry-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 2;
 				WRAPPER_EXTENSION = app;
 			};
@@ -527,7 +663,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Ira D (TFH376NPXK)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tapestry/Tapestry-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -538,6 +675,7 @@
 				INFOPLIST_FILE = "Tapestry/Tapestry-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 2;
 				WRAPPER_EXTENSION = app;
 			};

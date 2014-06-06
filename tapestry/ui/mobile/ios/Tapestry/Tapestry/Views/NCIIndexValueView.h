@@ -18,4 +18,6 @@
 - (void)setTooltipText:(NSString *)text;
 - (void)resetData;
 
+@property(nonatomic, strong)NSString *dateServerString;
+
 @end

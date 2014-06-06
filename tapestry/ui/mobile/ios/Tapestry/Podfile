@@ -1,5 +1,5 @@
 platform :ios, '6.0'
 
 pod 'SocketRocket', '~> 0.3.1-beta2'
-pod 'NCICharts', '~> 1.0.2'
+#pod 'NCICharts', '~> 2.0.1'
 

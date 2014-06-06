@@ -21,8 +21,7 @@
     
     float fontSize;
     NSString *indexName;
-    
-    NSDateFormatter *serverDateformatter;
+
     NCIHintView *helpView;
 }
 @end
@@ -58,13 +57,10 @@
         self.backgroundColor = [UIColor clearColor];
         contentView.backgroundColor = [UIColor clearColor];
         
-        serverDateformatter = [[NSDateFormatter alloc] init];
-        [serverDateformatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-        
         UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showTooltip)];
         tap.numberOfTapsRequired = 1;
-        indLabel.userInteractionEnabled = YES;
-        [indLabel addGestureRecognizer:tap];
+        helpBtn.userInteractionEnabled = YES;
+        [helpBtn addGestureRecognizer:tap];
 
     }
     return self;
@@ -91,8 +87,9 @@
 }
 
 - (void)setIndValue:(NSString *)value withDate:(NSString *)date{
+    self.dateServerString = date;
     indValue.text = [self processIndexValue: value];
-    updateLabel.text = [NSString stringWithFormat:NSLocalizedString(@"updated %@", nil), [self processTime:date]];
+    updateLabel.text = [NSString stringWithFormat:NSLocalizedString(@"updated %@", nil), [NCIConstants processTime:date]];
 }
 
 - (void)setTooltipText:(NSString *)text{
@@ -104,14 +101,6 @@
 }
 
 #pragma mark util methods
-
-- (NSString *)processTime:(NSString *) time{
-    time = [[time stringByReplacingOccurrencesOfString:@"T" withString:@" "] stringByReplacingOccurrencesOfString:@"Z" withString:@""];
-        [serverDateformatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-    NSDate *date = [serverDateformatter dateFromString:time];
-    [serverDateformatter setTimeZone:[NSTimeZone  localTimeZone]];
-    return [serverDateformatter stringFromDate:date];
-}
 
 - (NSString *)processIndexValue:(NSString *)indexValue
 {
