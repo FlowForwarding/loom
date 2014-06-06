@@ -11,7 +11,16 @@
 @interface NCIFlowsView : UIView
 
 - (void)loadData:(NSArray *) communities;
+- (void)showFlows;
+- (void)colorifyEndpoints;
+- (void)applyForces;
+- (void)showInternal;
+
+- (void)showActivities;
+- (void)showPrettyActivities;
+- (void)showInternalActivities;
 @property(nonatomic, strong) NSArray *communitiesData;
+@property(nonatomic, strong) NSArray *communityGraphData;
 @property(nonatomic) BOOL updating;
 
 @end

@@ -51,7 +51,9 @@
         [_flowsButton setTitle:@"Flows" forState:UIControlStateNormal];
         _flowsButton.selectAction = ^{
             [weakSelf selectTab:weakSelf.flowsButton];
-            [weakSelf showFlows];
+            [weakSelf.flowsView showFlows];
+            weakSelf.activitySizesView.hidden = YES;
+            weakSelf.flowsView.hidden = NO;
         };
         _flowsButton.selected = YES;
         [_buttonPanel addSubview:_flowsButton];
@@ -60,7 +62,9 @@
         [_flowsByActivitiesButton setTitle:@"Flows(by Activities)" forState:UIControlStateNormal];
         _flowsByActivitiesButton.selectAction = ^(){
             [weakSelf selectTab:weakSelf.flowsByActivitiesButton];
-            [weakSelf showActivities];
+            weakSelf.activitySizesView.hidden = YES;
+            weakSelf.flowsView.hidden = NO;
+            [weakSelf.flowsView colorifyEndpoints];
         };
         [_buttonPanel addSubview:_flowsByActivitiesButton];
         
@@ -68,7 +72,9 @@
         [_flowsPrettyButton setTitle:@"Flows(Pretty)" forState:UIControlStateNormal];
         _flowsPrettyButton.selectAction = ^(){
             [weakSelf selectTab:weakSelf.flowsPrettyButton];
-            [weakSelf showPrettyActivitites];
+            weakSelf.activitySizesView.hidden = YES;
+            [weakSelf.flowsView applyForces];
+            weakSelf.flowsView.hidden = NO;
         };
         [_buttonPanel addSubview:_flowsPrettyButton];
         
@@ -76,7 +82,9 @@
         [_internalFlowsButton setTitle:@"Internal Flows" forState:UIControlStateNormal];
         _internalFlowsButton.selectAction = ^(){
             [weakSelf selectTab:weakSelf.internalFlowsButton];
-            [weakSelf showInternalNetwork];
+            weakSelf.activitySizesView.hidden = YES;
+            [weakSelf.flowsView  showInternal];
+            weakSelf.flowsView.hidden = NO;;
         };
         [_buttonPanel addSubview:_internalFlowsButton];
         
@@ -85,7 +93,9 @@
             [weakSelf selectTab:weakSelf.activitiesButton];
             [weakSelf.buttonPanel setContentOffset:
              CGPointMake(weakSelf.buttonPanel.contentSize.width - weakSelf.frame.size.width, 0) animated:YES];
-//            [weakSelf activitiesSizes];
+            weakSelf.activitySizesView.hidden = YES;
+            [weakSelf.flowsView  showActivities];
+            weakSelf.flowsView.hidden = NO;;
         };
         [_activitiesButton setTitle:@"Activities" forState:UIControlStateNormal];
         [_buttonPanel addSubview:_activitiesButton];
@@ -93,7 +103,9 @@
         _activitiesPrettyButton = [[NCITabButton alloc] initWithFrame:CGRectMake(5*buttonWidth, 0, buttonWidth, buttonHeight)];
         _activitiesPrettyButton.selectAction = ^(){
             [weakSelf selectTab:weakSelf.activitiesPrettyButton];
-            //            [weakSelf activitiesSizes];
+            weakSelf.activitySizesView.hidden = YES;
+            [weakSelf.flowsView  showPrettyActivities];
+            weakSelf.flowsView.hidden = NO;;
         };
         [_activitiesPrettyButton setTitle:@"Activities(Pretty)" forState:UIControlStateNormal];
         [_buttonPanel addSubview:_activitiesPrettyButton];
@@ -103,7 +115,9 @@
         _internalActivitiesButton = [[NCITabButton alloc] initWithFrame:CGRectMake(6*buttonWidth, 0, buttonWidth, buttonHeight)];
         _internalActivitiesButton.selectAction = ^(){
             [weakSelf selectTab:weakSelf.internalActivitiesButton];
-            //            [weakSelf activitiesSizes];
+            weakSelf.activitySizesView.hidden = YES;
+            [weakSelf.flowsView  showInternalActivities];
+            weakSelf.flowsView.hidden = NO;;
         };
         [_internalActivitiesButton setTitle:@"Internal Activities" forState:UIControlStateNormal];
         [_buttonPanel addSubview:_internalActivitiesButton];
@@ -111,7 +125,8 @@
         _activitiesSizesButton = [[NCITabButton alloc] initWithFrame:CGRectMake(7*buttonWidth, 0, buttonWidth, buttonHeight)];
         _activitiesSizesButton.selectAction = ^(){
             [weakSelf selectTab:weakSelf.activitiesSizesButton];
-            [weakSelf activitiesSizes];
+            weakSelf.activitySizesView.hidden = NO;
+            weakSelf.flowsView.hidden = YES;
         };
         [_activitiesSizesButton setTitle:@"Activities Sizes" forState:UIControlStateNormal];
         [_buttonPanel addSubview:_activitiesSizesButton];
@@ -132,31 +147,6 @@
     return self;
 }
 
-- (void)showFlows {
-    _activitySizesView.hidden = YES;
-    _flowsView.hidden = NO;
-}
-
-- (void)showActivities {
-    _activitySizesView.hidden = YES;
-    _flowsView.hidden = NO;
-}
-
-- (void)showPrettyActivitites {
-    _activitySizesView.hidden = YES;
-    _flowsView.hidden = NO;
-}
-
-- (void)showInternalNetwork {
-    _activitySizesView.hidden = YES;
-    _flowsView.hidden = NO;
-}
-
-- (void)activitiesSizes{
-    _activitySizesView.hidden = NO;
-    _flowsView.hidden = YES;
-}
-
 - (void)selectTab:(NCITabButton *)button{
     self.flowsButton.selected = NO;
     self.flowsByActivitiesButton.selected = NO;
@@ -171,7 +161,9 @@
 
 - (void)loadData:(NSDictionary *)data{
     communities = data[@"Communities"];
+    self.flowsView.communityGraphData = @[data[@"CommunityGraph"]];
     [self.flowsView loadData:communities];
+    [self.flowsView showFlows];
     [self.activitySizesView loadData:communities];
     generalInfo.text = [NSString stringWithFormat:@"Network Complexity Index at %@ is %@",
                     [NCIConstants processTime:data[@"Time"]], data[@"NCI"]];
@@ -181,10 +173,6 @@
     generalInfo.text = @"";
     self.flowsButton.selectAction();
     self.flowsView.updating = NO;
-    
-    for (UIView *view in self.flowsView.subviews){
-        [view removeFromSuperview];
-    }
     self.flowsView.communitiesData = @[];
     [self.flowsView setNeedsDisplay];
 }

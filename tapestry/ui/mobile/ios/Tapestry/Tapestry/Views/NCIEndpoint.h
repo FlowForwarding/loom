@@ -11,5 +11,6 @@
 @interface NCIEndpoint : UIView
 
 @property(nonatomic)int group;
+@property(nonatomic, strong)NSString* ip;
 
 @end
