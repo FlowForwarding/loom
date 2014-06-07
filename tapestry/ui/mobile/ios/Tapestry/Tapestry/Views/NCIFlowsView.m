@@ -14,6 +14,12 @@
     NSMutableArray *groupColors;
     UIDynamicAnimator *animator;
     NSArray *curData;
+    UILabel *infoLabel;
+    BOOL isFlows;
+    BOOL isColorified;
+    BOOL isPretty;
+    BOOL isInternal;
+    BOOL isToMuch;
 }
 @end
 
@@ -23,10 +29,8 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        UILabel *label = [[UILabel alloc] initWithFrame:self.bounds];
-        label.textAlignment = NSTextAlignmentCenter;
-       // label.text = @"Connetions graph here";
-        [self addSubview:label];
+        infoLabel = [[UILabel alloc] initWithFrame:self.bounds];
+        infoLabel.textAlignment = NSTextAlignmentCenter;
         animator = [[UIDynamicAnimator alloc] initWithReferenceView:self];
         self.backgroundColor = [UIColor whiteColor];
         groupColors = [[NSMutableArray alloc] initWithArray:@[[UIColor blueColor], [UIColor greenColor], [UIColor purpleColor]]];
@@ -51,43 +55,111 @@
 }
 
 - (void)showFlows{
+    isFlows = YES;
+    isColorified = NO;
+    isPretty = NO;
+    isInternal = NO;
     curData = _communitiesData;
-    for (UIView *view in self.subviews){
-        [view removeFromSuperview];
-    }
-    endpoints = [[NSMutableDictionary alloc] init];
-    float pointDimention = 12;
-    for (int i=0; i< _communitiesData.count; i++){
-        NSDictionary* community = _communitiesData[i];
-        for (NSString *ePoint in community[@"Endpoints"]){
-            NCIEndpoint *ep = [[NCIEndpoint alloc] initWithFrame:
-                               CGRectMake(arc4random() % (int)self.frame.size.width,
-                                          pointDimention + arc4random() % (int)self.frame.size.height - 2*pointDimention,
-                                          pointDimention, pointDimention)];
-            ep.group = i;
-            ep.ip = ePoint;
-            ep.backgroundColor = [self getColor:0];
-            [self addSubview:ep];
-            endpoints[ePoint] = ep;
-        }
-    }
+    [self drawPoints];
 }
 
 - (void)colorifyEndpoints{
+    if (!isFlows || isPretty)
+        [self showFlows];
+    if (isToMuch)
+        return;
+    isColorified = YES;
+    isPretty = NO;
+    isInternal = NO;
+    [self colorify];
+}
+
+- (void)showPrettyFlows{
+    if (!isFlows){
+        [self showFlows];
+    }
+    if (isToMuch)
+        return;
+    if (!isColorified || isInternal){
+        [self colorify];
+        isColorified = YES;
+    }
+    isPretty = YES;
+    isInternal = NO;
+    [self applyForces];
+}
+
+- (void)showInternalFlows{
+    if (!isPretty)
+        [self showPrettyFlows];
+    if (isToMuch)
+        return;
+    isInternal = YES;
+    [self showInternal];
+}
+
+- (void)colorify{
     for (NCIEndpoint *point in [endpoints allValues]){
         point.backgroundColor = [self getColor:point.group];
     }
 }
 
 - (void)showActivities{
+    isFlows = NO;
+    isColorified = NO;
+    isPretty = NO;
+    isInternal = NO;
     curData = _communityGraphData;
+    [self drawPoints];
+}
+
+- (void)showPrettyActivities{
+    if (isFlows){
+        [self showActivities];
+    }
+    if (isToMuch)
+        return;
+    if (isInternal){
+        for (NCIEndpoint *point in [endpoints allValues]){
+            point.backgroundColor =  [self getColor:0];
+        }
+    }
+    isPretty = YES;
+    isInternal = NO;
+    [self applyForces];
+}
+
+- (void)showInternalActivities{
+    if (!isPretty){
+        [self showPrettyActivities];
+    }
+    if (isToMuch)
+        return;
+    isInternal = YES;
+    [self showInternal];
+}
+
+- (void)drawPoints{
     for (UIView *view in self.subviews){
         [view removeFromSuperview];
     }
+    int numOfPoints = 0;
+    for (NSDictionary* community in curData){
+        numOfPoints += ((NSArray *)community[@"Endpoints"]).count;
+    }
+    if (numOfPoints > 300){
+        isToMuch = YES;
+        [self addSubview:infoLabel];
+        infoLabel.text = @"Too many endpoints to draw";
+        return;
+    }
+    isToMuch = NO;
+    infoLabel.text = @"";
+    
     endpoints = [[NSMutableDictionary alloc] init];
     float pointDimention = 12;
-    for (int i=0; i< _communityGraphData.count; i++){
-        NSDictionary* community = _communityGraphData[i];
+    for (int i=0; i< curData.count; i++){
+        NSDictionary* community = curData[i];
         for (NSString *ePoint in community[@"Endpoints"]){
             NCIEndpoint *ep = [[NCIEndpoint alloc] initWithFrame:
                                CGRectMake(arc4random() % (int)self.frame.size.width,
@@ -98,44 +170,6 @@
             ep.backgroundColor = [self getColor:0];
             [self addSubview:ep];
             endpoints[ePoint] = ep;
-        }
-    }
-}
-
-- (void)showPrettyActivities{
-    UIDynamicItemBehavior *behavior = [[UIDynamicItemBehavior alloc]  initWithItems:[endpoints allValues]];
-    behavior.friction = 1;
-    behavior.resistance = 1;
-    [animator addBehavior:behavior];
-    UICollisionBehavior *collision = [[UICollisionBehavior alloc]
-                                      initWithItems:[endpoints allValues]];
-    collision.translatesReferenceBoundsIntoBoundary = YES;
-    [animator addBehavior:collision];
-    for (int i=0; i< _communityGraphData.count; i++){
-        NSDictionary* community = _communityGraphData[i];
-        for (NSArray *interaction in community[@"Interactions"]){
-            UIAttachmentBehavior *attachment = [[UIAttachmentBehavior alloc]
-                                                initWithItem:endpoints[interaction[0]]
-                                                attachedToItem:endpoints[interaction[1]]];
-            [attachment setFrequency:10.0];
-            //[attachment setDamping:5.0];
-            [attachment setLength:100];
-            [animator addBehavior:attachment];
-        }
-    }
-
-}
-
-- (void)showInternalActivities{
-    
-}
-
-- (void)showInternal{
-    for (NCIEndpoint *point in [endpoints allValues]){
-        if (point.ip) {
-             point.backgroundColor = [UIColor lightGrayColor];
-        } else {
-             point.backgroundColor = [self getColor:point.group];
         }
     }
 }
@@ -149,16 +183,27 @@
                                       initWithItems:[endpoints allValues]];
     collision.translatesReferenceBoundsIntoBoundary = YES;
     [animator addBehavior:collision];
-    for (int i=0; i< _communitiesData.count; i++){
-        NSDictionary* community = _communitiesData[i];
+    for (int i=0; i< curData.count; i++){
+        NSDictionary* community = curData[i];
         for (NSArray *interaction in community[@"Interactions"]){
             UIAttachmentBehavior *attachment = [[UIAttachmentBehavior alloc]
                                                 initWithItem:endpoints[interaction[0]]
                                                 attachedToItem:endpoints[interaction[1]]];
             [attachment setFrequency:10.0];
-            //[attachment setDamping:5.0];
+            [attachment setDamping:0.5];
             [attachment setLength:100];
             [animator addBehavior:attachment];
+        }
+    }
+}
+
+- (void)showInternal{
+    for (NCIEndpoint *point in [endpoints allValues]){
+        if ((point.ip.length > 3 && [[point.ip substringToIndex:3] isEqualToString:@"10."]) ||
+            (point.ip.length > 7 && [[point.ip substringToIndex:8] isEqualToString:@"192.168."])) {
+            point.backgroundColor = [UIColor lightGrayColor];
+        } else {
+            point.backgroundColor = [self getColor:point.group];
         }
     }
 }

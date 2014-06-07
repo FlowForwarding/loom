@@ -146,7 +146,8 @@ static NSString* websocketNCIDetailsRequest =
                                                      @"action": @"NCIDetails",
                                                      @"NCI": @3,
                                                      @"Time": date,
-                                                     @"Communities": communities
+                                                     @"Communities": communities,
+                                                     @"CommunityGraph": @[]
                                                      }
                                 options:0 error:nil];
         [self webSocket:nil didReceiveMessage: [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding]];

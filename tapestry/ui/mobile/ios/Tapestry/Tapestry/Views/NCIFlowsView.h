@@ -13,8 +13,8 @@
 - (void)loadData:(NSArray *) communities;
 - (void)showFlows;
 - (void)colorifyEndpoints;
-- (void)applyForces;
-- (void)showInternal;
+- (void)showPrettyFlows;
+- (void)showInternalFlows;
 
 - (void)showActivities;
 - (void)showPrettyActivities;

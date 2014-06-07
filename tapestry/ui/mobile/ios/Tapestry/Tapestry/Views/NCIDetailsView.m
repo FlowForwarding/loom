@@ -73,7 +73,7 @@
         _flowsPrettyButton.selectAction = ^(){
             [weakSelf selectTab:weakSelf.flowsPrettyButton];
             weakSelf.activitySizesView.hidden = YES;
-            [weakSelf.flowsView applyForces];
+            [weakSelf.flowsView showPrettyFlows];
             weakSelf.flowsView.hidden = NO;
         };
         [_buttonPanel addSubview:_flowsPrettyButton];
@@ -83,7 +83,7 @@
         _internalFlowsButton.selectAction = ^(){
             [weakSelf selectTab:weakSelf.internalFlowsButton];
             weakSelf.activitySizesView.hidden = YES;
-            [weakSelf.flowsView  showInternal];
+            [weakSelf.flowsView  showInternalFlows];
             weakSelf.flowsView.hidden = NO;;
         };
         [_buttonPanel addSubview:_internalFlowsButton];
