@@ -12,6 +12,7 @@
 @implementation NCIBarGridView
 
 - (void)drawGraphLine:(NSArray *)firstLast{
+    float barWidth = 10;
     for (UIView *subView in self.subviews){
         [subView removeFromSuperview];
     }
@@ -21,7 +22,10 @@
         for (int i = 0; i< ((NSArray *)points[1]).count; i++){
             id val = points[1][i];
             CGPoint pointP = [self.graph pointByValueInGrid:@[points[0], val]];
-            UIView *bar = [[UIView alloc] initWithFrame:CGRectMake(pointP.x - 10,  pointP.y, 20, selfHeight -pointP.y)];
+            UIView *bar = [[UIView alloc] initWithFrame:
+                           CGRectMake(pointP.x - barWidth/2,
+                                      pointP.y, barWidth,
+                                      selfHeight -pointP.y)];
             bar.backgroundColor = [self getColor:i];
             [self addSubview:bar];
         }

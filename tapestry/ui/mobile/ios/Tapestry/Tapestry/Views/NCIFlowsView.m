@@ -175,10 +175,7 @@
 }
 
 - (void)applyForces{
-    UIDynamicItemBehavior *behavior = [[UIDynamicItemBehavior alloc]  initWithItems:[endpoints allValues]];
-    behavior.friction = 1;
-    behavior.resistance = 1;
-    [animator addBehavior:behavior];
+    [animator removeAllBehaviors];
     UICollisionBehavior *collision = [[UICollisionBehavior alloc]
                                       initWithItems:[endpoints allValues]];
     collision.translatesReferenceBoundsIntoBoundary = YES;
@@ -189,8 +186,8 @@
             UIAttachmentBehavior *attachment = [[UIAttachmentBehavior alloc]
                                                 initWithItem:endpoints[interaction[0]]
                                                 attachedToItem:endpoints[interaction[1]]];
-            [attachment setFrequency:10.0];
-            [attachment setDamping:0.5];
+            [attachment setFrequency:0.0];
+            [attachment setDamping:0.0];
             [attachment setLength:100];
             [animator addBehavior:attachment];
         }

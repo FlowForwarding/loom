@@ -133,12 +133,12 @@ static NSString* websocketNCIDetailsRequest =
                 [endpoints addObject:[NSString stringWithFormat:@"%d_%d", i, j]];
             }
             NSMutableArray *interactions = [[NSMutableArray alloc] init];
-            for (int k = 0; k < endpoints.count - 1; k++){
-                [interactions addObject:@[endpoints[k], endpoints[k+1]]];
-                for (int h=5; h < k/2; h++){
-                     [interactions addObject:@[endpoints[k], endpoints[h]]];
+//            for (int k = 0; k < endpoints.count - 1; k++){
+//                [interactions addObject:@[endpoints[k], endpoints[k+1]]];
+                for (int h=1; h < endpoints.count; h++){
+                     [interactions addObject:@[endpoints[0], endpoints[h]]];
                 }
-            }
+//            }
             [communities addObject:@{@"Endpoints": endpoints, @"Interactions": interactions}];
         }
         NSData *responseData = [NSJSONSerialization
@@ -147,7 +147,7 @@ static NSString* websocketNCIDetailsRequest =
                                                      @"NCI": @3,
                                                      @"Time": date,
                                                      @"Communities": communities,
-                                                     @"CommunityGraph": @[]
+                                                     @"CommunityGraph": @{}
                                                      }
                                 options:0 error:nil];
         [self webSocket:nil didReceiveMessage: [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding]];

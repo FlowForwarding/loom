@@ -13,7 +13,6 @@
 
 @interface NCIDetailsView(){
     UILabel *generalInfo;
-    NSArray *communities;
 }
 
 @property(nonatomic, strong)NCITabButton *flowsButton;
@@ -160,7 +159,11 @@
 }
 
 - (void)loadData:(NSDictionary *)data{
-    communities = data[@"Communities"];
+    NSMutableArray * communities = [[NSMutableArray alloc]
+initWithArray: data[@"Communities"]];
+    [communities sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+       return ((NSArray *)obj1[@"Endpoints"]).count < ((NSArray *)obj2[@"Endpoints"]).count;
+    }];
     self.flowsView.communityGraphData = @[data[@"CommunityGraph"]];
     [self.flowsView loadData:communities];
     [self.flowsView showFlows];
