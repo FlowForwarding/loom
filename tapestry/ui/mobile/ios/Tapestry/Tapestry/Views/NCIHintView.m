@@ -10,39 +10,46 @@
 
 #import "NCIHintView.h"
 
+@interface NCIHintView(){}
+@property(nonatomic, strong)UILabel *hintLabel;
+@end
+
 @implementation NCIHintView
 
--(id)initWithText:(NSString *)text andPoint:(CGPoint)point{
-    int labelIndent = 20;
-    int pointerWidth = 0;
-    UIFont *textFont = [UIFont systemFontOfSize:16];
-    CGSize labelSize = [text sizeWithFont:textFont constrainedToSize:CGSizeMake(200, 100) lineBreakMode:NSLineBreakByWordWrapping];
-    self = [self initWithFrame:CGRectMake(point.x, point.y, labelSize.width + labelIndent*2 + pointerWidth, labelSize.height + labelIndent)];
-    if (self) {
-        UILabel *textLabel = [[UILabel alloc] initWithFrame:
-                              CGRectMake(pointerWidth + labelIndent, labelIndent/2, labelSize.width, labelSize.height)];
-        textLabel.numberOfLines = 0;
-        textLabel.lineBreakMode = NSLineBreakByWordWrapping;
-        textLabel.font = textFont;
-        textLabel.textColor = [UIColor whiteColor];
-        textLabel.text = text;
-        [self addSubview:textLabel];
-        textLabel.backgroundColor = [UIColor clearColor];
-        self.backgroundColor = [UIColor clearColor];
-        self.layer.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.9].CGColor;
-        self.layer.cornerRadius = 10.0;
-        self.layer.borderColor = [UIColor blackColor].CGColor;
-        self.layer.borderWidth = 1.0;
-        self.hidden = YES;
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(hideHint)
-                                                     name:@"freeTap" object:nil];
-    }
-    return self;
++ (id)globaHint{
+    static dispatch_once_t single;
+    static NCIHintView *globaHint;
+    dispatch_once(&single, ^ {
+        UIFont *textFont = [UIFont systemFontOfSize:16];
+        globaHint = [[self alloc] initWithFrame:[[[UIApplication sharedApplication] delegate] window].rootViewController.view.bounds];
+        globaHint.hintLabel = [[UILabel alloc] initWithFrame: CGRectZero];
+        globaHint.hintLabel.numberOfLines = 0;
+        globaHint.hintLabel.lineBreakMode = NSLineBreakByWordWrapping;
+        globaHint.hintLabel.font = textFont;
+        globaHint.hintLabel.textColor = [UIColor whiteColor];
+        globaHint.hintLabel.layer.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.9].CGColor;
+        globaHint.hintLabel.layer.cornerRadius = 10.0;
+        globaHint.hintLabel.layer.borderColor = [UIColor blackColor].CGColor;
+        globaHint.hintLabel.textAlignment = NSTextAlignmentCenter;
+        globaHint.hintLabel.layer.borderWidth = 1.0;
+        [globaHint addSubview:globaHint.hintLabel];
+        globaHint.hintLabel.backgroundColor = [UIColor clearColor];
+        globaHint.backgroundColor =  [UIColor colorWithWhite:0.1 alpha:0.1];
+        [[[[UIApplication sharedApplication] delegate] window].rootViewController.view addSubview:globaHint];
+        globaHint.hidden = YES;
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:globaHint action:@selector(hideHint)];
+        tap.numberOfTapsRequired = 1;
+        [globaHint addGestureRecognizer:tap];
+    });
+    return globaHint;
 }
 
-- (void)showHint{
+- (void)showHintWithText:(NSString *)text andPoint:(CGPoint)point{
+    UIFont *textFont = [UIFont systemFontOfSize:16];
+    CGSize labelSize = [text sizeWithFont:textFont
+                        constrainedToSize:CGSizeMake(500, 500) lineBreakMode:NSLineBreakByWordWrapping];
+    self.hintLabel.frame = CGRectMake(point.x, point.y, 100 + labelSize.width, 50 + labelSize.height);
+    self.hintLabel.text = text;
     self.hidden = NO;
 }
 
@@ -50,20 +57,6 @@
     self.hidden = YES;
 }
 
-- (id)initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self) {
-        // Initialization code
-    }
-    return self;
-}
-
-
-- (void)drawRect:(CGRect)rect
-{
-    
-}
 
 
 @end

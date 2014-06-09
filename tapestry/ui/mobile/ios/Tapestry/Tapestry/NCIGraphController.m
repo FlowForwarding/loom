@@ -66,25 +66,26 @@
     [self.view addSubview:switcherPanel];
     
     
-    nciValue = [[NCIIndexValueView alloc] initWithFrame:CGRectZero indName:NSLocalizedString(@"NCI", nil) indSize:22];
-    [nciValue setTooltipText: NSLocalizedString(@"Network Complexity Index", nil)];
+    nciValue = [[NCIIndexValueView alloc] initWithFrame:CGRectZero indName:NSLocalizedString(@"NCI", nil) indSize:22
+                                                tooltip: NSLocalizedString(@"Network Complexity Index", nil)];
     UITapGestureRecognizer *tapNCI = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showNCIDetails)];
     tapNCI.numberOfTapsRequired = 1;
     [nciValue addGestureRecognizer:tapNCI];
     
     [self.view addSubview:nciValue];
-    qpsValue = [[NCIIndexValueView alloc] initWithFrame:CGRectZero
-                                                indName:NSLocalizedString(@"Queries per Second", nil) indSize:14];
-    
-    [qpsValue setTooltipText:NSLocalizedString(@"Successful DNS Query Responses per Second", nil)];
+    qpsValue = [[NCIIndexValueView alloc] initWithFrame: CGRectZero
+                                                indName: NSLocalizedString(@"Queries per Second", nil) indSize:14
+                tooltip: NSLocalizedString(@"Successful DNS Query Responses per Second", nil)];
     [self.view addSubview:qpsValue];
     
-    nepValue = [[NCIIndexValueView alloc] initWithFrame:CGRectZero indName:NSLocalizedString(@"Endpoints", nil) indSize:14];
-    [nepValue setTooltipText:NSLocalizedString(@"Number of Connected Network Elements", nil)];
+    nepValue = [[NCIIndexValueView alloc] initWithFrame: CGRectZero
+                                                indName: NSLocalizedString(@"Endpoints", nil) indSize:14
+                                                tooltip: NSLocalizedString(@"Number of Connected Network Elements", nil)];
     [self.view addSubview:nepValue];
     
-    collectorsValue = [[NCIIndexValueView alloc] initWithFrame:CGRectZero indName:NSLocalizedString(@"Flow Collectors", nil) indSize:14];
-    [collectorsValue setTooltipText:NSLocalizedString(@"Number of Collectors", nil)];
+    collectorsValue = [[NCIIndexValueView alloc] initWithFrame:CGRectZero
+                                                       indName:NSLocalizedString(@"Flow Collectors", nil) indSize:14
+                       tooltip:NSLocalizedString(@"Number of Collectors", nil)];
     [self.view addSubview:collectorsValue];
     
     UITapGestureRecognizer *tapCollectors = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCollectorsDetails)];
@@ -168,11 +169,6 @@
                                                object:nil];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
-    UITapGestureRecognizer *freeTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(freeTap)];
-    freeTap.delegate = self;
-    [self.view addGestureRecognizer:freeTap];
-    
-    
 }
 
 - (void)showNCIDetails{
@@ -198,10 +194,6 @@
 
 - (void)reconnect{
     [[NCIWebSocketConnector interlocutor] resetData];
-}
-
-- (void)freeTap{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"freeTap" object:self];
 }
 
 - (void)showHelp{

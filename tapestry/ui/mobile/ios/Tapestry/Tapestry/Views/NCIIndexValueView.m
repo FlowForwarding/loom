@@ -21,16 +21,17 @@
     
     float fontSize;
     NSString *indexName;
-
-    NCIHintView *helpView;
+    NSString *hint;
 }
 @end
 
 @implementation NCIIndexValueView
 
-- (id)initWithFrame:(CGRect)frame indName:(NSString *)indName indSize:(float)size{
+- (id)initWithFrame:(CGRect)frame indName:(NSString *)indName
+            indSize:(float)size tooltip:(NSString *)tooltip{
     self = [super initWithFrame:frame];
     if (self) {
+        hint = tooltip;
         fontSize = size;
         indexName = indName;
         contentView = [[UIView alloc] initWithFrame:self.bounds];
@@ -66,9 +67,9 @@
     return self;
 }
 
--(void)showTooltip{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"freeTap" object:self];
-     helpView.hidden = NO;
+- (void)showTooltip{
+    [[NCIHintView globaHint] showHintWithText: hint
+                                     andPoint: CGPointMake(self.frame.origin.x + 20, self.frame.origin.y + 100)];
 }
 
 - (void)resetData{
@@ -90,14 +91,6 @@
     self.dateServerString = date;
     indValue.text = [self processIndexValue: value];
     updateLabel.text = [NSString stringWithFormat:NSLocalizedString(@"updated %@", nil), [NCIConstants processTime:date]];
-}
-
-- (void)setTooltipText:(NSString *)text{
-    if (!helpView){
-        helpView = [[NCIHintView alloc] initWithText:text andPoint:CGPointMake(30, 50)];
-        [self addSubview:helpView];
-    }
-    //TODO
 }
 
 #pragma mark util methods

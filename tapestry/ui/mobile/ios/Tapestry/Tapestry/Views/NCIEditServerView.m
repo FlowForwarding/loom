@@ -102,7 +102,6 @@ static float rightIndent = 80;
     self.active = YES;
     self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, self.superview.bounds.size.height);
     self.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.1];
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"freeTap" object:self];
     textField.backgroundColor = [UIColor whiteColor];
     [self didChangeText];
     goBtn.hidden = NO;

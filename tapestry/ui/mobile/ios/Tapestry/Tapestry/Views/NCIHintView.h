@@ -12,6 +12,7 @@
 
 @interface NCIHintView : UIView
 
--(id)initWithText:(NSString *)text andPoint:(CGPoint )point;
++ (id)globaHint;
+- (void)showHintWithText:(NSString *)text andPoint:(CGPoint)point;
 
 @end

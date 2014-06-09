@@ -13,9 +13,9 @@
 @interface NCIIndexValueView : UIView
 
 
-- (id)initWithFrame:(CGRect)frame indName:(NSString *)indName indSize:(float)size;
+- (id)initWithFrame:(CGRect)frame indName:(NSString *)indName
+            indSize:(float)size tooltip:(NSString *)tooltip;
 - (void)setIndValue:(NSString *)value withDate:(NSString *)date;
-- (void)setTooltipText:(NSString *)text;
 - (void)resetData;
 
 @property(nonatomic, strong)NSString *dateServerString;
