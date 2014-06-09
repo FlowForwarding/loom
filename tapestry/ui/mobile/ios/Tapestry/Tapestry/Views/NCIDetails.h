@@ -13,5 +13,6 @@
 @property(nonatomic, strong)UIView *content;
 
 - (void)hideActions;
+- (void)showDetails;
 
 @end

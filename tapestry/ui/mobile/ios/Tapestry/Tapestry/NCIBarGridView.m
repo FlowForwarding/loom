@@ -12,7 +12,7 @@
 @implementation NCIBarGridView
 
 - (void)drawGraphLine:(NSArray *)firstLast{
-    float barWidth = 10;
+    float barWidth = 6;
     for (UIView *subView in self.subviews){
         [subView removeFromSuperview];
     }

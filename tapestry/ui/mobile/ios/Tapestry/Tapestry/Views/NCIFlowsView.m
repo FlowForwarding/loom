@@ -192,11 +192,12 @@
             [animator addBehavior:attachment];
         }
     }
-    for (int i=0; i< curData.count -1; i++){
-        NSDictionary* community1 = curData[i];
-        NSDictionary* community2 = curData[i+1];
-        NCIEndpoint* ep1 = endpoints[community1[@"Endpoints"][0]];
-        NCIEndpoint* ep2 = endpoints[[community2[@"Endpoints"] lastObject]];
+    if (curData.count > 1)
+        for (int i=0; i< curData.count -1; i++){
+            NSDictionary* community1 = curData[i];
+            NSDictionary* community2 = curData[i+1];
+            NCIEndpoint* ep1 = endpoints[community1[@"Endpoints"][0]];
+            NCIEndpoint* ep2 = endpoints[[community2[@"Endpoints"] lastObject]];
             UIAttachmentBehavior *attachment = [[UIAttachmentBehavior alloc]
                                                 initWithItem:ep1
                                                 attachedToItem:ep2];
@@ -204,9 +205,9 @@
             [attachment setDamping:0.0];
             [attachment setLength:350];
             [animator addBehavior:attachment];
-      
-    }
-    if (curData.count > 1){
+            
+        }
+    if (curData.count > 2){
         NSDictionary* community1 = curData[0];
         NSDictionary* community2 = [curData lastObject];
         NCIEndpoint* ep1 = endpoints[community1[@"Endpoints"][0]];
@@ -220,6 +221,7 @@
         [animator addBehavior:attachment];
     }
 
+    [animator performSelector:@selector(removeAllBehaviors) withObject:nil afterDelay:1];
 }
 
 - (void)showInternal{

@@ -28,12 +28,17 @@
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
-    if (scrollView.contentOffset.y <= 0){
+    if (scrollView.contentOffset.y <= 5){
         self.center = CGPointMake(self.center.x, -self.frame.size.height/2);
         [self hideActions];
     } else if (scrollView.contentOffset.y > scrollView.frame.size.height){
         [scrollView setContentOffset:CGPointMake(0, scrollView.frame.size.height)];
     }
+}
+
+- (void)showDetails{
+    self.center = CGPointMake(self.center.x, self.frame.size.height/2);
+    [self setContentOffset:CGPointMake(0, self.frame.size.height) animated:YES];
 }
 
 - (void)hideActions{

@@ -40,10 +40,12 @@
     for (UIView *view in self.subviews){
         [view removeFromSuperview];
     }
-    float pointDimention = 16;
+    if (((NSArray *)community[@"Endpoints"]).count > 300)
+        return;
+    float pointDimention = 12;
     for (NSString *ePoint in community[@"Endpoints"]){
         NCIEndpoint *ep = [[NCIEndpoint alloc] initWithFrame:
-                           CGRectMake(arc4random() % (int)self.frame.size.width,
+                           CGRectMake(pointDimention + (arc4random() % (int)self.frame.size.width - 2* pointDimention),
                                       pointDimention + arc4random() % (int)self.frame.size.height - 2*pointDimention,
                                       pointDimention, pointDimention)];
         ep.ip = ePoint;
@@ -52,6 +54,8 @@
         [self addSubview:ep];
     }
     for (NSArray *interaction in community[@"Interactions"]){
+        if (!endpoints[interaction[0]] || !endpoints[interaction[1]])
+            continue;
         UIAttachmentBehavior *attachment = [[UIAttachmentBehavior alloc]
                                             initWithItem:endpoints[interaction[0]]
                                             attachedToItem:endpoints[interaction[1]]];
@@ -59,7 +63,6 @@
         [attachment setDamping:0.0];
         [attachment setLength:100];
         [animator addBehavior:attachment];
-        [self performSelector:@selector(drawRect:) withObject:self afterDelay:1];
     }
     __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -75,9 +78,11 @@
 - (void)drawRect:(CGRect)rect{
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextSetLineWidth(context, 0.2);
-    CGContextBeginPath(context);
     CGContextSetStrokeColorWithColor(context, [UIColor blackColor].CGColor);
+    CGContextBeginPath(context);
     for (NSArray *interaction in communityData[@"Interactions"]){
+        if (!endpoints[interaction[0]] || !endpoints[interaction[1]])
+            continue;
         UIView *p1 = endpoints[interaction[0]];
         UIView *p2 = endpoints[interaction[1]];
         CGContextMoveToPoint(context, p1.center.x, p1.center.y);

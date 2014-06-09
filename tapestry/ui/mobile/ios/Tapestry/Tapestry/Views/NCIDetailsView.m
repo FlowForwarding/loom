@@ -159,8 +159,7 @@
 }
 
 - (void)loadData:(NSDictionary *)data{
-    NSMutableArray * communities = [[NSMutableArray alloc]
-initWithArray: data[@"Communities"]];
+    NSMutableArray * communities = [[NSMutableArray alloc] initWithArray: data[@"Communities"]];
     [communities sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
        return ((NSArray *)obj1[@"Endpoints"]).count < ((NSArray *)obj2[@"Endpoints"]).count;
     }];
@@ -172,12 +171,23 @@ initWithArray: data[@"Communities"]];
                     [NCIConstants processTime:data[@"Time"]], data[@"NCI"]];
 }
 
+- (void)showDetails{
+    [super showDetails];
+}
+
 - (void)hideActions{
     generalInfo.text = @"";
     self.flowsButton.selectAction();
-    self.flowsView.updating = NO;
     self.flowsView.communitiesData = @[];
+    self.flowsView.communityGraphData = @[];
+    self.flowsView.updating = NO;
+    [self.buttonPanel setContentOffset:CGPointZero];
+    for (UIView *view in self.flowsView.subviews){
+        [view removeFromSuperview];
+    }
     [self.flowsView setNeedsDisplay];
+    [self.activitySizesView loadData:@[]];
+    [self.activitySizesView layoutSubviews];
 }
 
 

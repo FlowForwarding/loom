@@ -83,6 +83,7 @@
         [_barChart addPoint:i val:@[@(((NSArray *)community[@"Endpoints"]).count)]];
     }
     [_barChart drawChart];
+    [_activityGraph  showCommunity:@{}];
 }
 
 
