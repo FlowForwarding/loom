@@ -127,10 +127,10 @@ static NSString* websocketNCIDetailsRequest =
 - (void)requestNCIDetails:(NSString *) date{
     if (demoMode){
         NSMutableArray *communities = [[NSMutableArray alloc] init];
-        for (int i = 0; i< (arc4random()%3 + 7); i ++){
+        for (int i = 0; i< 10; i ++){
             NSMutableArray *endpoints = [[NSMutableArray alloc] init];
-            for (int j=0; j< (arc4random() % 5 + 20); j++){
-                [endpoints addObject:[NSString stringWithFormat:@"%d_%d", i, j]];
+            for (int j=0; j< i*2 + 1; j++){
+                [endpoints addObject:[NSString stringWithFormat:@"%d.%d.%d.%d", (rand()%4 +1)* 10, j, rand()%250, rand()%250]];
             }
             NSMutableArray *interactions = [[NSMutableArray alloc] init];
 //            for (int k = 0; k < endpoints.count - 1; k++){
@@ -141,13 +141,23 @@ static NSString* websocketNCIDetailsRequest =
 //            }
             [communities addObject:@{@"Endpoints": endpoints, @"Interactions": interactions}];
         }
+        
+        NSMutableArray *endpoints = [[NSMutableArray alloc] init];
+        for (int j=0; j< 30; j++){
+            [endpoints addObject:[NSString stringWithFormat:@"%d.%d.%d.%d", (rand()%4 +1)* 10, j, rand()%250, rand()%250]];
+        }
+        NSMutableArray *interactions = [[NSMutableArray alloc] init];
+        for (int h=1; h < endpoints.count; h++){
+            [interactions addObject:@[endpoints[0], endpoints[h]]];
+        }
+        
         NSData *responseData = [NSJSONSerialization
                                 dataWithJSONObject:@{
                                                      @"action": @"NCIDetails",
                                                      @"NCI": @3,
                                                      @"Time": date,
                                                      @"Communities": communities,
-                                                     @"CommunityGraph": @{}
+                                                     @"CommunityGraph": @{@"Endpoints":endpoints, @"Interactions": interactions}
                                                      }
                                 options:0 error:nil];
         [self webSocket:nil didReceiveMessage: [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding]];

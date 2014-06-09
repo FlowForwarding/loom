@@ -192,12 +192,14 @@
             [animator addBehavior:attachment];
         }
     }
-    if (curData.count > 1)
+    if (curData.count > 2)
         for (int i=0; i< curData.count -1; i++){
             NSDictionary* community1 = curData[i];
             NSDictionary* community2 = curData[i+1];
             NCIEndpoint* ep1 = endpoints[community1[@"Endpoints"][0]];
             NCIEndpoint* ep2 = endpoints[[community2[@"Endpoints"] lastObject]];
+            if (!ep1 || !ep2)
+                continue;
             UIAttachmentBehavior *attachment = [[UIAttachmentBehavior alloc]
                                                 initWithItem:ep1
                                                 attachedToItem:ep2];
@@ -212,13 +214,15 @@
         NSDictionary* community2 = [curData lastObject];
         NCIEndpoint* ep1 = endpoints[community1[@"Endpoints"][0]];
         NCIEndpoint* ep2 = endpoints[[community2[@"Endpoints"] lastObject]];
-        UIAttachmentBehavior *attachment = [[UIAttachmentBehavior alloc]
-                                            initWithItem:ep1
-                                            attachedToItem:ep2];
-        [attachment setFrequency:0.0];
-        [attachment setDamping:0.0];
-        [attachment setLength:350];
-        [animator addBehavior:attachment];
+        if (!ep1 || !ep2){
+            UIAttachmentBehavior *attachment = [[UIAttachmentBehavior alloc]
+                                                initWithItem:ep1
+                                                attachedToItem:ep2];
+            [attachment setFrequency:0.0];
+            [attachment setDamping:0.0];
+            [attachment setLength:350];
+            [animator addBehavior:attachment];
+        }
     }
 
     [animator performSelector:@selector(removeAllBehaviors) withObject:nil afterDelay:1];
@@ -226,9 +230,9 @@
 
 - (void)showInternal{
     for (NCIEndpoint *point in [endpoints allValues]){
-        if ((point.ip.length > 3 && [[point.ip substringToIndex:3] isEqualToString:@"10."]) ||
-            (point.ip.length > 7 && [[point.ip substringToIndex:8] isEqualToString:@"192.168."])) {
-            point.backgroundColor = [UIColor lightGrayColor];
+        if ((point.ip.length > 3 && ![[point.ip substringToIndex:3] isEqualToString:@"10."]) &&
+            (point.ip.length > 7 && ![[point.ip substringToIndex:8] isEqualToString:@"192.168."])) {
+            point.backgroundColor = [UIColor blackColor];
         } else {
             point.backgroundColor = [self getColor:point.group];
         }

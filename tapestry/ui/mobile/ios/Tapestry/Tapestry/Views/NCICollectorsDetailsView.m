@@ -93,7 +93,8 @@ float headerHeight = 60;
 - (void)loadData:(NSDictionary *)data{
     _collectors = data[@"Collectors"];
     [collectorsTable reloadData];
-    headerLabel.text = [NSString stringWithFormat:@"%d collecotr(s) at %@", _collectors.count, [NCIConstants processTime:data[@"Time"]]];
+    headerLabel.text = [NSString stringWithFormat:@"%d collecotr(s) at %@", (int)_collectors.count,
+                        [NCIConstants processTime:data[@"Time"]]];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
