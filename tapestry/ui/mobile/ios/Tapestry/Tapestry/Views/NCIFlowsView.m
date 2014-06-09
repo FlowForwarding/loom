@@ -192,6 +192,34 @@
             [animator addBehavior:attachment];
         }
     }
+    for (int i=0; i< curData.count -1; i++){
+        NSDictionary* community1 = curData[i];
+        NSDictionary* community2 = curData[i+1];
+        NCIEndpoint* ep1 = endpoints[community1[@"Endpoints"][0]];
+        NCIEndpoint* ep2 = endpoints[[community2[@"Endpoints"] lastObject]];
+            UIAttachmentBehavior *attachment = [[UIAttachmentBehavior alloc]
+                                                initWithItem:ep1
+                                                attachedToItem:ep2];
+            [attachment setFrequency:0.0];
+            [attachment setDamping:0.0];
+            [attachment setLength:350];
+            [animator addBehavior:attachment];
+      
+    }
+    if (curData.count > 1){
+        NSDictionary* community1 = curData[0];
+        NSDictionary* community2 = [curData lastObject];
+        NCIEndpoint* ep1 = endpoints[community1[@"Endpoints"][0]];
+        NCIEndpoint* ep2 = endpoints[[community2[@"Endpoints"] lastObject]];
+        UIAttachmentBehavior *attachment = [[UIAttachmentBehavior alloc]
+                                            initWithItem:ep1
+                                            attachedToItem:ep2];
+        [attachment setFrequency:0.0];
+        [attachment setDamping:0.0];
+        [attachment setLength:350];
+        [animator addBehavior:attachment];
+    }
+
 }
 
 - (void)showInternal{

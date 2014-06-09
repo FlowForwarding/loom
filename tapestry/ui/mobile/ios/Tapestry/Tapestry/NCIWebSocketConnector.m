@@ -127,7 +127,7 @@ static NSString* websocketNCIDetailsRequest =
 - (void)requestNCIDetails:(NSString *) date{
     if (demoMode){
         NSMutableArray *communities = [[NSMutableArray alloc] init];
-        for (int i = 0; i< (arc4random()%3 + 3); i ++){
+        for (int i = 0; i< (arc4random()%3 + 7); i ++){
             NSMutableArray *endpoints = [[NSMutableArray alloc] init];
             for (int j=0; j< (arc4random() % 5 + 20); j++){
                 [endpoints addObject:[NSString stringWithFormat:@"%d_%d", i, j]];
