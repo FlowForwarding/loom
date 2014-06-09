@@ -35,7 +35,7 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        float buttonWidth = 200;
+        float buttonWidth = 230;
         float buttonHeight = 50;
 
         __weak typeof(self) weakSelf = self;
