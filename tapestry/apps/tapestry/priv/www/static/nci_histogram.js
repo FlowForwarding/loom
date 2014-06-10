@@ -111,7 +111,7 @@ NCI.nciHistogram = (function(){
 		var node = activityDetails.selectAll(".node")
 		    .data(graph.nodes)
 		    .enter().append("circle")
-			.call(force.drag);
+			.call(force.drag)
 		    .attr("r", 5);
 		  		  
 		node.append("title").html(function(d) {  return d.name  });//+ "<br>" + d.neighbours + " connections" ;});
