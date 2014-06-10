@@ -1,11 +1,17 @@
 NCI.nciHistogram = (function(){
 	var me = $('#nciHistogram');
 	
+	var internalEndpointsCheckbox = $('#histogramDetailsInternal');
 	var barWidth = 4;
 	var chart = d3.select("#nciHistogram");
+	var chartDetails = d3.select("#nciHistogramDetails");
 	var margin = {top: 40, right: 60, bottom: 40, left:40},
 	    width = 600,
 	    height = 350;
+	var color = d3.scale.category10();
+	var notNetworkColor = "#000000";		
+	var detailsGraphForce;	
+	var force;
 	
 	me.show = function(){
 		chart.text("");
@@ -83,20 +89,19 @@ NCI.nciHistogram = (function(){
 		.attr('transform', 'rotate(-90)');
 
 	};
-	
+
 	me.showDetails = function(d){
-		chart.select("#bar_endpoints").remove();
+		chartDetails.text("");
 		if (d.Size > 300)
 		return;
-		var detailsDim = 350;
-		var activityDetails = chart.append('svg')
-			.attr("id","bar_endpoints")
-			.attr('width', detailsDim)
+		var detailsDim = 320;
+		var activityDetails = chartDetails.append('svg')
+			.attr('width',  $("#nciHistogramDetails").width())
 		    .attr('height', detailsDim);
 			
 	    var graph = NCI.prepareDataForForceGraph([d]);
 		
-		var force = d3.layout.force()
+		force = d3.layout.force()
 			.charge(-60)
 			.linkDistance(30)
 			.size([detailsDim, detailsDim])
@@ -108,13 +113,16 @@ NCI.nciHistogram = (function(){
 			.attr("class", "activities_link")
 			.style("stroke-width", function(d) { return Math.sqrt(d.value); });  	
 				  
-		var node = activityDetails.selectAll(".node")
+		chartDetails.node = activityDetails.selectAll(".node")
 		    .data(graph.nodes)
 		    .enter().append("circle")
 			.call(force.drag)
-		    .attr("r", 5);
+		    .attr("r", 5)
+			.style("fill", function(d) {
+				return me.colorifyEndpoint(internalEndpointsCheckbox[0].checked, d.name);
+			 });
 		  		  
-		node.append("title").html(function(d) {  return d.name  });//+ "<br>" + d.neighbours + " connections" ;});
+		chartDetails.node.append("title").html(function(d) {  return d.name  });//+ "<br>" + d.neighbours + " connections" ;});
 
 		force.on("tick", function() { 
 			link.attr("x1", function(d) { return d.source.x; })
@@ -122,10 +130,27 @@ NCI.nciHistogram = (function(){
 				.attr("x2", function(d) { return d.target.x; })
 				.attr("y2", function(d) { return d.target.y; });
 				
-			node.attr("cx", function(d) { return d.x; })
+			chartDetails.node.attr("cx", function(d) { return d.x; })
 			    .attr("cy", function(d) { return d.y; });
-		});	  
+		});
 	};
+	
+	me.colorifyEndpoint = function(devided, name){
+		//console.log(name);
+		//console.log(devided);
+		if ( devided && !name.indexOf("10.") == 0 && !name.indexOf("192.168") == 0){
+			return notNetworkColor;
+		}
+		return color(0);
+	}
+	
+	internalEndpointsCheckbox.on('click', function(event){
+		var checked = this.checked;
+		chartDetails.node.style("fill", function(d) {
+			return me.colorifyEndpoint(checked, d.name);
+		});
+		force.start();
+	});
 	
 	return me;
 }());

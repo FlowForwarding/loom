@@ -26,7 +26,7 @@
 		</nav> 
 		
 		<div class="row">
-			<div class="large-4 small-12 columns nci-label">
+			<div class="large-4 small-6 columns nci-label">
 				<div class="indexValue">
 					<name> NCI</name>
 					<span data-tooltip class="has-tip" title="Network Complexity Index">
@@ -34,7 +34,7 @@
 					<span id="nciLatestValue"> <val> &nbsp; </val> </span>
 				</div><br>
 			</div>	
-			<div class="large-4 small-12 columns"> 
+			<div class="large-4 small-6 columns"> 
 				<div class="indexValue qps-value"> 	
 				    <span class="collectorLabel">Flow Collectors</span>
 				    <span data-tooltip class="has-tip" title="Info about collectors"> 
@@ -114,10 +114,16 @@
 					<dd><a href="#panelActivitySizes">Activity Sizes</a></dd>
 				</dl>
 				<div class="tabs-content">
-					<div style="padding: 0px;" class="content" id="panelActivitySizes">
-				        <div id="nciHistogram" style="">
-				        </div>
-						<br/>
+					<div class="content" id="panelActivitySizes">
+						<div class="row">
+				           <div id="nciHistogram" class="large-6 small-12 columns"> 
+				           </div>
+				           <div class="large-6 small-12 columns"> 
+							   <input id="histogramDetailsInternal" type="checkbox">
+							   <label for="histogramDetailsInternal">Internal</label>
+							   <div id="nciHistogramDetails"> </div>
+				           </div>
+					    </div>
 						<h6 class="centrate"> <b>NCI(N) = Max j, X[j] ≥ j </b> </h6>						
 						<h4 class="centrate"><small> where <b>NCI(N)</b> is the Network Complexity Index of network N and 
 							<b>X[j]</b> is the number of endpoints engaged in an activity </small></h4>
