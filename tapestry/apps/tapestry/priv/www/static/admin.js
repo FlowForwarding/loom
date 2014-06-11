@@ -1,0 +1,1 @@
+var tapestryAdmin = angular.module('tapestryAdmin', []);

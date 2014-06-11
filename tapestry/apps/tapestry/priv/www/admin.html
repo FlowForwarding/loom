@@ -1,0 +1,72 @@
+<html>
+	<head ng-app='tapestryAdmin'>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title> Tapestry Admin</title>
+		<link rel="shortcut icon" href="static/images/favicon.ico" >
+  	    <link rel="stylesheet" href="bower_components/foundation/css/normalize.css" />
+  	    <link rel="stylesheet" href="bower_components/foundation/css/foundation.min.css"/> 
+	    <script src='bower_components/modernizr/modernizr.js'></script> 
+		
+	</head>
+	<body>
+		<nav class="top-bar" data-topbar>
+		  <ul class="title-area">
+		    <li class="name">
+		      <h1><a href="#">Tapestry Admin</a></h1>
+		    </li>
+		  </ul>
+		</nav>
+		
+	    <div class="row">
+		   <h6>Max Edges</h6>
+		   <h6>Max Vertices</h6>
+		   <h6>Max Communities</h6>
+		   <h6>Community Size Limit</h6>
+		   <form data-abide>
+		     <div class="row">
+		       <div class="large-6 columns">
+		           <label>Max Edges
+		           <input type="text" pattern="[0-9]+" placeholder="" />
+		           </label>
+				   <small class="error">Should be an integer.</small>
+		       </div>
+		       </div>
+		       <div class="row">
+		           <div class="large-6 columns">
+		           <label>Max Vertices
+		               <input type="text" pattern="[0-9]+"/>
+		           </label>
+				   <small class="error">Should be an integer.</small>
+		           </div>
+		       </div>
+		       <div class="row">
+		           <div class="large-6 columns">
+		           <label>Max Communities
+		               <input type="text" pattern="[0-9]+"/>
+		           </label>
+				   <small class="error">Should be an integer.</small>
+		       </div>
+		     </div>
+		     <div class="row">
+		         <div class="large-6 columns">
+		         <label>Community Size Limit
+		            <input type="text" pattern="[0-9]+"/>
+		         </label>
+				 <small class="error">Should be an integer.</small>
+		         </div>
+		     </div>
+			 <button type="submit">Save</button>
+		   </form>
+	    </div>
+		
+		<script src='bower_components/jquery/dist/jquery.min.js'></script>
+		<script src='bower_components/foundation/js/foundation.min.js'></script>   
+		<script src='bower_components/angular/angular.js'></script>
+		<script src='static/admin.js'></script>
+		<script type="text/javascript">
+		    	$(document).foundation();
+		</script>
+				
+	</body>
+</html>
