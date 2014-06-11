@@ -364,7 +364,7 @@ prop_labels(G)->
 				  end
 			  end,{0, 0, G}, V),
     {_NewStopCount, NewGoCount, G3} = RunCond,
-
+    ?DEBUG("prop_labels: ~p~n", [RunCond]),
     %% At this point in the code, 
     %%     NewStopCount represents how many vertices were NOT relabeled
     %%      in this iternation and
