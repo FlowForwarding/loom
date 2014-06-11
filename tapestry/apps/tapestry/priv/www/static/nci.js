@@ -184,7 +184,7 @@ $(".nci-label .indexValue").on('click', function(){
 $(".hide-ncidetails").on('click', function(){
 	$('#nciDetails').hide();
 	$('#nciDetailsTabs').find("a").first().click();
-	NCI.nciHistogram.text("");
+	NCI.nciHistogram.clean();
 	NCI.socialGraph.text("");
 	NCI.CommunityGraph = [];
 	NCI.Communities = [];

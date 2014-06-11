@@ -19,7 +19,7 @@ NCI.nciHistogram = (function(){
 		var endpointsMin;
 		var endpointsScale;
 		if (endpointsMax > 100) {
-			endpointsMin = 1;
+			endpointsMin = 0.5;
 			endpointsScale = d3.scale.log();
 		} else {
 			endpointsMin = 0;
@@ -30,6 +30,13 @@ NCI.nciHistogram = (function(){
 		
 		var activitiesScale = d3.scale.linear();
 		var activitiesMin = 0;
+		if (NCI.Communities.length < 800){
+			activitiesScale = d3.scale.linear();
+			activitiesMin = 0;
+		} else{
+			activitiesScale = d3.scale.log();
+			activitiesMin = 0.5;
+		};
 		activitiesScale.domain([NCI.Communities.length + 1, activitiesMin])
 					    .range([width - margin.right - margin.left, margin.left]);
 
@@ -142,14 +149,18 @@ NCI.nciHistogram = (function(){
 			return notNetworkColor;
 		}
 		return color(0);
-	}
+	};
+	
+	me.clean = function(){
+		chartDetails.text("");
+		chart.text("");
+	};
 	
 	internalEndpointsCheckbox.on('click', function(event){
 		var checked = this.checked;
 		chartDetails.node.style("fill", function(d) {
 			return me.colorifyEndpoint(checked, d.name);
 		});
-		force.start();
 	});
 	
 	return me;
