@@ -37,6 +37,7 @@ NCI.Connection.onmessage  = function (e) {
 			NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS, 1), NCI.parceDateForLastUpdate(data.Time));
 	} else if (data.action == "NEP") {
 			NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDateForLastUpdate(data.Time));
+			NCI.setFlowsLatestValue(NCI.parceNumberForView(data.NE), NCI.parceDateForLastUpdate(data.Time))
 	} else if (data.action == "Collectors")	{
 		    NCI.setCollectorsLatestValue(NCI.parceNumberForView(data.COLLECTORS), NCI.parceDateForLastUpdate(data.Time));	 
 	} else if (data.action == "NCI"){
