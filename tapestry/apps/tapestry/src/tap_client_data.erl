@@ -253,8 +253,9 @@ community_graph({_Endpoints, _Interactions, Sizes,
     ]}.
 
 cendpointsize(C, Sizes) ->
+    FormattedC = endpoint(C),
     Size = integer_to_binary(dict:fetch(C, Sizes)),
-    <<C/binary, $:, Size/binary>>.
+    <<FormattedC/binary, $:, Size/binary>>.
 
 cendpoints(Endpoints, Sizes) ->
     lists:map(fun(E) -> cendpointsize(E, Sizes) end, Endpoints).
