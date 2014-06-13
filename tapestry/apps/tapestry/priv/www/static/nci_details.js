@@ -1,3 +1,8 @@
+NCI.detailsNCI = $("#detailsNCI");
+NCI.detailsTime = $("#detailsTime");
+NCI.detailsFlows = $("#detailsFlows");
+NCI.detailsEndpoints = $("#detailsEndpoints");
+
 NCI.setupCommunities = function(data){
 	NCI.Communities = data.Communities;
 	NCI.CommunityGraph = data.CommunityGraph;
@@ -6,15 +11,9 @@ NCI.setupCommunities = function(data){
 	});
 	NCI.timestampNCI = data.NCI;
 	NCI.timestamp = data.Time;
-	//detailsNCI
-	//detailsFlows
-	//detailsEndpoints
-	//detailsTime
-	$("#detailsNCI").html(NCI.timestampNCI);
-	$("#detailsTime").html(NCI.parceDateForLastUpdate(NCI.timestamp));
-//	$("#histogramGeneral").html("NETWORK COMPLEXITY INDEX at &nbsp;&nbsp; <i>" +
-//	 NCI.parceDateForLastUpdate(NCI.timestamp) + "</i>" +
-//	    "&nbsp;&nbsp;&nbsp;<span class='round alert label'>NCI " + NCI.timestampNCI + "</span>" );
+
+	NCI.detailsNCI.html(NCI.timestampNCI);
+	NCI.detailsTime.html(NCI.parceDateForLastUpdate(NCI.timestamp));
 };
 
 NCI.socialGraph  = (function(){
@@ -40,12 +39,16 @@ NCI.socialGraph  = (function(){
 				force.start();
 			}
 		} else {
-			var sum = 0;
+			var endpoints = 0;
+			var interactions = 0;
 			$.each(NCI.Communities, function(index, community){
-				sum += community.Size;
+				endpoints += community.Size;
+				interactions += community.Interactions.length;
 			});
+			NCI.detailsEndpoints.html(endpoints);
+			NCI.detailsFlows.html(interactions);
 		    
-			if (sum > 300) {
+			if (endpoints > 300) {
 				d3.select("#activities_graph").remove();
 				d3.select("#socialGraph")
 				.append('text')

@@ -88,19 +88,14 @@ NCI.Connection.onmessage  = function (e) {
 	    NCI.socialGraph.show(false, false, false, false);
 	} else {
 		//we recieve such format:
-		// {"Time":"2013-10-27T13:01:09Z","NCI":99,
-		// "Time":"2013-10-27T13:11:39Z","NCI":8,
-		// "Time":"2013-10-27T13:22:15Z","NCI":18,
-		// "Time":"2013-10-27T13:33:01Z","NCI":87}
+		// [{"Time":"2013-10-27T13:01:09Z","NCI":99},
+		// {"Time":"2013-10-27T13:11:39Z","NCI":8},
+		// {"Time":"2013-10-27T13:22:15Z","NCI":18},
+		// {"Time":"2013-10-27T13:33:01Z","NCI":87}]
 		var newData = [];
-		var recievedDataArray = e.data.substring(1, e.data.length - 1).split(',');
-		for (var i = 0; i < recievedDataArray.length/2; i++){
-			var curIndex = 2 * i;
-			var timeValue = recievedDataArray[curIndex].substring(7);
-			timeValue = timeValue.substring(1, timeValue.length - 1);
-			var nciValue = recievedDataArray[curIndex + 1];
-			nciValue = parseInt(nciValue.split(":")[1]);
-			newData.push([new Date(new Date(timeValue) - NCI.time_adjustment).getTime() , nciValue]);
+		for (var i = 0; i < data.length; i++){
+			var dataItem = data[i];
+			newData.push([new Date(new Date(dataItem.Time) - NCI.time_adjustment).getTime() , dataItem.NCI]);
 		};
 		
 		NCI.setBottomChartDates(new Date(new Date() - NCI.time_adjustment).getTime() - newData[0][0]);
