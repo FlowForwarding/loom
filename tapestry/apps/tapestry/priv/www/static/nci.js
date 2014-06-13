@@ -180,11 +180,7 @@ NCI.collectorsTable = (function(){
 $(".nci-label .indexValue").on('click', function(){
 	$('#nciDetails').show();
 	NCI.Connection.NCIDetails(NCI.nciUpdateDateServer);
-	d3.select("#socialGraph")
-	.append('text')
-	.attr("id","activities_graph")
-	.html('Loading...');
-	$("#histogramGeneral").html("&nbsp;");
+	$("#socialGraph").html('<div id="activities_graph">Loading...</div>');
 });
 
 $(".hide-ncidetails").on('click', function(){
