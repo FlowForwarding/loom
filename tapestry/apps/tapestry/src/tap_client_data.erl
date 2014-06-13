@@ -223,10 +223,10 @@ send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
     ?DEBUG("tap_client_data: sending more data ~p to ~p~n",[Data,Pid]),
     JSONData = lists:foldl(
                     fun({Time, Value}, AccIn) ->
-                        [{<<"Time">>, list_to_binary(tap_time:rfc3339(Time))},
-                         {<<"NCI">>,Value} | AccIn]
+                        [{[{<<"Time">>, list_to_binary(tap_time:rfc3339(Time))},
+                         {<<"NCI">>, Value}]} | AccIn]
                     end, [], Data),
-    JSON = jiffy:encode({JSONData}),
+    JSON = jiffy:encode(JSONData),
     clientsock:send(Pid, JSON).
 
 broadcast_msg(Clients, Msg) ->
