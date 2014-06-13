@@ -115,7 +115,7 @@ handle_cast(start, State) ->
                            data_max_age = DataMaxAge}};
 handle_cast({ordered_edges, Edges}, State = #?STATE{digraph = Digraph}) ->
     add_edges(Digraph, Edges),
-    {noreply, State};
+    {noreply, State, hibernate};
 handle_cast(push_nci, State = #?STATE{digraph = Digraph,
                                       calc_pid = CalcPid,
                                       limits = Limits}) ->
@@ -127,13 +127,13 @@ handle_cast(push_nci, State = #?STATE{digraph = Digraph,
             Pid = push_nci(Digraph, digraph:no_vertices(Digraph), Limits),
             State#?STATE{calc_pid = Pid}
     end,
-    {noreply, NewState};
+    {noreply, NewState, hibernate};
 handle_cast(clean_data, State = #?STATE{
                                     digraph = Digraph,
                                     data_max_age = DataMaxAge}) ->
     DateTime = calendar:universal_time(),
     clean(Digraph, DateTime, DataMaxAge),
-    {noreply, State};
+    {noreply, State, hibernate};
 handle_cast(Msg, State) ->
     error({no_handle_cast, ?MODULE}, [Msg, State]).
 
