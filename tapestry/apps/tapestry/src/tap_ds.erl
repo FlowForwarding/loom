@@ -28,6 +28,7 @@
          ordered_edge/1,
          ordered_edges/1,
          setlimit/2,
+         stop_nci/0,
          save/1,
          load/1]).
 
@@ -47,7 +48,17 @@
             clean_timer,
             data_max_age,
             limits,
+            calc_timeout,
             calc_pid = no_process}).
+
+-define(LOGDURATION(F),
+                (fun() ->
+                    {TinMicro, R} = timer:tc(fun() -> F end),
+                    TinSec = TinMicro div 1000000,
+                    ?DEBUG("Time ~s:~B ~s: ~B sec",
+                                                [?FILE, ?LINE, ??F, TinSec]),
+                    R
+                end)()).
 
 %------------------------------------------------------------------------------
 % API
@@ -58,6 +69,9 @@ start_link() ->
 
 push_nci() ->
     gen_server:cast(?MODULE, push_nci).
+
+stop_nci() ->
+    gen_server:cast(?MODULE, stop_nci).
 
 clean_data() ->
     gen_server:cast(?MODULE, clean_data).
@@ -87,7 +101,9 @@ init([]) ->
     MaxEdges = tap_config:getconfig(max_edges),
     MaxCommunities = tap_config:getconfig(max_communities),
     CommSizeLimit = tap_config:getconfig(comm_size_limit),
-    {ok, #?STATE{limits = {MaxVertices, MaxEdges, CommSizeLimit, MaxCommunities}}}.
+    CalcTimeout = tap_config:getconfig(nci_calc_time_limit_sec),
+    {ok, #?STATE{calc_timeout = CalcTimeout,
+                 limits = {MaxVertices, MaxEdges, CommSizeLimit, MaxCommunities}}}.
 
 handle_call({setlimit, Key, Value}, _From,
                                         State = #?STATE{limits = Limits}) ->
@@ -118,13 +134,16 @@ handle_cast({ordered_edges, Edges}, State = #?STATE{digraph = Digraph}) ->
     {noreply, State, hibernate};
 handle_cast(push_nci, State = #?STATE{digraph = Digraph,
                                       calc_pid = CalcPid,
+                                      calc_timeout = CalcTimeout,
                                       limits = Limits}) ->
     NewState = case calculating(CalcPid) of
         true ->
-            ?DEBUG("NCI Calculation already running, skipping this run"),
+            ?DEBUG("NCI Calculation already running ~p(~s), skipping this run",
+                                    [CalcPid, pid_current_function(CalcPid)]),
             State;
         false ->
             Pid = push_nci(Digraph, digraph:no_vertices(Digraph), Limits),
+            nci_watchdog(CalcTimeout),
             State#?STATE{calc_pid = Pid}
     end,
     {noreply, NewState, hibernate};
@@ -134,6 +153,9 @@ handle_cast(clean_data, State = #?STATE{
     DateTime = calendar:universal_time(),
     clean(Digraph, DateTime, DataMaxAge),
     {noreply, State, hibernate};
+handle_cast(stop_nci, State = #?STATE{calc_pid = CalcPid}) ->
+    stop_nci(CalcPid),
+    {noreply, State#?STATE{calc_pid = no_process}};
 handle_cast(Msg, State) ->
     error({no_handle_cast, ?MODULE}, [Msg, State]).
 
@@ -149,6 +171,18 @@ code_change(_OldVersion, State, _Extra) ->
 %------------------------------------------------------------------------------
 % local functions
 %------------------------------------------------------------------------------
+
+pid_current_function(Pid) ->
+    case erlang:process_info(Pid, current_function) of
+        undefined -> [];
+        {_, {M, F, A}} -> [atom_to_list(M), $:, atom_to_list(F), $/, integer_to_list(A)]
+    end.
+
+nci_watchdog(infinity) ->
+    no_watchdog_timer;
+nci_watchdog(Timeout) ->
+    {ok, TRef} = timer:apply_after(Timeout * 1000, ?MODULE, stop_nci, []),
+    TRef.
 
 update_limits({_MaxVertices, MaxEdges, MaxCommSize, MaxCommunities}, max_vertices, V) ->
     {V, MaxEdges, MaxCommSize, MaxCommunities};
@@ -197,13 +231,15 @@ push_nci(_Digraph, 0, _Limits) ->
 push_nci(Digraph, _NumVertices, Limits) ->
     Vertices = digraph:vertices(Digraph),
     Edges = [digraph:edge(Digraph, E) || E <- digraph:edges(Digraph)],
-    Pid = spawn_link(
+    Pid = spawn(
         fun() ->
+            ?DEBUG("Starting NCI Calculation"),
             random:seed(now()),
-            G = new_digraph(Vertices, Edges),
+            G = ?LOGDURATION(new_digraph(Vertices, Edges)),
             {NCI, Communities} = nci:compute_from_graph(G, Limits),
-            tap_client_data:nci(NCI, Communities, calendar:universal_time()),
-            digraph:delete(G)
+            ?LOGDURATION(tap_client_data:nci(NCI, Communities,
+                                                calendar:universal_time())),
+            ?LOGDURATION(digraph:delete(G))
         end),
     Pid.
             
@@ -249,21 +285,38 @@ new_digraph(Vertices, Edges) ->
                           end, Edges),
             G.
 
+stop_nci(no_process) ->
+    ok;
+stop_nci(Pid) when is_pid(Pid) ->
+    case calculating(Pid) of
+        true ->
+            ?WARNING("NCI Calculation timeout ~p(~s)~n",
+                [Pid, pid_current_function(Pid)]),
+            exit(Pid, timeout);
+        false ->
+            ok
+    end.
+
+calculating(no_process) ->
+    false;
 calculating(Pid) when is_pid(Pid) ->
-    is_process_alive(Pid);
-calculating(_) ->
-    false.
+    is_process_alive(Pid).
 
 save_graph(Filename, Digraph) ->
+    ?INFO("Saving ~B edges to ~s~n", [digraph:no_edges(Digraph), Filename]),
     Data = lists:map(
         fun(E) ->
             {_, V1, V2, _} = digraph:edge(Digraph, E),
             {V1, V2}
         end, digraph:edges(Digraph)),
-    file:write_file(Filename, io_lib:format("~p.~n", [Data])).
+    ?INFO("Writing file~n"),
+    file:write_file(Filename, io_lib:format("~p.~n", [Data])),
+    ?INFO("Write complete~n").
 
 load_graph(Filename) ->
+    ?INFO("Loading data from ~s~n", [Filename]),
     {ok, [Data]} = file:consult(Filename),
+    ?INFO("Loading ~B edges~n", [length(Data)]),
     G = digraph:new(),
     DateTime = calendar:universal_time(),
     lists:foreach(
@@ -272,4 +325,5 @@ load_graph(Filename) ->
             digraph:add_vertex(G, V2, DateTime),
             digraph:add_edge(G, V1, V2, DateTime)
         end, Data),
+    ?INFO("Load Complete~n"),
     G.
