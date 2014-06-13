@@ -28,7 +28,7 @@
          ordered_edge/1,
          ordered_edges/1,
          setlimit/2,
-         stop_nci/0,
+         stop_nci/1,
          save/1,
          load/1]).
 
@@ -70,8 +70,8 @@ start_link() ->
 push_nci() ->
     gen_server:cast(?MODULE, push_nci).
 
-stop_nci() ->
-    gen_server:cast(?MODULE, stop_nci).
+stop_nci(Pid) ->
+    gen_server:cast(?MODULE, {stop_nci, Pid}).
 
 clean_data() ->
     gen_server:cast(?MODULE, clean_data).
@@ -143,7 +143,7 @@ handle_cast(push_nci, State = #?STATE{digraph = Digraph,
             State;
         false ->
             Pid = push_nci(Digraph, digraph:no_vertices(Digraph), Limits),
-            nci_watchdog(CalcTimeout),
+            nci_watchdog(Pid, CalcTimeout),
             State#?STATE{calc_pid = Pid}
     end,
     {noreply, NewState, hibernate};
@@ -153,9 +153,11 @@ handle_cast(clean_data, State = #?STATE{
     DateTime = calendar:universal_time(),
     clean(Digraph, DateTime, DataMaxAge),
     {noreply, State, hibernate};
-handle_cast(stop_nci, State = #?STATE{calc_pid = CalcPid}) ->
-    stop_nci(CalcPid),
+handle_cast({stop_nci, CalcPid}, State = #?STATE{calc_pid = CalcPid}) ->
+    do_stop_nci(CalcPid),
     {noreply, State#?STATE{calc_pid = no_process}};
+handle_cast({stop_nci, _}, State) ->
+    {noreply, State};
 handle_cast(Msg, State) ->
     error({no_handle_cast, ?MODULE}, [Msg, State]).
 
@@ -178,10 +180,10 @@ pid_current_function(Pid) ->
         {_, {M, F, A}} -> [atom_to_list(M), $:, atom_to_list(F), $/, integer_to_list(A)]
     end.
 
-nci_watchdog(infinity) ->
+nci_watchdog(_, infinity) ->
     no_watchdog_timer;
-nci_watchdog(Timeout) ->
-    {ok, TRef} = timer:apply_after(Timeout * 1000, ?MODULE, stop_nci, []),
+nci_watchdog(Pid, Timeout) ->
+    {ok, TRef} = timer:apply_after(Timeout * 1000, ?MODULE, stop_nci, [Pid]),
     TRef.
 
 update_limits({_MaxVertices, MaxEdges, MaxCommSize, MaxCommunities}, max_vertices, V) ->
@@ -285,9 +287,9 @@ new_digraph(Vertices, Edges) ->
                           end, Edges),
             G.
 
-stop_nci(no_process) ->
+do_stop_nci(no_process) ->
     ok;
-stop_nci(Pid) when is_pid(Pid) ->
+do_stop_nci(Pid) when is_pid(Pid) ->
     case calculating(Pid) of
         true ->
             ?WARNING("NCI Calculation timeout ~p(~s)~n",
