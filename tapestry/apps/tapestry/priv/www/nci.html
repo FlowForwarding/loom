@@ -108,7 +108,37 @@
 		
 		<div id="nciDetails" class="details-view">
 			<div class="hide-ncidetails"></div>
-			<h6 id="histogramGeneral" style="text-align:center;"> &nbsp; </h6>
+			<div id="histogramGeneral" class="row">
+				<div class="large-6 columns">
+				    <div class="indexValue qps-value">
+				        <name>NCI</name>
+				        <span data-tooltip class="has-tip" title="Network Complexity Index"> 
+				           &nbsp; <i class="icon-question-sign"></i></span>	
+				        <span><val id="detailsNCI"> &nbsp; </val>  </span>
+				    </div>
+				    <div class="indexValue qps-value">
+				        <name>Time</name>
+				        <span data-tooltip class="has-tip" title="Snapshot time"> 
+				           &nbsp; <i class="icon-question-sign"></i></span>	
+				        <span><val> <i id="detailsTime"> &nbsp; </i> </val></span>
+				    </div>
+			    </div>
+				<div class="large-6 columns">
+				    <div class="indexValue qps-value">
+				        <name>Endpoints</name>
+				        <span data-tooltip class="has-tip" title="Number of Connected Network Elements"> 
+				           &nbsp; <i class="icon-question-sign"></i></span>	
+				        <span id="detailsEndpoints"><val> &nbsp; </val> </span>
+				    </div>
+				    <div class="indexValue qps-value">
+				        <name>Flows</name>
+				        <span data-tooltip class="has-tip" title="Number of Flows"> 
+				           &nbsp; <i class="icon-question-sign"></i></span>	
+				        <span id="detailsFlows"><val> &nbsp; </val>  </span>
+				    </div>
+				</div>
+			</div>
+			<br/><br/>
 			<div class="row">
 				<dl class="sub-nav" data-tab id="nciDetailsTabs">
 					<dd class="active"><a href="#panelFlows">Flows</a></dd>

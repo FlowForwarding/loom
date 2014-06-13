@@ -6,9 +6,15 @@ NCI.setupCommunities = function(data){
 	});
 	NCI.timestampNCI = data.NCI;
 	NCI.timestamp = data.Time;
-	$("#histogramGeneral").html("NETWORK COMPLEXITY INDEX at &nbsp;&nbsp; <i>" +
-	 NCI.parceDateForLastUpdate(NCI.timestamp) + "</i>" +
-	    "&nbsp;&nbsp;&nbsp;<span class='round alert label'>NCI " + NCI.timestampNCI + "</span>" );
+	//detailsNCI
+	//detailsFlows
+	//detailsEndpoints
+	//detailsTime
+	$("#detailsNCI").html(NCI.timestampNCI);
+	$("#detailsTime").html(NCI.parceDateForLastUpdate(NCI.timestamp));
+//	$("#histogramGeneral").html("NETWORK COMPLEXITY INDEX at &nbsp;&nbsp; <i>" +
+//	 NCI.parceDateForLastUpdate(NCI.timestamp) + "</i>" +
+//	    "&nbsp;&nbsp;&nbsp;<span class='round alert label'>NCI " + NCI.timestampNCI + "</span>" );
 };
 
 NCI.socialGraph  = (function(){
