@@ -407,7 +407,7 @@ calc_label(G, Vertex)->
     case N =:= [] of
 	false ->
             % lists:foldl?
-	    NL = [digraph:vertex(G, V) || V <- N],
+	    NL = [digraph:vertex(G, V) || V <- [Vertex|N]],           
 	    Dict = dict:new(),
 	    LC = count_labels(Dict, NL),
 
