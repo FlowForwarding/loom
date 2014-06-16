@@ -6,7 +6,7 @@ NCI.time_adjustment = 0; //difference between client and server time in millisec
 NCI.numOfPoints = 200;
 //NCI.Connection = new WebSocket("ws://epamove.herokuapp.com");
 NCI.connectionURL = "ws://" + location.host + "/clientsock.yaws";
-//NCI.connectionURL = "ws://10.48.2.81:28080/clientsock.yaws";
+//NCI.connectionURL = "ws://10.32.3.207:28080/clientsock.yaws";
 
 NCI.Connection = [];
 
@@ -103,23 +103,9 @@ NCI.Connection.onmessage  = function (e) {
 		NCI.detailedChartPeriod = NCI.detailedChartPeriod ? NCI.detailedChartPeriod : NCI.curChartPeriod/10;
 		if (NCI.detailedChartPeriod > (new Date().getTime() - newData[0][0])){
 			NCI.detailedChartPeriod = new Date().getTime() - newData[0][0];
-		};
-		
+		};	
 		
 		var ranges = NCI.DetectRangesForPeiod( NCI.detailedChartPeriod, newData);
-		//var endRangeDate = newData[newData.length - 1][0];
-		// var firstDate = newData[0][0];
-		// if (endRangeDate - NCI.detailedChartPeriod < firstDate){
-		// 	var startRangeDate = firstDate;
-		// 	if (startRangeDate +  NCI.detailedChartPeriod < new Date().getTime()){
-		// 		endRangeDate = startRangeDate +  NCI.detailedChartPeriod;
-		// 	} else {
-		// 		endRangeDate = new Date().getTime();
-		// 	};
-		// } else {
-		// 	var startRangeDate = endRangeDate - NCI.detailedChartPeriod;
-		// };
-		// 
 		newData.push([new Date(new Date() - NCI.time_adjustment).getTime() , null]);
 		NCI.chartData = newData;
 		

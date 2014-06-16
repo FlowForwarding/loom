@@ -126,10 +126,17 @@ NCI.nciHistogram = (function(){
 			.call(force.drag)
 		    .attr("r", 5)
 			.style("fill", function(d) {
-				return me.colorifyEndpoint(internalEndpointsCheckbox[0].checked, d.name);
+				return me.colorifyEndpoint(internalEndpointsCheckbox[0].checked, d);
 			 });
 		  		  
-		chartDetails.node.append("title").html(function(d) {  return d.name  });//+ "<br>" + d.neighbours + " connections" ;});
+		chartDetails.node.append("title").html(function(d) {  
+			var info = d.name;
+			if (d.external){
+				info += "<br>doesn't belong activity";
+			};
+			info += "<br>" + d.connections + " connections";
+			return info;  
+		});
 
 		force.on("tick", function() { 
 			link.attr("x1", function(d) { return d.source.x; })
@@ -142,10 +149,12 @@ NCI.nciHistogram = (function(){
 		});
 	};
 	
-	me.colorifyEndpoint = function(devided, name){
+	me.colorifyEndpoint = function(devided, endpoint){
 		//console.log(name);
 		//console.log(devided);
-		if ( devided && !name.indexOf("10.") == 0 && !name.indexOf("192.168") == 0){
+		if (endpoint.external)
+		    return "#ff0000";
+		if ( devided && !endpoint.name.indexOf("10.") == 0 && !name.indexOf("192.168") == 0){
 			return notNetworkColor;
 		}
 		return color(0);
@@ -159,7 +168,7 @@ NCI.nciHistogram = (function(){
 	internalEndpointsCheckbox.on('click', function(event){
 		var checked = this.checked;
 		chartDetails.node.style("fill", function(d) {
-			return me.colorifyEndpoint(checked, d.name);
+			return me.colorifyEndpoint(checked, d);
 		});
 	});
 	

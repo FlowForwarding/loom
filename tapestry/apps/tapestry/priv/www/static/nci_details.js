@@ -104,7 +104,7 @@ NCI.socialGraph  = (function(){
 			.enter().append("circle")
 			.call(force.drag);
 		me.setupNodes(filtered, devided, clustered);
-		me.node.append("title").html(function(d) { return d.name });//+ "<br>" + d.neighbours + " connections" ; });
+		me.node.append("title").html(function(d) { return d.name + "<br>" + d.connections + " connections" ; });
 
 	    force.on("tick", function() { 
 	        link.attr("x1", function(d) { return d.source.x; })
@@ -127,26 +127,48 @@ NCI.prepareDataForForceGraph = function(communities){
 	var nodeCounter = 0;
 	$.each(communities, function(index, community){
 		$.each(community.Endpoints, function(index2, endpoint){
-			endpointsHash[endpoint] = {index: nodeCounter};
-			graph.nodes.push({
-				"name": endpoint,
-				"group": index
-			});
+			endpointsHash[endpoint] = {index: nodeCounter,
+				 external : false, 
+				 connections: 0,
+				 group: index};
 			nodeCounter ++;
 		});
 	});	
+	
+	var checkEndpoint = function(endPoint){
+		if (!endpointsHash[endPoint]){
+			endpointsHash[endPoint] = {index: Object.keys(endpointsHash).length,
+				external : true,
+				connections: 0,
+			    group: communities.length};
+		}
+	};
+	
 	$.each(communities, function(index, community){	
 		$.each(community.Interactions, function(index2, interacton){
-			if (endpointsHash[interacton[1]] && endpointsHash[interacton[0]]){
-			    var secondIndex = endpointsHash[interacton[1]].index;
-			    var firstIndex = endpointsHash[interacton[0]].index;
-			    graph.links.push({
-				    "source": secondIndex,
-				    "target": firstIndex,
-				    "value": 1});
-			};
+			checkEndpoint(interacton[0]);
+			checkEndpoint(interacton[1]);
+			
+			endpointsHash[interacton[1]].connections++;
+			endpointsHash[interacton[0]].connections++;
+			var secondIndex = endpointsHash[interacton[1]].index;
+			var firstIndex = endpointsHash[interacton[0]].index;
+			graph.links.push({
+				"source": secondIndex,
+				"target": firstIndex,
+				"value": 1});
 		});
 	});
+	
+	$.each(Object.keys(endpointsHash), function(index, key){
+		var endpoint = endpointsHash[key];
+		graph.nodes.push({
+			"name": key,
+			"group": endpoint.group,
+			"connections": endpoint.connections,
+			"external": endpoint.external
+		});
+	});	
 	
 	return graph;
 };
