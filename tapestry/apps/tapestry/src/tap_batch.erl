@@ -78,17 +78,17 @@ handle_call(Msg, From, State) ->
 
 handle_cast(start, State) ->
     NewState = qps_timer(State),
-    {noreply, NewState#?STATE{last_qps_time = tap_time:now()}};
+    {noreply, NewState#?STATE{last_qps_time = tap_time:now()}, hibernate};
 handle_cast({load, IpAddr, FtpFile}, State = #?STATE{mode = anonymized}) ->
     NewState = load_tar(IpAddr, FtpFile, State),
-    {noreply, NewState};
+    {noreply, NewState, hibernate};
 handle_cast({load, IpAddr, FtpFile}, State = #?STATE{mode = logfile}) ->
     NewState = load_logfile(IpAddr, FtpFile, State),
-    {noreply, NewState};
+    {noreply, NewState, hibernate};
 handle_cast(push_qps, State) ->
     State1 = push_qps(State),
     State2 = qps_timer(State1),
-    {noreply, State2};
+    {noreply, State2, hibernate};
 handle_cast(Msg, State) ->
     error({no_handle_cast, ?MODULE}, [Msg, State]).
 
@@ -211,7 +211,16 @@ parse_logfile(ZBin) ->
         {match, M} -> M;
         _ -> []
     end,
-    [{Requester, Resolved} || [_Query, Requester, Resolved] <- Matches].
+    % convert addresses to the tuple format. Storing the binaries directly
+    % results in references to the larger binary that impedes gc of the
+    % binry heap.  Could also binary:copy/1.  This makes the batch
+    % processing more consistent with the packet_in processing.
+    [{inet_parse_address(Requester), inet_parse_address(Resolved)} ||
+                                [_Query, Requester, Resolved] <- Matches].
+
+inet_parse_address(B) ->
+    {ok, IpAddr} = inet:parse_address(binary_to_list(B)),
+    IpAddr.
 
 safe_gunzip(ZBin) ->
     try
