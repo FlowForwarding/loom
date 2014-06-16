@@ -2,6 +2,7 @@ NCI.detailsNCI = $("#detailsNCI");
 NCI.detailsTime = $("#detailsTime");
 NCI.detailsFlows = $("#detailsFlows");
 NCI.detailsEndpoints = $("#detailsEndpoints");
+NCI.maxActivitySize = 0;
 
 NCI.setupCommunities = function(data){
 	NCI.Communities = data.Communities;
@@ -76,7 +77,10 @@ NCI.socialGraph  = (function(){
 		    }
 		    return devided ? color(d.group) : color(0);
 		});
-		me.node.attr("r", function(d) { return 4;})
+		me.node.attr("r", function(d) { 
+			var radius = 3 + NCI.maxActivitySize/(10 - 4)*d.size 
+			return radius;
+		});
 		force.linkStrength(clustered ? 1 : 0);
 	};
 	
@@ -160,13 +164,19 @@ NCI.prepareDataForForceGraph = function(communities){
 		});
 	});
 	
+	NCI.maxActivitySize = 0;
 	$.each(Object.keys(endpointsHash), function(index, key){
 		var endpoint = endpointsHash[key];
+		var semiIndex = key.search(":");
+		var size = (semiIndex >= 0) ? key.substring(semiIndex + 1) : 0;
+		if (NCI.maxActivitySize < size)
+		    NCI.maxActivitySize = size;
 		graph.nodes.push({
 			"name": key,
 			"group": endpoint.group,
 			"connections": endpoint.connections,
-			"external": endpoint.external
+			"external": endpoint.external,
+			"size": size
 		});
 	});	
 	
