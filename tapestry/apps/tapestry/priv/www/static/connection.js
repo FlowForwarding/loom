@@ -54,18 +54,7 @@ NCI.Connection.onmessage  = function (e) {
 					return;
 
 				NCI.chartData.push([new Date(dateVal - NCI.time_adjustment).getTime(), data.NCI]);
-				NCI.lastRedrawTimeVal = new Date();
-				//next cycle checks if there are values in chart data set, 
-				//that are older then current chart time period
-				var len = NCI.chartData.length - 2;
-				for (var ind = 0; ind < len; ind++ ){
-					if (new Date(data.Time).getTime() - NCI.chartData[ind + 1][0] > NCI.curChartPeriod){
-						NCI.chartData.shift();
-					} else {
-						break;
-					}
-				}
-				
+				NCI.lastRedrawTimeVal = new Date();				
 				//check if chart selected area right border is in the beginning of chart ,
 				//then automaticaly move selection area to the beginning (error ~ one minute)
 				if (parseInt(NCI.chart.xAxisExtremes()[1] - NCI.chart.xAxisRange()[1]) < NCI.chartPeriods.minute && NCI.chart &&  NCI.chart.dateWindow_){
