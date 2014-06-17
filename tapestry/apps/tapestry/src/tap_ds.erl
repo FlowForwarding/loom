@@ -48,6 +48,7 @@
             clean_timer,
             data_max_age,
             limits,
+            dirty,
             calc_timeout,
             calc_pid = no_process}).
 
@@ -103,12 +104,13 @@ init([]) ->
     CommSizeLimit = tap_config:getconfig(comm_size_limit),
     CalcTimeout = tap_config:getconfig(nci_calc_time_limit_sec),
     {ok, #?STATE{calc_timeout = CalcTimeout,
+                 dirty = true,
                  limits = {MaxVertices, MaxEdges, CommSizeLimit, MaxCommunities}}}.
 
 handle_call({setlimit, Key, Value}, _From,
                                         State = #?STATE{limits = Limits}) ->
     NewLimits = update_limits(Limits, Key, Value),
-    {reply, NewLimits, State#?STATE{limits = NewLimits}};
+    {reply, NewLimits, State#?STATE{dirty = true, limits = NewLimits}};
 handle_call({save_graph, Filename}, _From,
                                         State = #?STATE{digraph = Digraph}) ->
     Reply = save_graph(Filename, Digraph),
@@ -131,8 +133,9 @@ handle_cast(start, State) ->
                            data_max_age = DataMaxAge}};
 handle_cast({ordered_edges, Edges}, State = #?STATE{digraph = Digraph}) ->
     add_edges(Digraph, Edges),
-    {noreply, State, hibernate};
+    {noreply, State#?STATE{dirty = true}, hibernate};
 handle_cast(push_nci, State = #?STATE{digraph = Digraph,
+                                      dirty = Dirty,
                                       calc_pid = CalcPid,
                                       calc_timeout = CalcTimeout,
                                       limits = Limits}) ->
@@ -142,9 +145,16 @@ handle_cast(push_nci, State = #?STATE{digraph = Digraph,
                                     [CalcPid, pid_current_function(CalcPid)]),
             State;
         false ->
-            Pid = push_nci(Digraph, digraph:no_vertices(Digraph), Limits),
-            nci_watchdog(Pid, CalcTimeout),
-            State#?STATE{calc_pid = Pid}
+            case Dirty of
+                false ->
+                    ?DEBUG("Skipping NCI Calculation, no new data"),
+                    State;
+                _ ->
+                    Pid = push_nci(Digraph, digraph:no_vertices(Digraph),
+                                                                    Limits),
+                    nci_watchdog(Pid, CalcTimeout),
+                    State#?STATE{calc_pid = Pid, dirty = false}
+            end
     end,
     {noreply, NewState, hibernate};
 handle_cast(clean_data, State = #?STATE{
@@ -152,10 +162,15 @@ handle_cast(clean_data, State = #?STATE{
                                     data_max_age = DataMaxAge}) ->
     DateTime = calendar:universal_time(),
     clean(Digraph, DateTime, DataMaxAge),
-    {noreply, State, hibernate};
+    {noreply, State#?STATE{dirty = true}, hibernate};
 handle_cast({stop_nci, CalcPid}, State = #?STATE{calc_pid = CalcPid}) ->
-    do_stop_nci(CalcPid),
-    {noreply, State#?STATE{calc_pid = no_process}};
+    Dirty = case do_stop_nci(CalcPid) of
+        stopped ->
+            true;
+        _ ->
+            false
+    end,
+    {noreply, State#?STATE{dirty = Dirty, calc_pid = no_process}};
 handle_cast({stop_nci, _}, State) ->
     {noreply, State};
 handle_cast(Msg, State) ->
@@ -239,8 +254,7 @@ push_nci(Digraph, _NumVertices, Limits) ->
             random:seed(now()),
             G = ?LOGDURATION(new_digraph(Vertices, Edges)),
             {NCI, Communities} = nci:compute_from_graph(G, Limits),
-            ?LOGDURATION(tap_client_data:nci(NCI, Communities,
-                                                calendar:universal_time())),
+            tap_client_data:nci(NCI, Communities, calendar:universal_time()),
             ?LOGDURATION(digraph:delete(G))
         end),
     Pid.
@@ -288,15 +302,16 @@ new_digraph(Vertices, Edges) ->
             G.
 
 do_stop_nci(no_process) ->
-    ok;
+    noop;
 do_stop_nci(Pid) when is_pid(Pid) ->
     case calculating(Pid) of
         true ->
             ?WARNING("NCI Calculation timeout ~p(~s)~n",
                 [Pid, pid_current_function(Pid)]),
-            exit(Pid, timeout);
+            exit(Pid, timeout),
+            stopped;
         false ->
-            ok
+            noop
     end.
 
 calculating(no_process) ->
