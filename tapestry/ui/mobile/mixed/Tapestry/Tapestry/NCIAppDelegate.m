@@ -7,6 +7,7 @@
 //
 
 #import "NCIAppDelegate.h"
+#import "NCITapestryController.h"
 
 @implementation NCIAppDelegate
 
@@ -14,6 +15,8 @@
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
+    NCITapestryController *tController = [[NCITapestryController alloc] init];
+    self.window.rootViewController = tController;
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     return YES;

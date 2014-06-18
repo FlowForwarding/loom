@@ -5,7 +5,7 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>593EC774-A490-40EA-9670-76E83E03C346</string>
+	<string>2D03A494-A191-445E-95E7-7EBE363188F7</string>
 	<key>IDESourceControlProjectName</key>
 	<string>Tapestry</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
@@ -34,7 +34,7 @@
 			<key>IDESourceControlWCCIdentifierKey</key>
 			<string>0B00F035-5426-4915-95FE-59AB1D288B77</string>
 			<key>IDESourceControlWCCName</key>
-			<string>loom</string>
+			<string>Tapestry</string>
 		</dict>
 	</array>
 </dict>
