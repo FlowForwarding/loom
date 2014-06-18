@@ -106,10 +106,12 @@ process_request(Message) ->
             ?DEBUG("action getlimits"),
             tap_client_data:limits(self());
         {_, <<"setlimits">>} ->
-            Limits = [{max_vertices, Msg(<<"max_vertices">>)},
-                      {max_edges, Msg(<<"max_edges">>)},
-                      {comm_size_limit, Msg(<<"comm_size_limit">>)},
-                      {max_communities, Msg(<<"max_communities">>)}],
+            MsgLimit = fun(Limit) ->
+                        proplists:get_value(Limit, Msg(<<"limits">>)) end,
+            Limits = [{max_vertices, MsgLimit(<<"max_vertices">>)},
+                      {max_edges, MsgLimit(<<"max_edges">>)},
+                      {comm_size_limit, MsgLimit(<<"comm_size_limit">>)},
+                      {max_communities, MsgLimit(<<"max_communities">>)}],
             ?DEBUG("action setlimits ~p", [Limits]),
             tap_client_data:setlimits(self(), Limits);
         {_, _} -> 
