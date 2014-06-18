@@ -28,6 +28,7 @@
          ordered_edge/1,
          ordered_edges/1,
          setlimit/2,
+         getlimits/0,
          stop_nci/1,
          save/1,
          load/1]).
@@ -92,6 +93,9 @@ load(Filename) ->
 setlimit(Limit, Value) ->
     gen_server:call(?MODULE, {setlimit, Limit, Value}).
 
+getlimits() ->
+    gen_server:call(?MODULE, getlimits).
+
 %------------------------------------------------------------------------------
 % gen_server callbacks
 %------------------------------------------------------------------------------
@@ -107,6 +111,12 @@ init([]) ->
                  dirty = true,
                  limits = {MaxVertices, MaxEdges, CommSizeLimit, MaxCommunities}}}.
 
+handle_call(getlimits, _From, State = #?STATE{limits = Limits}) ->
+    {MaxVertices, MaxEdges, MaxCommSize, MaxCommunities} = Limits,
+    {reply, [{max_vertices, MaxVertices},
+             {max_edges, MaxEdges},
+             {comm_size_limit, MaxCommSize},
+             {max_communities, MaxCommunities}], State};
 handle_call({setlimit, Key, Value}, _From,
                                         State = #?STATE{limits = Limits}) ->
     NewLimits = update_limits(Limits, Key, Value),

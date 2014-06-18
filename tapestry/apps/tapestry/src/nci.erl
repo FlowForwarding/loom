@@ -544,8 +544,8 @@ add_edges(G, Edges)->
 
 communities(G, Limits) ->
     CommunitySizes = ?LOGDURATION(comm_sizes(G)),
-    % sort communities by size
-    SortedSizes = lists:keysort(2, dict:to_list(CommunitySizes)),
+    % sort communities by size, largest to smallest
+    SortedSizes = lists:reverse(lists:keysort(2, dict:to_list(CommunitySizes))),
     {EPs, IAs} = compute_communities(G, SortedSizes, Limits),
     {_, _, _, MaxCommunities} = Limits,
     CommunitiesForGraph = top_communities(SortedSizes, MaxCommunities),

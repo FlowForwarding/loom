@@ -70,25 +70,7 @@ decode(MessageBits)->
         Message = jiffy:decode(MessageBits),
         case Message of
             {Request} ->
-                case lists:sort(Request) of
-                    [{<<"end">>, End},
-                     {<<"max_items">>, MaxData},
-                     {<<"request">>, <<"more_data">>},
-                     {<<"start">>, Start}] ->
-                        ?DEBUG("action more_data: start ~p end ~p max_tems ~p~n",
-                                                    [Start, End, MaxData]),
-                        tap_client_data:more_nci_data(self(), tap_time:rfc3339_to_epoch(binary_to_list(Start)), tap_time:rfc3339_to_epoch(binary_to_list(End)), list_to_integer(binary_to_list(MaxData)));
-                    [{<<"Time">>, _Time},
-                     {<<"action">>, <<"NCIDetails">>}] ->
-                        ?DEBUG("action NCIDetails~n"),
-                        tap_client_data:nci_details(self());
-                    [{<<"Time">>, _Time},
-                     {<<"action">>, <<"collectors">>}] ->
-                        ?DEBUG("action Collectors~n"),
-                        tap_client_data:collectors(self());
-                    _ -> 
-                       ?INFO("Unexpected Message:~p~n", [Message])
-                end;
+                process_request(Request);
             _ -> 
                ?INFO("Unexpected Message:~p~n", [Message])
         end
@@ -96,3 +78,41 @@ decode(MessageBits)->
         Error ->
             ?WARNING("Parse Error: ~p  on~p~n", [Error, MessageBits])
     end.
+
+process_request(Message) ->
+    Msg = fun(Key) -> proplists:get_value(Key, Message) end,
+
+    % pick out command (either request or action)
+    Request = Msg(<<"request">>),
+    Action = Msg(<<"action">>),
+    case {Request, Action} of
+        {<<"more_data">>, _} ->
+            End = Msg(<<"end">>),
+            Start = Msg(<<"start">>),
+            MaxItems = Msg(<<"max_items">>),
+            ?DEBUG("action more_data: start ~p end ~p max_items ~p",
+                                        [Start, End, MaxItems]),
+            tap_client_data:more_nci_data(self(),
+                                          rfc3339_to_epoch(Start),
+                                          rfc3339_to_epoch(End),
+                                          binary_to_integer(MaxItems));
+        {_, <<"NCIDetails">>} ->
+            ?DEBUG("action NCIDetails"),
+            tap_client_data:nci_details(self());
+        {_, <<"collectors">>} ->
+            ?DEBUG("action collectors"),
+            tap_client_data:collectors(self());
+        {_, <<"getlimits">>} ->
+            tap_client_data:limits(self());
+        {_, <<"setlimits">>} ->
+            % XXX fix this
+            tap_client_data:setlimits(self());
+        {_, _} -> 
+           ?INFO("Unexpected Message:~p~n", [Message])
+    end.
+
+get_element(Key, List) ->
+    proplists:get_value(Key, List).
+
+rfc3339_to_epoch(B) when is_binary(B) ->
+    tap_time:rfc3339_to_epoch(binary_to_list(B)).
