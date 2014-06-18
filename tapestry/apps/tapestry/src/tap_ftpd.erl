@@ -65,6 +65,7 @@
 start_link() ->
     Port = tap_config:getconfig(ftpd_port),
     IpAddr = tap_config:getconfig(ftpd_address),
+    ?INFO("ftpd: listening on Address: ~p Port: ~p", [IpAddr, Port]),
     bifrost:start_link(?MODULE, [{ip_address, IpAddr}, {port, Port}]).
 
 % -----------------------------------------------------------------------------

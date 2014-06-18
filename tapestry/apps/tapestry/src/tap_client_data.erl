@@ -271,6 +271,7 @@ community_details({Endpoints, Interactions, Sizes, _Comms}) ->
         {[
             {<<"Interactions">>, interactions(dict_fetch(C, Interactions))},
             {<<"Endpoints">>, endpoints(dict_fetch(C, Endpoints))},
+            {<<"Label">>, endpoint(C)},
             {<<"Size">>, dict:fetch(C, Sizes)}
         ]} || C <- dict:fetch_keys(Sizes)
     ].
