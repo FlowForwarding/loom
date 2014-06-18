@@ -103,16 +103,18 @@ process_request(Message) ->
             ?DEBUG("action collectors"),
             tap_client_data:collectors(self());
         {_, <<"getlimits">>} ->
+            ?DEBUG("action getlimits"),
             tap_client_data:limits(self());
         {_, <<"setlimits">>} ->
-            % XXX fix this
-            tap_client_data:setlimits(self());
+            Limits = [{max_vertices, Msg(<<"max_vertices">>)},
+                      {max_edges, Msg(<<"max_edges">>)},
+                      {comm_size_limit, Msg(<<"comm_size_limit">>)},
+                      {max_communities, Msg(<<"max_communities">>)}],
+            ?DEBUG("action setlimits ~p", [Limits]),
+            tap_client_data:setlimits(self(), Limits);
         {_, _} -> 
            ?INFO("Unexpected Message:~p~n", [Message])
     end.
-
-get_element(Key, List) ->
-    proplists:get_value(Key, List).
 
 rfc3339_to_epoch(B) when is_binary(B) ->
     tap_time:rfc3339_to_epoch(binary_to_list(B)).
