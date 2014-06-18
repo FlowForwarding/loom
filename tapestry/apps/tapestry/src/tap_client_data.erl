@@ -31,6 +31,7 @@
          new_client/1,
          more_nci_data/4,
          nci_details/1,
+         limits/1,
          collectors/1]).
 
 -export([init/1,
@@ -81,6 +82,9 @@ more_nci_data(Pid, Start, End, Max) ->
 
 nci_details(Pid) ->
     gen_server:cast(?MODULE, {nci_details, Pid}).
+
+limits(Pid) ->
+    gen_server:cast(?MODULE, {limits, Pid}).
 
 collectors(Pid) ->
     gen_server:cast(?MODULE, {collectors, Pid}).
@@ -140,6 +144,9 @@ handle_cast({nci, NCI, Communities, UT}, State = #?STATE{nci_log = NCILog,
                            nci = NCI,
                            last_nci_time = Time,
                            communities = Communities}};
+handle_cast({limits, Pid}, State) ->
+    clientsock:send(Pid, json_limits(tap_ds:getlimits())),
+    {noreply, State};
 handle_cast({nci_details, Pid}, State = #?STATE{
                                             communities = Communities,
                                             nci = NCI,
@@ -361,3 +368,19 @@ encode_qps(Time, QPS) ->
     jiffy:encode({[{<<"action">>, <<"QPS">>},
                    {<<"Time">>, Time},
                    {<<"QPS">>, QPS}]}).
+
+json_limits(PList) ->
+    jiffy:encode(
+        {[{<<"action">>, <<"getlimits">>},
+          {<<"limits">>, {[
+                            {atom_to_binary(K, latin1), encode_limit(V)} ||
+                                {K, V} <- PList
+                         ]}
+          }
+        ]}
+    ).
+
+encode_limit(infinity) ->
+    <<"infinity">>;
+encode_limit(I) when is_integer(I) ->
+    I.
