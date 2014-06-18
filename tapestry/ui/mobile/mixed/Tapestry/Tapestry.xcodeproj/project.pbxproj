@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		2A55F3A619516C610089007C /* NCITapestryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A55F3A519516C610089007C /* NCITapestryController.m */; };
 		2A55F3AC195181880089007C /* NCIConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A55F3AB195181880089007C /* NCIConstants.m */; };
-		2A55F3AF195187580089007C /* nci.html in Resources */ = {isa = PBXBuildFile; fileRef = 2A55F3AE195187580089007C /* nci.html */; };
+		2A55F3B619519A730089007C /* www in Resources */ = {isa = PBXBuildFile; fileRef = 2A55F3B519519A730089007C /* www */; };
 		2A965E9A1950C320002A2B63 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A965E991950C320002A2B63 /* Foundation.framework */; };
 		2A965E9C1950C320002A2B63 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A965E9B1950C320002A2B63 /* CoreGraphics.framework */; };
 		2A965E9E1950C320002A2B63 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A965E9D1950C320002A2B63 /* UIKit.framework */; };
@@ -39,7 +39,7 @@
 		2A55F3A519516C610089007C /* NCITapestryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCITapestryController.m; sourceTree = "<group>"; };
 		2A55F3AA195181880089007C /* NCIConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIConstants.h; sourceTree = "<group>"; };
 		2A55F3AB195181880089007C /* NCIConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIConstants.m; sourceTree = "<group>"; };
-		2A55F3AE195187580089007C /* nci.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = nci.html; sourceTree = "<group>"; };
+		2A55F3B519519A730089007C /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = Tapestry/www; sourceTree = "<group>"; };
 		2A965E961950C320002A2B63 /* Tapestry.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tapestry.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A965E991950C320002A2B63 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		2A965E9B1950C320002A2B63 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -82,17 +82,10 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2A55F3AD195184430089007C /* www */ = {
-			isa = PBXGroup;
-			children = (
-				2A55F3AE195187580089007C /* nci.html */,
-			);
-			path = www;
-			sourceTree = "<group>";
-		};
 		2A965E8D1950C320002A2B63 = {
 			isa = PBXGroup;
 			children = (
+				2A55F3B519519A730089007C /* www */,
 				2A965E9F1950C320002A2B63 /* Tapestry */,
 				2A965EB81950C320002A2B63 /* TapestryTests */,
 				2A965E981950C320002A2B63 /* Frameworks */,
@@ -123,7 +116,6 @@
 		2A965E9F1950C320002A2B63 /* Tapestry */ = {
 			isa = PBXGroup;
 			children = (
-				2A55F3AD195184430089007C /* www */,
 				2A55F3AA195181880089007C /* NCIConstants.h */,
 				2A55F3AB195181880089007C /* NCIConstants.m */,
 				2A965EA81950C320002A2B63 /* NCIAppDelegate.h */,
@@ -175,6 +167,7 @@
 				2A965E921950C320002A2B63 /* Sources */,
 				2A965E931950C320002A2B63 /* Frameworks */,
 				2A965E941950C320002A2B63 /* Resources */,
+				2A55F3B019518EB10089007C /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -241,9 +234,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A55F3B619519A730089007C /* www in Resources */,
 				2A965EA41950C320002A2B63 /* InfoPlist.strings in Resources */,
 				2A965EAC1950C320002A2B63 /* Images.xcassets in Resources */,
-				2A55F3AF195187580089007C /* nci.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -256,6 +249,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2A55F3B019518EB10089007C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cp -rf ../../../../apps/tapestry/priv/www/ Tapestry/www/";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2A965E921950C320002A2B63 /* Sources */ = {

@@ -22,8 +22,9 @@
     float searchFieldHeight = 70;
     UIWebView *webContent = [[UIWebView alloc] initWithFrame:CGRectMake(0, searchFieldHeight, selfHeight, selfWidth - searchFieldHeight)];
     [self.view addSubview:webContent];
-    NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"nci" ofType:@"html" ] isDirectory:NO];
+    NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"nci" ofType:@"html" inDirectory:@"www"] isDirectory:NO];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    NSLog(@"%@", [[NSBundle mainBundle] pathForResource:@"nci" ofType:@"html" ]);
     [webContent loadRequest:request];
 }
 
