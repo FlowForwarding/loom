@@ -71,10 +71,10 @@ NCI.nciHistogram = (function(){
 		    .attr('height',function(d) { return height - margin.top - margin.bottom - endpointsScale(d.Size) })
 			.on("click", function(d) { 
 				if (NCI.nciHistogram.selectedBar)
-				NCI.nciHistogram.selectedBar.setAttribute("fill", "red");
+				NCI.nciHistogram.selectedBar.setAttribute("fill", "black");
 				NCI.nciHistogram.selectedBar = this; 
-				this.setAttribute("fill", "red");
-				me.showDetails();
+				this.setAttribute("fill", "rgb(31, 119, 180)");
+				me.showDetails(d);
 			 });
 
 		barChartSvg.append("circle").attr("cy", endpointsScale(NCI.timestampNCI))
@@ -105,8 +105,6 @@ NCI.nciHistogram = (function(){
 
 	me.showDetails = function(d){
 		chartDetails.text("");
-		if (d.Size > 300)
-		return;
 		var detailsDim = 320;
 		var activityDetails = chartDetails.append('svg')
 			.attr('width',  $("#nciHistogramDetails").width())
