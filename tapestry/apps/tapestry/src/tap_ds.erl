@@ -129,7 +129,7 @@ handle_call({load_graph, Filename}, _From,
                                         State = #?STATE{digraph = Digraph}) ->
     digraph:delete(Digraph),
     NewDigraph = load_graph(Filename),
-    {reply, ok, State#?STATE{digraph = NewDigraph}};
+    {reply, ok, State#?STATE{dirty = true, digraph = NewDigraph}};
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
@@ -324,6 +324,7 @@ do_stop_nci(Pid) when is_pid(Pid) ->
             noop
     end.
 
+% XXX whereis(tap_comms_calculating)
 calculating(no_process) ->
     false;
 calculating(Pid) when is_pid(Pid) ->
