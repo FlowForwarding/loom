@@ -2,22 +2,45 @@ if (typeof NCI === 'undefined')
    NCI = {};
    
 NCI.connectionURL = "ws://" + location.host + "/clientsock.yaws";
-NCI.connectionURL = "ws://10.48.2.81:28080/clientsock.yaws";
+//NCI.connectionURL = "ws://10.48.2.81:28080/clientsock.yaws";
 
 if (typeof NCI.Connection === 'undefined')
    NCI.Connection = {};
+   
+if (typeof NCI.Admin === 'undefined')
+    NCI.Admin = {}; 
+	
+NCI.Admin.fillLimits = function(limits){
+	$("#nciMaxEdges").text(limits.max_edges);
+	$("#nciMaxVertices").text(limits.max_vertices);
+	$("#nciMaxCommunities").text(limits.max_communities);
+	$("#nciCommunitySizeLimit").text(limits.comm_size_limit);
+};  
+
+$("#saveLimits").on("click", function(){
+	if ($("#newMaxEdges").data("invalid") !== undefined  ||
+	 $("#newMaxVertices").data("invalid") !== undefined  ||
+     $("#newMaxCommunities").data("invalid") !== undefined  ||
+     $("#nciCommunitySizeLimit").data("invalid") !== undefined ){
+		 return;
+     };
+	 NCI.Connection.setLimits($("#newMaxEdges").val(), 
+	    $("#newMaxVertices").val(),
+		$("#newMaxEdges").val(),
+		$("#newMaxCommunities").val(),
+		$("#nciCommunitySizeLimit").val());
+
+	console.log($("#newMaxEdges").val());
+});
    
 NCI.Connection.onmessage  = function (e) {
    	var data = eval("tmp = " + e.data ); 
 	switch(data.action) {
 	    case "getlimits":
-			$("#nciMaxEdges").text(data.limits.max_edges);
-			$("#nciMaxVertices").text(data.limits.max_vertices);
-			$("#nciMaxCommunities").text(data.limits.max_communities);
-			$("#nciCommunitySizeLimit").text(data.limits.comm_size_limit);
+			NCI.Admin.fillLimits(data.limits);
 	        break;
 	    case "setimits":
-			console.log(data);
+			NCI.Admin.fillLimits(data.limits);
 	       // NCI.socialGraph.show(true, false, false, false);
 	        break;				
 	    default:
@@ -30,11 +53,11 @@ NCI.Connection.getLimits = function(){
 };
 
 NCI.Connection.setLimits = function(max_vertices, max_edges, comm_size_limit, max_communities){
-	 NCI.Socket.send('{"action":"setimits","max_vertices": "' + max_vertices + '",' +
-	 '"max_edges": "' + max_edges + '",' +
-	 '"comm_size_limit": "' + comm_size_limit + '",' +
-	 '"max_communities": "' + max_communities + '"' +
-	 '}');
+	//max_verticesconsole.log(max_vertices);
+	 NCI.Socket.send('{"action":"setlimits","limits": {"max_vertices": ' + max_vertices + ',' +
+	 '"max_edges": 9000,' +
+	 '"comm_size_limit": 100,' +
+	 '"max_communities": 300 }}');
 }
 
 NCI.initSocket = function(){
