@@ -60,6 +60,8 @@
 
 -export([compute/1,
          compute_from_graph/2,
+         prop_labels/1,
+         calc_nci/1,
          clean_vertex/2,
          print_labels/1]).
 
@@ -213,6 +215,9 @@ calc_nci(LabeledGraph)->
 
     %% We now call a two parameter function 
     NCI = ?LOGDURATION(calc_nci(SC,0)),
+
+    % dump_labeled_graph(LabeledGraph),
+
     %% NCI computation results in a one to big, maybe?
     %% XXX requires more study.
     NCI.
@@ -666,3 +671,23 @@ community_graph(G, CommunitiesForGraph) ->
             end
         end, {sets:new(), sets:new()}, digraph:edges(G)),
     {sets:to_list(EndpointsSet), sets:to_list(InteractionsSet)}.
+
+% dump_labeled_graph(G) ->
+%     Out = lists:foldl(
+%         fun(E, L) ->
+%             {_, V1, V2, _} = digraph:edge(G, E),
+%             {_, C1} = digraph:vertex(G, V1),
+%             {_, C2} = digraph:vertex(G, V2),
+%             [format_edge(vsort({V1, C1}, {V2, C2})) | L]
+%         end, [], digraph:edges(G)
+%     ),
+%     file:write_file("/tmp/labled_graph",io_lib:format("~s.~n", [Out])).
+% 
+% format_edge({{V1, C1}, {V2, C2}}) ->
+%     [format_vertex(V1, C1), " <-> ", format_vertex(V2, C2), "\n"].
+% 
+% format_vertex(V, C) ->
+%     ["E:", inet:ntoa(V), $-, format_label(C)].
+% 
+% format_label(C) ->
+%     ["C:", inet:ntoa(C)].
