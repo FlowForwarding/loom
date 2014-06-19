@@ -311,14 +311,10 @@ prop_labels(G)->
     %% order for each iteration.
     %% A list of vertices is extracted from the graph using
     %% digraph:vertices(...).
-    %% The list of vertices is randomly split and the two section
-    %% concatenated back together by placing the tail portion of
-    %% the list in front of the head portion of the list
+    %% The list of vertices shuffled randomly.
     random:seed(),
-    Vertices = digraph:vertices(G),
-    SplitValue = random:uniform(length(Vertices)),
-    {V1, V2} = lists:split(SplitValue, Vertices),
-    V = V2 ++ V1,
+    V = [Y || {_, Y} <- lists:sort([{random:uniform(), X}
+                                        || X <- digraph:vertices(G)])],
 
     %% The next section of the code uses the lists:foldl(...) function
     %% in the stdlib of the Erlang/OTP.  foldl allows us to pass a
@@ -412,7 +408,7 @@ calc_label(G, Vertex)->
     case N =:= [] of
 	false ->
             % lists:foldl?
-	    NL = [digraph:vertex(G, V) || V <- [Vertex|N]],           
+	    NL = [digraph:vertex(G, V) || V <- N],           
 	    Dict = dict:new(),
 	    LC = count_labels(Dict, NL),
 
