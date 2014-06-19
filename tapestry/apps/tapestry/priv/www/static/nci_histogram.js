@@ -136,7 +136,7 @@ NCI.nciHistogram = (function(){
 		chartDetails.node.append("title").html(function(d) {  
 			var info = d.name;
 			if (d.external){
-				info += "<br>doesn't belong activity";
+				info += "<br>doesn't belong to activity";
 			};
 			info += "<br>" + d.connections + " connections";
 			return info;  
