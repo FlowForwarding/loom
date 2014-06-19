@@ -7,6 +7,7 @@ NCI.qpsLatestValue = $('#qpsLatestValue');
 NCI.flowsLatestValue = $('#flowsLatestValue');
 NCI.collectorsLatestValue = $('#collectorsLatestValue');
 NCI.lastUpdateTime = $('#lastUpdateTime');
+NCI.flowsLatestIndex;
 
 
 NCI.ifMobile = function(){
@@ -32,6 +33,7 @@ NCI.setNepLatestValue = function (newVal, time) {
 };
 
 NCI.setFlowsLatestValue = function (newVal, time) {
+	NCI.flowsLatestIndex = newVal;
 	NCI.flowsLatestValue.html('<val>' + newVal + '</val><br><i>updated &nbsp;' + time + '</i>');
 };
 
@@ -179,17 +181,9 @@ NCI.collectorsTable = (function(){
 
 $(".nci-label .indexValue").on('click', function(){
 	$('#nciDetails').show();
+	NCI.detailsFlows.html(NCI.flowsLatestIndex);
 	NCI.Connection.NCIDetails(NCI.nciUpdateDateServer);
 	$("#socialGraph").html('<div id="activities_graph">Loading...</div>');
-});
-
-$(".hide-ncidetails").on('click', function(){
-	$('#nciDetails').hide();
-	$('#nciDetailsTabs').find("a").first().click();
-	NCI.nciHistogram.clean();
-	NCI.socialGraph.text("");
-	NCI.CommunityGraph = [];
-	NCI.Communities = [];
 });
 
 $(".qps-value").on('click', function(){

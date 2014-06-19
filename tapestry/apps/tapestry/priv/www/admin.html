@@ -1,5 +1,5 @@
 <html>
-	<head ng-app='tapestryAdmin'>
+	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title> Tapestry Admin</title>
@@ -19,10 +19,10 @@
 		</nav>
 		
 	    <div class="row">
-		   <h6>Max Edges</h6>
-		   <h6>Max Vertices</h6>
-		   <h6>Max Communities</h6>
-		   <h6>Community Size Limit</h6>
+		   <h6>Max Edges <small id="nciMaxEdges"></small></h6>
+		   <h6>Max Vertices <small id="nciMaxVertices"></small></h6>
+		   <h6>Max Communities <small id="nciMaxCommunities"></small></h6>
+		   <h6>Community Size Limit <small id="nciCommunitySizeLimit"></small></h6>
 		   <form data-abide>
 		     <div class="row">
 		       <div class="large-6 columns">
@@ -62,7 +62,6 @@
 		
 		<script src='bower_components/jquery/dist/jquery.min.js'></script>
 		<script src='bower_components/foundation/js/foundation.min.js'></script>   
-		<script src='bower_components/angular/angular.js'></script>
 		<script src='static/admin.js'></script>
 		<script type="text/javascript">
 		    	$(document).foundation();

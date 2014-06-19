@@ -69,7 +69,13 @@ NCI.nciHistogram = (function(){
 		    .attr('y', function(d) { return endpointsScale(d.Size)}) //- selfwidth
 		    .attr('width', function(d) { return barWidth})
 		    .attr('height',function(d) { return height - margin.top - margin.bottom - endpointsScale(d.Size) })
-			.on("click", me.showDetails);
+			.on("click", function(d) { 
+				if (NCI.nciHistogram.selectedBar)
+				NCI.nciHistogram.selectedBar.setAttribute("fill", "black");
+				NCI.nciHistogram.selectedBar = this; 
+				this.setAttribute("fill", "rgb(31, 119, 180)");
+				me.showDetails(d);
+			 });
 
 		barChartSvg.append("circle").attr("cy", endpointsScale(NCI.timestampNCI))
 		    .attr("cx", activitiesScale(NCI.timestampNCI) ).style("fill", "red").attr("r", 6);	
@@ -99,8 +105,6 @@ NCI.nciHistogram = (function(){
 
 	me.showDetails = function(d){
 		chartDetails.text("");
-		if (d.Size > 300)
-		return;
 		var detailsDim = 320;
 		var activityDetails = chartDetails.append('svg')
 			.attr('width',  $("#nciHistogramDetails").width())
@@ -150,8 +154,6 @@ NCI.nciHistogram = (function(){
 	};
 	
 	me.colorifyEndpoint = function(devided, endpoint){
-		//console.log(name);
-		//console.log(devided);
 		if (endpoint.external)
 		    return "#ff0000";
 		if ( devided && !endpoint.name.indexOf("10.") == 0 && !name.indexOf("192.168") == 0){
