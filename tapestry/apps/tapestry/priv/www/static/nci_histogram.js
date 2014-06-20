@@ -110,6 +110,8 @@ NCI.nciHistogram = (function(){
 			.attr('width',  $("#nciHistogramDetails").width())
 		    .attr('height', detailsDim);
 			
+		if (d.Size > 300)
+		    return;	
 	    var graph = NCI.prepareDataForForceGraph([d]);
 		
 		force = d3.layout.force()
@@ -156,7 +158,9 @@ NCI.nciHistogram = (function(){
 	me.colorifyEndpoint = function(devided, endpoint){
 		if (endpoint.external)
 		    return "#ff0000";
-		if ( devided && !endpoint.name.indexOf("10.") == 0 && !name.indexOf("192.168") == 0){
+		if ( devided && !endpoint.name.indexOf("10.") == 0 && !endpoint.name.indexOf("192.168") == 0
+	     && !(endpoint.name.indexOf("172.") == 0 && parseInt(endpoint.name.substring(4, 6)) > 15 
+		 && parseInt(endpoint.name.substring(4, 6)) < 32)){
 			return notNetworkColor;
 		}
 		return color(0);

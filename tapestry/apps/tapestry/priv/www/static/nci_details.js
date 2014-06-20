@@ -75,7 +75,7 @@ NCI.socialGraph  = (function(){
 		    return devided ? color(d.group) : color(0);
 		});
 		me.node.attr("r", function(d) { 
-			var radius = 4 + 9*(d.size/NCI.maxActivitySize);
+			var radius = 4 + 8*(d.size/NCI.maxActivitySize);
 			return radius;
 		});
 		force.linkStrength(clustered ? 1 : 0);
