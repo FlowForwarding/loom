@@ -75,7 +75,7 @@ NCI.socialGraph  = (function(){
 		    return devided ? color(d.group) : color(0);
 		});
 		me.node.attr("r", function(d) { 
-			var radius = 4 + NCI.maxActivitySize/(10 - 4)*d.size 
+			var radius = 4 + 9*(d.size/NCI.maxActivitySize);
 			return radius;
 		});
 		force.linkStrength(clustered ? 1 : 0);
@@ -166,8 +166,8 @@ NCI.prepareDataForForceGraph = function(communities){
 		var endpoint = endpointsHash[key];
 		var semiIndex = key.search(":");
 		var size = (semiIndex >= 0) ? key.substring(semiIndex + 1) : 0;
-		if (NCI.maxActivitySize < size)
-		    NCI.maxActivitySize = size;
+		if (NCI.maxActivitySize < parseInt(size))
+		    NCI.maxActivitySize = parseInt(size);
 		graph.nodes.push({
 			"name": key,
 			"group": endpoint.group,
