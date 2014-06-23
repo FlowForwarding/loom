@@ -10,6 +10,7 @@
 		2A55F3A619516C610089007C /* NCITapestryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A55F3A519516C610089007C /* NCITapestryController.m */; };
 		2A55F3AC195181880089007C /* NCIConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A55F3AB195181880089007C /* NCIConstants.m */; };
 		2A55F3B619519A730089007C /* www in Resources */ = {isa = PBXBuildFile; fileRef = 2A55F3B519519A730089007C /* www */; };
+		2A747DCA19585EC6008A79D9 /* NCIEditServerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A747DC919585EC6008A79D9 /* NCIEditServerView.m */; };
 		2A965E9A1950C320002A2B63 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A965E991950C320002A2B63 /* Foundation.framework */; };
 		2A965E9C1950C320002A2B63 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A965E9B1950C320002A2B63 /* CoreGraphics.framework */; };
 		2A965E9E1950C320002A2B63 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A965E9D1950C320002A2B63 /* UIKit.framework */; };
@@ -40,6 +41,8 @@
 		2A55F3AA195181880089007C /* NCIConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIConstants.h; sourceTree = "<group>"; };
 		2A55F3AB195181880089007C /* NCIConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIConstants.m; sourceTree = "<group>"; };
 		2A55F3B519519A730089007C /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = Tapestry/www; sourceTree = "<group>"; };
+		2A747DC819585EC6008A79D9 /* NCIEditServerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCIEditServerView.h; sourceTree = "<group>"; };
+		2A747DC919585EC6008A79D9 /* NCIEditServerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCIEditServerView.m; sourceTree = "<group>"; };
 		2A965E961950C320002A2B63 /* Tapestry.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tapestry.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A965E991950C320002A2B63 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		2A965E9B1950C320002A2B63 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -116,6 +119,8 @@
 		2A965E9F1950C320002A2B63 /* Tapestry */ = {
 			isa = PBXGroup;
 			children = (
+				2A747DC819585EC6008A79D9 /* NCIEditServerView.h */,
+				2A747DC919585EC6008A79D9 /* NCIEditServerView.m */,
 				2A55F3AA195181880089007C /* NCIConstants.h */,
 				2A55F3AB195181880089007C /* NCIConstants.m */,
 				2A965EA81950C320002A2B63 /* NCIAppDelegate.h */,
@@ -273,6 +278,7 @@
 			files = (
 				2A55F3AC195181880089007C /* NCIConstants.m in Sources */,
 				2A965EA61950C320002A2B63 /* main.m in Sources */,
+				2A747DCA19585EC6008A79D9 /* NCIEditServerView.m in Sources */,
 				2A55F3A619516C610089007C /* NCITapestryController.m in Sources */,
 				2A965EAA1950C320002A2B63 /* NCIAppDelegate.m in Sources */,
 			);

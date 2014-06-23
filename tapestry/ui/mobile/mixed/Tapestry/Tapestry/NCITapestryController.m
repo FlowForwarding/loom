@@ -7,6 +7,7 @@
 //
 
 #import "NCITapestryController.h"
+#import "NCIEditServerView.h"
 
 @interface NCITapestryController ()
 
@@ -19,12 +20,15 @@
     [super viewDidLoad];
     float selfWidth = self.view.frame.size.width;
     float selfHeight = self.view.frame.size.height;
-    float searchFieldHeight = 70;
+    float searchFieldHeight = 80;
+    
     UIWebView *webContent = [[UIWebView alloc] initWithFrame:CGRectMake(0, searchFieldHeight, selfHeight, selfWidth - searchFieldHeight)];
     [self.view addSubview:webContent];
     NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"nci" ofType:@"html" inDirectory:@"www"] isDirectory:NO];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    NSLog(@"%@", [[NSBundle mainBundle] pathForResource:@"nci" ofType:@"html" ]);
+    NCIEditServerView *serverEditor = [[NCIEditServerView alloc] initWithFrame:CGRectMake(0, 0, selfHeight, searchFieldHeight)];
+    [self.view addSubview:serverEditor];
+    
     [webContent loadRequest:request];
 }
 
