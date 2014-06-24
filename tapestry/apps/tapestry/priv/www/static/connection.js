@@ -194,6 +194,7 @@ NCI.initSocket = function(){
 		NCI.Connection.startData();
 	};
 	NCI.Socket.onmessage  = function (e) {
+		//fix for mobile safari
 		setTimeout(function() {
 			NCI.Connection.onmessage(e);
 		});

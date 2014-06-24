@@ -28,6 +28,7 @@
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     NCIEditServerView *serverEditor = [[NCIEditServerView alloc] initWithFrame:CGRectMake(0, 0, selfHeight, searchFieldHeight)];
     [self.view addSubview:serverEditor];
+    serverEditor.mainView = webContent;
     
     [webContent loadRequest:request];
 }

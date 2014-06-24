@@ -12,6 +12,6 @@
 
 @interface NCIEditServerView : UIView
 
-@property(nonatomic)bool active;
+@property(nonatomic, strong) UIWebView *mainView;
 
 @end

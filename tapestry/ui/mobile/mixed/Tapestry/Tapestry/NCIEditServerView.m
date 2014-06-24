@@ -139,7 +139,6 @@ static float rightIndent = 120;
 
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
-    self.active = YES;
     self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, self.superview.bounds.size.height);
     self.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.1];
     textField.backgroundColor = [UIColor whiteColor];
@@ -190,11 +189,10 @@ static float rightIndent = 120;
         return;
     }
     goBtn.hidden = YES;
-    [self newTapestryUrl:serverUrlEdit.text];
+    [self newTapestryUrl:escapedUrl];
     [bookmarksTable reloadData];
-//    [NCIWebSocketConnector interlocutor].chartView.minRangeVal = NAN;
-//    [NCIWebSocketConnector interlocutor].chartView.maxRangeVal = NAN;
-//    [[NCIWebSocketConnector interlocutor] resetData];
+    NSString *reloadJs = [NSString stringWithFormat:@"NCI.connectionURL = 'ws://%@'; NCI.initSocket();", escapedUrl];
+    [self.mainView stringByEvaluatingJavaScriptFromString: reloadJs];
     [self resignFirstResponder];
 }
 
@@ -205,7 +203,6 @@ static float rightIndent = 120;
 }
 
 -(BOOL)resignFirstResponder{
-    self.active = NO;
     [serverUrlEdit resignFirstResponder];
     self.backgroundColor = [UIColor clearColor];
     self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, editServerInputHeigth + topIndent);
