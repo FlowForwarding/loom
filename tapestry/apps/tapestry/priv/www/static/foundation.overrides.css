@@ -156,7 +156,7 @@
 	left: 20px;
 }
 
-.disconected {
+.disconected, .loading {
 	position:absolute;
 	background:rgba(255,255,255,0.8);
 	top:0px;
