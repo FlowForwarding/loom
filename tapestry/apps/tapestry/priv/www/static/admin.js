@@ -4,6 +4,7 @@ if (typeof NCI === 'undefined')
 NCI.connectionURL = "ws://" + location.host + "/clientsock.yaws";
 //NCI.connectionURL = "ws://10.48.2.81:28080/clientsock.yaws";
 NCI.limits = {};
+NCI.loading = $(".loading");
 
 if (typeof NCI.Connection === 'undefined')
    NCI.Connection = {};
@@ -49,15 +50,18 @@ NCI.Connection.onmessage  = function (e) {
 	       // NCI.socialGraph.show(true, false, false, false);
 	        break;				
 	    default:
-			return;
+			break;
 	};  
+	NCI.loading.hide();
 };
    
 NCI.Connection.getLimits = function(){
+	NCI.loading.show();
     NCI.Socket.send('{"action":"getlimits","Time": "' + new Date() + '"}');
 };
 
 NCI.Connection.setLimits = function(max_vertices, max_edges, comm_size_limit, max_communities){
+	NCI.loading.show();
 	//max_verticesconsole.log(max_vertices);
 	 NCI.Socket.send('{"action":"setlimits","limits": {"max_vertices": ' + max_vertices + ',' +
 	 '"max_edges":' + max_edges + ',' +
