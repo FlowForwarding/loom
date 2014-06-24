@@ -29,17 +29,15 @@ NCI.Connection.onmessage  = function (e) {
 			NCI.curChartPeriod = (NCI.chartPeriods.twoyears - (curTime - NCI.start_time) < 0) ? NCI.chartPeriods.twoyears : (curTime - NCI.start_time);
 			NCI.Connection.moreData(new Date() - NCI.curChartPeriod, new Date(), NCI.numOfPoints);
 		};
-		return;
 	} else if (data.action == "collectors") {
-		//data.Time
-		 NCI.collectorsTable.fillData(data.Collectors);
+		NCI.collectorsTable.fillData(data.Collectors);
 	} else if (data.action == "QPS") {
-			NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS, 1), NCI.parceDateForLastUpdate(data.Time));
+		NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS, 1), NCI.parceDateForLastUpdate(data.Time));
 	} else if (data.action == "NEP") {
-			NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDateForLastUpdate(data.Time));
-			NCI.setFlowsLatestValue(NCI.parceNumberForView(data.NE), NCI.parceDateForLastUpdate(data.Time))
+		NCI.setNepLatestValue(NCI.parceNumberForView(data.NEP), NCI.parceDateForLastUpdate(data.Time));
+		NCI.setFlowsLatestValue(NCI.parceNumberForView(data.NE), NCI.parceDateForLastUpdate(data.Time))
 	} else if (data.action == "Collectors")	{
-		    NCI.setCollectorsLatestValue(NCI.parceNumberForView(data.COLLECTORS), NCI.parceDateForLastUpdate(data.Time));	 
+		NCI.setCollectorsLatestValue(NCI.parceNumberForView(data.COLLECTORS), NCI.parceDateForLastUpdate(data.Time));	 
 	} else if (data.action == "NCI"){
 		var dateVal = new Date(data.Time);
 		if (data.NCI){
@@ -72,13 +70,37 @@ NCI.Connection.onmessage  = function (e) {
 			};
 		} ;
 	} else if (data.action == "NCIDetails"){
-		NCI.setupCommunities(data)
+		NCI.setupCommunities(data);
+		//NCI.Connection.getCommunityDetails(data.Time);
 		$('#nciDetailsTabs').find("a")[4].click();
+	} else if (data.action == "getCommunityDetails"){
+	/*	{“action”:”getCommunityDetails”,
+		 “endpoint”: “10.3.1.2”,  # provided when request had an endpoint.  This is the community label
+		 “snapshot”:33,
+		 “graph”:3,
+		 “status”:”details”
+		 “Time”:”2014-04-01T22:03:52.081Z”,
+		 “Interactions”:[[“10.3.1.2”,”10.4.3.2”],[“10.2.4.3”,”10.4.5.5”],[“10.2.4.3”, “192.168.3.4”]],
+		 “EndPoints”:[“10.3.1.2”,”10.4.3.2”,”10.2.4.3”,”10.4.5.5”]
+		}
+		
+		{“action”:”getCommunityDetails”,
+		 “snapshot”: 33,
+		 “endpoint”: “10.3.1.2”,
+		“status”: “nodetails”
+		}
+
+		Response Example, no snapshot:
+		{“action”:”getCommunityDetails”,
+		“snapshot”:33,
+		“endpoint”:”10.3.1.2”,
+		“status”:”unavailable”
+		}*/
+		
 	} else {
 		//we recieve such format:
 		// [{"Time":"2013-10-27T13:01:09Z","NCI":99},
 		// {"Time":"2013-10-27T13:11:39Z","NCI":8},
-		// {"Time":"2013-10-27T13:22:15Z","NCI":18},
 		// {"Time":"2013-10-27T13:33:01Z","NCI":87}]
 		var newData = [];
 		for (var i = 0; i < data.length; i++){
@@ -126,6 +148,19 @@ NCI.DetectRangesForPeiod = function(detailedChartPeriod, chartData){
 	return [startRangeDate, new Date().getTime()];
 };
 
+NCI.Connection.getCommunityDetails = function(time, snapshot, graph, endpoint){
+	var requestString = '{"action":"getCommunityDetails","Time": "' + time + '"' + ', "snapshot": 33}';
+	if (snapshot) {
+		requestString += ', "snapshot":' + snapshot + ', "graph" :' + graph + ', "endpoint":' + endpoint;
+	};
+	requestString += '}';
+	NCI.Socket.send(requestString);
+};
+
+NCI.Connection.releaseCommunity = function(snapshot){
+	NCI.Socket.send('{"action":"releaseCommunity","snapshot: ' + snapshot + '}');
+};
+
 NCI.Connection.NCIDetails = function(time){
     NCI.Socket.send('{"action":"NCIDetails","Time": "' + time + '"}');
 };
@@ -159,7 +194,9 @@ NCI.initSocket = function(){
 		NCI.Connection.startData();
 	};
 	NCI.Socket.onmessage  = function (e) {
-		NCI.Connection.onmessage(e);
+		setTimeout(function() {
+			NCI.Connection.onmessage(e);
+		});
 	};
 };
 
