@@ -19,7 +19,7 @@
 }
 
 @property(nonatomic, strong) NSMutableArray *tapestryURLs;
-@property(nonatomic, strong)NSString *currentUrl;
+@property(nonatomic, strong) NSString *currentUrl;
 
 @end
 
@@ -46,7 +46,10 @@ static float rightIndent = 120;
                                                                        editServerInputHeigth,
                                                                        self.bounds.size.width - rightIndent - leftIndent,
                                                                        0)];
-        self.tapestryURLs = [[NSMutableArray alloc] init];
+        self.tapestryURLs = [[NSUserDefaults standardUserDefaults] objectForKey:@"tapestryUrls"];
+        if (!self.tapestryURLs){
+            self.tapestryURLs = [[NSMutableArray alloc] init];
+        }
         if (self.tapestryURLs.count == 0){
             self.currentUrl = nciDemoUrl;
         } else {
@@ -126,7 +129,7 @@ static float rightIndent = 120;
 
 - (void)removeURLAtIndex:(long)index{
     [_tapestryURLs removeObjectAtIndex:index];
-   // [[NSUserDefaults standardUserDefaults] setObject:self.tapestryURLs forKey:@"tapestryUrls"];
+    [[NSUserDefaults standardUserDefaults] setObject:self.tapestryURLs forKey:@"tapestryUrls"];
 }
 
 
