@@ -72,7 +72,9 @@ NCI.Connection.onmessage  = function (e) {
 	} else if (data.action == "NCIDetails"){
 		NCI.setupCommunities(data);
 		//NCI.Connection.getCommunityDetails(data.Time);
-		$('#nciDetailsTabs').find("a")[4].click();
+		$('#nciDetailsTabs').find("dd").removeClass('active');
+		$($('#nciDetailsTabs').find("dd")[4]).addClass('active');
+		NCI.socialGraph.show(false, false, false, true);
 	} else if (data.action == "getCommunityDetails"){
 	/*	{“action”:”getCommunityDetails”,
 		 “endpoint”: “10.3.1.2”,  # provided when request had an endpoint.  This is the community label
