@@ -256,8 +256,8 @@ push_nci(_Digraph, 0, _Limits) ->
     % no data to process
     no_process;
 push_nci(Digraph, _NumVertices, Limits) ->
-    Vertices = digraph:vertices(Digraph),
-    Edges = [digraph:edge(Digraph, E) || E <- digraph:edges(Digraph)],
+    Vertices = ?LOGDURATION(digraph:vertices(Digraph)),
+    Edges = ?LOGDURATION([digraph:edge(Digraph, E) || E <- digraph:edges(Digraph)]),
     Pid = spawn(
         fun() ->
             ?DEBUG("Starting NCI Calculation"),
