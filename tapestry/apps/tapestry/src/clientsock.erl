@@ -106,8 +106,9 @@ process_request(Message) ->
             ?DEBUG("action getlimits"),
             tap_client_data:limits(self());
         {_, <<"setlimits">>} ->
+            {LimitElement} = Msg(<<"limits">>),
             MsgLimit = fun(Limit) ->
-                        proplists:get_value(Limit, Msg(<<"limits">>)) end,
+                        proplists:get_value(Limit, LimitElement) end,
             Limits = [{max_vertices, MsgLimit(<<"max_vertices">>)},
                       {max_edges, MsgLimit(<<"max_edges">>)},
                       {comm_size_limit, MsgLimit(<<"comm_size_limit">>)},
