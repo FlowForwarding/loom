@@ -11,7 +11,8 @@
 #import "NCIEditServerView.h"
 //#import "NCIWebSocketConnector.h"
 
-@interface NCIEditServerView()<UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate> {
+@interface NCIEditServerView()<UITextFieldDelegate, UITableViewDataSource,
+        UITableViewDelegate, UIGestureRecognizerDelegate, UIWebViewDelegate> {
     UITextField *serverUrlEdit;
     UIButton *clearBtn;
     UIButton *goBtn;
@@ -37,10 +38,12 @@ static float rightIndent = 120;
 
 @implementation NCIEditServerView
 
-- (id)initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
+- (id)initWithFrame:(CGRect)frame andView:(UIWebView *)webView{
+    
+    self = [self initWithFrame:frame];
     if (self) {
+        self.mainView = webView;
+        self.mainView.delegate = self;
         
         bookmarksTable = [[UITableView alloc] initWithFrame:CGRectMake(leftIndent,
                                                                        editServerInputHeigth,
@@ -91,7 +94,7 @@ static float rightIndent = 120;
         
         goBtn = [[UIButton alloc] initWithFrame:CGRectZero];
         [goBtn setImage:[UIImage imageNamed:@"go"] forState:UIControlStateNormal];
-        [goBtn  addTarget:self action:@selector(connectUrl) forControlEvents:UIControlEventTouchUpInside];
+        [goBtn addTarget:self action:@selector(connectUrl) forControlEvents:UIControlEventTouchUpInside];
         goBtn.hidden = YES;
         [self addSubview:goBtn];
         
@@ -185,27 +188,30 @@ static float rightIndent = 120;
     clearBtn.hidden = YES;
 }
 
--(void)connectUrl{
+- (void)connectUrl{
     NSString *escapedUrl = [serverUrlEdit.text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     if (![serverUrlEdit.text isEqualToString:escapedUrl]){
-     //   [[NCIWebSocketConnector interlocutor].noConnection setHidden:NO];
         return;
     }
     goBtn.hidden = YES;
     [self newTapestryUrl:escapedUrl];
     [bookmarksTable reloadData];
-    NSString *reloadJs = [NSString stringWithFormat:@"NCI.connectionURL = 'ws://%@'; NCI.initSocket();", escapedUrl];
-    [self.mainView stringByEvaluatingJavaScriptFromString: reloadJs];
+    [self loadUrl:escapedUrl];
     [self resignFirstResponder];
 }
 
--(void)cancelUrlChanges{
+- (void)loadUrl:(NSString *)loadUrl{
+    NSString *reloadJs = [NSString stringWithFormat:@"NCI.connectionURL = 'ws://%@'; NCI.initSocket();", loadUrl];
+    [self.mainView stringByEvaluatingJavaScriptFromString: reloadJs];
+}
+
+- (void)cancelUrlChanges{
     goBtn.hidden = YES;
     serverUrlEdit.text = [self getTapestryUrl];
     [self resignFirstResponder];
 }
 
--(BOOL)resignFirstResponder{
+- (BOOL)resignFirstResponder{
     [serverUrlEdit resignFirstResponder];
     self.backgroundColor = [UIColor clearColor];
     self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, editServerInputHeigth + topIndent);
@@ -285,6 +291,10 @@ static float rightIndent = 120;
         [self removeURLAtIndex:indexPath.row - 2];
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
     }
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView{
+    [self loadUrl:[self getTapestryUrl]];
 }
 
 @end

@@ -26,11 +26,13 @@
     [self.view addSubview:webContent];
     NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"nci" ofType:@"html" inDirectory:@"www"] isDirectory:NO];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    NCIEditServerView *serverEditor = [[NCIEditServerView alloc] initWithFrame:CGRectMake(0, 0, selfHeight, searchFieldHeight)];
-    [self.view addSubview:serverEditor];
-    serverEditor.mainView = webContent;
     
+    NCIEditServerView *serverEditor = [[NCIEditServerView alloc] initWithFrame:
+                                       CGRectMake(0, 0, selfHeight, searchFieldHeight) andView:webContent];
+    [self.view addSubview:serverEditor];
     [webContent loadRequest:request];
+
+    
 }
 
 - (void)didReceiveMemoryWarning

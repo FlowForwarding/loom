@@ -14,4 +14,6 @@
 
 @property(nonatomic, strong) UIWebView *mainView;
 
+- (id)initWithFrame:(CGRect)frame andView:(UIWebView *)webView;
+
 @end
