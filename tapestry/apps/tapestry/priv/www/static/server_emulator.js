@@ -28,12 +28,19 @@ NCI.Emulator.liveData = function(){
 	NCI.Connection.onmessage(event);
 	
 	var nepEvent = {};
-	nepEvent.data = JSON.stringify({Time:  new Date(), NEP: Math.floor((Math.random()*40)+5), action: 'NEP'});
+	nepEvent.data = JSON.stringify({Time:  new Date(),
+		 NEP: Math.floor((Math.random()*40)+5), 
+		 NE: Math.floor((Math.random()*40)+5),
+		 action: 'NEP'});
 	NCI.Connection.onmessage(nepEvent);
 	
 	var qpsEvent = {};
 	qpsEvent.data = JSON.stringify({Time:  new Date(), QPS: Math.floor((Math.random()*40)+5), action: 'QPS'});
 	NCI.Connection.onmessage(qpsEvent);
+	
+	var flowsEvent = {};
+	flowsEvent.data = JSON.stringify({Time:  new Date(), COLLECTORS: Math.floor((Math.random()*40)+5), action: 'Collectors'});
+	NCI.Connection.onmessage(flowsEvent);
 	
 };
 
@@ -45,20 +52,18 @@ NCI.Connection.startData = function() {
 	event.data = JSON.stringify({start_time: new Date(new Date() - NCI.Emulator.dataAvailablePeriod), 
 		current_time:  new Date()});
 	NCI.Connection.onmessage(event);
+	NCI.Emulator.liveData();
 	setInterval(NCI.Emulator.liveData, NCI.Emulator.liveDataFrequency) ;
 }; 
 
 NCI.Connection.moreData = function(startTime, endTime, pointsNum) {
 	// startTime = new Date(startTime);
 	// endTime = new Date(endTime);
-	// console.log(new Date(startTime));
-	// console.log(new Date(endTime));
 	// server returns smth like this
-	// {"Time":"2013-11-03T17:37:31Z","NCI":2,
-	// "Time":"2013-11-03T18:37:30Z","NCI":4,
+	// [{"Time":"2013-11-03T17:37:31Z","NCI":2},
+	// {"Time":"2013-11-03T18:37:30Z","NCI":4},
 	// .......
-	// "Time":"2013-11-04T12:32:20Z","NCI":5,
-	// "Time":"2013-11-04T13:33:13Z","NCI":5} 
+	// {"Time":"2013-11-04T13:33:13Z","NCI":5}]
 	
 	if (new Date().getTime() - NCI.Emulator.dataAvailableTill < endTime)
 		endTime = new Date().getTime() - NCI.Emulator.dataAvailableTill;
@@ -68,14 +73,14 @@ NCI.Connection.moreData = function(startTime, endTime, pointsNum) {
 	}
 	
     var event = {};
-	event.data = '{';
+	event.data = '[';
 	var dateGap = (endTime - startTime) / pointsNum;
 	if (startTime < endTime) {
 		for (var i=0; i <= pointsNum; i++ ){
-			event.data += '"Time":"' +  new Date(startTime + dateGap*i) +
-			'","NCI":' + Math.floor((Math.random()*3)+5) +',';
+			event.data += '{"Time":"' +  new Date(startTime + dateGap*i) +
+			'","NCI":' + Math.floor((Math.random()*3)+5) +'},';
 		}
-		event.data = event.data.replace(/,$/,'}');
+		event.data = event.data.replace(/,$/,']');
 		setTimeout(NCI.Connection.onmessage, NCI.Emulator.serverResponceDelay, event);
 	}
 	
@@ -109,6 +114,9 @@ NCI.Connection.NCIDetails = function(time) {
 //Override to do nothing, for the case if connection opened successfull in emulation mode
 NCI.Connection.onopen = function () {
 	
+};
+
+NCI.Socket.onclose = function (e) {
 };
 
 NCI.Connection.startData();
