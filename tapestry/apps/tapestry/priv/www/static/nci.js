@@ -180,19 +180,19 @@ NCI.collectorsTable = (function(){
 }());
 
 $(".nci-label .indexValue").on('click', function(){
-	$('#nciDetails').show();
+	$('#nciDetails').addClass('details-view-show');
 	NCI.detailsFlows.html(NCI.flowsLatestIndex);
 	NCI.Connection.NCIDetails(NCI.nciUpdateDateServer);
 	$("#socialGraph").html('<div id="activities_graph">Loading...</div>');
 });
 
 $(".qps-value").on('click', function(){
-	$('#collectorsInfo').show();
+	$('#collectorsInfo').addClass('details-view-show');
 	NCI.Connection.CollectorsDetails(NCI.nciUpdateDateServer);
 });
 
 $(".hide-collectorsdetails").on('click', function(){
-	$('#collectorsInfo').hide();
+	$('#collectorsInfo').removeClass('details-view-show');
 });
 
 $('body').on('touchend', function(){

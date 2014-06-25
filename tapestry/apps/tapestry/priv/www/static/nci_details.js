@@ -181,7 +181,7 @@ NCI.prepareDataForForceGraph = function(communities){
 };
 
 $(".hide-ncidetails").on('click', function(){
-	$('#nciDetails').hide();
+	$('#nciDetails').removeClass('details-view-show');
 	NCI.nciHistogram.clean();
 	NCI.socialGraph.text("");
 	NCI.CommunityGraph = [];
