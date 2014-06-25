@@ -35,7 +35,7 @@ $("#saveLimits").on("click", function(){
 	 var newMaxEdge = NCI.processInputLimit($("#newMaxEdges").val(), NCI.limits.max_edges);
 	 var newMaxVertices = NCI.processInputLimit($("#newMaxVertices").val(), NCI.limits.max_vertices);
 	 var newMaxCommunities = NCI.processInputLimit($("#newMaxCommunities").val(), NCI.limits.max_communities);
-	 var newCommunitySizeLimit = NCI.processInputLimit($("#nciCommunitySizeLimit").val(), NCI.limits.comm_size_limit);
+	 var newCommunitySizeLimit = NCI.processInputLimit($("#newCommunitySizeLimit").val(), NCI.limits.comm_size_limit);
 	 NCI.Connection.setLimits(newMaxVertices, newMaxEdge, newCommunitySizeLimit, newMaxCommunities);
 });
    
