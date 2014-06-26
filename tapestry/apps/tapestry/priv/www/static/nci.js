@@ -210,6 +210,7 @@ NCI.initSocket = function(){
 	};
 	NCI.Socket.onopen = function () {
 		$(".disconected").hide();
+		NCI.Connection.getLimits();
 		NCI.Connection.startData();
 	};
 	NCI.Socket.onmessage  = function (e) {

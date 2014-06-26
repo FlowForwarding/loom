@@ -46,7 +46,7 @@ NCI.socialGraph  = (function(){
 				force.start();
 			}
 		} else {
-			if (me.endpoints > 300) {
+			if (me.endpoints > NCI.max_vertices) {
 				d3.select("#activities_graph").remove();
 				d3.select("#socialGraph")
 				.append('text')
@@ -75,7 +75,11 @@ NCI.socialGraph  = (function(){
 		    return devided ? color(d.group) : color(0);
 		});
 		me.node.attr("r", function(d) { 
-			var radius = 4 + 8*(d.size/NCI.maxActivitySize);
+			if (NCI.maxActivitySize > 0){
+				var radius = 4 + 8*(d.size/NCI.maxActivitySize);
+			} else {
+				var radius = 4;
+			}
 			return radius;
 		});
 		force.linkStrength(clustered ? 1 : 0);

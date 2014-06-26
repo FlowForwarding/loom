@@ -4,12 +4,11 @@ if (typeof NCI === 'undefined')
 NCI.start_time; // no data exists on the server before
 NCI.time_adjustment = 0; //difference between client and server time in milliseconds
 NCI.numOfPoints = 200;
+NCI.max_vertices = 300; 
 //NCI.Connection = new WebSocket("ws://epamove.herokuapp.com");
 NCI.connectionURL = "ws://" + location.host + "/clientsock.yaws";
 //NCI.connectionURL = "ws://10.48.2.81:28080/clientsock.yaws";
-
 NCI.Connection = [];
-
 NCI.lastUpdateTimeVal = new Date();
 NCI.lastRedrawTimeVal = new Date();
 
@@ -34,7 +33,10 @@ NCI.Connection.onmessage  = function (e) {
 	
 	switch(data.action) {
 	    case "getlimits":
-			NCI.Admin.fillLimits(data.limits);
+			NCI.max_vertices = data.limits.max_vertices;
+			//limits.max_vertices;
+			//limits.max_communities;
+			//limits.comm_size_limit;
 			break;
 		case "collectors":
 			NCI.collectorsTable.fillData(data.Collectors);
@@ -197,7 +199,6 @@ NCI.Connection.moreData = function(startTime, endTime, pointsNum) {
 };
 
 NCI.Connection.getLimits = function(){
-	NCI.loading.show();
     NCI.Socket.send('{"action":"getlimits","Time": "' + new Date() + '"}');
 };
 
