@@ -196,14 +196,23 @@ static float rightIndent = 120;
     goBtn.hidden = YES;
     [self newTapestryUrl:escapedUrl];
     [bookmarksTable reloadData];
-    [self loadUrl:escapedUrl];
+    [self.mainView reload];
     [self resignFirstResponder];
 }
 
-- (void)loadUrl:(NSString *)loadUrl{
-    NSString *reloadJs = [NSString stringWithFormat:@"NCI.connectionURL = 'ws://%@'; NCI.initSocket();", loadUrl];
-    [self.mainView stringByEvaluatingJavaScriptFromString: reloadJs];
-}
+//- (void)loadUrl:(NSString *)loadUrl{
+//    if ([loadUrl isEqualToString:nciDemoUrl]){
+//        [self.mainView reload];
+//        NSString *javaScript = [NSString stringWithContentsOfFile:
+//                                [[NSBundle mainBundle] pathForResource:@"server_emulator" ofType:@"js" inDirectory:@"www/static"]
+//                                                         encoding:NSUTF8StringEncoding error:nil];
+//        [self.mainView stringByEvaluatingJavaScriptFromString:javaScript];
+//    } else {
+//        [self.mainView reload];
+//        NSString *reloadJs = [NSString stringWithFormat:@"NCI.connectionURL = 'ws://%@'; NCI.initSocket();", loadUrl];
+//        [self.mainView stringByEvaluatingJavaScriptFromString: reloadJs];
+//    }
+//}
 
 - (void)cancelUrlChanges{
     goBtn.hidden = YES;
@@ -294,7 +303,16 @@ static float rightIndent = 120;
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView{
-    [self loadUrl:[self getTapestryUrl]];
+    NSString *loadUrl = [self getTapestryUrl];
+    if ([loadUrl isEqualToString:nciDemoUrl]){
+        NSString *javaScript = [NSString stringWithContentsOfFile:
+                                [[NSBundle mainBundle] pathForResource:@"server_emulator" ofType:@"js" inDirectory:@"www/static"]
+                                                         encoding:NSUTF8StringEncoding error:nil];
+        [self.mainView stringByEvaluatingJavaScriptFromString:javaScript];
+    } else {
+        NSString *reloadJs = [NSString stringWithFormat:@"NCI.connectionURL = 'ws://%@'; NCI.initSocket();", loadUrl];
+        [self.mainView stringByEvaluatingJavaScriptFromString: reloadJs];
+    }
 }
 
 @end

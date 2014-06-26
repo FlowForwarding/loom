@@ -8,7 +8,7 @@ NCI.flowsLatestValue = $('#flowsLatestValue');
 NCI.collectorsLatestValue = $('#collectorsLatestValue');
 NCI.lastUpdateTime = $('#lastUpdateTime');
 NCI.flowsLatestIndex;
-
+NCI.is_uiwebview = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent);
 
 NCI.ifMobile = function(){
 	return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
@@ -200,6 +200,10 @@ $('body').on('touchend', function(){
 });
 
 NCI.initSocket = function(){
+	if (NCI.is_uiwebview && (NCI.connectionURL == ("ws://" + location.host + "/clientsock.yaws"))){
+		return;
+	};
+	
 	NCI.Socket = new WebSocket(NCI.connectionURL);
 	NCI.Socket.onerror = function (e) {
 		//NCI.chartData = [];
