@@ -198,3 +198,26 @@ $(".hide-collectorsdetails").on('click', function(){
 $('body').on('touchend', function(){
 	$('.tooltip').hide();
 });
+
+NCI.initSocket = function(){
+	NCI.Socket = new WebSocket(NCI.connectionURL);
+	NCI.Socket.onerror = function (e) {
+		//NCI.chartData = [];
+		//$(".disconected").show();
+	};
+	NCI.Socket.onclose = function (e) {
+		$(".disconected").show();
+	};
+	NCI.Socket.onopen = function () {
+		$(".disconected").hide();
+		NCI.Connection.startData();
+	};
+	NCI.Socket.onmessage  = function (e) {
+		//fix for mobile safari
+		setTimeout(function() {
+			NCI.Connection.onmessage(e);
+		});
+	};
+};
+
+NCI.initSocket();
