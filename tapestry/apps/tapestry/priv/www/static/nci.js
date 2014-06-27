@@ -179,14 +179,14 @@ NCI.collectorsTable = (function(){
 	return me;
 }());
 
-$(".nci-label .indexValue").on('click', function(){
+$(".nci-label name").on('click', function(){
 	$('#nciDetails').addClass('details-view-show');
 	NCI.detailsFlows.html(NCI.flowsLatestIndex);
 	NCI.Connection.NCIDetails(NCI.nciUpdateDateServer);
 	$("#socialGraph").html('<div id="activities_graph">Loading...</div>');
 });
 
-$(".qps-value").on('click', function(){
+$(".qps-value .collectorLabel").on('click', function(){
 	$('#collectorsInfo').addClass('details-view-show');
 	NCI.Connection.CollectorsDetails(NCI.nciUpdateDateServer);
 });
@@ -195,9 +195,7 @@ $(".hide-collectorsdetails").on('click', function(){
 	$('#collectorsInfo').removeClass('details-view-show');
 });
 
-$('body').on('touchend', function(){
-	$('.tooltip').hide();
-});
+
 
 NCI.initSocket = function(){
 	if (NCI.is_uiwebview && (NCI.connectionURL == ("ws://" + location.host + "/clientsock.yaws"))){
