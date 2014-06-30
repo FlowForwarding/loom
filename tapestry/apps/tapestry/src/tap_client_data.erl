@@ -269,7 +269,8 @@ community_graph({_Endpoints, _Interactions, Sizes,
 
 cendpointsize(C, Sizes) ->
     FormattedC = endpoint(C),
-    Size = integer_to_binary(dict:fetch(C, Sizes)),
+    SizeI = dict:fetch(C, Sizes),
+    Size = integer_to_binary(SizeI),
     <<FormattedC/binary, $:, Size/binary>>.
 
 cendpoints(Endpoints, Sizes) ->
@@ -313,9 +314,10 @@ normalize_interaction({A, B}) ->
 endpoints(L) ->
     [endpoint(E) || E <- L].
 
-endpoint({A,B,C,D}) ->
-    list_to_binary([integer_to_list(A), ".", integer_to_list(B), ".", 
-                                integer_to_list(C), ".", integer_to_list(D)]);
+endpoint(A = {_,_,_,_}) ->
+    list_to_binary(inet:ntoa(A));
+endpoint(A = {_,_,_,_,_,_,_,_}) ->
+    list_to_binary(inet:ntoa(A));
 endpoint(B) when is_binary(B) ->
     B;
 endpoint(S) when is_list(S) ->
