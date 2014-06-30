@@ -4,10 +4,48 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title> Tapestry </title>
 		<link rel="shortcut icon" href="static/images/favicon.ico" >
-  	    <link rel="stylesheet" href="bower_components/foundation/css/normalize.css" />
-  	    <link rel="stylesheet" href="bower_components/foundation/css/foundation.min.css"/> 
-        <link rel="stylesheet" href="static/foundation.overrides.css"/> 
-	    <script src='bower_components/modernizr/modernizr.js'></script> 
+		<script type="text/javascript">
+	        var stylesFile = new XMLHttpRequest();
+			var head = document.getElementsByTagName('head')[0];
+	        stylesFile.open("GET", "app_styles", false);
+	        stylesFile.onreadystatechange = function (){
+				var styles = eval(stylesFile.responseText);		   
+				for (var i in styles){
+					var link = document.createElement('link');
+					link.rel = 'stylesheet';
+					link.href = styles[i]
+					head.appendChild(link);
+				 };	
+	        };
+		    stylesFile.send();
+			var scripts = [];
+			var scriptsFile = new XMLHttpRequest();
+			scriptsFile.open("GET", "app_scripts", true);
+			scriptsFile.onreadystatechange = function (){
+				if (scriptsFile.readyState == 4 ){
+				    scripts = eval(scriptsFile.responseText);
+				    loadedFunction();
+			    }
+			};
+			scriptsFile.send();	
+				   
+		   	var loadedScripts = -1;
+		   	function loadedFunction(){
+				if (loadedScripts < (scripts.length - 1) ){
+					++loadedScripts;
+					loadNext();
+				} else {
+					$(document).foundation();
+				}
+		   	};		   
+			function loadNext(){
+		       var script = document.createElement('script');
+		       script.type = 'text/javascript';
+		       script.src = scripts[loadedScripts];
+			   script.addEventListener('load', function (e) { loadedFunction(e); }, false);
+		       head.appendChild(script);	
+			};
+		</script>
 		
 	</head>
 	<body>
@@ -189,21 +227,6 @@
 		<div class="disconected">
 			<img class="centrate" style="margin-top:100px;" src="static/images/unavailable.png"></img>
 		</div>
-			
-		<script src='bower_components/jquery/dist/jquery.min.js'></script>
-		<script src="bower_components/fastclick/lib/fastclick.js"></script>
-		<script src='bower_components/dygraphs/dygraph-combined.js'></script>	
-		<script src='bower_components/foundation/js/foundation.min.js'></script>   
-		<script src='bower_components/d3/d3.min.js'></script> 
-		<script src='static/connection.js'></script>
-		<script src='static/nci.js'></script>
-		<script src='static/nci_histogram.js'></script>
-		<script src='static/nci_details.js'></script>
-		<script src='static/chart.js'></script>
-		<!--script src='static/server_emulator.js'></script-->
-		<script type="text/javascript">
-		    	$(document).foundation();
-		</script>
 				
 	</body>
 </html>
