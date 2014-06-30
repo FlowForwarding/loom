@@ -110,7 +110,7 @@ NCI.nciHistogram = (function(){
 			.attr('width',  $("#nciHistogramDetails").width())
 		    .attr('height', detailsDim);
 			
-		if (d.Size > 300)
+		if (d.Size > NCI.max_vertices)
 		    return;	
 	    var graph = NCI.prepareDataForForceGraph([d]);
 		

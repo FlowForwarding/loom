@@ -8,7 +8,7 @@ NCI.flowsLatestValue = $('#flowsLatestValue');
 NCI.collectorsLatestValue = $('#collectorsLatestValue');
 NCI.lastUpdateTime = $('#lastUpdateTime');
 NCI.flowsLatestIndex;
-
+NCI.is_uiwebview = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent);
 
 NCI.ifMobile = function(){
 	return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
@@ -179,14 +179,14 @@ NCI.collectorsTable = (function(){
 	return me;
 }());
 
-$(".nci-label .indexValue").on('click', function(){
+$(".nci-label name").on('click', function(){
 	$('#nciDetails').addClass('details-view-show');
 	NCI.detailsFlows.html(NCI.flowsLatestIndex);
 	NCI.Connection.NCIDetails(NCI.nciUpdateDateServer);
 	$("#socialGraph").html('<div id="activities_graph">Loading...</div>');
 });
 
-$(".qps-value").on('click', function(){
+$(".qps-value .collectorLabel").on('click', function(){
 	$('#collectorsInfo').addClass('details-view-show');
 	NCI.Connection.CollectorsDetails(NCI.nciUpdateDateServer);
 });
@@ -195,6 +195,32 @@ $(".hide-collectorsdetails").on('click', function(){
 	$('#collectorsInfo').removeClass('details-view-show');
 });
 
-$('body').on('touchend', function(){
-	$('.tooltip').hide();
-});
+
+
+NCI.initSocket = function(){
+	if (NCI.is_uiwebview && (NCI.connectionURL == ("ws://" + location.host + "/clientsock.yaws"))){
+		return;
+	};
+	
+	NCI.Socket = new WebSocket(NCI.connectionURL);
+	NCI.Socket.onerror = function (e) {
+		//NCI.chartData = [];
+		//$(".disconected").show();
+	};
+	NCI.Socket.onclose = function (e) {
+		$(".disconected").show();
+	};
+	NCI.Socket.onopen = function () {
+		$(".disconected").hide();
+		NCI.Connection.getLimits();
+		NCI.Connection.startData();
+	};
+	NCI.Socket.onmessage  = function (e) {
+		//fix for mobile safari
+		setTimeout(function() {
+			NCI.Connection.onmessage(e);
+		});
+	};
+};
+
+NCI.initSocket();

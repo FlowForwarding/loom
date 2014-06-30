@@ -112,12 +112,6 @@ NCI.Connection.NCIDetails = function(time) {
 }
 
 //Override to do nothing, for the case if connection opened successfull in emulation mode
-NCI.Connection.onopen = function () {
-	
-};
-
-NCI.Socket.onclose = function (e) {
-};
-
+NCI.initSocket = function(){};
 NCI.Connection.startData();
    

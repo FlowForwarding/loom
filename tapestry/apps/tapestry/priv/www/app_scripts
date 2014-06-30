@@ -1,0 +1,13 @@
+['bower_components/modernizr/modernizr.js',
+'bower_components/jquery/dist/jquery.min.js',
+'bower_components/fastclick/lib/fastclick.js',
+'bower_components/dygraphs/dygraph-combined.js',
+'bower_components/foundation/js/foundation.min.js',
+'bower_components/d3/d3.min.js',
+'static/connection.js',
+'static/nci.js',
+'static/nci_histogram.js',
+'static/nci_details.js',
+'static/chart.js'
+//, 'static/server_emulator.js'
+];

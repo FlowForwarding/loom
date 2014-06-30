@@ -59,6 +59,7 @@
 		2A965EBA1950C320002A2B63 /* TapestryTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TapestryTests-Info.plist"; sourceTree = "<group>"; };
 		2A965EBC1950C320002A2B63 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2A965EBE1950C320002A2B63 /* TapestryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TapestryTests.m; sourceTree = "<group>"; };
+		2AFC9742196144980006CA3F /* prebuild.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = prebuild.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +96,7 @@
 				2A965E971950C320002A2B63 /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		2A965E971950C320002A2B63 /* Products */ = {
 			isa = PBXGroup;
@@ -140,6 +142,7 @@
 				2A965EA21950C320002A2B63 /* InfoPlist.strings */,
 				2A965EA51950C320002A2B63 /* main.m */,
 				2A965EA71950C320002A2B63 /* Tapestry-Prefix.pch */,
+				2AFC9742196144980006CA3F /* prebuild.sh */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -171,8 +174,8 @@
 			buildPhases = (
 				2A965E921950C320002A2B63 /* Sources */,
 				2A965E931950C320002A2B63 /* Frameworks */,
+				2AFC97431961458E0006CA3F /* Run Script */,
 				2A965E941950C320002A2B63 /* Resources */,
-				2A55F3B019518EB10089007C /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -256,18 +259,20 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2A55F3B019518EB10089007C /* ShellScript */ = {
+		2AFC97431961458E0006CA3F /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			files = (
 			);
 			inputPaths = (
+				"",
 			);
+			name = "Run Script";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cp -rf ../../../../apps/tapestry/priv/www/ Tapestry/www/";
+			shellPath = " /bin/sh ";
+			shellScript = "EXIT_STATUS=0\n/bin/sh  Tapestry/prebuild.sh\nexit $EXIT_STATUS";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -402,6 +407,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tapestry/Tapestry-Prefix.pch";
 				INFOPLIST_FILE = "Tapestry/Tapestry-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -415,6 +421,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tapestry/Tapestry-Prefix.pch";
 				INFOPLIST_FILE = "Tapestry/Tapestry-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
