@@ -306,7 +306,7 @@ static float rightIndent = 120;
     NSString *loadUrl = [self getTapestryUrl];
     if ([loadUrl isEqualToString:nciDemoUrl]){
         NSString *javaScript = [NSString stringWithContentsOfFile:
-                                [[NSBundle mainBundle] pathForResource:@"server_emulator" ofType:@"js" inDirectory:@"www/static"]
+                                [[NSBundle mainBundle] pathForResource:@"server_emulator" ofType:@"js" inDirectory:@"www/src/static"]
                                                          encoding:NSUTF8StringEncoding error:nil];
         [self.mainView stringByEvaluatingJavaScriptFromString:javaScript];
     } else {

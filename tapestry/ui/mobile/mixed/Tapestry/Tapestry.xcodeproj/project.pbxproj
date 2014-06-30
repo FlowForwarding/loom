@@ -96,6 +96,7 @@
 				2A965E971950C320002A2B63 /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		2A965E971950C320002A2B63 /* Products */ = {
 			isa = PBXGroup;
@@ -173,8 +174,8 @@
 			buildPhases = (
 				2A965E921950C320002A2B63 /* Sources */,
 				2A965E931950C320002A2B63 /* Frameworks */,
+				2AFC97431961458E0006CA3F /* Run Script */,
 				2A965E941950C320002A2B63 /* Resources */,
-				2AFC97431961458E0006CA3F /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -258,7 +259,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2AFC97431961458E0006CA3F /* ShellScript */ = {
+		2AFC97431961458E0006CA3F /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 12;
 			files = (
@@ -266,11 +267,12 @@
 			inputPaths = (
 				"",
 			);
+			name = "Run Script";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = " /bin/sh ";
-			shellScript = "/bin/sh Tapestry/prebuild.sh";
+			shellScript = "EXIT_STATUS=0\n/bin/sh  Tapestry/prebuild.sh\nexit $EXIT_STATUS";
 		};
 /* End PBXShellScriptBuildPhase section */
 
