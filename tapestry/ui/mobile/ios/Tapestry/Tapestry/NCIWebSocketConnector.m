@@ -200,12 +200,11 @@ static NSString* websocketNCIDetailsRequest =
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         int trendMiddle = 6;
         int trendStepCounter = 0;
-        
-        NSDictionary *response = @{@"start_time": [self formatDataForServer:[[NSDate date] dateByAddingTimeInterval: -demoDatePeriod]],
+        NSDictionary *response = @{@"action": @"hello", @"start_time": [self formatDataForServer:[[NSDate date] dateByAddingTimeInterval: -demoDatePeriod]],
                                    @"current_time": [self formatDataForServer:[NSDate date]]};
         [self sendDemoData:response];
         
-        NSString *moreResponse = @"{";
+        NSString *moreResponse = @"[";
         float numOfPoints = 800;
         float step = demoDatePeriod/(numOfPoints - 1);
         int ind;
@@ -216,12 +215,12 @@ static NSString* websocketNCIDetailsRequest =
             }
             trendStepCounter += 1;
             int complexity = trendMiddle + arc4random() % 3;
-            moreResponse = [NSString stringWithFormat:@"%@\"Time\":\"%@\",\"NCI\":%d,",
+            moreResponse = [NSString stringWithFormat:@"%@{\"Time\":\"%@\",\"NCI\":%d},",
                             moreResponse,
                             [self formatDataForServer:[[NSDate date] dateByAddingTimeInterval: (-demoDatePeriod + step*ind)]],
                             complexity];
         }
-        moreResponse = [moreResponse stringByReplacingCharactersInRange:NSMakeRange(moreResponse.length - 1, 1) withString:@"}"];
+        moreResponse = [moreResponse stringByReplacingCharactersInRange:NSMakeRange(moreResponse.length - 1, 1) withString:@"]"];
         [self sendDemoString:moreResponse];
         
         while (demoMode){
@@ -292,12 +291,17 @@ static NSString* websocketNCIDetailsRequest =
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message;
 {
-    NSString *messageString = ((NSString *)message);
-    NSArray *dataPieces = [[messageString substringWithRange:NSMakeRange(1, messageString.length -2) ] componentsSeparatedByString:@","];
-    NSDictionary *dataPoint = [NSJSONSerialization
+    NSObject *data = [NSJSONSerialization
                                JSONObjectWithData:[message dataUsingEncoding:NSUTF8StringEncoding]
                                options:NSJSONReadingMutableContainers error:NULL];
-    if ([dataPoint[@"action"] isEqualToString:@"NCI"]){
+    NSDictionary *dataPoint;
+    if ([data isKindOfClass:[NSDictionary class]]){
+        dataPoint = (NSDictionary *)data;
+    }
+    NSArray *moreNCI = (NSArray *)data;
+    NSString *actionName = dataPoint ? dataPoint[@"action"] : @"more_data";
+    
+    if ([actionName isEqualToString:@"NCI"]){
         NSString *nci = dataPoint[@"NCI"];
         self.progressLabel.hidden = YES;
         [self.nciValue setIndValue:nci withDate:dataPoint[@"Time"]];
@@ -311,17 +315,17 @@ static NSString* websocketNCIDetailsRequest =
             [self.chartView addPoint:[[NSDate date] timeIntervalSince1970] val:@[[NSNull null]]];
             [self.chartView drawChart];
         }
-    } else if([dataPoint[@"action"] isEqualToString:@"NEP"]){
+    } else if([actionName isEqualToString:@"NEP"]){
         [self.nepValue setIndValue: dataPoint[@"NEP"] withDate:dataPoint[@"Time"]];
-    } else if([dataPoint[@"action"] isEqualToString:@"QPS"]) {
+    } else if([actionName isEqualToString:@"QPS"]) {
         [self.qpsValue setIndValue:dataPoint[@"QPS"] withDate:dataPoint[@"Time"]];
-    } else if([dataPoint[@"action"] isEqualToString:@"Collectors"]){
+    } else if([actionName isEqualToString:@"Collectors"]){
         [self.collectorsValue setIndValue:dataPoint[@"COLLECTORS"] withDate:dataPoint[@"Time"]];
-    } else if([dataPoint[@"action"] isEqualToString:@"collectors"]){
+    } else if([actionName isEqualToString:@"collectors"]){
         [self.collectorsDetailsView loadData:dataPoint];
-    } else if([dataPoint[@"action"] isEqualToString:@"NCIDetails"]){
+    } else if([actionName isEqualToString:@"NCIDetails"]){
         [self.detailsView loadData:dataPoint];
-    } else if(dataPoint[@"start_time"]){
+    } else if([actionName isEqual:@"hello"]){
          NSString *start_time = dataPoint[@"start_time"];
         self.startDate = [self dateFromServerString:start_time];
         //            NSString *current_time = dataPoint[@"current_time"];
@@ -333,15 +337,15 @@ static NSString* websocketNCIDetailsRequest =
         }
         _currentDatePeriod = twoYearPeriod;
         [self requestLastDataForPeiodInSeconds:askPeriod];
+    } else if([actionName isEqual: dataPoint[@"getlimits"]]){
     } else {
         self.progressLabel.hidden = YES;
         [self.chartView resetChart];
-        int i;
-        for (i = 0; i < dataPieces.count; i+=2){
+        for (NSDictionary *nci in moreNCI){
             //we get such fromat data 2013-11-12T14:04:29Z
-            NSString *dateString = [dataPieces[i] substringWithRange:NSMakeRange(8, ((NSString *)dataPieces[i]).length - 10)];
+            NSString *dateString = nci[@"Time"];
             NSDate *date = [self dateFromServerString: dateString];
-            NSString *nciVal = [dataPieces[i+1] substringFromIndex:6];
+            NSString *nciVal = nci[@"NCI"];
             [self.chartView addPoint:[date timeIntervalSince1970] val:@[@([nciVal integerValue])]];
         }
         [self.chartView addPoint:[[NSDate date]  timeIntervalSince1970] val:@[[NSNull null]]];

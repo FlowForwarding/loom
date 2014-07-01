@@ -6,6 +6,10 @@
 		<link rel="shortcut icon" href="static/images/favicon.ico" >
 		<script type="text/javascript">
 	        var stylesFile = new XMLHttpRequest();
+			if (typeof NCI === 'undefined')
+			   NCI = {};
+			NCI.loadCallback = function(){};
+			
 			var head = document.getElementsByTagName('head')[0];
 	        stylesFile.open("GET", "app_styles", false);
 	        stylesFile.onreadystatechange = function (){
@@ -28,7 +32,6 @@
 			    }
 			};
 			scriptsFile.send();	
-				   
 		   	var loadedScripts = -1;
 		   	function loadedFunction(){
 				if (loadedScripts < (scripts.length - 1) ){
@@ -36,6 +39,8 @@
 					loadNext();
 				} else {
 					$(document).foundation();
+					NCI.loadCallback();
+					NCI.initSocket();
 				}
 		   	};		   
 			function loadNext(){
@@ -45,6 +50,7 @@
 			   script.addEventListener('load', function (e) { loadedFunction(e); }, false);
 		       head.appendChild(script);	
 			};
+            
 		</script>
 		
 	</head>

@@ -305,12 +305,10 @@ static float rightIndent = 120;
 - (void)webViewDidFinishLoad:(UIWebView *)webView{
     NSString *loadUrl = [self getTapestryUrl];
     if ([loadUrl isEqualToString:nciDemoUrl]){
-        NSString *javaScript = [NSString stringWithContentsOfFile:
-                                [[NSBundle mainBundle] pathForResource:@"server_emulator" ofType:@"js" inDirectory:@"www/src/static"]
-                                                         encoding:NSUTF8StringEncoding error:nil];
-        [self.mainView stringByEvaluatingJavaScriptFromString:javaScript];
+        [self.mainView stringByEvaluatingJavaScriptFromString:@"scripts.push('static/server_emulator.js')"];
     } else {
-        NSString *reloadJs = [NSString stringWithFormat:@"NCI.connectionURL = 'ws://%@'; NCI.initSocket();", loadUrl];
+        NSString *reloadJs = [NSString
+                              stringWithFormat:@"NCI.loadCallback = function(){NCI.connectionURL = 'ws://%@'; }", loadUrl];
         [self.mainView stringByEvaluatingJavaScriptFromString: reloadJs];
     }
 }
