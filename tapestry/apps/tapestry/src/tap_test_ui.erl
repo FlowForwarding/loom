@@ -2,7 +2,7 @@
 
 % @doc
 % Generates random sample data to test ui.  Enable with sys.config
-% parameter {datasource, test_ui}.
+% parameter {datasources, [test_ui]}.
 % @end
 
 -behavior(gen_server).

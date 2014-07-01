@@ -189,7 +189,7 @@ tapestry | web_log | "./log" | log directory for webserver
 tapestry | web_id | "tapestry" | webserver identifier
 tapestry | ftpd_address | {0,0,0,0} | ftp server listener IP address
 tapestry | ftpd_port | 7777 | ftp server listener port
-tapestry | datasource | packet_in | identifies source of DNS information
+tapestry | datasources | [packet_in] | identifies sources of DNS information
 tapestry | nci_min_interval | {seconds, 15} | shortest time between nci calculations
 tapestry | max_vertices | 300 | maximum number of vertices before dropping communities detail
 tapestry | max_edges | 1000 | maximum number of edges before dropping communities detail
@@ -202,7 +202,11 @@ max_ | data_max_age | [{days,2},{hms,{0,0,0}}] | purge data older than data_max_
 of_driver | listen_ip | {0,0,0,0} | open flow controller listener IP address
 of_driver | listen_port | 6653 | open flow controller listener port
 
-datasource value|Description
+You may specify one or more datasources, however some combinations are
+not allowed.  test_ui should not be used with any other datasource and
+anonymized and logfile may not be used together.
+
+datasource|Description
 ----------------|-----------
 packet_in | Receive and process packet_in messages from open flow switch
 test_ui | Generate random data (for UI testing)

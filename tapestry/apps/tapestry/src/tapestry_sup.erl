@@ -29,25 +29,32 @@ init([]) ->
     TapDS = {tap_ds,
                         {tap_ds, start_link, []},
                         permanent, 5000, worker, [tap_ds]},
-    Datasource = tap_config:getconfig(datasource),
+%   CommsSup = {tap_comms_sup,
+%                       {tap_comms_sup, start_link, []},
+%                       permanent, infinity, supervisor, [tap_comms_sup]},
+
+    Run = fun(Datasource) ->
+        tap_config:is_defined(Datasource, datasources)
+    end,
     
     Children = lists:flatten([
         TapYawsSup,
-        tap_ftpd(Datasource),
+%       CommsSup,
+        tap_ftpd(Run(anonymized) orelse Run(logfile)),
         TapClientData,
         TapDS,
-        tap_loom(Datasource),
-        test_ui(Datasource)
+        tap_loom(Run(packet_in)),
+        test_ui(Run(test_ui))
     ]),
     {ok, {{one_for_one, 5, 10}, Children}}.
 
-test_ui(test_ui) ->
+test_ui(true) ->
     {tap_test_ui, {tap_test_ui, start_link, []},
         permanent, 5000, worker, [tap_test_ui]};
 test_ui(_) ->
     [].
 
-tap_ftpd(Mode) when Mode == anonymized; Mode == logfile ->
+tap_ftpd(true) ->
     [{tap_batch,
         {tap_batch, start_link, []},
         permanent, 5000, worker, [tap_batch]},
@@ -56,7 +63,7 @@ tap_ftpd(Mode) when Mode == anonymized; Mode == logfile ->
 tap_ftpd(_) ->
     [].
 
-tap_loom(packet_in) ->
+tap_loom(true) ->
     [{tap_loom, {tap_loom, start_link, []},
         permanent, 5000, worker, [tap_loom]},
     {tap_aggr,

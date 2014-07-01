@@ -69,9 +69,16 @@ push_qps() ->
 % -----------------------------------------------------------------------------
 
 init([]) ->
-    Mode = tap_config:getconfig(datasource),
     gen_server:cast(?MODULE, start),
-    {ok, #?STATE{mode = Mode}}.
+    case {tap_config:is_defined(anonymized, datasources),
+                    tap_config:is_defined(logfile, datasources)} of
+        {true, false} ->
+            {ok, #?STATE{mode = anonymized}};
+        {false, true} ->
+            {ok, #?STATE{mode = logfile}};
+        {true, true} ->
+            {stop, bad_config_has_both_logfile_and_anonymized_datasources}
+    end.
 
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
@@ -134,7 +141,7 @@ push_qps(State = #?STATE{collectors = Collectors}) ->
                         {IpAddr, {Time, Count}} <- dict:to_list(Collectors)],
     Now = tap_time:now(),
     {QPS, NewState} = update_qps(State),
-    tap_client_data:qps(QPS, CollectorStats, tap_time:universal(Now)),
+    tap_client_data:qps(?MODULE, QPS, CollectorStats, tap_time:universal(Now)),
     NewState.
 
 update_qps(State = #?STATE{
@@ -207,7 +214,26 @@ parse_file(_BinaryData, Data)->
 
 parse_logfile(ZBin) ->
     Bin =  safe_gunzip(ZBin),
-    Matches = case re:run(Bin,"client ([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})#.* UDP: query: (.*) IN A response: NOERROR.*? ([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3});", [global, {capture,[2,1,3],binary}]) of
+    % match log records:
+    % ipv4 example:
+    %   15-May-2014 13:33:18.468 client 192.168.11.172#50276: view
+    %   8: UDP: query: p14-keyvalueservice.icloud.com IN A response:
+    %   NOERROR + p14-keyvalueservice.icloud.com. 86400 IN CNAME
+    %   p14-keyvalueservice.icloud.com.akadns.net.;
+    %   p14-keyvalueservice.icloud.com.akadns.net. 120 IN A 17.151.226.32;
+    %   p14-keyvalueservice.icloud.com.akadns.net. 120 IN A 17.151.226.33;
+
+    % ipv6 example:
+    %   15-May-2014 13:33:26.049 client 192.168.11.130#49974: view
+    %   8: UDP: query: www.isg-apple.com.akadns.net IN AAAA response:
+    %   NOERROR + www.isg-apple.com.akadns.net. 27 IN CNAME
+    %   www.apple.com.edgekey.net.; www.apple.com.edgekey.net. 465 IN
+    %   CNAME e3191.dscc.akamaiedge.net.; e3191.dscc.akamaiedge.net.
+    %   20 IN AAAA 2001:418:142a:194::c77; e3191.dscc.akamaiedge.net.
+    %   20 IN AAAA 2001:418:142a:19d::c77; e3191.dscc.akamaiedge.net.
+    %   20 IN AAAA 2001:418:142a:18e::c77;
+
+    Matches = case re:run(Bin,"client ([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})#.* UDP: query: (.*) IN A+ response: NOERROR .*? IN A+ ((?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})|(?:[:a-f0-9]+));", [global, {capture,[2,1,3],binary}]) of
         {match, M} -> M;
         _ -> []
     end,
