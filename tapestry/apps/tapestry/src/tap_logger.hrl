@@ -41,3 +41,12 @@
         lager:error(Msg)).
 -define(ERROR(Msg, Args),
         lager:error(Msg, Args)).
+
+-define(LOGDURATION(F),
+                (fun() ->
+                    {TinMicro, R} = timer:tc(fun() -> F end),
+                    TinSec = TinMicro div 1000000,
+                    ?DEBUG("Time ~s:~B ~s: ~B sec",
+                                                [?FILE, ?LINE, ??F, TinSec]),
+                    R
+                end)()).

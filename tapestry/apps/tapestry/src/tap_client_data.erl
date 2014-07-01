@@ -149,11 +149,11 @@ handle_cast({nci, NCI, Communities, UT}, State = #?STATE{nci_log = NCILog,
                            last_nci_time = Time,
                            communities = Communities}};
 handle_cast({limits, Pid}, State) ->
-    clientsock:send(Pid, json_limits(<<"getlimits">>, tap_ds:getlimits())),
+    clientsock:send(Pid, json_limits(<<"getlimits">>, tap_calc:getlimits())),
     {noreply, State};
 handle_cast({setlimits, Pid, Limits}, State) ->
     setlimits(Limits),
-    clientsock:send(Pid, json_limits(<<"setlimits">>, tap_ds:getlimits())),
+    clientsock:send(Pid, json_limits(<<"setlimits">>, tap_calc:getlimits())),
     {noreply, State};
 handle_cast({nci_details, Pid}, State = #?STATE{
                                             communities = Communities,
@@ -419,7 +419,7 @@ encode_limit(I) when is_integer(I) ->
 setlimits(Limits) ->
     lists:foreach(
         fun({Limit, Value}) ->
-            tap_ds:setlimit(Limit, decode_limit(Value))
+            tap_calc:setlimit(Limit, decode_limit(Value))
         end, Limits).
 
 decode_limit(<<"infinity">>) -> infinity;

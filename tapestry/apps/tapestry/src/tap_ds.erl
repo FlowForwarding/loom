@@ -23,13 +23,12 @@
 -behavior(gen_server).
 
 -export([start_link/0,
-         push_nci/0,
-         clean_data/0,
+         push_nci/4,
+         clean_data/1,
          ordered_edge/1,
          ordered_edges/1,
-         setlimit/2,
-         getlimits/0,
          stop_nci/1,
+         dirty/0,
          save/1,
          load/1]).
 
@@ -45,22 +44,9 @@
 -define(STATE, tap_ds_state).
 -record(?STATE,{
             digraph,
-            nci_update_timer,
-            clean_timer,
-            data_max_age,
-            limits,
             dirty,
             calc_timeout,
             calc_pid = no_process}).
-
--define(LOGDURATION(F),
-                (fun() ->
-                    {TinMicro, R} = timer:tc(fun() -> F end),
-                    TinSec = TinMicro div 1000000,
-                    ?DEBUG("Time ~s:~B ~s: ~B sec",
-                                                [?FILE, ?LINE, ??F, TinSec]),
-                    R
-                end)()).
 
 %------------------------------------------------------------------------------
 % API
@@ -69,14 +55,18 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-push_nci() ->
-    gen_server:cast(?MODULE, push_nci).
+push_nci(MaxVertices, MaxEdges, MaxCommSize, MaxCommunities) ->
+    gen_server:cast(?MODULE,
+            {push_nci, MaxVertices, MaxEdges, MaxCommSize, MaxCommunities}).
 
 stop_nci(Pid) ->
     gen_server:cast(?MODULE, {stop_nci, Pid}).
 
-clean_data() ->
-    gen_server:cast(?MODULE, clean_data).
+clean_data(MaxAge) ->
+    gen_server:cast(?MODULE, {clean_data, MaxAge}).
+
+dirty() ->
+    gen_server:cast(?MODULE, dirty).
 
 ordered_edge(Edge) ->
     ordered_edges([Edge]).
@@ -90,37 +80,15 @@ save(Filename) ->
 load(Filename) ->
     gen_server:call(?MODULE, {load_graph, Filename}, infinity).
 
-setlimit(Limit, Value) ->
-    gen_server:call(?MODULE, {setlimit, Limit, Value}).
-
-getlimits() ->
-    gen_server:call(?MODULE, getlimits).
-
 %------------------------------------------------------------------------------
 % gen_server callbacks
 %------------------------------------------------------------------------------
 
 init([]) ->
     gen_server:cast(?MODULE, start),
-    MaxVertices = tap_config:getconfig(max_vertices),
-    MaxEdges = tap_config:getconfig(max_edges),
-    MaxCommunities = tap_config:getconfig(max_communities),
-    CommSizeLimit = tap_config:getconfig(comm_size_limit),
     CalcTimeout = tap_config:getconfig(nci_calc_time_limit_sec),
-    {ok, #?STATE{calc_timeout = CalcTimeout,
-                 dirty = true,
-                 limits = {MaxVertices, MaxEdges, CommSizeLimit, MaxCommunities}}}.
+    {ok, #?STATE{calc_timeout = CalcTimeout, dirty = true}}.
 
-handle_call(getlimits, _From, State = #?STATE{limits = Limits}) ->
-    {MaxVertices, MaxEdges, MaxCommSize, MaxCommunities} = Limits,
-    {reply, [{max_vertices, MaxVertices},
-             {max_edges, MaxEdges},
-             {comm_size_limit, MaxCommSize},
-             {max_communities, MaxCommunities}], State};
-handle_call({setlimit, Key, Value}, _From,
-                                        State = #?STATE{limits = Limits}) ->
-    NewLimits = update_limits(Limits, Key, Value),
-    {reply, NewLimits, State#?STATE{dirty = true, limits = NewLimits}};
 handle_call({save_graph, Filename}, _From,
                                         State = #?STATE{digraph = Digraph}) ->
     Reply = save_graph(Filename, Digraph),
@@ -134,21 +102,17 @@ handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
 handle_cast(start, State) ->
-    DataMaxAge = data_max_age(),
-    {ok, NCITimer} = interval_timer(nci_min_interval(), push_nci),
-    {ok, CleanTimer} = interval_timer(clean_interval(), clean_data),
-    {noreply, State#?STATE{digraph = digraph:new(),
-                           nci_update_timer = NCITimer,
-                           clean_timer = CleanTimer,
-                           data_max_age = DataMaxAge}};
+    {noreply, State#?STATE{digraph = digraph:new()}};
+handle_cast(dirty, State) ->
+    {noreply, State#?STATE{dirty = true}};
 handle_cast({ordered_edges, Edges}, State = #?STATE{digraph = Digraph}) ->
     add_edges(Digraph, Edges),
     {noreply, State#?STATE{dirty = true}, hibernate};
-handle_cast(push_nci, State = #?STATE{digraph = Digraph,
-                                      dirty = Dirty,
-                                      calc_pid = CalcPid,
-                                      calc_timeout = CalcTimeout,
-                                      limits = Limits}) ->
+handle_cast({push_nci, MaxVertices, MaxEdges, MaxCommSize, MaxCommunities},
+                                State = #?STATE{digraph = Digraph,
+                                                dirty = Dirty,
+                                                calc_pid = CalcPid,
+                                                calc_timeout = CalcTimeout}) ->
     NewState = case calculating(CalcPid) of
         true ->
             ?DEBUG("NCI Calculation already running ~p(~s), skipping this run",
@@ -161,15 +125,13 @@ handle_cast(push_nci, State = #?STATE{digraph = Digraph,
                     State;
                 _ ->
                     Pid = push_nci(Digraph, digraph:no_vertices(Digraph),
-                                                                    Limits),
+                        {MaxVertices, MaxEdges, MaxCommSize, MaxCommunities}),
                     nci_watchdog(Pid, CalcTimeout),
                     State#?STATE{calc_pid = Pid, dirty = false}
             end
     end,
     {noreply, NewState, hibernate};
-handle_cast(clean_data, State = #?STATE{
-                                    digraph = Digraph,
-                                    data_max_age = DataMaxAge}) ->
+handle_cast({clean_data, DataMaxAge}, State = #?STATE{digraph = Digraph}) ->
     DateTime = calendar:universal_time(),
     clean(Digraph, DateTime, DataMaxAge),
     {noreply, State#?STATE{dirty = true}, hibernate};
@@ -210,20 +172,6 @@ nci_watchdog(_, infinity) ->
 nci_watchdog(Pid, Timeout) ->
     {ok, TRef} = timer:apply_after(Timeout * 1000, ?MODULE, stop_nci, [Pid]),
     TRef.
-
-update_limits({_MaxVertices, MaxEdges, MaxCommSize, MaxCommunities}, max_vertices, V) ->
-    {V, MaxEdges, MaxCommSize, MaxCommunities};
-update_limits({MaxVertices, _MaxEdges, MaxCommSize, MaxCommunities}, max_edges, V) ->
-    {MaxVertices, V, MaxCommSize, MaxCommunities};
-update_limits({MaxVertices, MaxEdges, _MaxCommSize, MaxCommunities}, comm_size_limit, V) ->
-    {MaxVertices, MaxEdges, V, MaxCommunities};
-update_limits({MaxVertices, MaxEdges, MaxCommSize, _MaxCommunities}, max_communities, V) ->
-    {MaxVertices, MaxEdges, MaxCommSize, V};
-update_limits(Limits, _, _V) ->
-    Limits.
-
-interval_timer(IntervalSec, Func) ->
-    timer:apply_interval(IntervalSec*1000, ?MODULE, Func, []).
 
 add_edges(Digraph, Edges)->
     DateTime = calendar:universal_time(),
@@ -280,23 +228,6 @@ update_edge(G, V1, V2, Time)->
         [] -> digraph:add_edge(G, V1, V2, Time);
         [E] -> digraph:add_edge(G, E, V1, V2, Time)
     end.
-
-nci_min_interval() ->
-    {seconds, Time} = tap_config:getconfig(nci_min_interval),
-    Time.
-
-data_max_age() ->
-    LongTimeConfig = tap_config:getconfig(data_max_age),
-    long_time_to_seconds(LongTimeConfig).
-
-clean_interval() ->
-    LongTimeConfig = tap_config:getconfig(clean_interval),
-    long_time_to_seconds(LongTimeConfig).
-
-long_time_to_seconds(LongTimeConfig) ->
-    days_to_seconds(
-        {proplists:get_value(days, LongTimeConfig),
-        proplists:get_value(hms, LongTimeConfig)}).
 
 days_to_seconds({D, {H, M, S}}) ->
    (D * 24 * 60 * 60) + (H * 60 * 60) + (M * 60) + S.

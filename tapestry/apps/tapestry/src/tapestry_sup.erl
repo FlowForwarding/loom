@@ -29,6 +29,9 @@ init([]) ->
     TapDS = {tap_ds,
                         {tap_ds, start_link, []},
                         permanent, 5000, worker, [tap_ds]},
+    TapCalc = {tap_calc,
+                        {tap_calc, start_link, []},
+                        permanent, 5000, worker, [tap_calc]},
 %   CommsSup = {tap_comms_sup,
 %                       {tap_comms_sup, start_link, []},
 %                       permanent, infinity, supervisor, [tap_comms_sup]},
@@ -43,6 +46,7 @@ init([]) ->
         tap_ftpd(Run(anonymized) orelse Run(logfile)),
         TapClientData,
         TapDS,
+        TapCalc,
         tap_loom(Run(packet_in)),
         test_ui(Run(test_ui))
     ]),

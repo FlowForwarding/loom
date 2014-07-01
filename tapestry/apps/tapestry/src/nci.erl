@@ -67,15 +67,6 @@
 
 -include("tap_logger.hrl").
 
--define(LOGDURATION(F),
-                (fun() ->
-                    {TinMicro, R} = timer:tc(fun() -> F end),
-                    TinSec = TinMicro div 1000000,
-                    ?DEBUG("Time ~s:~B ~s: ~B sec",
-                                                [?FILE, ?LINE, ??F, TinSec]),
-                    R
-                end)()).
-
 %% === compute(EdgeList) === 
 %%
 %% compute(EdgeList) is the API function to be called by external calling code.
