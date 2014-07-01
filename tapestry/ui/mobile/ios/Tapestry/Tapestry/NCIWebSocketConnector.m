@@ -200,12 +200,11 @@ static NSString* websocketNCIDetailsRequest =
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         int trendMiddle = 6;
         int trendStepCounter = 0;
-        
-        NSDictionary *response = @{@"start_time": [self formatDataForServer:[[NSDate date] dateByAddingTimeInterval: -demoDatePeriod]],
+        NSDictionary *response = @{@"action": @"hello", @"start_time": [self formatDataForServer:[[NSDate date] dateByAddingTimeInterval: -demoDatePeriod]],
                                    @"current_time": [self formatDataForServer:[NSDate date]]};
         [self sendDemoData:response];
         
-        NSString *moreResponse = @"{";
+        NSString *moreResponse = @"[";
         float numOfPoints = 800;
         float step = demoDatePeriod/(numOfPoints - 1);
         int ind;
@@ -216,12 +215,12 @@ static NSString* websocketNCIDetailsRequest =
             }
             trendStepCounter += 1;
             int complexity = trendMiddle + arc4random() % 3;
-            moreResponse = [NSString stringWithFormat:@"%@\"Time\":\"%@\",\"NCI\":%d,",
+            moreResponse = [NSString stringWithFormat:@"%@{\"Time\":\"%@\",\"NCI\":%d},",
                             moreResponse,
                             [self formatDataForServer:[[NSDate date] dateByAddingTimeInterval: (-demoDatePeriod + step*ind)]],
                             complexity];
         }
-        moreResponse = [moreResponse stringByReplacingCharactersInRange:NSMakeRange(moreResponse.length - 1, 1) withString:@"}"];
+        moreResponse = [moreResponse stringByReplacingCharactersInRange:NSMakeRange(moreResponse.length - 1, 1) withString:@"]"];
         [self sendDemoString:moreResponse];
         
         while (demoMode){
