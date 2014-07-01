@@ -22,7 +22,8 @@
 
 -export([getenv/1,
          getconfig/1,
-         getallconfig/1]).
+         getallconfig/1,
+         is_defined/2]).
 
 getenv(Key) ->
     case application:get_env(tapestry, Key) of
@@ -61,3 +62,6 @@ getallconfig(Key) ->
 consult() ->
     ConfigFileName = getenv(config_file),
     file:consult(ConfigFileName).
+
+is_defined(Element, Key) ->
+    proplists:is_defined(Element, getconfig(Key)).

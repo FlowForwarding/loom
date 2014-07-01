@@ -42,7 +42,7 @@ handle_message({text, <<"PING">>}) ->
 handle_message({text, <<"{\"request\":\"start_data\"}">>})->
     handle_message({text, <<"START_DATA">>});
 handle_message({text, <<"START_DATA">>}) ->
-    handle_start_data(tap_config:getconfig(datasource)),
+    handle_start_data(tap_config:is_defined(test_ui, datasources)),
     noreply;
 handle_message({text, MessageBits}) when is_bitstring(MessageBits) ->
     ?DEBUG("Received:~p~n",[MessageBits]),
@@ -60,7 +60,7 @@ handle_message(A)->
 % local functions
 %------------------------------------------------------------------------------
 
-handle_start_data(test_ui) ->
+handle_start_data(true) ->
     tap_test_ui:new_client(self());
 handle_start_data(_) ->
     tap_client_data:new_client(self()).

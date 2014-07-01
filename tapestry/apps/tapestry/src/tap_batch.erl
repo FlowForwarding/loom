@@ -69,9 +69,16 @@ push_qps() ->
 % -----------------------------------------------------------------------------
 
 init([]) ->
-    Mode = tap_config:getconfig(datasource),
     gen_server:cast(?MODULE, start),
-    {ok, #?STATE{mode = Mode}}.
+    case {tap_config:is_defined(anonymized, datasources),
+                    tap_config:is_defined(logfile, datasources)} of
+        {true, false} ->
+            {ok, #?STATE{mode = anonymized}};
+        {false, true} ->
+            {ok, #?STATE{mode = logfile}};
+        {true, true} ->
+            {stop, bad_config_has_both_logfile_and_anonymized_datasources}
+    end.
 
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
