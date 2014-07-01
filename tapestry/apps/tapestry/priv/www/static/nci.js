@@ -222,5 +222,3 @@ NCI.initSocket = function(){
 		});
 	};
 };
-
-NCI.initSocket();
