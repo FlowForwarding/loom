@@ -189,7 +189,7 @@ list_files(State, Directory) ->
 put_file(State, ProvidedFileName, _Mode, FileRetrievalFun) ->
     {ok, {PeerIp, _Port}}  = inet:peername(State#connection_state.control_socket),
     {ok, FileBytes, _FileSize} = read_from_fun(FileRetrievalFun),
-    ?DEBUG("tap_ftpd: ~p sending ~p~n", [PeerIp, ProvidedFileName]),
+    ?DEBUG("tap_ftpd: ~p uploading ~p~n", [PeerIp, ProvidedFileName]),
     save_file(ProvidedFileName, FileBytes),
     tap_batch:load(PeerIp, FileBytes),
     {ok, State}.
