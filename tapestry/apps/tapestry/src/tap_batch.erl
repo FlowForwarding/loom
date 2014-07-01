@@ -134,7 +134,7 @@ push_qps(State = #?STATE{collectors = Collectors}) ->
                         {IpAddr, {Time, Count}} <- dict:to_list(Collectors)],
     Now = tap_time:now(),
     {QPS, NewState} = update_qps(State),
-    tap_client_data:qps(QPS, CollectorStats, tap_time:universal(Now)),
+    tap_client_data:qps(?MODULE, QPS, CollectorStats, tap_time:universal(Now)),
     NewState.
 
 update_qps(State = #?STATE{

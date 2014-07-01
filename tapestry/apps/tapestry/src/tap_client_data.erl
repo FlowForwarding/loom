@@ -27,7 +27,7 @@
 -export([start_link/0,
          num_endpoints/3,
          nci/3,
-         qps/3,
+         qps/4,
          new_client/1,
          more_nci_data/4,
          nci_details/1,
@@ -72,8 +72,8 @@ num_endpoints(Endpoints, Edges, DateTime) ->
 nci(NCI, Communities, DateTime) ->
     gen_server:cast(?MODULE, {nci, NCI, Communities, DateTime}).
 
-qps(QPS, Collectors, DateTime) ->
-    gen_server:cast(?MODULE, {qps, QPS, Collectors, DateTime}).
+qps(Sender, QPS, Collectors, DateTime) ->
+    gen_server:cast(?MODULE, {qps, Sender, QPS, Collectors, DateTime}).
 
 new_client(Pid) ->
     gen_server:cast(?MODULE, {new_client, Pid}).
@@ -99,16 +99,16 @@ collectors(Pid) ->
 
 init([])->
     gen_server:cast(?MODULE, start),
-    {ok, #?STATE{}}.
+    {ok, #?STATE{collectors = dict:new()}}.
 
 % for debugging
 handle_call(nci_details, _From, State = #?STATE{communities = Communities,
                                                 nci = NCI,
                                                 last_nci_time = Time}) ->
     {reply, json_nci_details(Time, NCI, Communities), State};
-handle_call(collectors, _From, State = #?STATE{collectors = Collectors,
+handle_call(collectors, _From, State = #?STATE{collectors = CollectorDict,
                                                last_qps_time = Time}) ->
-    {reply, json_collectors(Time, Collectors), State};
+    {reply, json_collectors(Time, CollectorDict), State};
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
@@ -161,20 +161,23 @@ handle_cast({nci_details, Pid}, State = #?STATE{
                                             last_nci_time = Time}) ->
     clientsock:send(Pid, json_nci_details(Time, NCI, Communities)),
     {noreply, State};
-handle_cast({collectors, Pid}, State = #?STATE{collectors = Collectors,
+handle_cast({collectors, Pid}, State = #?STATE{collectors = CollectorDict,
                                                last_qps_time = Time}) ->
-    clientsock:send(Pid, json_collectors(Time, Collectors)),
+    clientsock:send(Pid, json_collectors(Time, CollectorDict)),
     {noreply, State};
-handle_cast({qps, QPS, Collectors, UT}, State = #?STATE{clients = Clients}) ->
+handle_cast({qps, Sender, QPS, Collectors, UT},
+                                State = #?STATE{clients = Clients,
+                                                collectors = CollectorDict}) ->
+    NewCollectorDict = save_collector(Sender, QPS, Collectors, CollectorDict),
     Time = list_to_binary(tap_time:rfc3339(UT)),
-    QPSMsg = encode_qps(Time, QPS),
+    QPSMsg = encode_qps(Time, collector_qps(NewCollectorDict)),
     broadcast_msg(Clients, QPSMsg),
-    COLMsg = encode_cols(Time, length(Collectors)),
+    COLMsg = encode_cols(Time, collector_count(NewCollectorDict)),
     broadcast_msg(Clients, COLMsg),
     {noreply, State#?STATE{last_qps = QPSMsg,
                            last_col = COLMsg,
                            last_qps_time = Time,
-                           collectors = Collectors}};
+                           collectors = NewCollectorDict}};
 handle_cast({new_client, Pid}, State = #?STATE{clients = Clients,
                                                start_time = StartTime,
                                                last_nci = LNCI,
@@ -233,6 +236,19 @@ code_change(_OldVersion, State, _Extra) ->
 %------------------------------------------------------------------------------
 % local functions
 %------------------------------------------------------------------------------
+
+save_collector(Sender, QPS, Collectors, CollectorDict) ->
+    dict:store(Sender, {QPS, Collectors}, CollectorDict).
+
+collector_count(CollectorDict) ->
+    dict:fold(fun(_, {_, Collectors}, Count) ->
+                  Count + length(Collectors)
+              end, 0, CollectorDict).
+
+collector_qps(CollectorDict) ->
+    dict:fold(fun(_, {QPS, _}, TotalQPS) ->
+                  TotalQPS + QPS
+              end, 0, CollectorDict).
 
 send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
     ?DEBUG("tap_client_data: sending more data ~p to ~p~n",[Data,Pid]),
@@ -325,14 +341,19 @@ endpoint(S) when is_list(S) ->
 endpoint(_) ->
     <<"invalid">>.
 
-json_collectors(Time, Collectors) ->
+json_collectors(Time, CollectorDict) ->
     jiffy:encode({[
         {<<"action">>,<<"collectors">>},
         {<<"Time">>, Time},
-        {<<"Collectors">>, format_collectors(Collectors)}
+        {<<"Collectors">>, format_collectors(CollectorDict)}
     ]}).
 
-format_collectors(Collectors) ->
+format_collectors(CollectorDict) ->
+    Collectors = lists:append(
+                    dict:fold(
+                        fun(_, {_, Cols}, L) ->
+                            [Cols | L]
+                        end, [], CollectorDict)),
     {JSON, _} = lists:mapfoldl(
         fun(C, Index) ->
             Name = list_to_binary(["Collector", integer_to_list(Index)]),

@@ -90,7 +90,7 @@ handle_cast(push_qps, State = #?STATE{collectors = Collectors}) ->
                     DatapathId, IpAddr, per_sec(?DP_QCOUNT(DatapathId))} ||
                             {DatapathId, IpAddr} <- dict:to_list(Collectors)],
     NewState = qps_timer(State),
-    tap_client_data:qps(per_sec(?TOTAL_QCOUNT), CollectorStats,
+    tap_client_data:qps(?MODULE, per_sec(?TOTAL_QCOUNT), CollectorStats,
                                                     tap_time:universal(Now)),
     {noreply, NewState#?STATE{last_qps_time = Now, query_count = 0}};
 handle_cast({dns_reply, Reply, DatapathId, IpAddr},
