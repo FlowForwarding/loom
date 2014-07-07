@@ -23,6 +23,7 @@
 		2A965EB51950C320002A2B63 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A965E9D1950C320002A2B63 /* UIKit.framework */; };
 		2A965EBD1950C320002A2B63 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2A965EBB1950C320002A2B63 /* InfoPlist.strings */; };
 		2A965EBF1950C320002A2B63 /* TapestryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A965EBE1950C320002A2B63 /* TapestryTests.m */; };
+		2AFCAF3D196B0A8100AAA880 /* copy_scripts.rb in Resources */ = {isa = PBXBuildFile; fileRef = 2AFCAF3C196B0A8100AAA880 /* copy_scripts.rb */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,7 +60,7 @@
 		2A965EBA1950C320002A2B63 /* TapestryTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TapestryTests-Info.plist"; sourceTree = "<group>"; };
 		2A965EBC1950C320002A2B63 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2A965EBE1950C320002A2B63 /* TapestryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TapestryTests.m; sourceTree = "<group>"; };
-		2AFC9742196144980006CA3F /* prebuild.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = prebuild.sh; sourceTree = "<group>"; };
+		2AFCAF3C196B0A8100AAA880 /* copy_scripts.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = copy_scripts.rb; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,7 +143,7 @@
 				2A965EA21950C320002A2B63 /* InfoPlist.strings */,
 				2A965EA51950C320002A2B63 /* main.m */,
 				2A965EA71950C320002A2B63 /* Tapestry-Prefix.pch */,
-				2AFC9742196144980006CA3F /* prebuild.sh */,
+				2AFCAF3C196B0A8100AAA880 /* copy_scripts.rb */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -245,6 +246,7 @@
 				2A55F3B619519A730089007C /* www in Resources */,
 				2A965EA41950C320002A2B63 /* InfoPlist.strings in Resources */,
 				2A965EAC1950C320002A2B63 /* Images.xcassets in Resources */,
+				2AFCAF3D196B0A8100AAA880 /* copy_scripts.rb in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,7 +274,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = " /bin/sh ";
-			shellScript = "EXIT_STATUS=0\n/bin/sh  Tapestry/prebuild.sh\nexit $EXIT_STATUS";
+			shellScript = "rm -rf Tapestry/www/src/\nruby \"${PROJECT_DIR}/Tapestry/copy_scripts.rb\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
