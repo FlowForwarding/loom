@@ -31,7 +31,9 @@
 -module(part_louvain).
 
 -export([graph/3,
+         graph/1,
          graphd/1,
+         community_graph/1,
          weights/1,
          weights/2,
          modularity/1,
@@ -51,6 +53,12 @@ graph(Communities, Neighbors, Edges) ->
         communities = Communities,
         neighbors = Neighbors,
         edges = Edges}.
+
+graph(GD = #louvain_graphd{}) ->
+    #louvain_graph{
+        communities = dict:to_list(GD#louvain_graphd.communitiesd),
+        neighbors = dict:to_list(GD#louvain_graphd.neighborsd),
+        edges = dict:to_list(GD#louvain_graphd.edgesd)}.
 
 graphd(G = #louvain_graph{}) ->
     #louvain_graphd{
@@ -207,7 +215,7 @@ community_graph(#louvain_graphd{communitiesd = CommunitiesD0,
     % community of the Node (not the neighbors) and the weight is
     % div by 2 because it will be added in twice.  Links from Node -> Node
     % are also listed twice.
-    dict:fold(
+    GDC = dict:fold(
         fun(Node0, Node0Neighbors, UCG) ->
             NodeCommunity = GetNodeCommunity(Node0),
             lists:foldl(
@@ -222,7 +230,13 @@ community_graph(#louvain_graphd{communitiesd = CommunitiesD0,
         #louvain_graphd{communitiesd = dict:new(),
                         neighborsd = dict:new(),
                         edgesd = dict:new()},
-        NeighborsD0).
+        NeighborsD0),
+    % remove duplicate neighbors
+    GDC#louvain_graphd{
+        neighborsd = dict:map(
+                        fun(_, Neighbors) ->
+                            lists:usort(Neighbors)
+                        end, GDC#louvain_graphd.neighborsd)}.
 
 add_community(Node, GD = #louvain_graphd{communitiesd = CommunitiesD}) ->
     GD#louvain_graphd{communitiesd = dict:store(Node, Node, CommunitiesD)}.

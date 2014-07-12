@@ -25,6 +25,8 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
+-include("tapestry/src/part_louvain.hrl").
+
 -define(NUMTEST, 10).
 
 %%------------------------------------------------------------------------------
@@ -34,9 +36,12 @@ tap_data_test_() ->
      fun setup/0,
      fun cleanup/1,
      [
-         {"allin_is_zero", fun allin_is_zero/0}
-        ,{"disjoint_clique", fun disjoint_clique/0}
-        ,{"ring_clique", fun ring_clique/0}
+         {"modularity_allin_is_zero", fun modularity_allin_is_zero/0}
+        ,{"modularity_disjoint_clique", fun modularity_disjoint_clique/0}
+        ,{"modularity_ring_clique", fun modularity_ring_clique/0}
+        ,{"community_graph_nodes", fun community_graph_nodes/0}
+        ,{"community_one", fun community_one/0}
+        ,{"community_clique", fun community_clique/0}
      ]
     }.
 
@@ -49,7 +54,7 @@ cleanup(ok) ->
 %%------------------------------------------------------------------------------
 
 % When every node is in the same community, then modularity is 0
-allin_is_zero() ->
+modularity_allin_is_zero() ->
     lists:foreach(
         fun(_) ->
             G = digraph:new(),
@@ -63,7 +68,7 @@ allin_is_zero() ->
 % 1. Bartheemy, M. & Fortunato, S. Resolution limit in community detection. Proceedings of the National Academy of Sciences of the United States of America 104, 36-41(2007).
 % Disjoint NumClique cliques of size SizeClique has the
 % modularity 1 - 1/NumClique
-disjoint_clique() ->
+modularity_disjoint_clique() ->
     lists:foreach(
         fun(_) ->
             G = digraph:new(),
@@ -88,7 +93,7 @@ disjoint_clique() ->
 
 % NumClique cliques of size SizeClique connected in a ring with a single
 % link has modularity 1 - 1/NumClique - NumClique/NumEdges
-ring_clique() ->
+modularity_ring_clique() ->
     lists:foreach(
         fun(_) ->
             G = digraph:new(),
@@ -116,6 +121,50 @@ ring_clique() ->
             digraph:delete(G)
         end, lists:seq(1,?NUMTEST)).
 
+% Nodes in community graph are communities in the original graph
+% Total of edge weights in the graphs is the same
+community_graph_nodes() ->
+    G = digraph:new(),
+    {Neighbors, UnweightedEdges, Nodes} = random_graph(G, 50, 0.1),
+    Edges = [{E, random(1,100)} || {E, _} <- UnweightedEdges],
+    Communities = community_cliques(Nodes, 5),
+    GC = community_graph(Communities, Neighbors, Edges),
+    CommunitiesCS = communities_set(GC#louvain_graph.communities),
+    CommunitiesS = communities_set(Communities),
+    % sets are the same
+    ?assert(sets:size(sets:union(CommunitiesCS, CommunitiesS)) ==
+                sets:size(sets:intersection(CommunitiesCS, CommunitiesS))),
+    ?assert(total_weight(Edges) == total_weight(GC#louvain_graph.edges)),
+    digraph:delete(G).
+
+% community graph is the same as the original graph if every node
+% is in its own community.
+community_one() ->
+    G = digraph:new(),
+    {Neighbors, Edges, Nodes} = random_graph(G, 50, 0.1),
+    Communities = [{N, N} || N <- Nodes],
+    GC = community_graph(Communities, Neighbors, Edges),
+    ?assertEqual(length(Neighbors), length(GC#louvain_graph.neighbors)),
+    ?assertEqual(length(Communities), length(GC#louvain_graph.communities)),
+    ?assertEqual(length(Edges), length(GC#louvain_graph.edges)),
+    digraph:delete(G).
+
+% complete graph of size 2*N split in two has two nodes with N^2 weight
+% between them
+community_clique() ->
+    G = digraph:new(),
+    N = 5,
+    {Neighbors, Edges, Nodes} = complete_graph(G, N*2),
+    Communities = community_cliques(Nodes, 2),
+    GC = community_graph(Communities, Neighbors, Edges),
+    ?assertEqual(2, length(GC#louvain_graph.neighbors)),
+    ?assertEqual(2, length(GC#louvain_graph.communities)),
+    lists:foreach(
+        fun({{V,V}, Weight}) -> ?assert(N*(N-1)/2 == Weight);
+           ({_, Weight}) -> ?assert(N*N == Weight)
+        end, GC#louvain_graph.edges),
+    digraph:delete(G).
+
 %%------------------------------------------------------------------------------
 
 % return Erdős-Rényi graph, binomial graph
@@ -139,6 +188,9 @@ neighbor(V, V, V2) ->
 neighbor(V, V1, V) ->
     V1.
 
+complete_graph(G, N) ->
+    complete_graph(G, N, 1).
+
 complete_graph(G, N, Base) ->
     Vertices = lists:seq(Base, N + Base - 1),
     lists:foreach(fun(V) -> digraph:add_vertex(G, V) end, Vertices),
@@ -160,7 +212,7 @@ neighbors_from_digraph(G) ->
         end, [], digraph:vertices(G)).
 
 edges_from_digraph(G) ->
-    [{E, 1} || E <- digraph:edges(G)].
+    [{E, 1.0} || E <- digraph:edges(G)].
 
 communities_from_nodes(C, Nodes) ->
     [{N, C} || N <- Nodes].
@@ -187,3 +239,26 @@ link_ring(G, Nodes = [H | T]) ->
         fun({V1, V2}) ->
             digraph:add_edge(G, {V1,V2}, V1, V2, [])
         end, lists:zip(Nodes, T ++ [H])).
+
+communities_set(Communities) ->
+    lists:foldl(
+        fun({_, C}, S) ->
+            sets:add_element(C, S)
+        end, sets:new(), Communities).
+
+total_weight(Edges) ->
+    lists:foldl(
+        fun({_, Weight}, Total) ->
+            Total + Weight
+        end, 0.0, Edges).
+
+community_graph(Communities, Neighbors, Edges) ->
+    GD = part_louvain:graphd(part_louvain:graph(Communities, Neighbors, Edges)),
+    part_louvain:graph(part_louvain:community_graph(GD)).
+
+community_cliques(Nodes, Cliques) ->
+    {Communities, _} = lists:mapfoldl(
+                    fun(Node, Count) ->
+                        {{Node, Count rem Cliques}, Count + 1}
+                    end, 0, Nodes),
+    Communities.
