@@ -238,8 +238,10 @@ community_graph(#louvain_graphd{communitiesd = CommunitiesD0,
                             lists:usort(Neighbors)
                         end, GDC#louvain_graphd.neighborsd)}.
 
-add_community(Node, GD = #louvain_graphd{communitiesd = CommunitiesD}) ->
-    GD#louvain_graphd{communitiesd = dict:store(Node, Node, CommunitiesD)}.
+add_community(Node, GD = #louvain_graphd{neighborsd = NeighborsD,
+                                         communitiesd = CommunitiesD}) ->
+    GD#louvain_graphd{neighborsd = dict:store(Node, [], NeighborsD),
+                      communitiesd = dict:store(Node, Node, CommunitiesD)}.
 
 add_edge(GD = #louvain_graphd{}, Node, NeighborNode, Weight) ->
     EdgeId = edge_id({Node, NeighborNode}),
