@@ -88,14 +88,17 @@ NCI.Connection.moreData = function(startTime, endTime, pointsNum) {
 
 NCI.Connection.NCIDetails = function(time) {
 	var  communities = [];
-	for (var k = 0; k < 50; k++){
+	for (var k = 0; k < 10; k++){
 		var fakeEndpoints = [];
 		var fakeInteractions = [];
-	    for (var i=1; i< 5; i++){
-		    fakeEndpoints.push(k*5 + i + "");
+		var max = 50
+	    for (var i=1; i< max; i++){
+		    fakeEndpoints.push(k*max + i + "");
 	    }
-	    for (var j=2; j< 5; j++){
-		    fakeInteractions.push([k*5 + 1 + "", k*5 + j + ""]);
+	    for (var j=1; j< max; j++){
+			for (var h=(j+1); h< (j+2); h++){
+		      fakeInteractions.push([k*5 + 1 + "" + h + "", k*max + j + ""]);
+		    }
 	    }
 	    communities.push({"Endpoints" : fakeEndpoints, "Interactions" : fakeInteractions, Size: 4});
 	};
