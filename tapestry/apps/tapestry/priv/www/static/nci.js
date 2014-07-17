@@ -92,6 +92,8 @@ NCI.zoomLinks = (function(){
 	me.on('click', function(){
 		if ($(this).hasClass('disabled'))
 			return;
+		if (NCI.chartData.length < 2)
+		    return;
 		NCI.zoomLinks.removeClass('selected');
 		
 		if ((NCI.curChartPeriod <= NCI.chartPeriods.twoyears && this.dataset.time <= NCI.chartPeriods.twoyears) ||
