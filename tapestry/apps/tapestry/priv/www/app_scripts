@@ -8,6 +8,5 @@
 "static/nci.js",
 "static/nci_histogram.js",
 "static/nci_details.js",
-"static/chart.js",
-"static/server_emulator.js"
+"static/chart.js"
 ]
