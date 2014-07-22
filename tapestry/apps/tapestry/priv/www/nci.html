@@ -22,35 +22,6 @@
 				 };	
 	        };
 		    stylesFile.send();
-			var scripts = [];
-			var scriptsFile = new XMLHttpRequest();
-			scriptsFile.open("GET", "app_scripts", true);
-			scriptsFile.onreadystatechange = function (){
-				if (scriptsFile.readyState == 4 ){
-				    scripts = eval(scriptsFile.responseText);
-				    loadedFunction();
-			    }
-			};
-			scriptsFile.send();	
-		   	var loadedScripts = -1;
-		   	function loadedFunction(){
-				if (loadedScripts < (scripts.length - 1) ){
-					++loadedScripts;
-					loadNext();
-				} else {
-					$(document).foundation();
-					NCI.loadCallback();
-					NCI.initSocket();
-				}
-		   	};		   
-			function loadNext(){
-		       var script = document.createElement('script');
-		       script.type = 'text/javascript';
-		       script.src = scripts[loadedScripts];
-			   script.addEventListener('load', function (e) { loadedFunction(e); }, false);
-		       head.appendChild(script);	
-			};
-            
 		</script>
 		
 	</head>
@@ -233,6 +204,38 @@
 		<div class="disconected">
 			<img class="centrate" style="margin-top:100px;" src="static/images/unavailable.png"></img>
 		</div>
+		<script type="text/javascript">
+			var scripts = [];
+			var scriptsFile = new XMLHttpRequest();
+			scriptsFile.open("GET", "app_scripts", true);
+			scriptsFile.onreadystatechange = function (){
+				if (scriptsFile.readyState == 4 ){
+				    scripts = eval(scriptsFile.responseText);
+					loadScripts();
+			    }
+			};
+			scriptsFile.send();	
+		   	var loadedScripts = 0;
+		   	function loadedFunction(){
+				if (loadedScripts  == (scripts.length - 1) ){
+					$(document).foundation();
+					NCI.loadCallback();
+					NCI.initSocket();
+				}
+				++loadedScripts;
+		   	};		   
+			function loadScripts(){
+				for (var i = 0; i < scripts.length; i++) {
+					var script = document.createElement('script');
+					script.src = scripts[i]
+					script.type = 'text/javascript';
+					script.async = false;
+					script.addEventListener('load', function (e) { loadedFunction(e); }, false);
+					head.appendChild(script);
+				}
+			};
+            
+		</script>
 				
 	</body>
 </html>
