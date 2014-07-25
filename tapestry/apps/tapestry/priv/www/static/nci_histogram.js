@@ -5,9 +5,9 @@ NCI.nciHistogram = (function(){
 	var barWidth = 4;
 	var chart = d3.select("#nciHistogram");
 	var chartDetails = d3.select("#nciHistogramDetails");
-	var margin = {top: 40, right: 60, bottom: 40, left:40},
+	var margin = {top: 10, right: 60, bottom: 40, left:40},
 	    width = 600,
-	    height = 350;
+	    height = 250;
 	var color = d3.scale.category10();
 	var notNetworkColor = "#000000";		
 	var detailsGraphForce;	
@@ -71,7 +71,7 @@ NCI.nciHistogram = (function(){
 		    .attr('height',function(d) { return height - margin.top - margin.bottom - endpointsScale(d.Size) })
 			.on("click", function(d) { 
 				if (NCI.nciHistogram.selectedBar)
-				NCI.nciHistogram.selectedBar.setAttribute("fill", "black");
+				    NCI.nciHistogram.selectedBar.setAttribute("fill", "black");
 				NCI.nciHistogram.selectedBar = this; 
 				this.setAttribute("fill", "rgb(31, 119, 180)");
 				me.showDetails(d);
@@ -95,7 +95,7 @@ NCI.nciHistogram = (function(){
 		//draw axis labels																					
 		barChartSvg.append('text').
 		attr('style', 'font-weight:bold').
-		html('Activities Sorted by Size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j').attr('x', width/2 - 100).attr('y', height - 45);
+		html('Activities Sorted by Size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j').attr('x', width/2 - 100).attr('y', height - margin.top - 5);
 		barChartSvg.append('text').
 		attr('style', 'font-weight:bold').
 		html('Number of Endpoints per Activity&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X[j]').attr('x', -height/2 - 70).attr('y', -10)
@@ -103,12 +103,21 @@ NCI.nciHistogram = (function(){
 
 	};
 
+    var activityDetails;
+	var detailsDim;
 	me.showDetails = function(d){
-		chartDetails.text("");
-		var detailsDim = 320;
-		var activityDetails = chartDetails.append('svg')
-			.attr('width',  $("#nciHistogramDetails").width())
-		    .attr('height', detailsDim);
+		if  (!activityDetails) {
+			detailsDim = $("#nciHistogramDetails").width();
+		    activityDetails = chartDetails.append('svg')
+				.attr('width', detailsDim)
+			    .attr('height', detailsDim/2);
+		} else {
+			activityDetails.text("");
+		};
+		
+	    $('#nciDetails').animate({
+			scrollTop: 200
+		}, 1500);
 			
 		if (d.Size > NCI.max_vertices)
 		    return;	
@@ -117,7 +126,7 @@ NCI.nciHistogram = (function(){
 		force = d3.layout.force()
 			.charge(-60)
 			.linkDistance(30)
-			.size([detailsDim, detailsDim])
+			.size([detailsDim, detailsDim/2])
 			.linkStrength(1).nodes(graph.nodes).links(graph.links).start();
 			
 		var link = activityDetails.selectAll(".link")
