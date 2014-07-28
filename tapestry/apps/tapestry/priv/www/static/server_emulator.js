@@ -107,6 +107,7 @@ NCI.Connection.NCIDetails = function(time) {
 	event.data = JSON.stringify({ 
 		NCI: Math.floor((Math.random()*3)+5),
 		Communities: communities,
+		CommunityGraph: {"Endpoints" : fakeEndpoints, "Interactions" : fakeInteractions},
 		Time:  new Date(),
 		action: 'NCIDetails'
 	});

@@ -69,7 +69,7 @@ NCI.socialGraph  = (function(){
 	
 	me.setupNodes = function(filtered, devided, clustered){
 		me.node.style("fill", function(d) { 
-		    if ( filtered && !(d.name.indexOf("10.") == 0 ||  d.name.indexOf("192.168") == 0)){
+		    if ( filtered && NCI.isExternal(d.name)){
 			    return notNetworkColor;
 		    }
 		    return devided ? color(d.group) : color(0);

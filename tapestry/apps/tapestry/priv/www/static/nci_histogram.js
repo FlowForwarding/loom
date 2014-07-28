@@ -167,9 +167,7 @@ NCI.nciHistogram = (function(){
 	me.colorifyEndpoint = function(devided, endpoint){
 		if (endpoint.external)
 		    return "#ff0000";
-		if ( devided && !endpoint.name.indexOf("10.") == 0 && !endpoint.name.indexOf("192.168") == 0
-	     && !(endpoint.name.indexOf("172.") == 0 && parseInt(endpoint.name.substring(4, 6)) > 15 
-		 && parseInt(endpoint.name.substring(4, 6)) < 32)){
+		if (devided && NCI.isExternal(endpoint.name)){
 			return notNetworkColor;
 		}
 		return color(0);
