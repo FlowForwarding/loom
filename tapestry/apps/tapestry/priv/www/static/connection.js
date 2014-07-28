@@ -4,7 +4,7 @@ if (typeof NCI === 'undefined')
 NCI.start_time; // no data exists on the server before
 NCI.time_adjustment = 0; //difference between client and server time in milliseconds
 NCI.numOfPoints = 200;
-NCI.max_vertices = 300; 
+NCI.max_vertices = 500; 
 //NCI.Connection = new WebSocket("ws://epamove.herokuapp.com");
 NCI.connectionURL = "ws://" + location.host + "/clientsock.yaws";
 //NCI.connectionURL = "ws://10.48.2.81:28080/clientsock.yaws";

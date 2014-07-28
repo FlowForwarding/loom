@@ -183,9 +183,9 @@ NCI.collectorsTable = (function(){
 
 $(".nci-label name").on('click', function(){
 	$('#nciDetails').addClass('details-view-show');
+	$("#socialGraph").html('<div id="activities_graph">Loading...</div>');
 	NCI.detailsFlows.html(NCI.flowsLatestIndex);
 	NCI.Connection.NCIDetails(NCI.nciUpdateDateServer);
-	$("#socialGraph").html('<div id="activities_graph">Loading...</div>');
 });
 
 $(".qps-value .collectorLabel").on('click', function(){

@@ -18,7 +18,7 @@ NCI.setupCommunities = function(data){
 	
 	NCI.socialGraph.endpoints = 0;
 	$.each(NCI.Communities, function(index, community){
-		NCI.socialGraph.endpoints += community.Size;
+		NCI.socialGraph.endpoints += community.Endpoints.length;
 	});
 	NCI.detailsEndpoints.html(NCI.socialGraph.endpoints);
 };
@@ -46,7 +46,7 @@ NCI.socialGraph  = (function(){
 				force.start();
 			}
 		} else {
-			if (me.endpoints > NCI.max_vertices) {
+			if (NCI.socialGraph.endpoints > NCI.max_vertices) {
 				d3.select("#activities_graph").remove();
 				d3.select("#socialGraph")
 				.append('text')
@@ -71,7 +71,7 @@ NCI.socialGraph  = (function(){
 		me.node.style("fill", function(d) { 
 		    if ( filtered && NCI.isExternal(d.name)){
 			    return notNetworkColor;
-		    }
+		    };
 		    return devided ? color(d.group) : color(0);
 		});
 		me.node.attr("r", function(d) { 
@@ -86,17 +86,19 @@ NCI.socialGraph  = (function(){
 	};
 	
 	me.draw = function(devided, clustered, filtered){	
+		var graphWidth = $('#socialGraph').width();
+		var graphHeight = $('#nciDetails').height() - 200;
 		force = d3.layout.force()
 		    .charge(-20)
 			.linkDistance(30)
-			.size([$('#nciDetails').width(),  $('#nciDetails').height() - 200 ])
+			.size([graphWidth,  graphHeight])
 			.linkStrength(clustered ? 1 : 0)
-			.nodes(me.graph.nodes).links(me.graph.links).start();
+			.nodes(me.graph.nodes).links(me.graph.links);
 			
 	    me.activitiesGraphSvg = d3.select("#socialGraph").append("svg")
 		    .attr("id","activities_graph")
-			.attr("width", $('#nciDetails').width())
-			.attr("height", $('#nciDetails').height() - 200);
+			.attr("width", graphWidth)
+			.attr("height", graphHeight);
 	  
 		var link = me.activitiesGraphSvg.selectAll(".link")
 		    .data(me.graph.links)
@@ -120,6 +122,7 @@ NCI.socialGraph  = (function(){
 	        me.node.attr("cx", function(d) { return d.x; })
 	            .attr("cy", function(d) { return d.y; });
 		});
+		force.start();
 	};
 	
 	return me;
@@ -129,38 +132,22 @@ NCI.prepareDataForForceGraph = function(communities){
     var graph = { "nodes":[], "links": []};
 	var endpointsHash = {};
 	
-	var nodeCounter = 0;
-	$.each(communities, function(index, community){
-		$.each(community.Endpoints, function(index2, endpoint){
-			endpointsHash[endpoint] = {index: nodeCounter,
-				 external : false, 
-				 connections: 0,
-				 group: index};
-			nodeCounter ++;
-		});
-	});	
-	
-	var checkEndpoint = function(endPoint){
+	var addConnection = function(endPoint, group){
 		if (!endpointsHash[endPoint]){
 			endpointsHash[endPoint] = {index: Object.keys(endpointsHash).length,
 				external : true,
 				connections: 0,
-			    group: communities.length};
+			    group: group};
 		}
+		endpointsHash[endPoint].connections++;
+		return endpointsHash[endPoint].index;
 	};
 	
 	$.each(communities, function(index, community){	
 		$.each(community.Interactions, function(index2, interacton){
-			checkEndpoint(interacton[0]);
-			checkEndpoint(interacton[1]);
-			
-			endpointsHash[interacton[1]].connections++;
-			endpointsHash[interacton[0]].connections++;
-			var secondIndex = endpointsHash[interacton[1]].index;
-			var firstIndex = endpointsHash[interacton[0]].index;
 			graph.links.push({
-				"source": secondIndex,
-				"target": firstIndex,
+				"source": addConnection(interacton[0], index2),
+				"target": addConnection(interacton[1], index2),
 				"value": 1});
 		});
 	});
@@ -194,6 +181,8 @@ $(".hide-ncidetails").on('click', function(){
 	NCI.detailsNCI.html("");
 	NCI.detailsTime.html("");
 	NCI.detailsFlows.html("");
+	NCI.socialGraph.graph = undefined;
+	$($('#nciDetailsTabs').find("dd a")[0]).click();
 });
 
 

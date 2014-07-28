@@ -174,7 +174,7 @@ NCI.nciHistogram = (function(){
 	};
 	
 	me.clean = function(){
-		chartDetails.text("");
+		d3.select("#nciHistogramDetails svg").text("");
 		chart.text("");
 	};
 	
