@@ -141,7 +141,7 @@ NCI.nciHistogram = (function(){
 			.call(force.drag)
 		    .attr("r", 5)
 			.style("fill", function(d) {
-				return me.colorifyEndpoint(internalEndpointsCheckbox[0].checked, d);
+				return me.colorifyEndpoint(internalEndpointsCheckbox[0].checked, d.name);
 			 });
 		  		  
 		chartDetails.node.append("title").html(function(d) {  

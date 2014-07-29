@@ -135,7 +135,7 @@ NCI.prepareDataForForceGraph = function(communities){
 	var addConnection = function(endPoint, group){
 		if (!endpointsHash[endPoint]){
 			endpointsHash[endPoint] = {index: Object.keys(endpointsHash).length,
-				external : true,
+				//external : true,
 				connections: 0,
 			    group: group};
 		}
@@ -146,8 +146,8 @@ NCI.prepareDataForForceGraph = function(communities){
 	$.each(communities, function(index, community){	
 		$.each(community.Interactions, function(index2, interacton){
 			graph.links.push({
-				"source": addConnection(interacton[0], index2),
-				"target": addConnection(interacton[1], index2),
+				"source": addConnection(interacton[0], index),
+				"target": addConnection(interacton[1], index),
 				"value": 1});
 		});
 	});
