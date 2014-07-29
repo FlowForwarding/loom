@@ -142,7 +142,7 @@ NCI.nciHistogram = (function(){
 			.call(force.drag)
 		    .attr("r", 5)
 			.style("fill", function(d) {
-				return me.colorifyEndpoint(internalEndpointsCheckbox[0].checked, d.name);
+				return me.colorifyEndpoint(internalEndpointsCheckbox[0].checked, d);
 			 });
 		  		  
 		chartDetails.node.append("title").html(function(d) {  
@@ -190,7 +190,6 @@ NCI.nciHistogram = (function(){
 }());
 
 $(".expand-historgam").on('click', function(){
-	console.log('fff');
 	$("#nciHistogram").closest(".row").removeClass("minimaze-histogram");
 	$("#nciHistogram").closest(".row").addClass("fix-transform-click");
 	$('.histogram-details-graph').hide();
