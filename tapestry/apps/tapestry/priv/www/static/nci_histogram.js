@@ -105,19 +105,20 @@ NCI.nciHistogram = (function(){
 
     var activityDetails;
 	var detailsDim;
+	var detailsHeight;
 	me.showDetails = function(d){
 		if  (!activityDetails) {
-			detailsDim = $("#nciHistogramDetails").width();
+			detailsWidth = me.width();
+			detailsHeight = me.height();
 		    activityDetails = chartDetails.append('svg')
-				.attr('width', detailsDim)
-			    .attr('height', detailsDim/2);
+				.attr('width', detailsWidth)
+			    .attr('height', detailsHeight);
 		} else {
 			activityDetails.text("");
 		};
-		
-	    $('#nciDetails').animate({
-			scrollTop: 200
-		}, 1500);
+		$("#nciHistogram").closest(".row").removeClass("fix-transform-click");
+		$("#nciHistogram").closest(".row").addClass("minimaze-histogram");
+		$('.histogram-details-graph').show();
 			
 		if (d.Size > NCI.max_vertices)
 		    return;	
@@ -126,7 +127,7 @@ NCI.nciHistogram = (function(){
 		force = d3.layout.force()
 			.charge(-60)
 			.linkDistance(30)
-			.size([detailsDim, detailsDim/2])
+			.size([detailsWidth, detailsHeight])
 			.linkStrength(1).nodes(graph.nodes).links(graph.links).start();
 			
 		var link = activityDetails.selectAll(".link")
@@ -187,3 +188,10 @@ NCI.nciHistogram = (function(){
 	
 	return me;
 }());
+
+$(".expand-historgam").on('click', function(){
+	console.log('fff');
+	$("#nciHistogram").closest(".row").removeClass("minimaze-histogram");
+	$("#nciHistogram").closest(".row").addClass("fix-transform-click");
+	$('.histogram-details-graph').hide();
+});
