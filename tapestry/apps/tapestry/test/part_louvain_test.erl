@@ -42,6 +42,7 @@ tap_data_test_() ->
         ,{"community_graph_nodes", fun community_graph_nodes/0}
         ,{"community_one", fun community_one/0}
         ,{"community_clique", fun community_clique/0}
+        ,{timeout, 5, [{"partition_modularity_increase", fun partition_modularity_increase/0}]}
      ]
     }.
 
@@ -165,6 +166,17 @@ community_clique() ->
         end, GC#louvain_graph.edges),
     digraph:delete(G).
 
+% Modularity increases with each layer of the dendrogram
+partition_modularity_increase() ->
+    G = digraph:new(),
+    {Neighbors, Edges, Nodes} = random_graph(G, 10, 0.5),
+    Communities = [{N, random(1,3)} || N <- Nodes],
+    Dendrogram = part_louvain:dendrogram(part_louvain:graph(Communities, Neighbors, Edges)),
+    ?assertEqual(1, length(Dendrogram)).
+
+% Nodes in a particular community in level N are together in a
+% community in level N+1.
+
 %%------------------------------------------------------------------------------
 
 % return Erdős-Rényi graph, binomial graph
@@ -211,6 +223,7 @@ neighbors_from_digraph(G) ->
             [{V, NS} | L]
         end, [], digraph:vertices(G)).
 
+% edge weight is 1.0
 edges_from_digraph(G) ->
     [{E, 1.0} || E <- digraph:edges(G)].
 
