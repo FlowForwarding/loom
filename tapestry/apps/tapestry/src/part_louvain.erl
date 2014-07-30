@@ -44,9 +44,9 @@
 -include("part_louvain.hrl").
 
 -record(louvain_graphd, {
-            communitiesd,
-            neighborsd,
-            edgesd}).
+            communitiesd,   % Node -> Community
+            neighborsd,     % Node -> [{NeighborNode, Edge}]
+            edgesd}).       % Edge -> Weight
 
 graph(Communities, Neighbors, Edges) ->
     #louvain_graph{
@@ -89,17 +89,12 @@ modularity(#louvain_weights{m = M, weights = WeightsD}) ->
 
 %% Build a list of graphs, each an interation of the partitioning.
 %% Returns [{Communities, Neighbors, Edges}], head is best partition.
-dendrogram(#louvain_graph{communities = Communities,
-                          neighbors = Neighbors,
+dendrogram(G = #louvain_graph{communities = Communities,
                           edges = []}) ->
     % no edges, each node is its own community
-    [{[{Node, Node} || {Node, _} <- Communities], Neighbors, []}];
-dendrogram(#louvain_graph{communities = Communities,
-                               neighbors = Neighbors,
-                               edges = Edges}) ->
-    dendrogram(#louvain_graphd{communitiesd = dict:from_list(Communities),
-                                    neighborsd = dict:from_list(Neighbors),
-                                    edgesd = dict:from_list(Edges)});
+    [G#louvain_graph{communities = [{Node, Node} || {Node, _} <- Communities]}];
+dendrogram(G = #louvain_graph{}) ->
+    dendrogram(graphd(G));
 dendrogram(GD = #louvain_graphd{}) ->
     % prime the pump by computing the degree and in-degree of the
     % communities in the graph as it stands initially.  Separate
@@ -117,28 +112,32 @@ dendrogram(GD = #louvain_graphd{}) ->
 %% repeat the partitioning until there is no significant
 %% improvement in the modularity.
 partition(GD, Weights, Modularity, L) ->
-    {GPartition, NewModularity} = one_level(GD, Weights, Modularity),
+    {PartitionedGD, NewModularity} = one_level(GD, Weights, Modularity),
     case NewModularity - Modularity < ?MIN_MODULARITY_CHANGE of
         true ->
             L;
         false ->
-            partition(GD,
-                      community_graph(GPartition),
+            % make a graph of the communities (communities are
+            % nodes, edges weighted accordingly), and recurse.
+            CommunityGD = community_graph(PartitionedGD),
+            partition(CommunityGD,
+                      weights(CommunityGD),
                       NewModularity,
-                      [GPartition | L])
+                    % XXX convert to #louvain_graph{}
+                      [PartitionedGD | L])
     end.
 
 %% Partition the #louvain_graphd{}.
 %% Returns the partioned #louvain_graphd{} and the new modularity.
 %% In the #louvain_graphd{}, the Communities are updated
 %% to reflect the paritioning.
-
-one_level(GD = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
+one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
     {ok, FD} = file:open("/tmp/part", [append]),
-    file:write(FD, io_lib:format("edges: ~p~n", [lists:sort(dict:to_list(GD#louvain_graphd.edgesd))])),
+    file:write(FD, io_lib:format("edges: ~p~n", [lists:sort(dict:to_list(GD0#louvain_graphd.edgesd))])),
     file:write(FD, io_lib:format("weights: ~p~n", [dict:to_list(Weights0#louvain_weights.weights)])),
-    {Modified, NewWeights, NewCommunitiesD} = dict:fold(
-        fun(Node, NodeNeighbors, {Mods, Weights, CommunitiesD}) ->
+    {Modified, NewWeights, NewGD} = dict:fold(
+        fun(Node, NodeNeighbors, {Mods, Weights, GD}) ->
+            CommunitiesD = GD#louvain_graphd.communitiesd,
             NodeComm = dict_lookup(Node, CommunitiesD),
             {NodeDegree, NeighborCommWeightsD} =
                         neighboring_community_weights(Node, NodeNeighbors, GD),
@@ -165,9 +164,8 @@ one_level(GD = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
             Weights2 = add_node(BestComm, NodeDegree, LookupCommWeight(BestComm), Weights1),
             file:write(FD, io_lib:format("weights after add: ~p~n", [dict:to_list(Weights2#louvain_weights.weights)])),
             file:write(FD, io_lib:format("node: ~p comm: ~p -> ~p~n", [Node, NodeComm, BestComm])),
-            {(BestComm /= NodeComm) or Mods, Weights2, dict:store(Node, BestComm, CommunitiesD)}
-        end, {false, Weights0, GD#louvain_graphd.communitiesd}, GD#louvain_graphd.neighborsd),
-    NewGD = GD#louvain_graphd{communitiesd = NewCommunitiesD},
+            {(BestComm /= NodeComm) or Mods, Weights2, GD#louvain_graphd{communitiesd = dict:store(Node, BestComm, CommunitiesD)}}
+        end, {false, Weights0, GD0}, GD0#louvain_graphd.neighborsd),
     NewModularity = modularity(NewWeights),
     file:write(FD, io_lib:format("m: ~g, weights: ~p~n", [NewWeights#louvain_weights.m, dict:to_list(NewWeights#louvain_weights.weights)])),
     file:write(FD, io_lib:format("weight sums: ~p~n", [dict:fold(fun(_, {A, B}, {SA, SB}) -> {A + SA, B + SB} end, {0.0,0.0}, NewWeights#louvain_weights.weights)])),
