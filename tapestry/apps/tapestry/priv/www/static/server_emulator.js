@@ -91,7 +91,7 @@ NCI.Connection.NCIDetails = function(time) {
 	for (var k = 0; k < 10; k++){
 		var fakeEndpoints = [];
 		var fakeInteractions = [];
-		var max = 50
+		var max = 10 + Math.floor(Math.random()*60)
 	    for (var i=1; i< max; i++){
 		    fakeEndpoints.push(k*max + i + "");
 	    }
@@ -100,13 +100,14 @@ NCI.Connection.NCIDetails = function(time) {
 		      fakeInteractions.push([k*5 + 1 + "" + h + "", k*max + j + ""]);
 		    }
 	    }
-	    communities.push({"Endpoints" : fakeEndpoints, "Interactions" : fakeInteractions, Size: 4});
+	    communities.push({"Endpoints" : fakeEndpoints, "Interactions" : fakeInteractions, Size: fakeEndpoints.length});
 	};
 	
 	var event = {};
 	event.data = JSON.stringify({ 
 		NCI: Math.floor((Math.random()*3)+5),
 		Communities: communities,
+		CommunityGraph: {"Endpoints" : fakeEndpoints, "Interactions" : fakeInteractions},
 		Time:  new Date(),
 		action: 'NCIDetails'
 	});
@@ -123,6 +124,8 @@ NCI.Connection.NCIDetails = function(time) {
 	    }
 	};
 	scriptsFile.send();	
+	
+	NCI.Connection.onmessage(event)
 }
 
 //Override to do nothing, for the case if connection opened successfull in emulation mode

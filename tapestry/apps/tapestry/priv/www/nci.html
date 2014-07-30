@@ -121,7 +121,7 @@
 				</ul>
 		</div>	
 		
-		<div id="nciDetails" class="details-view">
+		<div id="nciDetails" class="details-view" style="overflow-y:scroll;">
 			<div class="hide-ncidetails"></div>
 			<div id="histogramGeneral" class="row">
 				<div class="large-1 small-1 columns">&nbsp;</div>
@@ -167,19 +167,21 @@
 					<dd><a href="#panelActivitySizes">Activity Sizes</a></dd>
 				</dl>
 				<div class="tabs-content">
-					<div class="content" id="panelActivitySizes">
+					<div class="content" id="panelActivitySizes" style="position:relative;">
 						<div class="row">
-				           <div id="nciHistogram" class="large-7 small-7 columns"> 
-				           </div>
-				           <div class="large-5 small-5 columns"> 
-							   <div id="nciHistogramDetails" style="height:300px;"> </div>
-							   <input id="histogramDetailsInternal" type="checkbox">
-							   <label for="histogramDetailsInternal">Internal</label>
-				           </div>
+				            <div id="nciHistogram"> </div>
+   						    <h6 class="centrate"> <b>NCI(N) = Max j, X[j] ≥ j </b> </h6>						
+   						    <h4 class="centrate"><small> where <b>NCI(N)</b> is the Network Complexity Index of network N and 
+   							<b>X[j]</b> is the number of endpoints engaged in an activity </small></h4>
+							<div class="expand-historgam"></div>
 					    </div>
-						<h6 class="centrate"> <b>NCI(N) = Max j, X[j] ≥ j </b> </h6>						
-						<h4 class="centrate"><small> where <b>NCI(N)</b> is the Network Complexity Index of network N and 
-							<b>X[j]</b> is the number of endpoints engaged in an activity </small></h4>
+						<div class="histogram-details-graph">
+						<div class="centrate">
+ 							<input id="histogramDetailsInternal" type="checkbox">
+ 							<label for="histogramDetailsInternal">Internal</label>
+						</div>
+ 							<div id="nciHistogramDetails"> </div>
+						</div>		
 					</div>
 					<div class="content" id="panelFlows">
 					</div>

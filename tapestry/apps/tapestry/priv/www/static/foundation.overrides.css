@@ -145,7 +145,7 @@
 
 .details-view {
 	position: absolute;
-	top: 45px;
+	top: 0px;
 	width: 100%;
 	background: white;
 	height: 100%;
@@ -164,6 +164,43 @@
     -moz-transition: all 0.5s ease-in-out;
     -o-transition: all 0.5s ease-in-out;
     transition: all 0.5s ease-in-out;
+}
+
+.minimaze-histogram {
+    -ms-transform: translate(-350px, -100px) scale(0.25, 0.25) translateZ(1px); /* IE 9 */
+    -webkit-transform: translate(-350px, -100px) scale(0.25, 0.25) translateZ(1px); /* Chrome, Safari, Opera */
+    transform: translate(-350px, -100px) scale(0.25, 0.25) translateZ(1px);
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+.fix-transform-click {
+    -ms-transform: translateZ(1px); /* IE 9 */
+    -webkit-transform: translateZ(1px); /* Chrome, Safari, Opera */
+    transform: translateZ(1px);
+}
+
+.minimaze-histogram .expand-historgam {
+	visibility: visible;
+}
+
+.histogram-details-graph {
+	top: 0;
+	position: absolute;
+	width: 100%;
+	display: none;
+}
+
+.expand-historgam {
+	background-image: url(images/expand.png);
+	width: 100px;
+	height: 100px;
+	position: absolute;
+	visibility: hidden;
+	right: 150px;
+	top:0;
 }
 
 .hide-ncidetails, .hide-collectorsdetails{
