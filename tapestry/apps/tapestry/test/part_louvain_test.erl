@@ -42,7 +42,9 @@ tap_data_test_() ->
         ,{"community_graph_nodes", fun community_graph_nodes/0}
         ,{"community_one", fun community_one/0}
         ,{"community_clique", fun community_clique/0}
-        ,{timeout, 6000, [{"partition_modularity_increase", fun partition_modularity_increase/0}]}
+%       ,{timeout, 6000, [{"partition_modularity_increase", fun partition_modularity_increase/0}]}
+%       ,{timeout, 6000, [{"partition_ring_clique", fun partition_ring_clique/0}]}
+        ,{timeout, 6000, [{"partition_sample_1000", fun partition_sample_1000/0}]}
      ]
     }.
 
@@ -99,17 +101,7 @@ modularity_ring_clique() ->
         fun(_) ->
             G = digraph:new(),
             NumClique = random(5,20),
-            SizeClique = random(5,20),
-            {SampleNodes, Communities} = lists:foldl(
-                fun(C, {NS, CS}) ->
-                    Community = C * 1000,
-                    % capture the first node in each community.
-                    % use these to form the ring.
-                    {_, _, V = [N|_]} =
-                                complete_graph(G, SizeClique, Community),
-                    {[N | NS], CS ++ communities_from_nodes(Community, V)}
-                end, {[], []}, lists:seq(1, NumClique)),
-            link_ring(G, SampleNodes),
+            Communities = ring_clique_graph(G, NumClique),
             Edges = edges_from_digraph(G),
             Modularity = part_louvain:modularity(
                             part_louvain:graph(
@@ -168,14 +160,28 @@ community_clique() ->
 
 % Modularity increases with each layer of the dendrogram
 partition_modularity_increase() ->
+    % XXX check that modularity increases in each graph of the dendrograph
     G = digraph:new(),
     {Neighbors, Edges, Nodes} = random_graph(G, 1000, 0.01),
     Communities = [{N, random(1,30)} || N <- Nodes],
     Dendrogram = part_louvain:dendrogram(part_louvain:graph(Communities, Neighbors, Edges)),
     ?assertEqual(1, length(Dendrogram)).
 
+partition_ring_clique() ->
+    % XXX should result in NumClique number of communities
+    G = digraph:new(),
+    NumClique = random(5,20),
+    _Communities = ring_clique_graph(G, NumClique),
+    Dendrogram = part_louvain:dendrogram(graph_from_digraph(G)),
+    ?assertEqual(1, length(Dendrogram)),
+    digraph:delete(G).
+
 % Nodes in a particular community in level N are together in a
 % community in level N+1.
+
+partition_sample_1000() ->
+    Dendrogram = part_louvain:dendrogram(graph_from_file("../test/sample_1000")),
+    ?assertEqual(1, length(Dendrogram)).
 
 %%------------------------------------------------------------------------------
 
@@ -212,6 +218,20 @@ complete_graph(G, N, Base) ->
         end, combinations2(Vertices)),
     {neighbors_from_digraph(G), edges_from_digraph(G), Vertices}.
 
+ring_clique_graph(G, NumClique) ->
+    SizeClique = random(5,20),
+    {SampleNodes, Communities} = lists:foldl(
+        fun(C, {NS, CS}) ->
+            Community = C * 1000,
+            % capture the first node in each community.
+            % use these to form the ring.
+            {_, _, V = [N|_]} =
+                        complete_graph(G, SizeClique, Community),
+            {[N | NS], CS ++ communities_from_nodes(Community, V)}
+        end, {[], []}, lists:seq(1, NumClique)),
+    link_ring(G, SampleNodes),
+    Communities.
+
 neighbors_from_digraph(G) ->
     lists:foldl(
         fun(V, L) ->
@@ -222,6 +242,9 @@ neighbors_from_digraph(G) ->
                 end, [], digraph:edges(G, V)),
             [{V, NS} | L]
         end, [], digraph:vertices(G)).
+
+graph_from_digraph(G) ->
+    part_louvain:graph([], neighbors_from_digraph(G), edges_from_digraph(G)).
 
 % edge weight is 1.0
 edges_from_digraph(G) ->
@@ -275,3 +298,26 @@ community_cliques(Nodes, Cliques) ->
                         {{Node, Count rem Cliques}, Count + 1}
                     end, 0, Nodes),
     Communities.
+
+sort_edge(E = {V1,V2}) when V1 > V2 ->
+    E;
+sort_edge({V1,V2}) ->
+    {V2,V1}.
+
+graph_from_file(Filename) ->
+    G = digraph:new(),
+    {ok, Datafile} = file:read_file(Filename),
+    {match, Edges} = re:run(Datafile, "^([0-9]+)\\s*([0-9]+)$",
+                                [global, multiline, {capture,[1,2],binary}]),
+    UniqueEdges = lists:usort([sort_edge(
+                {binary_to_integer(V1,10), binary_to_integer(V2,10)}) ||
+                                                        [V1, V2] <- Edges]),
+    lists:foreach(
+        fun({V1, V2}) ->
+            digraph:add_vertex(G, V1),
+            digraph:add_vertex(G, V2),
+            digraph:add_edge(G, {V1,V2}, V1, V2, [])
+        end, UniqueEdges),
+    R = graph_from_digraph(G),
+    digraph:delete(G),
+    R.
