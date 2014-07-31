@@ -9,7 +9,7 @@ NCI.nciHistogram = (function(){
 	    width = 600,
 	    height = 250;
 	var color = d3.scale.category10();
-	var notNetworkColor = "#000000";		
+	var notNetworkColor = "#fff";		
 	var detailsGraphForce;	
 	var force;
 	
@@ -108,16 +108,14 @@ NCI.nciHistogram = (function(){
 	var detailsHeight;
 	me.showDetails = function(d){
 		if  (!activityDetails) {
-			detailsWidth = me.width();
-			detailsHeight = me.height();
+			detailsWidth = $(window).width();
+			detailsHeight = $(window).height();
 		    activityDetails = chartDetails.append('svg')
 				.attr('width', detailsWidth)
 			    .attr('height', detailsHeight);
 		} else {
 			activityDetails.text("");
 		};
-		$("#nciHistogram").closest(".row").removeClass("fix-transform-click");
-		$("#nciHistogram").closest(".row").addClass("minimaze-histogram");
 		$('.histogram-details-graph').show();
 			
 		if (d.Size > NCI.max_vertices)
@@ -189,8 +187,6 @@ NCI.nciHistogram = (function(){
 	return me;
 }());
 
-$(".expand-historgam").on('click', function(){
-	$("#nciHistogram").closest(".row").removeClass("minimaze-histogram");
-	$("#nciHistogram").closest(".row").addClass("fix-transform-click");
+$('.histogramDetailsClose').on('click', function(){
 	$('.histogram-details-graph').hide();
 });
