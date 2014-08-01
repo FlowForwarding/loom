@@ -132,23 +132,24 @@ partition(GD, Weights, Modularity, L) ->
 %% In the #louvain_graphd{}, the Communities are updated
 %% to reflect the paritioning.
 one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
-    {ok, FD} = file:open("/tmp/part", [append]),
-    file:write(FD, io_lib:format("edges: ~p~n", [lists:sort(dict:to_list(GD0#louvain_graphd.edgesd))])),
-    file:write(FD, io_lib:format("weights: ~p~n", [dict:to_list(Weights0#louvain_weights.weights)])),
+%   {ok, FD} = file:open("/tmp/part", [append]),
+%   file:write(FD, io_lib:format("starting communities: ~p~n", [lists:sort(dict:to_list(GD0#louvain_graphd.communitiesd))])),
+%   file:write(FD, io_lib:format("edges: ~p~n", [lists:sort(dict:to_list(GD0#louvain_graphd.edgesd))])),
+%   file:write(FD, io_lib:format("weights: ~p~n", [dict:to_list(Weights0#louvain_weights.weights)])),
     {Modified, NewWeights, NewGD} = dict:fold(
         fun(Node, NodeNeighbors, {Mods, Weights, GD}) ->
             CommunitiesD = GD#louvain_graphd.communitiesd,
             NodeComm = dict_lookup(Node, CommunitiesD),
             {NodeDegree, NeighborCommWeightsD} =
                         neighboring_community_weights(Node, NodeNeighbors, GD),
-            file:write(FD, io_lib:format("node: ~p comm weights: ~p~n", [Node, dict:to_list(NeighborCommWeightsD)])),
+%           file:write(FD, io_lib:format("node: ~p comm weights: ~p~n", [Node, dict:to_list(NeighborCommWeightsD)])),
             LookupCommWeight = fun(Comm) ->
                                    dict_lookup(Comm, NeighborCommWeightsD, 0.0)
                                end,
             DegCTotW = NodeDegree / (Weights#louvain_weights.m * 2.0),
-            file:write(FD, io_lib:format("remove node comm: ~p degree ~p comm weight ~p~n", [NodeComm, NodeDegree, LookupCommWeight(NodeComm)])),
+%           file:write(FD, io_lib:format("remove node comm: ~p degree ~p comm weight ~p~n", [NodeComm, NodeDegree, LookupCommWeight(NodeComm)])),
             Weights1 = remove_node(NodeComm, NodeDegree, LookupCommWeight(NodeComm), Weights),
-            file:write(FD, io_lib:format("weights after remove: ~p~n", [dict:to_list(Weights1#louvain_weights.weights)])),
+%           file:write(FD, io_lib:format("weights after remove: ~p~n", [dict:to_list(Weights1#louvain_weights.weights)])),
             {BestComm, _} = dict:fold(
                 fun(Community,
                     CommunityWeight,
@@ -160,22 +161,22 @@ one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
                         false -> {TopCommunity, TopModularityGain}
                     end
                 end, {NodeComm, 0.0}, NeighborCommWeightsD),
-            file:write(FD, io_lib:format("add node comm: ~p degree ~p comm weight ~p~n", [BestComm, NodeDegree, LookupCommWeight(BestComm)])),
+%           file:write(FD, io_lib:format("add node comm: ~p degree ~p comm weight ~p~n", [BestComm, NodeDegree, LookupCommWeight(BestComm)])),
             Weights2 = add_node(BestComm, NodeDegree, LookupCommWeight(BestComm), Weights1),
-            file:write(FD, io_lib:format("weights after add: ~p~n", [dict:to_list(Weights2#louvain_weights.weights)])),
-            file:write(FD, io_lib:format("node: ~p comm: ~p -> ~p~n", [Node, NodeComm, BestComm])),
+%           file:write(FD, io_lib:format("weights after add: ~p~n", [dict:to_list(Weights2#louvain_weights.weights)])),
+%           file:write(FD, io_lib:format("node: ~p comm: ~p -> ~p~n", [Node, NodeComm, BestComm])),
             {(BestComm /= NodeComm) or Mods, Weights2, GD#louvain_graphd{communitiesd = dict:store(Node, BestComm, CommunitiesD)}}
         end, {false, Weights0, GD0}, GD0#louvain_graphd.neighborsd),
     NewModularity = modularity(NewWeights),
-    file:write(FD, io_lib:format("m: ~g, weights: ~p~n", [NewWeights#louvain_weights.m, dict:to_list(NewWeights#louvain_weights.weights)])),
-    file:write(FD, io_lib:format("weight sums: ~p~n", [dict:fold(fun(_, {A, B}, {SA, SB}) -> {A + SA, B + SB} end, {0.0,0.0}, NewWeights#louvain_weights.weights)])),
-    file:write(FD, io_lib:format("modularity old: ~g, new ~g, modified: ~p~n", [Modularity, NewModularity, Modified])),
+%   file:write(FD, io_lib:format("m: ~g, weights: ~p~n", [NewWeights#louvain_weights.m, dict:to_list(NewWeights#louvain_weights.weights)])),
+%   file:write(FD, io_lib:format("weight sums: ~p~n", [dict:fold(fun(_, {A, B}, {SA, SB}) -> {A + SA, B + SB} end, {0.0,0.0}, NewWeights#louvain_weights.weights)])),
+%   file:write(FD, io_lib:format("modularity old: ~g, new ~g, modified: ~p~n", [Modularity, NewModularity, Modified])),
     case NewModularity > 1.0 of
         true -> error("new modularity too big!");
         false -> ok
     end,
-    file:write(FD, io_lib:format("communities: ~p~n", [lists:sort(dict:to_list(NewGD#louvain_graphd.communitiesd))])),
-    file:close(FD),
+%   file:write(FD, io_lib:format("ending communities: ~p~n", [lists:sort(dict:to_list(NewGD#louvain_graphd.communitiesd))])),
+%   file:close(FD),
     case not Modified orelse
                     NewModularity - Modularity < ?MIN_MODULARITY_CHANGE of
         true ->
@@ -313,10 +314,9 @@ community_degrees(#louvain_graphd{communitiesd = CommunitiesD,
                     [{Community,
                       EdgeWeight,
                       case NeighborCommunity of
-                          Community -> case {Node, NeighborNode} of
-                                        {N, N} -> EdgeWeight;
-                                        _ -> EdgeWeight/2.0
-                                    end;
+                          % all edges are seen twice, including edges
+                          % that loop back to the same node.
+                          Community -> EdgeWeight/2.0;
                           _ -> 0
                       end
                       } | L2]
