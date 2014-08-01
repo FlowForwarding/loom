@@ -179,7 +179,7 @@
 	width: 100%;
 	height: 100%;
 	display: none;
-	background-color: rgba(0,0,0,0.8);
+	background-color: rgba(0,0,0,0.85);
 }
 
 .histogramDetailsInternal {
@@ -199,6 +199,18 @@
 	position: absolute;
 	right: 40px;
 	top: 15px;
+}
+
+.endpoint-tooltip {
+	position: absolute;
+	font-size: 14;
+	font-weight: 500;
+	color: #565656;
+	top: 100;
+	left: 100;
+	background: lightsteelblue;
+	padding: 5;	
+	display: none;
 }
 
 .hide-ncidetails, .hide-collectorsdetails{

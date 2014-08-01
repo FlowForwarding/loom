@@ -102,7 +102,8 @@ NCI.nciHistogram = (function(){
 		.attr('transform', 'rotate(-90)');
 
 	};
-
+	
+	var tooltip;
     var activityDetails;
 	var detailsDim;
 	var detailsHeight;
@@ -113,18 +114,25 @@ NCI.nciHistogram = (function(){
 		    activityDetails = chartDetails.append('svg')
 				.attr('width', detailsWidth)
 			    .attr('height', detailsHeight);
+				
+			tooltip = chartDetails.append("div").attr("class", "endpoint-tooltip");		
 		} else {
 			activityDetails.text("");
 		};
 		$('.histogram-details-graph').show();
 			
-		if (d.Size > NCI.max_vertices)
+		if (d.Endpoints.length > NCI.max_vertices)
 		    return;	
 	    var graph = NCI.prepareDataForForceGraph([d]);
 		
+		//max 120 for 0, min 10 for NCI.max_vertices
+		var linkDistance = 5 + 160 - Math.floor( 160 * d.Endpoints.length/NCI.max_vertices)
+		var charge = -10 - (60 - Math.floor( 60 * d.Endpoints.length/NCI.max_vertices))
+		var radius = 2 + 5 - Math.floor( 5 * d.Endpoints.length/NCI.max_vertices)
+		
 		force = d3.layout.force()
-			.charge(-60)
-			.linkDistance(30)
+			.charge(charge)
+			.linkDistance(linkDistance)
 			.size([detailsWidth, detailsHeight])
 			.linkStrength(1).nodes(graph.nodes).links(graph.links).start();
 			
@@ -138,19 +146,30 @@ NCI.nciHistogram = (function(){
 		    .data(graph.nodes)
 		    .enter().append("circle")
 			.call(force.drag)
-		    .attr("r", 5)
+		    .attr("r", radius)
 			.style("fill", function(d) {
 				return me.colorifyEndpoint(internalEndpointsCheckbox[0].checked, d);
-			 });
+			 }).on('mouseover', function(d){
+	 			var info = d.name;
+	 			if (d.external){
+	 				info += "<br>doesn't belong to activity";
+	 			};
+	 			info += "<br>" + d.connections + " connections";
+				tooltip.html(info).style("top", d.py - 10).
+							       style("left", d.px + 10).style("display", "inline");
+           })
+		   .on('mouseout', function(){
+			   tooltip.style("display", "none");
+		   });
 		  		  
-		chartDetails.node.append("title").html(function(d) {  
-			var info = d.name;
-			if (d.external){
-				info += "<br>doesn't belong to activity";
-			};
-			info += "<br>" + d.connections + " connections";
-			return info;  
-		});
+		// chartDetails.node.append("title").html(function(d) {
+		// 	var info = d.name;
+		// 	if (d.external){
+		// 		info += "<br>doesn't belong to activity";
+		// 	};
+		// 	info += "<br>" + d.connections + " connections";
+		// 	return info;
+		// });
 
 		force.on("tick", function() { 
 			link.attr("x1", function(d) { return d.source.x; })

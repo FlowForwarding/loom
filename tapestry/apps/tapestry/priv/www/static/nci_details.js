@@ -20,7 +20,12 @@ NCI.setupCommunities = function(data){
 	$.each(NCI.Communities, function(index, community){
 		NCI.socialGraph.endpoints += community.Endpoints.length;
 	});
-	NCI.detailsEndpoints.html(NCI.socialGraph.endpoints);
+	
+	var sizesSum = 0;
+	$.each(NCI.Communities, function(index, community){
+		sizesSum  += community.Size;
+	});
+	NCI.detailsEndpoints.html(NCI.parceNumberForView(sizesSum));
 };
 
 NCI.socialGraph  = (function(){
@@ -135,7 +140,7 @@ NCI.prepareDataForForceGraph = function(communities){
 	var addConnection = function(endPoint, group, endpoints){
 		if (!endpointsHash[endPoint]){
 			endpointsHash[endPoint] = {index: Object.keys(endpointsHash).length,
-				external : !endpoints.indexOf(endPoint),
+				external: !endpoints.indexOf(endPoint),
 				connections: 0,
 			    group: group};
 		}
