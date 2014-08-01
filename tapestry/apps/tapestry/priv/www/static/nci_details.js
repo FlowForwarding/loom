@@ -20,7 +20,12 @@ NCI.setupCommunities = function(data){
 	$.each(NCI.Communities, function(index, community){
 		NCI.socialGraph.endpoints += community.Endpoints.length;
 	});
-	NCI.detailsEndpoints.html(NCI.socialGraph.endpoints);
+	
+	var sizesSum = 0;
+	$.each(NCI.Communities, function(index, community){
+		sizesSum  += community.Size;
+	});
+	NCI.detailsEndpoints.html(NCI.parceNumberForView(sizesSum));
 };
 
 NCI.socialGraph  = (function(){
