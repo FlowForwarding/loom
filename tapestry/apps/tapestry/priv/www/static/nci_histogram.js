@@ -102,7 +102,8 @@ NCI.nciHistogram = (function(){
 		.attr('transform', 'rotate(-90)');
 
 	};
-
+	
+	var tooltip;
     var activityDetails;
 	var detailsDim;
 	var detailsHeight;
@@ -113,6 +114,8 @@ NCI.nciHistogram = (function(){
 		    activityDetails = chartDetails.append('svg')
 				.attr('width', detailsWidth)
 			    .attr('height', detailsHeight);
+				
+			tooltip = chartDetails.append("div").attr("class", "endpoint-tooltip");		
 		} else {
 			activityDetails.text("");
 		};
@@ -124,9 +127,7 @@ NCI.nciHistogram = (function(){
 		
 		//max 120 for 0, min 10 for NCI.max_vertices
 		var linkDistance = 5 + 160 - Math.floor( 160 * d.Endpoints.length/NCI.max_vertices)
-		console.log(linkDistance)
 		var charge = -10 - (60 - Math.floor( 60 * d.Endpoints.length/NCI.max_vertices))
-		console.log(charge)
 		var radius = 2 + 5 - Math.floor( 5 * d.Endpoints.length/NCI.max_vertices)
 		
 		force = d3.layout.force()
@@ -148,16 +149,27 @@ NCI.nciHistogram = (function(){
 		    .attr("r", radius)
 			.style("fill", function(d) {
 				return me.colorifyEndpoint(internalEndpointsCheckbox[0].checked, d);
-			 });
+			 }).on('mouseover', function(d){
+	 			var info = d.name;
+	 			if (d.external){
+	 				info += "<br>doesn't belong to activity";
+	 			};
+	 			info += "<br>" + d.connections + " connections";
+				tooltip.html(info).style("top", d.py - 10).
+							       style("left", d.px + 10).style("display", "inline");
+           })
+		   .on('mouseout', function(){
+			   tooltip.style("display", "none");
+		   });
 		  		  
-		chartDetails.node.append("title").html(function(d) {  
-			var info = d.name;
-			if (d.external){
-				info += "<br>doesn't belong to activity";
-			};
-			info += "<br>" + d.connections + " connections";
-			return info;  
-		});
+		// chartDetails.node.append("title").html(function(d) {
+		// 	var info = d.name;
+		// 	if (d.external){
+		// 		info += "<br>doesn't belong to activity";
+		// 	};
+		// 	info += "<br>" + d.connections + " connections";
+		// 	return info;
+		// });
 
 		force.on("tick", function() { 
 			link.attr("x1", function(d) { return d.source.x; })
