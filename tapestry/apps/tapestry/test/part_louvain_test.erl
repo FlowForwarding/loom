@@ -42,9 +42,11 @@ tap_data_test_() ->
         ,{"community_graph_nodes", fun community_graph_nodes/0}
         ,{"community_one", fun community_one/0}
         ,{"community_clique", fun community_clique/0}
-%       ,{timeout, 6000, [{"partition_modularity_increase", fun partition_modularity_increase/0}]}
-%       ,{timeout, 6000, [{"partition_ring_clique", fun partition_ring_clique/0}]}
-        ,{timeout, 6000, [{"partition_sample_1000", fun partition_sample_1000/0}]}
+        ,{"partition_modularity_increase", fun partition_modularity_increase/0}
+        ,{"partition_ring_clique", fun partition_ring_clique/0}
+        ,{"partition_sample_1000", fun partition_sample_1000/0}
+        ,{timeout, 200, {"partition_sample_10000", fun partition_sample_10000/0}}
+        ,{timeout, 1000, {"partition_sample_100000", fun partition_sample_100000/0}}
      ]
     }.
 
@@ -160,30 +162,61 @@ community_clique() ->
 
 % Modularity increases with each layer of the dendrogram
 partition_modularity_increase() ->
-    % XXX check that modularity increases in each graph of the dendrograph
     G = digraph:new(),
-    {Neighbors, Edges, Nodes} = random_graph(G, 1000, 0.01),
-    Communities = [{N, random(1,30)} || N <- Nodes],
-    Dendrogram = part_louvain:dendrogram(part_louvain:graph(Communities, Neighbors, Edges)),
-    ?assertEqual(1, length(Dendrogram)).
+    {Neighbors, Edges, _Nodes} = random_graph(G, 1000, 0.01),
+    Dendrogram = part_louvain:dendrogram(
+                                part_louvain:graph([], Neighbors, Edges)),
+    digraph:delete(G),
+    LGs = Dendrogram#louvain_dendrogram.louvain_graphs,
+    ?assert(length(LGs) > 0),
+    lists:foldl(
+        fun(LG, LastModularity) ->
+            Modularity = part_louvain:modularity(LG),
+            ?assert(Modularity > LastModularity),
+            Modularity
+        end, -1.0, lists:reverse(LGs)).
 
 partition_ring_clique() ->
-    % XXX should result in NumClique number of communities
     G = digraph:new(),
     NumClique = random(5,20),
     _Communities = ring_clique_graph(G, NumClique),
     Dendrogram = part_louvain:dendrogram(graph_from_digraph(G)),
-    ?assertEqual(1, length(Dendrogram)),
-    digraph:delete(G).
+    digraph:delete(G),
+    CommunitiesPL = part_louvain:communities(Dendrogram),
+    ?assertEqual(NumClique, length(CommunitiesPL)),
+    % nodes in each community should be from the corresponding clique
+    lists:foreach(
+        fun({Community, Nodes}) ->
+            lists:foreach(
+                fun(Node) ->
+                    ?assertEqual(Community div 1000, Node div 1000)
+                end, Nodes)
+        end, CommunitiesPL).
 
 % Nodes in a particular community in level N are together in a
 % community in level N+1.
+% XXX not tested
 
 partition_sample_1000() ->
-    Dendrogram = part_louvain:dendrogram(graph_from_file("../test/sample_1000")),
-    ?assertEqual(1, length(Dendrogram)).
+    CommunitiesPL = partition_sample_file("../test/sample_1000"),
+    ?assertEqual(30, length(CommunitiesPL)).
+
+partition_sample_10000() ->
+    CommunitiesPL = partition_sample_file("../test/sample_10000"),
+    ?assertEqual(71, length(CommunitiesPL)).
+
+partition_sample_100000() ->
+    CommunitiesPL = partition_sample_file("../test/sample_100000"),
+    % XXX getting 14253, but data generator says 11243
+    ?assertEqual(11243, length(CommunitiesPL)).
 
 %%------------------------------------------------------------------------------
+
+% read sample data file, discover communities, and check community count.
+partition_sample_file(Filename) ->
+    part_louvain:communities(
+        part_louvain:dendrogram(
+            graph_from_file(Filename))).
 
 % return Erdős-Rényi graph, binomial graph
 random_graph(G, N, P) ->
@@ -305,6 +338,11 @@ sort_edge({V1,V2}) ->
     {V2,V1}.
 
 graph_from_file(Filename) ->
+    {Time, Ret} = timer:tc(fun() -> graph_from_file_(Filename) end),
+    ?debugFmt("~ngraph_from_file(~p) ~f~n", [Filename, Time / 1000000.0]),
+    Ret.
+
+graph_from_file_(Filename) ->
     G = digraph:new(),
     {ok, Datafile} = file:read_file(Filename),
     {match, Edges} = re:run(Datafile, "^([0-9]+)\\s*([0-9]+)$",

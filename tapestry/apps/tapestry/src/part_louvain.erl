@@ -37,6 +37,7 @@
          weights/1,
          weights/2,
          modularity/1,
+         communities/1,
          dendrogram/1]).
 
 -define(MIN_MODULARITY_CHANGE, 0.0000001).
@@ -86,6 +87,15 @@ modularity(#louvain_weights{m = M, weights = WeightsD}) ->
             math:pow(AW/(M * 2.0), 2)
         end, 0, WeightsD).
 
+% returns [{Community, [Nodes]}].
+communities(#louvain_graph{communities = Communities}) ->
+    dict:to_list(lists:foldl(
+        fun({Node, Community}, D) ->
+            dict_append(Community, Node, D)
+        end, dict:new(), Communities));
+communities(#louvain_dendrogram{louvain_graphs = Gs}) ->
+    [Base | Rest] = lists:reverse(Gs),
+    communities(propagate_communities(Base, Rest)).
 
 %% Build a list of graphs, each an interation of the partitioning.
 %% Returns [{Communities, Neighbors, Edges}], head is best partition.
@@ -102,12 +112,33 @@ dendrogram(GD = #louvain_graphd{}) ->
     % they are also needed to do the paritioning.
     Weights = weights(GD),
     Modularity = modularity(Weights),
-    file:write_file("/tmp/part", io_lib:format("starting communities: ~p~n", [lists:sort(dict:to_list(GD#louvain_graphd.communitiesd))])),
-    partition(GD, Weights, Modularity, []).
+%   file:write_file("/tmp/part", io_lib:format("starting communities: ~p~n", [lists:sort(dict:to_list(GD#louvain_graphd.communitiesd))])),
+    #louvain_dendrogram{
+                louvain_graphs = partition(GD, Weights, Modularity, [])}.
 
 %% ----------------------------------------------------------------------------
 %% Local Functions
 %% ----------------------------------------------------------------------------
+
+%% propagate community map through dendrogram
+propagate_communities(G, Mappings) ->
+    CommunitiesD = dict:from_list(G#louvain_graph.communities),
+    % create a new community mapping by walking through the mappings
+    % and back propagating the communities from the higher modularity graphs
+    % to the lower modularity graphs.
+    NewCommunitiesD = lists:foldl(
+        fun(#louvain_graph{communities = Mapping}, CD) ->
+            MappingD = dict:from_list(Mapping),
+            dict:fold(
+                fun(Node, Community, CD1) ->
+                    % the community in the base graph is the key to
+                    % the communities map in graph with next higher
+                    % modularity.  The value in the graph with the next
+                    % higher modularity is the community for that graph.
+                    dict:store(Node, dict_lookup(Community, MappingD), CD1)
+                end, CD, CD)
+        end, CommunitiesD, Mappings),
+    G#louvain_graph{communities = dict:to_list(NewCommunitiesD)}.
 
 %% repeat the partitioning until there is no significant
 %% improvement in the modularity.
@@ -123,8 +154,7 @@ partition(GD, Weights, Modularity, L) ->
             partition(CommunityGD,
                       weights(CommunityGD),
                       NewModularity,
-                    % XXX convert to #louvain_graph{}
-                      [PartitionedGD | L])
+                      [graph(PartitionedGD) | L])
     end.
 
 %% Partition the #louvain_graphd{}.
@@ -171,10 +201,6 @@ one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
 %   file:write(FD, io_lib:format("m: ~g, weights: ~p~n", [NewWeights#louvain_weights.m, dict:to_list(NewWeights#louvain_weights.weights)])),
 %   file:write(FD, io_lib:format("weight sums: ~p~n", [dict:fold(fun(_, {A, B}, {SA, SB}) -> {A + SA, B + SB} end, {0.0,0.0}, NewWeights#louvain_weights.weights)])),
 %   file:write(FD, io_lib:format("modularity old: ~g, new ~g, modified: ~p~n", [Modularity, NewModularity, Modified])),
-    case NewModularity > 1.0 of
-        true -> error("new modularity too big!");
-        false -> ok
-    end,
 %   file:write(FD, io_lib:format("ending communities: ~p~n", [lists:sort(dict:to_list(NewGD#louvain_graphd.communitiesd))])),
 %   file:close(FD),
     case not Modified orelse
@@ -344,3 +370,6 @@ sum_weight(#louvain_graphd{edgesd = EdgesD}) ->
         fun(_, EdgeWeight, TotalWeight) ->
             TotalWeight + EdgeWeight
         end, 0, EdgesD).
+
+dict_append(Key, Value, Dict) ->
+    dict:update(Key, fun(V) -> [Value | V] end, [Value], Dict).

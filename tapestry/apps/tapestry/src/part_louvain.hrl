@@ -33,3 +33,8 @@
 -record(louvain_weights,
     {m,
      weights}).
+
+%% louvain_graphs - list of #louvain_graph{}
+-record(louvain_dendrogram,
+    {louvain_graphs
+    }).
