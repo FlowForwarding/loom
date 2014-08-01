@@ -118,13 +118,20 @@ NCI.nciHistogram = (function(){
 		};
 		$('.histogram-details-graph').show();
 			
-		if (d.Size > NCI.max_vertices)
+		if (d.Endpoints.length > NCI.max_vertices)
 		    return;	
 	    var graph = NCI.prepareDataForForceGraph([d]);
 		
+		//max 120 for 0, min 10 for NCI.max_vertices
+		var linkDistance = 5 + 160 - Math.floor( 160 * d.Endpoints.length/NCI.max_vertices)
+		console.log(linkDistance)
+		var charge = -10 - (60 - Math.floor( 60 * d.Endpoints.length/NCI.max_vertices))
+		console.log(charge)
+		var radius = 2 + 5 - Math.floor( 5 * d.Endpoints.length/NCI.max_vertices)
+		
 		force = d3.layout.force()
-			.charge(-60)
-			.linkDistance(30)
+			.charge(charge)
+			.linkDistance(linkDistance)
 			.size([detailsWidth, detailsHeight])
 			.linkStrength(1).nodes(graph.nodes).links(graph.links).start();
 			
@@ -138,7 +145,7 @@ NCI.nciHistogram = (function(){
 		    .data(graph.nodes)
 		    .enter().append("circle")
 			.call(force.drag)
-		    .attr("r", 5)
+		    .attr("r", radius)
 			.style("fill", function(d) {
 				return me.colorifyEndpoint(internalEndpointsCheckbox[0].checked, d);
 			 });

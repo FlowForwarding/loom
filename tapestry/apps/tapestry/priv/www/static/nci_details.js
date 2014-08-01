@@ -135,7 +135,7 @@ NCI.prepareDataForForceGraph = function(communities){
 	var addConnection = function(endPoint, group, endpoints){
 		if (!endpointsHash[endPoint]){
 			endpointsHash[endPoint] = {index: Object.keys(endpointsHash).length,
-				external : !endpoints.indexOf(endPoint),
+				external: !endpoints.indexOf(endPoint),
 				connections: 0,
 			    group: group};
 		}
