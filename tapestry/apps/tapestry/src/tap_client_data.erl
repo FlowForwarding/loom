@@ -26,7 +26,7 @@
 
 -export([start_link/0,
          num_endpoints/3,
-         nci/3,
+         nci/5,
          qps/4,
          new_client/1,
          more_nci_data/4,
@@ -46,6 +46,7 @@
 
 -define(STATE, tap_client_data_state).
 -record(?STATE,{start_time,
+                limits,
                 clients = [],
                 last_nci,
                 last_nci_time,
@@ -57,7 +58,7 @@
                 last_qps_time,
                 nci,
                 collectors = [],
-                communities = no_communities}).
+                community_data = no_communities}).
 
 %------------------------------------------------------------------------------
 % API
@@ -69,8 +70,9 @@ start_link() ->
 num_endpoints(Endpoints, Edges, DateTime) ->
     gen_server:cast(?MODULE, {num_endpoints, Endpoints, Edges, DateTime}).
 
-nci(NCI, Communities, DateTime) ->
-    gen_server:cast(?MODULE, {nci, NCI, Communities, DateTime}).
+nci(NCI, Communities, CommunitySizes, CommunityGraph, DateTime) ->
+    gen_server:cast(?MODULE,
+            {nci, NCI, Communities, CommunitySizes, CommunityGraph, DateTime}).
 
 qps(Sender, QPS, Collectors, DateTime) ->
     gen_server:cast(?MODULE, {qps, Sender, QPS, Collectors, DateTime}).
@@ -97,15 +99,17 @@ collectors(Pid) ->
 % gen_server callbacks
 %------------------------------------------------------------------------------
 
-init([])->
+init([]) ->
     gen_server:cast(?MODULE, start),
-    {ok, #?STATE{collectors = dict:new()}}.
+    Limits = [{Key, tap_config:getconfig(Key)} || Key <-
+                [max_vertices, max_edges, max_communities, comm_size_limit]],
+    {ok, #?STATE{collectors = dict:new(), limits = Limits}}.
 
 % for debugging
-handle_call(nci_details, _From, State = #?STATE{communities = Communities,
+handle_call(nci_details, _From, State = #?STATE{community_data = CommunityData,
                                                 nci = NCI,
                                                 last_nci_time = Time}) ->
-    {reply, json_nci_details(Time, NCI, Communities), State};
+    {reply, json_nci_details(Time, NCI, CommunityData), State};
 handle_call(collectors, _From, State = #?STATE{collectors = CollectorDict,
                                                last_qps_time = Time}) ->
     {reply, json_collectors(Time, CollectorDict), State};
@@ -138,8 +142,9 @@ handle_cast({num_endpoints, NEP, NE, UT},
         false -> State
     end,
     {noreply, NewState};
-handle_cast({nci, NCI, Communities, UT}, State = #?STATE{nci_log = NCILog,
-                                                         clients = Clients}) ->
+handle_cast({nci, NCI, Communities, CommunitySizes, CommunityGraph, UT},
+                                        State = #?STATE{nci_log = NCILog,
+                                                        clients = Clients}) ->
     true = ets:insert(NCILog, {UT, NCI}),
     Time = list_to_binary(tap_time:rfc3339(UT)),
     JSON = encode_nci(Time, NCI),
@@ -147,19 +152,24 @@ handle_cast({nci, NCI, Communities, UT}, State = #?STATE{nci_log = NCILog,
     {noreply, State#?STATE{last_nci = JSON,
                            nci = NCI,
                            last_nci_time = Time,
-                           communities = Communities}};
-handle_cast({limits, Pid}, State) ->
-    clientsock:send(Pid, json_limits(<<"getlimits">>, tap_calc:getlimits())),
+                           community_data =
+                                {Communities,
+                                 dict:from_list(CommunitySizes),
+                                 CommunityGraph
+                                }
+                          }};
+handle_cast({limits, Pid}, State = #?STATE{limits = Limits}) ->
+    clientsock:send(Pid, json_limits(<<"getlimits">>, Limits)),
     {noreply, State};
-handle_cast({setlimits, Pid, Limits}, State) ->
-    setlimits(Limits),
-    clientsock:send(Pid, json_limits(<<"setlimits">>, tap_calc:getlimits())),
-    {noreply, State};
+handle_cast({setlimits, Pid, SetLimits}, State = #?STATE{limits = Limits}) ->
+    NewLimits = do_setlimits(Limits, SetLimits),
+    clientsock:send(Pid, json_limits(<<"setlimits">>, NewLimits)),
+    {noreply, State#?STATE{limits = NewLimits}};
 handle_cast({nci_details, Pid}, State = #?STATE{
-                                            communities = Communities,
+                                            community_data = CommunityData,
                                             nci = NCI,
                                             last_nci_time = Time}) ->
-    clientsock:send(Pid, json_nci_details(Time, NCI, Communities)),
+    clientsock:send(Pid, json_nci_details(Time, NCI, CommunityData)),
     {noreply, State};
 handle_cast({collectors, Pid}, State = #?STATE{collectors = CollectorDict,
                                                last_qps_time = Time}) ->
@@ -263,20 +273,20 @@ send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
 broadcast_msg(Clients, Msg) ->
     [clientsock:send(C, Msg) || C <- Clients].
 
-json_nci_details(Time, undefined, Communities) ->
-    json_nci_details(Time, 0, Communities);
-json_nci_details(Time, NCI, Communities) ->
+json_nci_details(Time, undefined, CommunityData) ->
+    json_nci_details(Time, 0, CommunityData);
+json_nci_details(Time, NCI, CommunityData) ->
     jiffy:encode({[
         {<<"action">>,<<"NCIDetails">>},
         {<<"NCI">>,NCI},
         {<<"Time">>, Time},
-        {<<"Communities">>, community_details(Communities)},
-        {<<"CommunityGraph">>, community_graph(Communities)}
+        {<<"Communities">>, community_details(CommunityData)},
+        {<<"CommunityGraph">>, community_graph(CommunityData)}
     ]}).
 
 community_graph(no_communities) ->
     [];
-community_graph({_Endpoints, _Interactions, Sizes,
+community_graph({{_Endpoints, _Interactions}, Sizes,
                                         {Cendpoints, Cinteractions}}) ->
     {[
         {<<"Endpoints">>, cendpoints(Cendpoints, Sizes)},
@@ -298,7 +308,7 @@ cinteractions(Interactions, Sizes) ->
 
 community_details(no_communities) ->
     [];
-community_details({Endpoints, Interactions, Sizes, _Comms}) ->
+community_details({{Endpoints, Interactions}, Sizes, _Comms}) ->
     [
         {[
             {<<"Interactions">>, interactions(dict_fetch(C, Interactions))},
@@ -416,11 +426,14 @@ encode_limit(infinity) ->
 encode_limit(I) when is_integer(I) ->
     I.
 
-setlimits(Limits) ->
-    lists:foreach(
-        fun({Limit, Value}) ->
-            tap_calc:setlimit(Limit, decode_limit(Value))
-        end, Limits).
+do_setlimits(Limits0, NewLimits) ->
+    lists:foldl(
+        fun({Limit, Value}, Limits) ->
+            update_limit(Limits, Limit, decode_limit(Value))
+        end, Limits0, NewLimits).
 
 decode_limit(<<"infinity">>) -> infinity;
 decode_limit(I) when is_integer(I) -> I.
+
+update_limit(Limits, Limit, Value) ->
+    lists:keyreplace(Limit, 1, Limits, {Limit, Value}).

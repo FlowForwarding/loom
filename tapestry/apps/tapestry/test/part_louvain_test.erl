@@ -45,8 +45,8 @@ tap_data_test_() ->
         ,{"partition_modularity_increase", fun partition_modularity_increase/0}
         ,{"partition_ring_clique", fun partition_ring_clique/0}
         ,{"partition_sample_1000", fun partition_sample_1000/0}
-        ,{timeout, 200, {"partition_sample_10000", fun partition_sample_10000/0}}
-        ,{timeout, 1000, {"partition_sample_100000", fun partition_sample_100000/0}}
+%       ,{timeout, 200, {"partition_sample_10000", fun partition_sample_10000/0}}
+%       ,{timeout, 1000, {"partition_sample_100000", fun partition_sample_100000/0}}
      ]
     }.
 
