@@ -43,7 +43,6 @@ NCI.socialGraph  = (function(){
 		};	
 		//if we change type of graph (flows/activities) or need to redraw it from sratch
 		if (isActivities != activities || !NCI.socialGraph.graph || (isClustered && !clustered)){
-			console.log("test1")
 		    d3.select("#activities_graph").remove();
 			var numOfPoints =  activities ?  NCI.CommunityGraph.Endpoints.length : NCI.socialGraph.endpoints;
 			if (numOfPoints > NCI.max_vertices) {
@@ -62,7 +61,6 @@ NCI.socialGraph  = (function(){
 			}
 		//otherwise just change appearance	
 		} else {
-			console.log("test2")
 			isClustered = clustered;
 			isActivities = activities;
 			isDevided = devided;
