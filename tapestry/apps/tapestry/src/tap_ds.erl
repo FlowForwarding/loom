@@ -30,7 +30,9 @@
          stop_nci/1,
          dirty/0,
          save/1,
-         load/1]).
+         load/1,
+         community_detector/0,
+         community_detector/1]).
 
 -export([init/1,
          handle_call/3,
@@ -44,6 +46,7 @@
 -define(STATE, tap_ds_state).
 -record(?STATE,{
             digraph,
+            community_detector,
             dirty,
             calc_timeout,
             calc_pid = no_process}).
@@ -78,6 +81,16 @@ save(Filename) ->
 
 load(Filename) ->
     gen_server:call(?MODULE, {load_graph, Filename}, infinity).
+
+community_detector() ->
+    % application:get_env(tapestry, community_detector, part_labelprop).
+    application:get_env(tapestry, community_detector, part_louvain).
+
+% check for supported community detection modules
+community_detector(CD = part_labelprop) ->
+    application:set_env(tapestry, community_detector, CD);
+community_detector(CD = part_louvain) ->
+    application:set_env(tapestry, community_detector, CD).
 
 %------------------------------------------------------------------------------
 % gen_server callbacks
@@ -203,27 +216,39 @@ push_nci(_Digraph, 0) ->
 push_nci(Digraph, _NumVertices) ->
     Vertices = ?LOGDURATION(digraph:vertices(Digraph)),
     Edges = ?LOGDURATION([digraph:edge(Digraph, E) || E <- digraph:edges(Digraph)]),
+    % Read the environment to get the module to use for label propagation.
+    % Do this everytime the calculation is done so it can be changed at
+    % runtime.
+    CommunityDetector = community_detector(),
     Pid = spawn(
         fun() ->
-try
-            ?DEBUG("Starting NCI Calculation"),
-            random:seed(now()),
-            {G, CleanupFn} =
-                        ?LOGDURATION(part_labelprop:graph(Vertices, Edges)),
-            {Communities, Graph, CommunityGraph} =
-                        part_labelprop:find_communities(G),
-            CommunitySizes = [{Community, length(Vs)} ||
-                                    {Community, Vs} <- Communities],
-            NCI = nci:compute_from_communities(CommunitySizes),
-            CommunityD = pivot_communities(Communities, Graph),
-            tap_client_data:nci(NCI, CommunityD, CommunitySizes, CommunityGraph, calendar:universal_time()),
-            ?LOGDURATION(CleanupFn(G))
-catch
-    T:E ->
-        error({erlang:get_stacktrace(), T, E})
-end
+            % wrap in a try/catch so we get stack traces for any errors
+            try
+                ?DEBUG("Starting NCI Calculation"),
+                random:seed(now()),
+                {G, CleanupFn} =
+                            ?LOGDURATION(CommunityDetector:graph(Vertices, Edges)),
+                ?DEBUG("~p~n", [G]),
+                {Communities, Graph, CommunityGraph} =
+                            CommunityDetector:find_communities(G),
+                CommunitySizes = [{Community, length(Vs)} ||
+                                        {Community, Vs} <- Communities],
+                NCI = nci:compute_from_communities(CommunitySizes),
+                ?DEBUG("Communities ~p~n", [Communities]),
+                ?DEBUG("Graph ~p~n", [Graph]),
+                ?DEBUG("CommunityGraph ~p~n", [CommunityGraph]),
+                CommunityD = pivot_communities(Communities, Graph),
+                tap_client_data:nci(NCI, CommunityD, CommunitySizes, CommunityGraph, calendar:universal_time()),
+                ?LOGDURATION(CleanupFn(G))
+            catch
+                T:E ->
+                    ?ERROR("Community Detection Error:~n~p:~p~n~p~n",
+                                            [T, E, erlang:get_stacktrace()]),
+                    error(E)
+            end
         end),
     Pid.
+
 
 % inputs:
 %  [{Community, [Endpoint]}],
@@ -239,8 +264,8 @@ end
 pivot_communities(Communities, {_Endpoints, Interactions}) ->
     InteractionsD = lists:foldl(
         fun(Interaction = {V1, V2}, D) ->
-            dict:store(V1, Interaction,
-                dict:store(V2, Interaction, D))
+            dict_append(V1, Interaction,
+                dict_append(V2, Interaction, D))
         end, dict:new(), Interactions),
     lists:foldl(
         fun({Community, Endpoints}, {EAD, IAD}) ->
@@ -250,11 +275,17 @@ pivot_communities(Communities, {_Endpoints, Interactions}) ->
                         IAD)}
         end, {dict:new(), dict:new()}, Communities).
 
+dict_append(K, V, D) ->
+    dict:update(K, fun(V0) -> [V | V0] end, [V], D).
+
+% make a unique list of edges that have at least one end at 
+% each of the Endpoints
 interactions_for_endpoints(InteractionsD, Endpoints) ->
-    lists:foldl(
+    Edges = lists:foldl(
         fun(Endpoint, L) ->
             [dict:fetch(Endpoint, InteractionsD) | L]
-        end, [], Endpoints).
+        end, [], Endpoints),
+    lists:usort(lists:flatten(Edges)).
 
 update_edge(G, V1, V2, Time) ->
     % XXX use add_edge(G, {V1,V2}, V1, V2, Time) instead?

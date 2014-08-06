@@ -30,7 +30,9 @@
 
 -module(part_louvain).
 
--export([graph/3,
+-export([graph/2,
+         find_communities/1,
+         graph/3,
          graph/1,
          graphd/1,
          community_graph/1,
@@ -43,11 +45,74 @@
 -define(MIN_MODULARITY_CHANGE, 0.0000001).
 
 -include("part_louvain.hrl").
+-include("tap_logger.hrl").
 
 -record(louvain_graphd, {
             communitiesd,   % Node -> Community
             neighborsd,     % Node -> [{NeighborNode, Edge}]
             edgesd}).       % Edge -> Weight
+
+% Make a #louvain_graph{} from tap data.
+graph(Nodes, Edges) ->
+    % index edges
+    % Edges0: Node -> [Edge]
+    % GEdges: [Edge]
+    {EdgesD0, GEdges} = lists:foldl(
+        fun({_, N1, N2, _}, {D, L}) ->
+            Edge = vsort({N1,N2}),
+            {
+                dict_append(N1, Edge,
+                    dict_append(N2, Edge, D)),
+                [{Edge, 1.0} | L]
+            }
+        end, {dict:new(), []}, Edges),
+    % remove duplicate edges
+    EdgesD = dict:map(
+        fun(_, L) ->
+            lists:usort(L)
+        end, EdgesD0),
+    GNeighbors = lists:foldl(
+        fun(Node, L) ->
+            [{Node, dict_lookup(Node, EdgesD, [])} | L]
+        end, [], Nodes),
+    {graph([], GNeighbors, lists:usort(GEdges)), fun(_) -> ok end}.
+
+% Partition the graph using the louvain partitioning algorithm, then
+% return the data in the format expected by tap code.
+%
+% Returns:
+% {
+%   [{Community, [Node]}], % maps community to nodes in the community
+%   {
+%      [Node], % vertices (i.e., endpoints) in the graph
+%      [{Node1, Node2}] % interfactions (i.e., edges) between Nodes
+%   {,
+%   {
+%      [Community], % communities
+%      [{Community1, Community2}] % interactions between communities
+%   }
+% }
+find_communities(G = #louvain_graph{}) ->
+    Dendrogram = dendrogram(G),
+    CommunitiesPL = communities(Dendrogram),
+    PartitionedG = G#louvain_graph{communities = pivot_communities(CommunitiesPL)},
+    CommunityGraphD = community_graph(graphd(PartitionedG)),
+    ?DEBUG("Community Graph.neighbors: ~p~n", [dict:to_list(CommunityGraphD#louvain_graphd.neighborsd)]),
+    ?DEBUG("Community Graph.edges: ~p~n", [dict:to_list(CommunityGraphD#louvain_graphd.edgesd)]),
+    {
+        CommunitiesPL,
+        tap_graph(PartitionedG),
+        tap_graph(CommunityGraphD)
+    }.
+
+pivot_communities(CommunitiesPL) ->
+    lists:foldl(
+        fun({Community, Nodes}, L0) ->
+            lists:foldl(
+                fun(Node, L1) ->
+                    [{Node, Community} | L1]
+                end, L0, Nodes)
+        end, [], CommunitiesPL).
 
 graph(Communities, Neighbors, Edges) ->
     #louvain_graph{
@@ -98,7 +163,7 @@ communities(#louvain_dendrogram{louvain_graphs = Gs}) ->
     communities(propagate_communities(Base, Rest)).
 
 %% Build a list of graphs, each an interation of the partitioning.
-%% Returns [{Communities, Neighbors, Edges}], head is best partition.
+%% Returns [#louvain_graph{}], head is best partition.
 dendrogram(G = #louvain_graph{communities = Communities,
                           edges = []}) ->
     % no edges, each node is its own community
@@ -247,7 +312,7 @@ neighboring_community_weights(Node, NodeNeighbors, GD) ->
             end
         end, {0.0, dict:new()}, NodeNeighbors).
 
-%% Create a new graph based the #louvain_graph{} where the
+%% Create a new graph based the #louvain_graphd{} where the
 %% Nodes in the new graph are the communities in the old one.
 %% Carry the weights into the new graph by summing all of the
 %% links connecting nodes in the communities.
@@ -306,13 +371,7 @@ edge_id({V1, V2}) ->
     {V2, V1}.
 
 add_neighbor(Node, NeighborNode, EdgeId, NeighborsD) ->
-    NewNeighbor = {NeighborNode, EdgeId},
-    dict:update(Node,
-        fun(Neighbors) ->
-            [NewNeighbor | Neighbors]
-        end,
-        [NewNeighbor],
-        NeighborsD).
+    dict_append(Node, {NeighborNode, EdgeId}, NeighborsD).
 
 add_weight(Edge, Weight, EdgesD) ->
     dict:update_counter(Edge, Weight, EdgesD).
@@ -363,6 +422,9 @@ dict_lookup(Key, Dict, Default) ->
         {ok, Value} -> Value
     end.
 
+dict_append(Key, Value, Dict) ->
+    dict:update(Key, fun(V0) -> [Value | V0] end, [Value], Dict).
+
 %% Sum the weights of all the edges in the graph.  Edges have a weight
 %% of at least 1.
 sum_weight(#louvain_graphd{edgesd = EdgesD}) ->
@@ -371,5 +433,18 @@ sum_weight(#louvain_graphd{edgesd = EdgesD}) ->
             TotalWeight + EdgeWeight
         end, 0, EdgesD).
 
-dict_append(Key, Value, Dict) ->
-    dict:update(Key, fun(V) -> [Value | V] end, [Value], Dict).
+tap_graph(GD = #louvain_graphd{}) ->
+    {
+        dict:fetch_keys(GD#louvain_graphd.neighborsd),
+        dict:fetch_keys(GD#louvain_graphd.edgesd)
+    };
+tap_graph(G = #louvain_graph{}) ->
+    {
+        [N || {N, _} <- G#louvain_graph.neighbors],
+        [E || {E, _} <- G#louvain_graph.edges]
+    }.
+
+vsort({N1,N2}) when N1 > N2 ->
+    {N1,N2};
+vsort({N1,N2}) ->
+    {N2,N1}.
