@@ -227,19 +227,20 @@ push_nci(Digraph, _NumVertices) ->
                 ?DEBUG("Starting NCI Calculation"),
                 random:seed(now()),
                 {G, CleanupFn} =
-                            ?LOGDURATION(CommunityDetector:graph(Vertices, Edges)),
-                ?DEBUG("~p~n", [G]),
+                        ?LOGDURATION(CommunityDetector:graph(Vertices, Edges)),
                 {Communities, Graph, CommunityGraph} =
-                            CommunityDetector:find_communities(G),
+                        ?LOGDURATION(CommunityDetector:find_communities(G)),
                 CommunitySizes = [{Community, length(Vs)} ||
                                         {Community, Vs} <- Communities],
                 NCI = nci:compute_from_communities(CommunitySizes),
-                ?DEBUG("Communities ~p~n", [Communities]),
-                ?DEBUG("Graph ~p~n", [Graph]),
-                ?DEBUG("CommunityGraph ~p~n", [CommunityGraph]),
-                CommunityD = pivot_communities(Communities, Graph),
-                tap_client_data:nci(NCI, CommunityD, CommunitySizes, CommunityGraph, calendar:universal_time()),
-                ?LOGDURATION(CleanupFn(G))
+                CommunityD =
+                    ?LOGDURATION(pivot_communities(Communities, Graph)),
+                tap_client_data:nci(NCI,
+                                    CommunityD,
+                                    CommunitySizes,
+                                    CommunityGraph,
+                                    calendar:universal_time()),
+                CleanupFn(G)
             catch
                 T:E ->
                     ?ERROR("Community Detection Error:~n~p:~p~n~p~n",

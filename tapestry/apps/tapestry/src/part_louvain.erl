@@ -97,8 +97,6 @@ find_communities(G = #louvain_graph{}) ->
     CommunitiesPL = communities(Dendrogram),
     PartitionedG = G#louvain_graph{communities = pivot_communities(CommunitiesPL)},
     CommunityGraphD = community_graph(graphd(PartitionedG)),
-    ?DEBUG("Community Graph.neighbors: ~p~n", [dict:to_list(CommunityGraphD#louvain_graphd.neighborsd)]),
-    ?DEBUG("Community Graph.edges: ~p~n", [dict:to_list(CommunityGraphD#louvain_graphd.edgesd)]),
     {
         CommunitiesPL,
         tap_graph(PartitionedG),
@@ -209,7 +207,13 @@ propagate_communities(G, Mappings) ->
 %% improvement in the modularity.
 partition(GD, Weights, Modularity, L) ->
     {PartitionedGD, NewModularity} = one_level(GD, Weights, Modularity),
-    case NewModularity - Modularity < ?MIN_MODULARITY_CHANGE of
+    ?DEBUG("Parition Modularity: ~p -> ~p", [Modularity, NewModularity]),
+    % Stop if the modularity didn't change very much or if (due to
+    % a buggy implementation) the modularity is greater than 1.0.
+    case
+        NewModularity - Modularity < ?MIN_MODULARITY_CHANGE orelse
+        (NewModularity > 1.0 andalso length(L) > 0)
+    of
         true ->
             L;
         false ->
@@ -263,13 +267,19 @@ one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
             {(BestComm /= NodeComm) or Mods, Weights2, GD#louvain_graphd{communitiesd = dict:store(Node, BestComm, CommunitiesD)}}
         end, {false, Weights0, GD0}, GD0#louvain_graphd.neighborsd),
     NewModularity = modularity(NewWeights),
+    ?DEBUG("OneLevel Modularity: ~p -> ~p", [Modularity, NewModularity]),
 %   file:write(FD, io_lib:format("m: ~g, weights: ~p~n", [NewWeights#louvain_weights.m, dict:to_list(NewWeights#louvain_weights.weights)])),
 %   file:write(FD, io_lib:format("weight sums: ~p~n", [dict:fold(fun(_, {A, B}, {SA, SB}) -> {A + SA, B + SB} end, {0.0,0.0}, NewWeights#louvain_weights.weights)])),
 %   file:write(FD, io_lib:format("modularity old: ~g, new ~g, modified: ~p~n", [Modularity, NewModularity, Modified])),
 %   file:write(FD, io_lib:format("ending communities: ~p~n", [lists:sort(dict:to_list(NewGD#louvain_graphd.communitiesd))])),
 %   file:close(FD),
+    % stop if the communities didn't change, or the modularity did not
+    % increase by very much, or (due to a buggy implementation) the
+    % modularity is more than 1.0.
     case not Modified orelse
-                    NewModularity - Modularity < ?MIN_MODULARITY_CHANGE of
+             NewModularity - Modularity < ?MIN_MODULARITY_CHANGE orelse
+             NewModularity > 1.0
+        of
         true ->
             % stop if the modularity is not changing very much
             % or the last pass didn't change anything
