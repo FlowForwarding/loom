@@ -123,13 +123,18 @@ NCI.nciHistogram = (function(){
 			
 		if (d.Endpoints.length > NCI.max_vertices)
 		    return;	
-	    var graph = NCI.prepareDataForForceGraph([d]);
+	    var graph = new NCI.graphBuilder([d]).graph;
 		
 		//max 120 for 0, min 10 for NCI.max_vertices
 		var linkDistance = 5 + 160 - Math.floor( 160 * d.Endpoints.length/NCI.max_vertices)
 		var charge = -10 - (60 - Math.floor( 60 * d.Endpoints.length/NCI.max_vertices))
-		var radius = 2 + 5 - Math.floor( 5 * d.Endpoints.length/NCI.max_vertices)
 		
+		var verticlesLimitForRadius = 250
+		var radius = 4
+		if (d.Endpoints.length < verticlesLimitForRadius) {
+			radius = 3 + 2 - Math.floor( 2*d.Endpoints.length/verticlesLimitForRadius);
+		}
+	//
 		force = d3.layout.force()
 			.charge(charge)
 			.linkDistance(linkDistance)
@@ -139,8 +144,7 @@ NCI.nciHistogram = (function(){
 		var link = activityDetails.selectAll(".link")
 		    .data(graph.links)
 			.enter().append("line")
-			.attr("class", "activities_link")
-			.style("stroke-width", function(d) { return Math.sqrt(d.value); });  	
+			.attr("class", "activities_link");  	
 				  
 		chartDetails.node = activityDetails.selectAll(".node")
 		    .data(graph.nodes)
@@ -161,15 +165,6 @@ NCI.nciHistogram = (function(){
 		   .on('mouseout', function(){
 			   tooltip.style("display", "none");
 		   });
-		  		  
-		// chartDetails.node.append("title").html(function(d) {
-		// 	var info = d.name;
-		// 	if (d.external){
-		// 		info += "<br>doesn't belong to activity";
-		// 	};
-		// 	info += "<br>" + d.connections + " connections";
-		// 	return info;
-		// });
 
 		force.on("tick", function() { 
 			link.attr("x1", function(d) { return d.source.x; })
@@ -207,5 +202,6 @@ NCI.nciHistogram = (function(){
 }());
 
 $('.histogramDetailsClose').on('click', function(){
+	NCI.socialGraph.graph = undefined;
 	$('.histogram-details-graph').hide();
 });

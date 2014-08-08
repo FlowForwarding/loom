@@ -139,6 +139,7 @@
 }
 
 .activities_link {
+  stroke-width: 1px;
   stroke: #999;
   stroke-opacity: .6;
 }
