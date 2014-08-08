@@ -123,7 +123,7 @@ NCI.nciHistogram = (function(){
 			
 		if (d.Endpoints.length > NCI.max_vertices)
 		    return;	
-	    var graph = NCI.buildGraphData([d]);
+	    var graph = new NCI.graphBuilder([d]).graph;
 		
 		//max 120 for 0, min 10 for NCI.max_vertices
 		var linkDistance = 5 + 160 - Math.floor( 160 * d.Endpoints.length/NCI.max_vertices)

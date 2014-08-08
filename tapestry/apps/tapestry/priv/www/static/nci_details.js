@@ -36,13 +36,14 @@ NCI.socialGraph  = (function(){
 	var isActivities = false;
 	var isDevided = false;
 	var isFiltered = false;
+	me.graphBuilder;
 	
 	me.show = function(devided, clustered, filtered, activities){
 		if (NCI.Communities.length == 0){
 			return;
 		};	
 		//if we change type of graph (flows/activities) or need to redraw it from sratch
-		if (isActivities != activities || !NCI.socialGraph.graph || (isClustered && !clustered)){
+		if (isActivities != activities || !me.graphBuilder || (isClustered && !clustered)){
 		    d3.select("#activities_graph").remove();
 			var numOfPoints =  activities ?  NCI.CommunityGraph.Endpoints.length : NCI.socialGraph.endpoints;
 			if (numOfPoints > NCI.max_vertices) {
@@ -51,7 +52,7 @@ NCI.socialGraph  = (function(){
 				.attr("id","activities_graph")
 				.html('Too many endpoints to draw');
 			} else {
-				activities ? NCI.buildGraphData([NCI.CommunityGraph]) : NCI.buildGraphData(NCI.Communities);
+				me.graphBuilder = activities ? new NCI.graphBuilder([NCI.CommunityGraph]) : new NCI.graphBuilder(NCI.Communities);
 				isClustered = clustered;
 				isActivities = activities;
 				isDevided = devided;
@@ -83,10 +84,8 @@ NCI.socialGraph  = (function(){
 		});
 		me.node.attr("r", function(d) { 
 			var radius = 4;
-			if (NCI.Social.selectedDot == d.name.split(":")[0])
-			    radius = 6;
-			if (NCI.maxActivitySize > 0 && d.size) {
-		 		radius = 4 + 8*(d.size/NCI.maxActivitySize);
+			if (NCI.maxActivitySize > 0 && (parseInt(d.size) == parseInt(d.size))) {
+		 		radius = 4 + 8*(parseInt(d.size)/NCI.maxActivitySize);
 		 	}
 			return radius;
 		});
@@ -108,19 +107,19 @@ NCI.socialGraph  = (function(){
 			.attr("height", graphHeight);
 			
 		var setupLinks = function(){
-			force.links(me.graph.links);
+			force.links(me.graphBuilder.graph.links);
 			me.activitiesGraphSvg.selectAll("line").remove();
-			var linksData = me.activitiesGraphSvg.selectAll(".link").data(me.graph.links);
+			var linksData = me.activitiesGraphSvg.selectAll(".link").data(me.graphBuilder.graph.links);
 			me.link = linksData.enter().append("line")
 		    .attr("class", "activities_link"); 
 			linksData.exit().remove();
 		};
 		
-		NCI.Social.selectedDots = []
+		NCI.Social.selectedDots = {}
 		var setupNodes = function(){
-			force.nodes(me.graph.nodes);
+			force.nodes(me.graphBuilder.graph.nodes);
 			me.activitiesGraphSvg.selectAll("circle").remove();
-			var nodesData =  me.activitiesGraphSvg.selectAll(".node").data(me.graph.nodes);
+			var nodesData =  me.activitiesGraphSvg.selectAll(".node").data(me.graphBuilder.graph.nodes);
             me.node = nodesData.enter().append("circle").call(force.drag);
             nodesData.exit().remove();
 			me.setupNodes(isFiltered, isDevided, isClustered);
@@ -128,19 +127,26 @@ NCI.socialGraph  = (function(){
 			if (isActivities) {
 				me.node.on('click', function(d){
 					var label = d.name.split(":")[0];
-					var group = NCI.Social.selectedDots.indexOf(label) + 1;
-					if (group > 0){
-						NCI.Social.selectedDots.splice(group - 1, 1)
-						NCI.Social.removeCommunity(group);
+					var group = NCI.Social.selectedDots[label]
+					if (group !== undefined){
+						delete NCI.Social.selectedDots[NCI.Social.selectedDots[label]]
+						delete NCI.Social.selectedDots[label]
+						me.graphBuilder.removeCommunity(group);
 						setupLinks();		
 						setupNodes();
 						force.start();
 						return;
 					}
-					NCI.Social.selectedDots.push(label);
+					for (var i=0; i < Object.keys(NCI.Social.selectedDots).length + 1; i++){
+						if (NCI.Social.selectedDots[i + 1] === undefined){
+							NCI.Social.selectedDots[i + 1] = true;
+							NCI.Social.selectedDots[label] =  i + 1;
+							break
+						}
+					}
 					$.each(NCI.Communities, function(index, community){
 						if (community.Label == label){
-							NCI.buildGraphData.addCommunity(community, label);
+							me.graphBuilder.addCommunity(community, label, NCI.Social.selectedDots[label] );
 							setupLinks();		
 							setupNodes();
 							force.start();
@@ -170,33 +176,20 @@ NCI.socialGraph  = (function(){
 
 NCI.Social = {}
 
-NCI.Social.removeCommunity = function(group){
-    NCI.socialGraph.graph.nodes = $.grep(NCI.socialGraph.graph.nodes, function(node, index){
-		var remove = node.group == group
-		if (remove)
-		  delete NCI.Social.endpointsHash[node.name];
-		return !remove;
-	});
-	
-    NCI.socialGraph.graph.links = $.grep(NCI.socialGraph.graph.links, function(link, index){
-		var remove = NCI.Social.endpointsHash[link.target.name] === undefined || NCI.Social.endpointsHash[link.source.name] === undefined
-		return !remove
-	});
-	NCI.socialGraph.groupNumber--;
-};
-
-NCI.buildGraphData = function(communities){
-    NCI.socialGraph.graph = { "nodes":[], "links": []};
-    NCI.socialGraph.groupNumber = 0;
-	NCI.Social.endpointsHash = {};
+NCI.graphBuilder = function(communities){
+	var thisBuilder = this;
+	var endpointsHash = {};
+	var groupCount = 0;
+    thisBuilder.graph = { "nodes":[], "links": []};
 	NCI.maxActivitySize = 0;
 	
-	NCI.buildGraphData.addCommunity = function(community, mainEndpoint){
+	//add community
+	thisBuilder.addCommunity = function(community, mainEndpoint, group){
 		var communityEndpoints = {};
-		var startIndex = Object.keys(NCI.Social.endpointsHash).length
-		var addConnection = function(endPoint, group, endpoints){
+		var startIndex = Object.keys(endpointsHash).length
+		var addConnection = function(endPoint, endpoints){
 			var ip = endPoint.split(":")[0];
-			if (!NCI.Social.endpointsHash[ip]){
+			if (!endpointsHash[ip]){
 			    if (!communityEndpoints[ip]){
 					var size = endPoint.split(":")[1];
 				    var index = Object.keys(communityEndpoints).length + startIndex
@@ -204,20 +197,19 @@ NCI.buildGraphData = function(communities){
 					    index: index,
 					    external: !endpoints.indexOf(endPoint),
 					    connections: 0,
-						size: size,
-				        group: group};
+						size: size};
 			    };
 			    communityEndpoints[ip].connections++;
 			    return communityEndpoints[ip].index;
 		    } else {
-		    	return NCI.Social.endpointsHash[ip].index;
+		    	return endpointsHash[ip].index;
 		    }
 		};
 		
 		$.each(community.Interactions, function(index, interacton){
-			NCI.socialGraph.graph.links.push({
-				source: addConnection(interacton[0], NCI.socialGraph.groupNumber, community.Endpoints),
-				target: addConnection(interacton[1], NCI.socialGraph.groupNumber, community.Endpoints),
+			thisBuilder.graph.links.push({
+				source: addConnection(interacton[0], community.Endpoints),
+				target: addConnection(interacton[1], community.Endpoints),
 				value: 1});
 		});
 		
@@ -227,24 +219,38 @@ NCI.buildGraphData = function(communities){
 			var endpoint = communityEndpoints[key];
 			if (NCI.maxActivitySize < parseInt(endpoint.size))
 			    NCI.maxActivitySize = parseInt(endpoint.size);
-			NCI.socialGraph.graph.nodes.push({
+			thisBuilder.graph.nodes.push({
 				index: endpoint.index,
 				name: key,
-				group: endpoint.group,
+				group: group,
 				connections: endpoint.connections,
 				external: endpoint.external,
 				size: endpoint.size
 			});
-			NCI.Social.endpointsHash[key] = communityEndpoints[key]
+			endpointsHash[key] = communityEndpoints[key];
 		});	
-		NCI.socialGraph.groupNumber++
+	};
+	
+	//remove community
+	thisBuilder.removeCommunity = function(group){
+	    thisBuilder.graph.nodes = $.grep(thisBuilder.graph.nodes, function(node, index){
+			var remove = node.group == group
+			if (remove)
+			  delete endpointsHash[node.name];
+			return !remove;
+		});
+	
+	    thisBuilder.graph.links = $.grep(thisBuilder.graph.links, function(link, index){
+			var remove = endpointsHash[link.target.name] === undefined || endpointsHash[link.source.name] === undefined;
+			return !remove;
+		});
+		groupCount--;
 	};
 	
 	$.each(communities, function(index, community){	
-		NCI.buildGraphData.addCommunity(community)
+		thisBuilder.addCommunity(community, undefined, groupCount);
+		groupCount++;
 	});
-	
-	return NCI.socialGraph.graph;
 };
 
 $(".hide-ncidetails").on('click', function(){
@@ -257,7 +263,7 @@ $(".hide-ncidetails").on('click', function(){
 	NCI.detailsNCI.html("");
 	NCI.detailsTime.html("");
 	NCI.detailsFlows.html("");
-	NCI.socialGraph.graph = undefined;
+	NCI.socialGraph.graphBuilder = undefined;
 	$($('#nciDetailsTabs').find("dd a")[0]).click();
 });
 
@@ -288,6 +294,6 @@ $('#nciDetailsTabs').on('toggled', function (event, tab) {
 	    default:
 			NCI.nciHistogram.show();
 			NCI.socialGraph.text("");
-			NCI.socialGraph.graph = undefined;
+			NCI.socialGraph.graphBuilder = undefined;
 	};
 });
