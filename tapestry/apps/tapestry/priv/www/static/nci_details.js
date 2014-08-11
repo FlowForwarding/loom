@@ -219,14 +219,13 @@ NCI.graphBuilder = function(communities){
 			var endpoint = communityEndpoints[key];
 			if (NCI.maxActivitySize < parseInt(endpoint.size))
 			    NCI.maxActivitySize = parseInt(endpoint.size);
-			thisBuilder.graph.nodes.push({
-				index: endpoint.index,
+			thisBuilder.graph.nodes[endpoint.index] = {
 				name: key,
 				group: group,
 				connections: endpoint.connections,
 				external: endpoint.external,
 				size: endpoint.size
-			});
+			};
 			endpointsHash[key] = communityEndpoints[key];
 		});	
 	};
