@@ -23,14 +23,16 @@
 -behavior(gen_server).
 
 -export([start_link/0,
-         push_nci/4,
+         push_nci/0,
          clean_data/1,
          ordered_edge/1,
          ordered_edges/1,
          stop_nci/1,
          dirty/0,
          save/1,
-         load/1]).
+         load/1,
+         community_detector/0,
+         community_detector/1]).
 
 -export([init/1,
          handle_call/3,
@@ -44,6 +46,7 @@
 -define(STATE, tap_ds_state).
 -record(?STATE,{
             digraph,
+            community_detector,
             dirty,
             calc_timeout,
             calc_pid = no_process}).
@@ -55,9 +58,8 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-push_nci(MaxVertices, MaxEdges, MaxCommSize, MaxCommunities) ->
-    gen_server:cast(?MODULE,
-            {push_nci, MaxVertices, MaxEdges, MaxCommSize, MaxCommunities}).
+push_nci() ->
+    gen_server:cast(?MODULE, push_nci).
 
 stop_nci(Pid) ->
     gen_server:cast(?MODULE, {stop_nci, Pid}).
@@ -79,6 +81,16 @@ save(Filename) ->
 
 load(Filename) ->
     gen_server:call(?MODULE, {load_graph, Filename}, infinity).
+
+community_detector() ->
+    % application:get_env(tapestry, community_detector, part_labelprop).
+    application:get_env(tapestry, community_detector, part_louvain).
+
+% check for supported community detection modules
+community_detector(CD = part_labelprop) ->
+    application:set_env(tapestry, community_detector, CD);
+community_detector(CD = part_louvain) ->
+    application:set_env(tapestry, community_detector, CD).
 
 %------------------------------------------------------------------------------
 % gen_server callbacks
@@ -108,11 +120,10 @@ handle_cast(dirty, State) ->
 handle_cast({ordered_edges, Edges}, State = #?STATE{digraph = Digraph}) ->
     add_edges(Digraph, Edges),
     {noreply, State#?STATE{dirty = true}, hibernate};
-handle_cast({push_nci, MaxVertices, MaxEdges, MaxCommSize, MaxCommunities},
-                                State = #?STATE{digraph = Digraph,
-                                                dirty = Dirty,
-                                                calc_pid = CalcPid,
-                                                calc_timeout = CalcTimeout}) ->
+handle_cast(push_nci, State = #?STATE{digraph = Digraph,
+                                      dirty = Dirty,
+                                      calc_pid = CalcPid,
+                                      calc_timeout = CalcTimeout}) ->
     NewState = case calculating(CalcPid) of
         true ->
             ?DEBUG("NCI Calculation already running ~p(~s), skipping this run",
@@ -124,8 +135,7 @@ handle_cast({push_nci, MaxVertices, MaxEdges, MaxCommSize, MaxCommunities},
                     ?DEBUG("Skipping NCI Calculation, no new data"),
                     State;
                 _ ->
-                    Pid = push_nci(Digraph, digraph:no_vertices(Digraph),
-                        {MaxVertices, MaxEdges, MaxCommSize, MaxCommunities}),
+                    Pid = push_nci(Digraph, digraph:no_vertices(Digraph)),
                     nci_watchdog(Pid, CalcTimeout),
                     State#?STATE{calc_pid = Pid, dirty = false}
             end
@@ -200,24 +210,85 @@ add_edge(G, E, Time)->
         false -> error
     end.
 
-push_nci(_Digraph, 0, _Limits) ->
+push_nci(_Digraph, 0) ->
     % no data to process
     no_process;
-push_nci(Digraph, _NumVertices, Limits) ->
+push_nci(Digraph, _NumVertices) ->
     Vertices = ?LOGDURATION(digraph:vertices(Digraph)),
     Edges = ?LOGDURATION([digraph:edge(Digraph, E) || E <- digraph:edges(Digraph)]),
+    % Read the environment to get the module to use for label propagation.
+    % Do this everytime the calculation is done so it can be changed at
+    % runtime.
+    CommunityDetector = community_detector(),
     Pid = spawn(
         fun() ->
-            ?DEBUG("Starting NCI Calculation"),
-            random:seed(now()),
-            G = ?LOGDURATION(new_digraph(Vertices, Edges)),
-            {NCI, Communities} = nci:compute_from_graph(G, Limits),
-            tap_client_data:nci(NCI, Communities, calendar:universal_time()),
-            ?LOGDURATION(digraph:delete(G))
+            % wrap in a try/catch so we get stack traces for any errors
+            try
+                ?DEBUG("Starting NCI Calculation"),
+                random:seed(now()),
+                {G, CleanupFn} =
+                        ?LOGDURATION(CommunityDetector:graph(Vertices, Edges)),
+                {Communities, Graph, CommunityGraph} =
+                        ?LOGDURATION(CommunityDetector:find_communities(G)),
+                CommunitySizes = [{Community, length(Vs)} ||
+                                        {Community, Vs} <- Communities],
+                NCI = nci:compute_from_communities(CommunitySizes),
+                CommunityD =
+                    ?LOGDURATION(pivot_communities(Communities, Graph)),
+                tap_client_data:nci(NCI,
+                                    CommunityD,
+                                    CommunitySizes,
+                                    CommunityGraph,
+                                    calendar:universal_time()),
+                CleanupFn(G)
+            catch
+                T:E ->
+                    ?ERROR("Community Detection Error:~n~p:~p~n~p~n",
+                                            [T, E, erlang:get_stacktrace()]),
+                    error(E)
+            end
         end),
     Pid.
-            
-update_edge(G, V1, V2, Time)->
+
+
+% inputs:
+%  [{Community, [Endpoint]}],
+%  {
+%    [Endpoint], [{Endpoint1, Endpoint2}]
+%  }
+%
+% returns:
+% {
+%   dict (Community ->  [Endpiont])
+%   dict (Community ->  [{Endpoint1, Endpoint2])
+% }
+pivot_communities(Communities, {_Endpoints, Interactions}) ->
+    InteractionsD = lists:foldl(
+        fun(Interaction = {V1, V2}, D) ->
+            dict_append(V1, Interaction,
+                dict_append(V2, Interaction, D))
+        end, dict:new(), Interactions),
+    lists:foldl(
+        fun({Community, Endpoints}, {EAD, IAD}) ->
+             {dict:store(Community, Endpoints, EAD),
+              dict:store(Community,
+                        interactions_for_endpoints(InteractionsD, Endpoints),
+                        IAD)}
+        end, {dict:new(), dict:new()}, Communities).
+
+dict_append(K, V, D) ->
+    dict:update(K, fun(V0) -> [V | V0] end, [V], D).
+
+% make a unique list of edges that have at least one end at 
+% each of the Endpoints
+interactions_for_endpoints(InteractionsD, Endpoints) ->
+    Edges = lists:foldl(
+        fun(Endpoint, L) ->
+            [dict:fetch(Endpoint, InteractionsD) | L]
+        end, [], Endpoints),
+    lists:usort(lists:flatten(Edges)).
+
+update_edge(G, V1, V2, Time) ->
     % XXX use add_edge(G, {V1,V2}, V1, V2, Time) instead?
     Found = lists:filter(
                     fun(X)-> 
@@ -231,16 +302,6 @@ update_edge(G, V1, V2, Time)->
 
 days_to_seconds({D, {H, M, S}}) ->
    (D * 24 * 60 * 60) + (H * 60 * 60) + (M * 60) + S.
-
-new_digraph(Vertices, Edges) ->
-            G = digraph:new(),
-            lists:foreach(fun(X)->
-                              digraph:add_vertex(G,X,X)
-                          end, Vertices),
-            lists:foreach(fun({_, V1, V2, _}) ->
-                              digraph:add_edge(G, V1, V2)
-                          end, Edges),
-            G.
 
 do_stop_nci(no_process) ->
     noop;
