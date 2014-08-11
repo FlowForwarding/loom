@@ -123,7 +123,7 @@ NCI.socialGraph  = (function(){
             me.node = nodesData.enter().append("circle").call(force.drag);
             nodesData.exit().remove();
 			me.setupNodes(isFiltered, isDevided, isClustered);
-			me.node.append("title").html(function(d) { return d.name + "<br>" + d.connections + " connections" ; });
+			me.node.append("title").html(function(d) { return d.fullname + "<br>" + d.connections + " connections" ; });
 			if (isActivities) {
 				me.node.on('click', function(d){
 					var label = d.name.split(":")[0];
@@ -194,6 +194,7 @@ NCI.graphBuilder = function(communities){
 					var size = endPoint.split(":")[1];
 				    var index = Object.keys(communityEndpoints).length + startIndex
 				    communityEndpoints[ip] = {
+						fullname: endPoint,
 					    index: index,
 					    external: !endpoints.indexOf(endPoint),
 					    connections: 0,
@@ -221,6 +222,7 @@ NCI.graphBuilder = function(communities){
 			    NCI.maxActivitySize = parseInt(endpoint.size);
 			thisBuilder.graph.nodes[endpoint.index] = {
 				name: key,
+				fullname: endpoint.fullname,
 				group: group,
 				connections: endpoint.connections,
 				external: endpoint.external,

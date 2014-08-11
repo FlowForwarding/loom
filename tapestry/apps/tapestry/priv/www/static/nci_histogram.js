@@ -154,7 +154,7 @@ NCI.nciHistogram = (function(){
 			.style("fill", function(d) {
 				return me.colorifyEndpoint(internalEndpointsCheckbox[0].checked, d);
 			 }).on('mouseover', function(d){
-	 			var info = d.name;
+	 			var info = d.fullname;
 	 			if (d.external){
 	 				info += "<br>doesn't belong to activity";
 	 			};
