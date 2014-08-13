@@ -156,17 +156,28 @@
 			</div>
 			<br/><br/>
 			<div class="row">
-				<dl class="sub-nav" data-tab id="nciDetailsTabs">
+				<div class="large-2 columns"> 
+				<dl class="vertical-nav" data-tab id="nciDetailsTabs">
 					<dd class="active"><a href="#panelFlows">Flows</a></dd>
-					<dd><a href="#panelFlowsByActivities">Flows (by Activities)</a></dd>
-					<dd><a href="#panelFlowsPretty">Flows (Pretty)</a></dd>
-					<dd><a href="#panelInternalFlows">Internal Flows</a></dd>
 					<dd><a href="#panelActivities">Activities</a></dd>
-					<dd><a href="#panelActivitiesPretty">Activities (Pretty)</a></dd>
-					<dd><a href="#panelActivitiesInternal">Internal Activities </a></dd>
 					<dd><a href="#panelActivitySizes">Activity Sizes</a></dd>
 				</dl>
+			    </div>
+				<div class="large-10 columns"> 
 				<div class="tabs-content">
+					<div class="content" id="panelFlows">
+				        <label> <input type="checkbox" class="byactivities"> by Activities</label>
+				        <label> <input type="checkbox" class="pretty"> Pretty</label>
+				        <label> <input type="checkbox" class="internal"> Internal </label>
+				        <div class="socialGraph" style="">
+				        </div>
+					</div>
+					<div class="content" id="panelActivities">
+						<label> <input type="checkbox" class="pretty"> Pretty</label>
+						<label> <input type="checkbox" class="internal"> Internal</label>
+				        <div class="socialGraph" style="">
+				        </div>
+					</div>
 					<div class="content" id="panelActivitySizes">
 						<div class="row">
 				            <div id="nciHistogram"> </div>
@@ -186,23 +197,8 @@
 							<div id="nciHistogramDetails"> </div>
 						</div>		
 					</div>
-					<div class="content" id="panelFlows">
-					</div>
-					<div class="content" id="panelFlowsByActivities">
-					</div>
-					<div class="content" id="panelFlowsPretty">
-					</div>
-					<div class="content active" id="panelInternalFlows">
-					</div>
-					<div class="content" id="panelActivities">
-					</div>
-					<div class="content" id="panelActivitiesPretty">
-					</div>
-					<div class="content" id="panelActivitiesInternal">
 					</div>
 				</div>
-		        <div id="socialGraph" style="">
-		        </div>
 			</div>
 		</div>	
 		
