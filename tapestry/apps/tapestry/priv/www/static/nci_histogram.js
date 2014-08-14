@@ -1,18 +1,13 @@
 NCI.nciHistogram = (function(){
 	var me = $('#nciHistogram');
 	
-	var internalEndpointsCheckbox = $('#histogramDetailsInternal');
+	//var internalEndpointsCheckbox = $('#histogramDetailsInternal');
 	var barWidth = 4;
 	var chart = d3.select("#nciHistogram");
-	var chartDetails = d3.select("#nciHistogramDetails");
 	var margin = {top: 10, right: 60, bottom: 40, left:40},
 	    width = 600,
 	    height = 250;
-	var color = d3.scale.category10();
-	var notNetworkColor = "#fff";		
-	var detailsGraphForce;	
-	var force;
-	
+
 	me.show = function(){
 		chart.text("");
 		var endpointsMax = d3.max(NCI.Communities, function(d) { return d.Size; });
@@ -103,100 +98,37 @@ NCI.nciHistogram = (function(){
 
 	};
 	
-	var tooltip;
-    var activityDetails;
-	var detailsDim;
-	var detailsHeight;
 	me.showDetails = function(d){
-		if  (!activityDetails) {
-			detailsWidth = $(window).width();
-			detailsHeight = $(window).height();
-		    activityDetails = chartDetails.append('svg')
-				.attr('width', detailsWidth)
-			    .attr('height', detailsHeight);
-				
-			tooltip = chartDetails.append("div").attr("class", "endpoint-tooltip");		
-		} else {
-			activityDetails.text("");
-		};
 		$('.histogram-details-graph').show();
-			
-		if (d.Endpoints.length > NCI.max_vertices)
-		    return;	
-	    var graph = new NCI.graphBuilder([d]).graph;
-		
-		//max 120 for 0, min 10 for NCI.max_vertices
-		var linkDistance = 5 + 160 - Math.floor( 160 * d.Endpoints.length/NCI.max_vertices)
-		var charge = -10 - (60 - Math.floor( 60 * d.Endpoints.length/NCI.max_vertices))
-		
-		var verticlesLimitForRadius = 250
-		var radius = 4
-		if (d.Endpoints.length < verticlesLimitForRadius) {
-			radius = 3 + 2 - Math.floor( 2*d.Endpoints.length/verticlesLimitForRadius);
-		}
-	//
-		force = d3.layout.force()
-			.charge(charge)
-			.linkDistance(linkDistance)
-			.size([detailsWidth, detailsHeight])
-			.linkStrength(1).nodes(graph.nodes).links(graph.links).start();
-			
-		var link = activityDetails.selectAll(".link")
-		    .data(graph.links)
-			.enter().append("line")
-			.attr("class", "activities_link");  	
-				  
-		chartDetails.node = activityDetails.selectAll(".node")
-		    .data(graph.nodes)
-		    .enter().append("circle")
-			.call(force.drag)
-		    .attr("r", radius)
-			.style("fill", function(d) {
-				return me.colorifyEndpoint(internalEndpointsCheckbox[0].checked, d);
-			 }).on('mouseover', function(d){
-	 			var info = d.fullname;
-	 			if (d.external){
-	 				info += "<br>doesn't belong to activity";
-	 			};
-	 			info += "<br>" + d.connections + " connections";
-				tooltip.html(info).style("top", d.py - 10).
-							       style("left", d.px + 10).style("display", "inline");
-           })
-		   .on('mouseout', function(){
-			   tooltip.style("display", "none");
+		var socialGraph = new NCI.socialGraph(".histogram-details-graph", 
+		   {
+			   graphBuilder: new NCI.graphBuilder([d]),
+			   numOfPoints: d.Endpoints.length,
+			   width: $(window).width(), 
+			   height: $(window).height(),
+			   notNetworkColor: "#fff",
+			   isClustered: true,
+			   radius: function(){
+			    	var verticlesLimitForRadius = 250
+			   	 	var radius = 4
+			   	 	if (d.Endpoints.length < verticlesLimitForRadius) {
+			   	 		radius = 3 + 2 - 2*d.Endpoints.length/verticlesLimitForRadius;
+			   	 	}
+					return radius;
+			   },
+			   linkDistance: function(){
+				   return (5 + 160 * (NCI.max_vertices - d.Endpoints.length)/NCI.max_vertices);
+			   }
 		   });
+        socialGraph.show(true);
+	};
+	
 
-		force.on("tick", function() { 
-			link.attr("x1", function(d) { return d.source.x; })
-			    .attr("y1", function(d) { return d.source.y; })
-				.attr("x2", function(d) { return d.target.x; })
-				.attr("y2", function(d) { return d.target.y; });
-				
-			chartDetails.node.attr("cx", function(d) { return d.x; })
-			    .attr("cy", function(d) { return d.y; });
-		});
-	};
-	
-	me.colorifyEndpoint = function(devided, endpoint){
-		if (endpoint.external)
-		    return "#ff0000";
-		if (devided && NCI.isExternal(endpoint.name)){
-			return notNetworkColor;
-		}
-		return color(0);
-	};
-	
 	me.clean = function(){
 		d3.select("#nciHistogramDetails svg").text("");
 		chart.text("");
 	};
-	
-	internalEndpointsCheckbox.on('click', function(event){
-		var checked = this.checked;
-		chartDetails.node.style("fill", function(d) {
-			return me.colorifyEndpoint(checked, d);
-		});
-	});
+
 	
 	return me;
 }());

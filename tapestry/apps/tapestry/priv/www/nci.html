@@ -13,7 +13,7 @@
 			var head = document.getElementsByTagName('head')[0];
 	        stylesFile.open("GET", "app_styles", false);
 	        stylesFile.onreadystatechange = function (){
-				var styles = eval(stylesFile.responseText);		   
+				var styles = JSON.parse(stylesFile.responseText);		   
 				for (var i in styles){
 					var link = document.createElement('link');
 					link.rel = 'stylesheet';
@@ -189,12 +189,11 @@
 						<div class="histogram-details-graph">
 							<div class="histogramDetailsHeader">
 						        <div class="histogramDetailsInternal">
- 							        <input id="histogramDetailsInternal" type="checkbox">
- 							        <label for="histogramDetailsInternal">Internal</label>
+ 							        <label><input type="checkbox" class="internal"> Internal</label>
 								    <div class="histogramDetailsClose"></div>
 							    </div>
 							</div>	
-							<div id="nciHistogramDetails"> </div>
+							<div class="socialGraph"> </div>
 						</div>		
 					</div>
 					</div>
@@ -211,7 +210,7 @@
 			scriptsFile.open("GET", "app_scripts", true);
 			scriptsFile.onreadystatechange = function (){
 				if (scriptsFile.readyState == 4 ){
-				    scripts = eval(scriptsFile.responseText);
+				    scripts = JSON.parse(scriptsFile.responseText);
 					loadScripts();
 			    }
 			};
