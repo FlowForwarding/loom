@@ -116,14 +116,6 @@
     height: 30px;
 }
 
-.zoom-panel a.selected {
-	text-decoration: underline;
-}
-
-.zoom-panel a.disabled {
-	color: lightgray;
-}
-
 #nciHistogram text{
 	font: 12px sans-serif;
 }
@@ -165,12 +157,6 @@
     -moz-transition: all 0.5s ease-in-out;
     -o-transition: all 0.5s ease-in-out;
     transition: all 0.5s ease-in-out;
-}
-
-.fix-transform-click {
-    -ms-transform: translateZ(1px); /* IE 9 */
-    -webkit-transform: translateZ(1px); /* Chrome, Safari, Opera */
-    transform: translateZ(1px);
 }
 
 .histogram-details-graph {
