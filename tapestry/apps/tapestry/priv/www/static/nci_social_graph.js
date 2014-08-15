@@ -98,10 +98,9 @@ NCI.socialGraph = function(socialGraphID, params){
             me.node = nodesData.enter().append("circle").call(force.drag);
             nodesData.exit().remove();
 			me.setupNodes(isFiltered, isDevided, isClustered);
-			me.node.append("title").html(function(d) { return d.fullname + "<br>" + d.connections + " connections" ; });
 			me.node.on('mouseover', function(d){
 				var info = d.fullname;
-				if (d.external){
+				if (NCI.isExternal(d.fullname)){
 					info += "<br>doesn't belong to activity";
 				};
 				info += "<br>" + d.connections + " connections";
