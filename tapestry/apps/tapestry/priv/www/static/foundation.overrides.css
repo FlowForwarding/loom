@@ -120,6 +120,11 @@
 	font: 12px sans-serif;
 }
 
+.histogramDetailsInternal label{
+	color: white;
+	display: inline;
+}
+
 .collectorsGeneral{
 	font-weight: 500;
 }
@@ -191,7 +196,7 @@
 .endpoint-tooltip {
 	position: absolute;
 	font-size: 14;
-	font-weight: 500;
+	font-weight: 300;
 	color: #565656;
 	top: 100;
 	left: 100;

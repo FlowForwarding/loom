@@ -11,7 +11,7 @@ NCI.socialGraph = function(socialGraphID, params){
 	var isDevided = params.isDevided || false ;
 	var isFiltered = false;
 	var graphWidth = params.width || me.width();
-	var graphHeight =  params.height || $('#nciDetails').height() - 200;
+	var graphHeight =  params.height || $('#nciDetails').height() - 150;
 	var radius = params.radius || function() { return 4};
 	var charge = params.charge || function() { return -20};
 	var linkDistance = params.linkDistance || function() { return 30};
@@ -107,8 +107,8 @@ NCI.socialGraph = function(socialGraphID, params){
 					info += "<br>doesn't belong to activity";
 				};
 				info += "<br>" + d.connections + " connections";
-				tooltip.html(info).style("top", d.py - 5).
-				style("left", d.px + 10).style("display", "inline");
+				tooltip.html(info).style("top", d.py + me.position().top).
+				style("left", d.px + me.position().left).style("display", "inline");
 			}).on('mouseout', function(){
 				tooltip.style("display", "none");
 			});
@@ -189,6 +189,7 @@ NCI.graphBuilder = function(communities){
 			    communityEndpoints[ip].connections++;
 			    return communityEndpoints[ip].index;
 		    } else {
+				endpointsHash[ip].external = false;
 		    	return endpointsHash[ip].index;
 		    }
 		};
