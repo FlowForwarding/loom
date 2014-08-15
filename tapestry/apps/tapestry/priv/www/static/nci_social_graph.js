@@ -67,8 +67,14 @@ NCI.socialGraph = function(socialGraphID, params){
 			    return "red"
 		    return isDevided ? color(d.group) : color(0);
 		});
-		me.node.attr("r", function(d) { 
+		me.node.attr("r", function(d) {
 			return radius(d);
+		});
+		me.node.attr("height", function(d) { 
+			return radius(d)*2;
+		});
+		me.node.attr("width", function(d) { 
+			return radius(d)*2;
 		});
 		force.linkStrength(isClustered ? 1 : 0);
 	};
@@ -96,9 +102,13 @@ NCI.socialGraph = function(socialGraphID, params){
 		
 		var setupNodes = function(){
 			force.nodes(graphBuilder.graph.nodes);
+			me.activitiesGraphSvg.selectAll("rect").remove();
 			me.activitiesGraphSvg.selectAll("circle").remove();
 			var nodesData =  me.activitiesGraphSvg.selectAll(".node").data(graphBuilder.graph.nodes);
-            me.node = nodesData.enter().append("circle").call(force.drag);
+			me.node = nodesData.enter().select(function(d) {
+				var type = (isExpandable && d.group == 0) ? "rect" : "circle"
+				return this.appendChild(document.createElementNS(d3.ns.prefix.svg, type));
+			}).call(force.drag);
             nodesData.exit().remove();
 			me.setupNodes(isFiltered, isDevided, isClustered);
 			me.node.on('mouseover', function(d){
@@ -152,9 +162,11 @@ NCI.socialGraph = function(socialGraphID, params){
 	            .attr("y1", function(d) { return d.source.y; })
 	            .attr("x2", function(d) { return d.target.x; })
 	            .attr("y2", function(d) { return d.target.y; });
-
-	        me.node.attr("cx", function(d) { return d.x; })
-	            .attr("cy", function(d) { return d.y; });
+				
+			me.node.attr("x", function(d) { return d.x - radius(d); })
+			    .attr("y", function(d) { return d.y - radius(d); });
+			me.node.attr("cx", function(d) { return d.x; })
+			    .attr("cy", function(d) { return d.y; });
 		});
 		force.start();
 	};
