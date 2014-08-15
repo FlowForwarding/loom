@@ -42,7 +42,7 @@
          communities/1,
          dendrogram/1]).
 
--define(MIN_MODULARITY_CHANGE, 0.0000001).
+-define(MIN_MODULARITY_CHANGE, 0.001).
 
 -include("part_louvain.hrl").
 -include("tap_logger.hrl").
@@ -173,11 +173,9 @@ dendrogram(GD = #louvain_graphd{}) ->
     % communities in the graph as it stands initially.  Separate
     % out the computation of these values as an optimization since
     % they are also needed to do the paritioning.
-    Weights = weights(GD),
-    Modularity = modularity(Weights),
 %   file:write_file("/tmp/part", io_lib:format("starting communities: ~p~n", [lists:sort(dict:to_list(GD#louvain_graphd.communitiesd))])),
     #louvain_dendrogram{
-                louvain_graphs = partition(GD, Weights, Modularity, [])}.
+                louvain_graphs = partition(GD, [])}.
 
 %% ----------------------------------------------------------------------------
 %% Local Functions
@@ -205,7 +203,9 @@ propagate_communities(G, Mappings) ->
 
 %% repeat the partitioning until there is no significant
 %% improvement in the modularity.
-partition(GD, Weights, Modularity, L) ->
+partition(GD, L) ->
+    Weights = weights(GD),
+    Modularity = modularity(Weights),
     {PartitionedGD, NewModularity} = one_level(GD, Weights, Modularity),
     ?DEBUG("Parition Modularity: ~p -> ~p", [Modularity, NewModularity]),
     % Stop if the modularity didn't change very much or if (due to
@@ -221,8 +221,6 @@ partition(GD, Weights, Modularity, L) ->
             % nodes, edges weighted accordingly), and recurse.
             CommunityGD = community_graph(PartitionedGD),
             partition(CommunityGD,
-                      weights(CommunityGD),
-                      NewModularity,
                       [graph(PartitionedGD) | L])
     end.
 
