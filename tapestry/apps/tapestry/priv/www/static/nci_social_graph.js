@@ -44,7 +44,8 @@ NCI.socialGraph = function(socialGraphID, params){
 			if (numOfPoints > NCI.max_vertices) {
 				d3.select(socialGraphSelector).append('text')
 				.attr("id","activities_graph")
-				.html('Too many endpoints to draw');
+				.html('Too many endpoints to draw')
+				.attr('class', 'centrate');
 			} else {
 			    me.draw();
 			}
@@ -58,10 +59,12 @@ NCI.socialGraph = function(socialGraphID, params){
 	//colorify and set radius
 	me.setupNodes = function(){
 		me.node.style("fill", function(d) {
-			//if this dot is selected on Activities graph, draw it in red
 		    if ( isFiltered && NCI.isExternal(d.name)){
 			    return notNetworkColor;
 		    };
+			//if this dot is selected on Activities graph, draw it in red
+			if (d.external)
+			    return "red"
 		    return isDevided ? color(d.group) : color(0);
 		});
 		me.node.attr("r", function(d) { 
@@ -100,7 +103,7 @@ NCI.socialGraph = function(socialGraphID, params){
 			me.setupNodes(isFiltered, isDevided, isClustered);
 			me.node.on('mouseover', function(d){
 				var info = d.fullname;
-				if (NCI.isExternal(d.fullname)){
+				if (d.external){
 					info += "<br>doesn't belong to activity";
 				};
 				info += "<br>" + d.connections + " connections";
@@ -179,7 +182,7 @@ NCI.graphBuilder = function(communities){
 				    communityEndpoints[ip] = {
 						fullname: endPoint,
 					    index: index,
-					    external: !endpoints.indexOf(endPoint),
+					    external: endpoints.indexOf(endPoint) == -1,
 					    connections: 0,
 						size: size};
 			    };
