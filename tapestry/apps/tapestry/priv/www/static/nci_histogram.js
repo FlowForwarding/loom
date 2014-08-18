@@ -100,7 +100,7 @@ NCI.nciHistogram = (function(){
 	
 	me.showDetails = function(d){
 		$('.histogram-details-graph').show();
-		var socialGraph = new NCI.socialGraph(".histogram-details-graph", 
+		me.socialGraph = new NCI.socialGraph(".histogram-details-graph", 
 		   {
 			   graphBuilder: new NCI.graphBuilder([d]),
 			   numOfPoints: d.Endpoints.length,
@@ -120,20 +120,18 @@ NCI.nciHistogram = (function(){
 				   return (5 + 160 * (NCI.max_vertices - d.Endpoints.length)/NCI.max_vertices);
 			   }
 		   });
-        socialGraph.show(true);
+        me.socialGraph.show(true);
 	};
-	
 
 	me.clean = function(){
-		d3.select("#nciHistogramDetails svg").text("");
 		chart.text("");
+		me.socialGraph.clean();
 	};
-
 	
 	return me;
 }());
 
 $('.histogramDetailsClose').on('click', function(){
-	NCI.socialGraph.graph = undefined;
-	$('.histogram-details-graph').hide();
-});
+	NCI.nciHistogram.socialGraph.clean()
+    $('.histogram-details-graph').hide();
+ });

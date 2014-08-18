@@ -4,7 +4,8 @@ NCI.socialGraph = function(socialGraphID, params){
 	var me = $(socialGraphID);
 	var force;
 	var selectedDots = {};
-	var socialGraphSelector = socialGraphID + " .socialGraph"
+	var socialGraphSelector = socialGraphID + " .socialGraph";
+	var socialGraphID = socialGraphID.substring(1) + "_graph";
 	var color = d3.scale.category10();
 	var notNetworkColor = params.notNetworkColor || "#000000";
 	var isClustered = params.isClustered || false ;
@@ -19,16 +20,19 @@ NCI.socialGraph = function(socialGraphID, params){
 	var numOfPoints = params.numOfPoints || 0;
 	var isExpandable = params.isExpandable || false;
 	var tooltip;
+	var byActivities = me.find('.byactivities');
+	var prettyView = me.find('.pretty');
+	var showInternal = me.find('.internal');
 	
-	me.find('.byactivities').on('click', function(event){
+	byActivities.on('click', function(event){
 		isDevided = this.checked;
 		me.show();
 	});
-	me.find('.pretty').on('click', function(event){
+	prettyView.on('click', function(event){
 		isClustered = this.checked;
 		me.show();
 	});
-	me.find('.internal').on('click', function(event){
+	showInternal.on('click', function(event){
 		isFiltered = this.checked;
 		me.show();
 	});
@@ -40,10 +44,10 @@ NCI.socialGraph = function(socialGraphID, params){
 			return;
 		};
 		if (needDraw) {
-		    d3.select("#activities_graph").remove();
+		    d3.select("#" + socialGraphID).remove();
 			if (numOfPoints > NCI.max_vertices) {
 				d3.select(socialGraphSelector).append('text')
-				.attr("id","activities_graph")
+				.attr("id", socialGraphID)
 				.html('Too many endpoints to draw')
 				.attr('class', 'centrate');
 			} else {
@@ -87,7 +91,7 @@ NCI.socialGraph = function(socialGraphID, params){
 			.linkStrength(isClustered ? 1 : 0);
 			
 	    me.activitiesGraphSvg = d3.select(socialGraphSelector).append("svg")
-		    .attr("id","activities_graph")
+		    .attr("id", socialGraphID)
 			.attr("width", graphWidth)
 			.attr("height", graphHeight);
 			
@@ -170,6 +174,13 @@ NCI.socialGraph = function(socialGraphID, params){
 		});
 		force.start();
 	};
+	
+	me.clean = function(){
+		d3.select("#" + socialGraphID).remove();
+		byActivities.prop('checked', false);
+		prettyView.prop('checked', false);
+		showInternal.prop('checked', false);
+	}
 	
 	return me;
 };

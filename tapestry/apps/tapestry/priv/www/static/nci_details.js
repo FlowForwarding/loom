@@ -39,34 +39,48 @@ $(".hide-ncidetails").on('click', function(){
 	$($('#nciDetailsTabs').find("dd a")[0]).click();
 });
 
-
-$('#nciDetailsTabs').on('toggled', function (event, tab) {
-	switch(tab[0].id) {
-	    case "panelFlows":
-			var flowsPanel = new NCI.socialGraph("#panelFlows",{
-				graphBuilder: new NCI.graphBuilder(NCI.Communities),
-				numOfPoints: NCI.Social.endpoints
-			});
-	        flowsPanel.show(true);
-	        break;
-	    case "panelActivities":
-			var activitiesPanel = new NCI.socialGraph("#panelActivities",{
-				isDevided : true,
-				isExpandable : true,
-				numOfPoints: NCI.CommunityGraph.Endpoints.length,
-				graphBuilder: new NCI.graphBuilder([NCI.CommunityGraph]),
-				radius: function(endpoint){
-					var radius = 4;
-					var size = parseInt(endpoint.size);
-				    if (NCI.maxActivitySize > 0 && (size == size)) {
-						 radius = 4 + 8*(size/NCI.maxActivitySize);
-				    }
-					return radius;
-				}
-			});
-			activitiesPanel.show(true);
-	        break;
-	    default:
-			NCI.nciHistogram.show();
-	};
-});
+NCI.detailsTabs = function(){
+	var me = $('#nciDetailsTabs');
+	var flowsPanel;
+	var activitiesPanel;
+	
+	me.on('toggled', function (event, tab) {
+		switch(tab[0].id) {
+		    case "panelFlows":
+				flowsPanel = new NCI.socialGraph("#panelFlows",{
+					graphBuilder: new NCI.graphBuilder(NCI.Communities),
+					numOfPoints: NCI.Social.endpoints
+				});
+		        flowsPanel.show(true);
+				if (activitiesPanel)
+				    activitiesPanel.clean()
+		        break;
+		    case "panelActivities":
+				activitiesPanel = new NCI.socialGraph("#panelActivities",{
+					isDevided : true,
+					isExpandable : true,
+					numOfPoints: NCI.CommunityGraph.Endpoints.length,
+					graphBuilder: new NCI.graphBuilder([NCI.CommunityGraph]),
+					radius: function(endpoint){
+						var radius = 4;
+						var size = parseInt(endpoint.size);
+					    if (NCI.maxActivitySize > 0 && (size == size)) {
+							 radius = 4 + 8*(size/NCI.maxActivitySize);
+					    }
+						return radius;
+					}
+				});
+				activitiesPanel.show(true);
+				if (flowsPanel)
+				    flowsPanel.clean()
+		        break;
+		    default:
+				NCI.nciHistogram.show();
+				if (flowsPanel)
+				    flowsPanel.clean();
+				if (activitiesPanel)
+					activitiesPanel.clean();
+		};
+	});
+	
+}();
