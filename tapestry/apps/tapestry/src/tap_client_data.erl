@@ -111,6 +111,9 @@ handle_call(nci_details, _From, State = #?STATE{community_data = CommunityData,
                                                 last_nci_time = Time,
                                                 limits = Limits}) ->
     {reply, json_nci_details(Time, NCI, CommunityData, Limits), State};
+handle_call(dot_community_details, _From,
+                        State = #?STATE{community_data = CommunityData}) ->
+    {reply, dot_community_details(CommunityData), State};
 handle_call(collectors, _From, State = #?STATE{collectors = CollectorDict,
                                                last_qps_time = Time}) ->
     {reply, json_collectors(Time, CollectorDict), State};
@@ -497,3 +500,65 @@ decode_limit(I) when is_integer(I) -> I.
 
 update_limit(Limits, Limit, Value) ->
     lists:keyreplace(Limit, 1, Limits, {Limit, Value}).
+
+dot_community_details(no_communities) ->
+    [];
+dot_community_details({{EndpointsD, InteractionsD}, _SizesD, _CommGraph}) ->
+    % list of unique endpoints
+    NodesS = set_from_dict_values_list(EndpointsD),
+    % unique edges
+    EdgesS = set_from_dict_values_list(InteractionsD),
+    [
+        <<"graph {\n\n">>,
+        format_nodes(NodesS), <<"\n">>,
+        format_edges(EdgesS), <<"\n">>,
+        format_subgraphs(EndpointsD), <<"\n">>,
+        <<"}\n">>
+    ].
+
+set_from_dict_values_list(Dict) ->
+    dict:fold(
+        fun(_, ValueList, Set) ->
+            sets:union([Set, sets:from_list(ValueList)])
+        end, sets:new(), Dict).
+
+format_nodes(NodesS) ->
+    format_set(
+        fun(Node) ->
+            [<<"node[shape=point] ">>,$",endpoint(Node),$",<<"\n">>]
+        end, NodesS).
+
+format_edges(EdgesS) ->
+    format_set(
+        fun({N1, N2}) ->
+            [$",endpoint(N1),$"," -- ",$",endpoint(N2),$",<<"\n">>]
+        end, EdgesS).
+
+format_subgraphs(EndpointsD) ->
+    dict:fold(
+        fun(_, Endpoints, IOList) ->
+            [format_subgraph(Endpoints) | IOList]
+        end, [], EndpointsD).
+
+format_subgraph(Endpoints) ->
+    [<<"subgraph { ">>, join_endpoints(Endpoints), $}, <<"\n">>].
+
+join_endpoints([]) ->
+    [];
+join_endpoints([Endpoint | Endpoints]) ->
+    join_endpoints(Endpoints, [format_endpoint(Endpoint)]).
+
+join_endpoints([], IOList) ->
+    IOList;
+join_endpoints([Endpoint | RestEndpoints], IOList) ->
+    join_endpoints(RestEndpoints,
+                            [format_endpoint(Endpoint), <<", ">> | IOList]).
+
+format_endpoint(Endpoint) ->
+    [$", endpoint(Endpoint), $"].
+
+format_set(FormatFn, Set) ->
+        sets:fold(
+            fun(Element, IOList) ->
+                [FormatFn(Element) | IOList]
+            end, [], Set).
