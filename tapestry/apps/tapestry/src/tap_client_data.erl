@@ -108,8 +108,12 @@ init([]) ->
 % for debugging
 handle_call(nci_details, _From, State = #?STATE{community_data = CommunityData,
                                                 nci = NCI,
-                                                last_nci_time = Time}) ->
-    {reply, json_nci_details(Time, NCI, CommunityData), State};
+                                                last_nci_time = Time,
+                                                limits = Limits}) ->
+    {reply, json_nci_details(Time, NCI, CommunityData, Limits), State};
+handle_call(dot_community_details, _From,
+                        State = #?STATE{community_data = CommunityData}) ->
+    {reply, dot_community_details(CommunityData), State};
 handle_call(collectors, _From, State = #?STATE{collectors = CollectorDict,
                                                last_qps_time = Time}) ->
     {reply, json_collectors(Time, CollectorDict), State};
@@ -168,8 +172,9 @@ handle_cast({setlimits, Pid, SetLimits}, State = #?STATE{limits = Limits}) ->
 handle_cast({nci_details, Pid}, State = #?STATE{
                                             community_data = CommunityData,
                                             nci = NCI,
-                                            last_nci_time = Time}) ->
-    clientsock:send(Pid, json_nci_details(Time, NCI, CommunityData)),
+                                            last_nci_time = Time,
+                                            limits = Limits}) ->
+    clientsock:send(Pid, json_nci_details(Time, NCI, CommunityData, Limits)),
     {noreply, State};
 handle_cast({collectors, Pid}, State = #?STATE{collectors = CollectorDict,
                                                last_qps_time = Time}) ->
@@ -273,24 +278,33 @@ send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
 broadcast_msg(Clients, Msg) ->
     [clientsock:send(C, Msg) || C <- Clients].
 
-json_nci_details(Time, undefined, CommunityData) ->
-    json_nci_details(Time, 0, CommunityData);
-json_nci_details(Time, NCI, CommunityData) ->
+json_nci_details(Time, undefined, CommunityData, Limits) ->
+    json_nci_details(Time, 0, CommunityData, Limits);
+json_nci_details(Time, NCI, CommunityData = {_, Sizes, _}, Limits) ->
+    MaxCommunities = proplists:get_value(max_communities, Limits),
+    % make a list of the largest communities and truncate the list after
+    % MaxCommunities elements.
+    CommunityList = [C || {C, _} <- lists:sublist(lists:sort(
+                                        fun({_, A}, {_, B}) ->
+                                            A > B % reverse sort
+                                    end, dict:to_list(Sizes)), MaxCommunities)],
     jiffy:encode({[
         {<<"action">>,<<"NCIDetails">>},
         {<<"NCI">>,NCI},
         {<<"Time">>, Time},
-        {<<"Communities">>, community_details(CommunityData)},
-        {<<"CommunityGraph">>, community_graph(CommunityData)}
+        {<<"Communities">>, community_details(CommunityData,
+                                                CommunityList, Limits)},
+        {<<"CommunityGraph">>, community_graph(CommunityData,
+                                                CommunityList, Limits)}
     ]}).
 
-community_graph(no_communities) ->
+community_graph(no_communities, _CommunityList, _Limits) ->
     [];
 community_graph({{_Endpoints, _Interactions}, Sizes,
-                                        {Cendpoints, Cinteractions}}) ->
+                    {_Cendpoints, Cinteractions}}, CommunityList, _Limits) ->
     {[
-        {<<"Endpoints">>, cendpoints(Cendpoints, Sizes)},
-        {<<"Interactions">>, cinteractions(Cinteractions, Sizes)}
+        {<<"Endpoints">>, cendpoints(CommunityList, Sizes)},
+        {<<"Interactions">>, cinteractions(Cinteractions, CommunityList, Sizes)}
     ]}.
 
 cendpointsize(C, Sizes) ->
@@ -302,21 +316,63 @@ cendpointsize(C, Sizes) ->
 cendpoints(Endpoints, Sizes) ->
     lists:map(fun(E) -> cendpointsize(E, Sizes) end, Endpoints).
 
-cinteractions(Interactions, Sizes) ->
-    [[cendpointsize(C1, Sizes),
-      cendpointsize(C2, Sizes)] || {C1,C2} <- Interactions].
+cinteractions(Interactions, CommunityList, Sizes) ->
+    CommunitySet = sets:from_list(CommunityList),
+    lists:foldl(
+        fun({C1, C2}, L) ->
+            case sets:is_element(C1, CommunitySet) andalso
+                 sets:is_element(C2, CommunitySet) of
+                true ->
+                    [[cendpointsize(C1, Sizes),
+                     cendpointsize(C2, Sizes)] | L];
+                false ->
+                    L
+            end
+        end, [], Interactions).
 
-community_details(no_communities) ->
+dict_value_length(D) ->
+    dict:fold(fun(_, List, Sum) -> Sum + length(List) end, 0, D).
+
+community_details(no_communities, _CommunityList, _Limits) ->
     [];
-community_details({{Endpoints, Interactions}, Sizes, _Comms}) ->
-    [
-        {[
-            {<<"Interactions">>, interactions(dict_fetch(C, Interactions))},
-            {<<"Endpoints">>, endpoints(dict_fetch(C, Endpoints))},
-            {<<"Label">>, endpoint(C)},
-            {<<"Size">>, dict:fetch(C, Sizes)}
-        ]} || C <- dict:fetch_keys(Sizes)
-    ].
+community_details({{EndpointsD, InteractionsD}, SizesD, _Comms},
+                                                    CommunityList, Limits) ->
+    MaxCommunitySize = proplists:get_value(comm_size_limit, Limits),
+    MaxVertices = proplists:get_value(max_vertices, Limits),
+    MaxEdges = proplists:get_value(max_edges, Limits),
+    EdgeCount = dict_value_length(InteractionsD),
+    VertexCount = dict_value_length(EndpointsD),
+    OverLimit = overlimit(EdgeCount, MaxEdges) orelse overlimit(VertexCount, MaxVertices),
+    lists:foldl(
+        fun(C, L) ->
+            Interactions = dict_fetch(C, InteractionsD),
+            Endpoints = dict_fetch(C, EndpointsD),
+            D = case OverLimit orelse
+                        overlimit(length(Endpoints), MaxCommunitySize) of
+                true ->
+                    {[
+                        {<<"Interactions">>, []},
+                        {<<"Endpoints">>, []},
+                        {<<"Label">>, endpoint(C)},
+                        {<<"Size">>, dict:fetch(C, SizesD)}
+                    ]};
+                false ->
+                    {[
+                        {<<"Interactions">>, interactions(Interactions, Endpoints)},
+                        {<<"Endpoints">>, endpoints(Endpoints)},
+                        {<<"Label">>, endpoint(C)},
+                        {<<"Size">>, dict:fetch(C, SizesD)}
+                    ]}
+            end,
+            [D | L]
+        end, [], CommunityList).
+
+overlimit(_, 0) ->
+    false;
+overlimit(_, inifinity) ->
+    false;
+overlimit(Value, Max) ->
+    Value > Max.
 
 dict_fetch(Key, Dict) ->
     case dict:find(Key, Dict) of
@@ -324,11 +380,18 @@ dict_fetch(Key, Dict) ->
         error -> []
     end.
 
-interactions(L) ->
+interactions(L, Endpoints) ->
+    EndpointS = sets:from_list(Endpoints),
+    IsEndpoint = fun(E) -> sets:is_element(E, EndpointS) end,
     Interactions = lists:foldl(
-        fun(I, S) ->
-            NI = normalize_interaction(I),
-            sets:add_element(NI, S)
+        fun(I = {A, B}, S) ->
+            case IsEndpoint(A) andalso IsEndpoint(B) of
+                false ->
+                    S;
+                true ->
+                    NI = normalize_interaction(I),
+                    sets:add_element(NI, S)
+            end
         end, sets:new(), L),
     [[endpoint(A), endpoint(B)] || {A, B} <- sets:to_list(Interactions)].
 
@@ -437,3 +500,65 @@ decode_limit(I) when is_integer(I) -> I.
 
 update_limit(Limits, Limit, Value) ->
     lists:keyreplace(Limit, 1, Limits, {Limit, Value}).
+
+dot_community_details(no_communities) ->
+    [];
+dot_community_details({{EndpointsD, InteractionsD}, _SizesD, _CommGraph}) ->
+    % list of unique endpoints
+    NodesS = set_from_dict_values_list(EndpointsD),
+    % unique edges
+    EdgesS = set_from_dict_values_list(InteractionsD),
+    [
+        <<"graph {\n\n">>,
+        format_nodes(NodesS), <<"\n">>,
+        format_edges(EdgesS), <<"\n">>,
+        format_subgraphs(EndpointsD), <<"\n">>,
+        <<"}\n">>
+    ].
+
+set_from_dict_values_list(Dict) ->
+    dict:fold(
+        fun(_, ValueList, Set) ->
+            sets:union([Set, sets:from_list(ValueList)])
+        end, sets:new(), Dict).
+
+format_nodes(NodesS) ->
+    format_set(
+        fun(Node) ->
+            [<<"node[shape=point] ">>,$",endpoint(Node),$",<<"\n">>]
+        end, NodesS).
+
+format_edges(EdgesS) ->
+    format_set(
+        fun({N1, N2}) ->
+            [$",endpoint(N1),$"," -- ",$",endpoint(N2),$",<<"\n">>]
+        end, EdgesS).
+
+format_subgraphs(EndpointsD) ->
+    dict:fold(
+        fun(_, Endpoints, IOList) ->
+            [format_subgraph(Endpoints) | IOList]
+        end, [], EndpointsD).
+
+format_subgraph(Endpoints) ->
+    [<<"subgraph { ">>, join_endpoints(Endpoints), $}, <<"\n">>].
+
+join_endpoints([]) ->
+    [];
+join_endpoints([Endpoint | Endpoints]) ->
+    join_endpoints(Endpoints, [format_endpoint(Endpoint)]).
+
+join_endpoints([], IOList) ->
+    IOList;
+join_endpoints([Endpoint | RestEndpoints], IOList) ->
+    join_endpoints(RestEndpoints,
+                            [format_endpoint(Endpoint), <<", ">> | IOList]).
+
+format_endpoint(Endpoint) ->
+    [$", endpoint(Endpoint), $"].
+
+format_set(FormatFn, Set) ->
+        sets:fold(
+            fun(Element, IOList) ->
+                [FormatFn(Element) | IOList]
+            end, [], Set).
