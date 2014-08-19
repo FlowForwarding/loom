@@ -120,12 +120,10 @@ NCI.Connection.NCIDetails = function(time) {
 	scriptsFile.onreadystatechange = function (){
 		if (scriptsFile.readyState == 4 ){
 		    event.data = scriptsFile.responseText;
-			NCI.Connection.onmessage(event);
+			setTimeout(NCI.Connection.onmessage, NCI.Emulator.serverResponceDelay, event);
 	    }
 	};
 	scriptsFile.send();	
-	
-	NCI.Connection.onmessage(event)
 }
 
 //Override to do nothing, for the case if connection opened successfull in emulation mode

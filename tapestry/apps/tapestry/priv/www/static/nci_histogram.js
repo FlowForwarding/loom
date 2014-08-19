@@ -125,7 +125,8 @@ NCI.nciHistogram = (function(){
 
 	me.clean = function(){
 		chart.text("");
-		me.socialGraph.clean();
+		if (me.socialGraph)
+		    me.socialGraph.clean();
 	};
 	
 	return me;
