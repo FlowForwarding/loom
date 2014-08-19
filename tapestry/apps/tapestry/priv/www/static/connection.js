@@ -13,7 +13,7 @@ NCI.lastUpdateTimeVal = new Date();
 NCI.lastRedrawTimeVal = new Date();
 
 NCI.Connection.onmessage  = function (e) {
-	var data = eval("tmp = " + e.data );
+	var data = JSON.parse(e.data );
 
 	if (data.start_time){
 		// to show utc time
@@ -85,34 +85,9 @@ NCI.Connection.onmessage  = function (e) {
 			break;	
 		case "NCIDetails":
 			NCI.setupCommunities(data);
-			//NCI.Connection.getCommunityDetails(data.Time);
-			$('#nciDetailsTabs').find("dd").removeClass('active');
-			$($('#nciDetailsTabs').find("dd")[4]).addClass('active');
-			NCI.socialGraph.show(false, false, false, true);
+			$($('#nciDetailsTabs').find("a")[1]).click();
 			break;	
 		case "getCommunityDetails":
-			/*	{“action”:”getCommunityDetails”,
-				 “endpoint”: “10.3.1.2”,  # provided when request had an endpoint.  This is the community label
-				 “snapshot”:33,
-				 “graph”:3,
-				 “status”:”details”
-				 “Time”:”2014-04-01T22:03:52.081Z”,
-				 “Interactions”:[[“10.3.1.2”,”10.4.3.2”],[“10.2.4.3”,”10.4.5.5”],[“10.2.4.3”, “192.168.3.4”]],
-				 “EndPoints”:[“10.3.1.2”,”10.4.3.2”,”10.2.4.3”,”10.4.5.5”]
-				}
-		
-				{“action”:”getCommunityDetails”,
-				 “snapshot”: 33,
-				 “endpoint”: “10.3.1.2”,
-				“status”: “nodetails”
-				}
-
-				Response Example, no snapshot:
-				{“action”:”getCommunityDetails”,
-				“snapshot”:33,
-				“endpoint”:”10.3.1.2”,
-				“status”:”unavailable”
-				}*/
 			break;				
 	    default:
 			//we recieve such format:

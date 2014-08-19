@@ -116,16 +116,13 @@
     height: 30px;
 }
 
-.zoom-panel a.selected {
-	text-decoration: underline;
-}
-
-.zoom-panel a.disabled {
-	color: lightgray;
-}
-
 #nciHistogram text{
 	font: 12px sans-serif;
+}
+
+.histogramDetailsInternal label{
+	color: white;
+	display: inline;
 }
 
 .collectorsGeneral{
@@ -167,12 +164,6 @@
     transition: all 0.5s ease-in-out;
 }
 
-.fix-transform-click {
-    -ms-transform: translateZ(1px); /* IE 9 */
-    -webkit-transform: translateZ(1px); /* Chrome, Safari, Opera */
-    transform: translateZ(1px);
-}
-
 .histogram-details-graph {
 	top: 0;
 	left: 0;
@@ -205,7 +196,7 @@
 .endpoint-tooltip {
 	position: absolute;
 	font-size: 14;
-	font-weight: 500;
+	font-weight: 300;
 	color: #565656;
 	top: 100;
 	left: 100;

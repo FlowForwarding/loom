@@ -13,7 +13,7 @@
 			var head = document.getElementsByTagName('head')[0];
 	        stylesFile.open("GET", "app_styles", false);
 	        stylesFile.onreadystatechange = function (){
-				var styles = eval(stylesFile.responseText);		   
+				var styles = JSON.parse(stylesFile.responseText);		   
 				for (var i in styles){
 					var link = document.createElement('link');
 					link.rel = 'stylesheet';
@@ -155,21 +155,29 @@
 				</div>
 			</div>
 			<br/><br/>
-			<div class="row">
-				<dl class="sub-nav" data-tab id="nciDetailsTabs">
+			<div>
+				<dl class="tabs vertical" data-tab id="nciDetailsTabs">
 					<dd class="active"><a href="#panelFlows">Flows</a></dd>
-					<dd><a href="#panelFlowsByActivities">Flows (by Activities)</a></dd>
-					<dd><a href="#panelFlowsPretty">Flows (Pretty)</a></dd>
-					<dd><a href="#panelInternalFlows">Internal Flows</a></dd>
 					<dd><a href="#panelActivities">Activities</a></dd>
-					<dd><a href="#panelActivitiesPretty">Activities (Pretty)</a></dd>
-					<dd><a href="#panelActivitiesInternal">Internal Activities </a></dd>
 					<dd><a href="#panelActivitySizes">Activity Sizes</a></dd>
 				</dl>
-				<div class="tabs-content">
+				<div class="tabs-content vertical">
+					<div class="content" id="panelFlows">
+				        <label> <input type="checkbox" class="byactivities"> by Activities</label>
+				        <label> <input type="checkbox" class="pretty"> Pretty</label>
+				        <label> <input type="checkbox" class="internal"> Internal </label>
+				        <div class="socialGraph" style="">
+				        </div>
+					</div>
+					<div class="content" id="panelActivities">
+						<label> <input type="checkbox" class="pretty"> Pretty</label>
+						<label> <input type="checkbox" class="internal"> Internal</label>
+				        <div class="socialGraph" style="">
+				        </div>
+					</div>
 					<div class="content" id="panelActivitySizes">
 						<div class="row">
-				            <div id="nciHistogram"> </div>
+				            <div id="nciHistogram" class="centrate"> </div>
    						    <h6 class="centrate"> <b>NCI(N) = Max j, X[j] ≥ j </b> </h6>						
    						    <h4 class="centrate"><small> where <b>NCI(N)</b> is the Network Complexity Index of network N and 
    							<b>X[j]</b> is the number of endpoints engaged in an activity </small></h4>
@@ -178,31 +186,14 @@
 						<div class="histogram-details-graph">
 							<div class="histogramDetailsHeader">
 						        <div class="histogramDetailsInternal">
- 							        <input id="histogramDetailsInternal" type="checkbox">
- 							        <label for="histogramDetailsInternal">Internal</label>
+ 							        <label><input type="checkbox" class="internal"> Internal</label>
 								    <div class="histogramDetailsClose"></div>
 							    </div>
 							</div>	
-							<div id="nciHistogramDetails"> </div>
+							<div class="socialGraph"> </div>
 						</div>		
 					</div>
-					<div class="content" id="panelFlows">
 					</div>
-					<div class="content" id="panelFlowsByActivities">
-					</div>
-					<div class="content" id="panelFlowsPretty">
-					</div>
-					<div class="content active" id="panelInternalFlows">
-					</div>
-					<div class="content" id="panelActivities">
-					</div>
-					<div class="content" id="panelActivitiesPretty">
-					</div>
-					<div class="content" id="panelActivitiesInternal">
-					</div>
-				</div>
-		        <div id="socialGraph" style="">
-		        </div>
 			</div>
 		</div>	
 		
@@ -215,7 +206,7 @@
 			scriptsFile.open("GET", "app_scripts", true);
 			scriptsFile.onreadystatechange = function (){
 				if (scriptsFile.readyState == 4 ){
-				    scripts = eval(scriptsFile.responseText);
+				    scripts = JSON.parse(scriptsFile.responseText);
 					loadScripts();
 			    }
 			};

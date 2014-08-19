@@ -1,5 +1,0 @@
-<resources>
-   <declare-styleable name="ZoomButton">
-       <attr name="period" format="integer" />
-   </declare-styleable>
-</resources>
