@@ -49,6 +49,8 @@
     ping/1,
     forward_mod/3,
     forward_mod/4,
+    forward_mod_with_push_vlan/4,
+    forward_mod_with_push_vlan/5,
     bridge/3,
     bridge/4,
     clear_flows0/0,
@@ -150,6 +152,42 @@ forward_mod(Key, Priority, InPort, OutPorts) when is_list(OutPorts) ->
     send(Key, Request);
 forward_mod(Key, Priority, InPort, OutPort) ->
     forward_mod(Key, Priority, InPort, [OutPort]).
+
+%% @equiv
+%% forward_mod_with_push_vlan(default, Priority, InPort, OutPort, VlanID)
+forward_mod_with_push_vlan(Priority, InPort, OutPort, VlanID) ->
+    forward_mod_with_push_vlan(default, Priority, InPort, OutPort,
+                               VlanID).
+
+%% @doc
+%% Forward all packets from `InPort' to `OutPorts' on the switch
+%% associated with `Key' adding a VLAN tag with `VlanID' to each
+%% outging packet.
+%% Flows are installed in table 0 with priority `Priority'.
+%% If Key is ``default'', send forward mod to the default switch.
+%% @end
+-spec forward_mod_with_push_vlan(Key :: switch_key(),
+                                 Priority :: integer(),
+                                 InPort :: integer(),
+                                 OutPorts :: integer() | [integer()],
+                                 VlanID :: integer()) ->
+                                        {ok, ofp_message()} |
+                                        {error, error_reason()}.
+forward_mod_with_push_vlan(Key, Priority, InPort, OutPorts, VlanID)
+  when is_list(OutPorts)->
+    Version = version(Key),
+    Matches = [{in_port, <<InPort:32>>}],
+    Actions = [{push_vlan, 16#8100}, {set_field, vlan_vid, <<VlanID:12>>}
+               | [{output, OutPort, no_buffer} || OutPort <- OutPorts]],
+    Instructions = [{apply_actions, Actions}],
+    Opts = [{table_id,0}, {priority, Priority},
+            {idle_timeout, 0}, {idle_timeout, 0},
+            {cookie, <<0,0,0,0,0,0,0,10>>},
+            {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
+    Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
+    send(Key, Request);
+forward_mod_with_push_vlan(Key, Priority, InPort, OutPort, VlanID) ->
+    forward_mod_with_push_vlan(Key, Priority, InPort, [OutPort], VlanID).
 
 %% @equiv bridge(default, Priority, Port1, Port2)
 bridge(Priority, Port1, Port2) ->
@@ -391,7 +429,7 @@ flows(Key) ->
 
 %% @doc
 %% Force connection to Switch at IpAddr and Port
-%% @doc
+%% @end
 -spec connect(IpAddr :: ipaddress(), Port :: integer()) -> ok | {error, error_reason()}.
 connect(IpAddr, Port) ->
     icontrol_logic:connect(IpAddr, Port).
