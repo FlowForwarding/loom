@@ -10,7 +10,7 @@ NCI.Emulator = {};
 NCI.Emulator.liveDataFrequency = 5000; //in mseconds ( 5 second updates)
 NCI.Emulator.dataAvailablePeriod = NCI.chartPeriods.twodays;  //in mseconds
 //NCI.Emulator.dataAvailableTill = NCI.chartPeriods.sixmnth; //time from now in mseconds - last nci value update
-NCI.Emulator.serverResponceDelay = 1500;  //in mseconds
+NCI.Emulator.serverResponceDelay = 500;  //in mseconds
 
 NCI.Emulator.startData = new Date();
 

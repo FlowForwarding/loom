@@ -25,6 +25,7 @@ NCI.setupCommunities = function(data){
 	});
 	
 	NCI.detailsEndpoints.html(NCI.parceNumberForView(sizesSum));
+	$("#loading_label").remove();
 };
 
 $(".hide-ncidetails").on('click', function(){
