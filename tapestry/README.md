@@ -191,8 +191,8 @@ tapestry | ftpd_address | {0,0,0,0} | ftp server listener IP address
 tapestry | ftpd_port | 7777 | ftp server listener port
 tapestry | datasources | [packet_in] | identifies sources of DNS information
 tapestry | nci_min_interval | {seconds, 15} | shortest time between nci calculations
-tapestry | max_vertices | 300 | maximum number of vertices before dropping communities detail
-tapestry | max_edges | 1000 | maximum number of edges before dropping communities detail
+tapestry | max_vertices | 300 | maximum number of vertices before dropping a community's detail
+tapestry | max_edges | 1000 | maximum number of edges before dropping a community's detail
 tapestry | max_communities | 300 | maximum number communities in the communities graph
 tapestry | comm_size_limit | 300 | when dropping community details, drop details of communities larger than this limit
 tapestry | qps_max_interval | {seconds, 15} | longest time between Query/Sec ui updates
