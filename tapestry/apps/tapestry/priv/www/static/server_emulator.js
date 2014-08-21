@@ -10,7 +10,7 @@ NCI.Emulator = {};
 NCI.Emulator.liveDataFrequency = 5000; //in mseconds ( 5 second updates)
 NCI.Emulator.dataAvailablePeriod = NCI.chartPeriods.twodays;  //in mseconds
 //NCI.Emulator.dataAvailableTill = NCI.chartPeriods.sixmnth; //time from now in mseconds - last nci value update
-NCI.Emulator.serverResponceDelay = 1500;  //in mseconds
+NCI.Emulator.serverResponceDelay = 500;  //in mseconds
 
 NCI.Emulator.startData = new Date();
 
@@ -120,12 +120,10 @@ NCI.Connection.NCIDetails = function(time) {
 	scriptsFile.onreadystatechange = function (){
 		if (scriptsFile.readyState == 4 ){
 		    event.data = scriptsFile.responseText;
-			NCI.Connection.onmessage(event);
+			setTimeout(NCI.Connection.onmessage, NCI.Emulator.serverResponceDelay, event);
 	    }
 	};
 	scriptsFile.send();	
-	
-	NCI.Connection.onmessage(event)
 }
 
 //Override to do nothing, for the case if connection opened successfull in emulation mode

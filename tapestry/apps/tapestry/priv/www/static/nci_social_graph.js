@@ -194,6 +194,9 @@ NCI.graphBuilder = function(communities){
 	
 	//add community
 	thisBuilder.addCommunity = function(community, mainEndpoint, group){
+		if (community.Endpoints.length > NCI.max_vertices)
+		    return
+		console.log("thisBuilder.addCommunity")
 		var communityEndpoints = {};
 		var startIndex = Object.keys(endpointsHash).length
 		var addConnection = function(endPoint, endpoints){
