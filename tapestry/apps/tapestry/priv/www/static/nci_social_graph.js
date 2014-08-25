@@ -118,11 +118,11 @@ NCI.socialGraph = function(socialGraphID, params){
             nodesData.exit().remove();
 			me.setupNodes(isFiltered, isDevided, isClustered);
 			me.node.on('mouseover', function(d){
-				var info = d.fullname;
-				if (d.external){
-					info += "<br>doesn't belong to activity";
+				var info = d.name;
+				if (d.size){
+					info += "<br>size : " + d.size;
 				};
-				info += "<br>" + d.connections + " connections";
+				info += "<br>connections : " + d.connections;
 				tooltip.html(info).style("top", d.py + me.position().top).
 				style("left", d.px + me.position().left).style("display", "inline");
 			}).on('mouseout', function(){
