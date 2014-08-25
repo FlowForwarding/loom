@@ -40,10 +40,21 @@ $(".hide-ncidetails").on('click', function(){
 	$($('#nciDetailsTabs').find("dd a")[0]).click();
 });
 
+// legend.append("rect").attr("height", dim).attr("width", dim).attr("fill", color(0));
+// legend.append("text").html("- internal endpoint").attr("x", 30).attr("y", dim);
+// legend.append("rect").attr("height", dim).attr("width", dim).attr("fill", notNetworkColor).attr("y", lineHeight);
+// legend.append("text").html("- internal endpoint").attr("x", 30).attr("y", 45);
+// legend.append("rect").attr("height", dim).attr("width", dim).attr("fill", notNetworkColor).attr("y", 60);
+// legend.append("text").html("- doesn't belong to activity").attr("x", 30).attr("y", 75);
+// blue - endpoint in activity
+// red - endpoint in a different activity
+// white - external endpoint
+
 NCI.detailsTabs = function(){
 	var me = $('#nciDetailsTabs');
 	var flowsPanel;
 	var activitiesPanel;
+	var color = d3.scale.category10();
 	
 	me.on('toggled', function (event, tab) {
 		switch(tab[0].id) {
@@ -60,6 +71,9 @@ NCI.detailsTabs = function(){
 				activitiesPanel = new NCI.socialGraph("#panelActivities",{
 					isDevided : true,
 					isExpandable : true,
+					legendData : [[color(0), "endpoint in activity"],
+					    ["red", "endpoint in a different activity"],
+					    ["#000000", "internal endpoint"]],
 					numOfPoints: NCI.CommunityGraph.Endpoints.length,
 					graphBuilder: new NCI.graphBuilder([NCI.CommunityGraph]),
 					radius: function(endpoint){

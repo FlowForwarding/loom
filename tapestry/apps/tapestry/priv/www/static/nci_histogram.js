@@ -100,6 +100,7 @@ NCI.nciHistogram = (function(){
 	
 	me.showDetails = function(d){
 		$('.histogram-details-graph').show();
+		var color = d3.scale.category10();
 		me.socialGraph = new NCI.socialGraph(".histogram-details-graph", 
 		   {
 			   graphBuilder: new NCI.graphBuilder([d]),
@@ -108,6 +109,9 @@ NCI.nciHistogram = (function(){
 			   height: $(window).height(),
 			   notNetworkColor: "#fff",
 			   isClustered: true,
+			legendData : [[color(0), "endpoint in activity"],
+			    ["red", "endpoint in a different activity"],
+			    ["#FFFFFf", "internal endpoint"]],
 			   radius: function(){
 			    	var verticlesLimitForRadius = 250
 			   	 	var radius = 4

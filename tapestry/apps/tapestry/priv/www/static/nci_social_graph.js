@@ -5,6 +5,7 @@ NCI.socialGraph = function(socialGraphID, params){
 	var force;
 	var selectedDots = {};
 	var socialGraphSelector = socialGraphID + " .socialGraph";
+	var legendSelector = socialGraphID + " .legend";
 	var socialGraphID = socialGraphID.substring(1) + "_graph";
 	var color = d3.scale.category10();
 	var notNetworkColor = params.notNetworkColor || "#000000";
@@ -38,6 +39,7 @@ NCI.socialGraph = function(socialGraphID, params){
 	});
 	
 	me.show = function(needDraw){
+		
 		if (tooltip === undefined)
 			tooltip = d3.select(socialGraphSelector).append("div").attr("class", "endpoint-tooltip");
 		if (NCI.Communities.length == 0){
@@ -182,6 +184,20 @@ NCI.socialGraph = function(socialGraphID, params){
 		showInternal.prop('checked', false);
 	}
 	
+	me.setupLegend = function(legend_data){
+		var dim = 15;
+		var lineHeight = 30;
+		var legend = d3.select(legendSelector).append("svg");
+		$.each(legend_data, function(index, line){
+		 	legend.append("rect").attr("height", dim).attr("width", dim).attr("y", lineHeight*index).attr("fill", line[0]);
+		 	legend.append("text").html("- " + line[1] + "<br/>").attr("x", 30).attr("fill", notNetworkColor).attr("y", lineHeight*index + dim);
+		});
+	};
+	
+	if (params.legendData && $(legendSelector + " svg").length === 0){
+		me.setupLegend(params.legendData);
+	};
+	
 	return me;
 };
 
@@ -196,7 +212,6 @@ NCI.graphBuilder = function(communities){
 	thisBuilder.addCommunity = function(community, mainEndpoint, group){
 		if (community.Endpoints.length > NCI.max_vertices)
 		    return
-		console.log("thisBuilder.addCommunity")
 		var communityEndpoints = {};
 		var startIndex = Object.keys(endpointsHash).length
 		var addConnection = function(endPoint, endpoints){

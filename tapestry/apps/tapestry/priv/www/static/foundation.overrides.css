@@ -223,3 +223,8 @@
 	height:100%;
 	display:none;
 }
+
+.legend {
+	position: absolute;
+	right: 0px;
+}
