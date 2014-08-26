@@ -85,6 +85,16 @@ NCI.socialGraph = function(socialGraphID, params){
 		force.linkStrength(isClustered ? 1 : 0);
 	};
 	
+	var zoom = d3.behavior.zoom()
+	    .scaleExtent([1, 10])
+	    .on("zoom", zoomed);
+		
+	function zoomed() {
+		console.log(d3.event.translate)
+		me.link.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+		me.node.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+	};	
+	
 	me.draw = function(){	
 		force = d3.layout.force()
 		    .charge(charge())
@@ -95,7 +105,7 @@ NCI.socialGraph = function(socialGraphID, params){
 	    me.activitiesGraphSvg = d3.select(socialGraphSelector).append("svg")
 		    .attr("id", socialGraphID)
 			.attr("width", graphWidth)
-			.attr("height", graphHeight);
+			.attr("height", graphHeight).call(zoom);
 			
 		var setupLinks = function(){
 			force.links(graphBuilder.graph.links);
