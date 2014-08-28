@@ -195,11 +195,12 @@ NCI.socialGraph = function(socialGraphID, params){
 	}
 	
 	me.setupLegend = function(legend_data){
-		var dim = 15;
+		var dim = 16;
 		var lineHeight = 30;
 		var legend = d3.select(legendSelector).append("svg");
 		$.each(legend_data, function(index, line){
-		 	legend.append("rect").attr("height", dim).attr("width", dim).attr("y", lineHeight*index).attr("fill", line[0]);
+		 	legend.append("circle").attr("r", dim/2).attr("cy", lineHeight*index + 10).
+			attr("cx", dim/2).attr("fill", line[0]);
 		 	legend.append("text").html("- " + line[1] + "<br/>").attr("x", 30).attr("fill", notNetworkColor).attr("y", lineHeight*index + dim);
 		});
 	};
