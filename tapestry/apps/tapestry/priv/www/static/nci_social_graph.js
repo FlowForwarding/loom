@@ -90,7 +90,6 @@ NCI.socialGraph = function(socialGraphID, params){
 	    .on("zoom", zoomed);
 		
 	function zoomed() {
-		console.log(d3.event.translate)
 		me.link.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 		me.node.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	};	
@@ -133,8 +132,14 @@ NCI.socialGraph = function(socialGraphID, params){
 					info += "<br>size : " + d.size;
 				};
 				info += "<br>connections : " + d.connections;
-				tooltip.html(info).style("top", d.py + me.position().top).
-				style("left", d.px + me.position().left).style("display", "inline");
+				var newx = this.getCTM().e;
+				var newy = this.getCTM().f;
+				if (this.getCTM().d != 0) {
+					newx = newx / this.getCTM().d;
+					newy = newy / this.getCTM().d;
+				}
+				tooltip.html(info).style("top", d.py + newy + me.position().top).
+				style("left", d.px + newx + me.position().left).style("display", "inline");
 			}).on('mouseout', function(){
 				tooltip.style("display", "none");
 			});
