@@ -111,7 +111,7 @@ NCI.nciHistogram = (function(){
 			   isClustered: true,
 			legendData : [[color(0), "endpoint in activity"],
 			    ["red", "endpoint in a different activity"],
-			    ["#FFFFFf", "internal endpoint"]],
+			    ["#FFFFFf", "external endpoint"]],
 			   radius: function(){
 			    	var verticlesLimitForRadius = 250
 			   	 	var radius = 4

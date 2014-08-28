@@ -73,7 +73,7 @@ NCI.detailsTabs = function(){
 					isExpandable : true,
 					legendData : [[color(0), "endpoint in activity"],
 					    ["red", "endpoint in a different activity"],
-					    ["#000000", "internal endpoint"]],
+					    ["#000000", "external endpoint"]],
 					numOfPoints: NCI.CommunityGraph.Endpoints.length,
 					graphBuilder: new NCI.graphBuilder([NCI.CommunityGraph]),
 					radius: function(endpoint){
