@@ -57,6 +57,10 @@ NCI.detailsTabs = function(){
 	var color = d3.scale.category10();
 	
 	me.on('toggled', function (event, tab) {
+		if (activitiesPanel)
+		    activitiesPanel.clean()
+		if (flowsPanel)
+			flowsPanel.clean()
 		switch(tab[0].id) {
 		    case "panelFlows":
 				flowsPanel = new NCI.socialGraph("#panelFlows",{
@@ -64,8 +68,6 @@ NCI.detailsTabs = function(){
 					numOfPoints: NCI.Social.endpoints
 				});
 		        flowsPanel.show(true);
-				if (activitiesPanel)
-				    activitiesPanel.clean()
 		        break;
 		    case "panelActivities":
 				activitiesPanel = new NCI.socialGraph("#panelActivities",{
@@ -86,15 +88,9 @@ NCI.detailsTabs = function(){
 					}
 				});
 				activitiesPanel.show(true);
-				if (flowsPanel)
-				    flowsPanel.clean()
 		        break;
 		    default:
 				NCI.nciHistogram.show();
-				if (flowsPanel)
-				    flowsPanel.clean();
-				if (activitiesPanel)
-					activitiesPanel.clean();
 		};
 	});
 	
