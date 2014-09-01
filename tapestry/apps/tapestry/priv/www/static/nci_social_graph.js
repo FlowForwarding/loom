@@ -202,11 +202,19 @@ NCI.socialGraph = function(socialGraphID, params){
 	me.setupLegend = function(legend_data){
 		var dim = 16;
 		var lineHeight = 30;
-		var legend = d3.select(legendSelector).append("svg");
+		var legend = d3.select(legendSelector).append("svg").attr("width", 400);
 		$.each(legend_data, function(index, line){
-		 	legend.append("circle").attr("r", dim/2).attr("cy", lineHeight*index + 10).
-			attr("cx", dim/2).attr("fill", line[0]);
-		 	legend.append("text").html("- " + line[1] + "<br/>").attr("x", 30).attr("fill", notNetworkColor).attr("y", lineHeight*index + dim);
+			switch(line[2]) {
+			    case "rect":
+					legend.append("rect").attr("height", dim).attr("width", dim).attr("fill", line[0]);
+					break;
+				case "none":
+				     break;
+				default:
+				 	legend.append("circle").attr("r", dim/2).attr("cy", lineHeight*index + 10).
+					attr("cx", dim/2).attr("fill", line[0]);	 		
+			}
+			legend.append("text").html(line[1] + "<br/>").attr("x", 30).attr("fill", notNetworkColor).attr("y", lineHeight*index + dim);
 		});
 	};
 	
