@@ -172,7 +172,25 @@ NCI.socialGraph = function(socialGraphID, params){
 							return false;
 						}
 					});
-	 		    });
+	 		    }).on('mousedown', function(d){
+				if (d.external) {
+					//TODO  find right node!!! instead of graphBuilder.graph.nodes[0]
+					graphBuilder.graph.links.push({
+						source: graphBuilder.graph.nodes[0],
+						target: d,
+						value: 1});
+					setupLinks();		
+					setupNodes();
+					force.start();
+				}
+			}).on('mouseup', function(d){
+				if (d.external) {
+					graphBuilder.graph.links.pop();
+					setupLinks();		
+					setupNodes();
+					force.start();
+				}
+			});
 			};
 		};
 		
