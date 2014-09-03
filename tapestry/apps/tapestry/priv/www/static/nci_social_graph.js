@@ -175,13 +175,26 @@ NCI.socialGraph = function(socialGraphID, params){
 	 		    }).on('mousedown', function(d){
 				if (d.external) {
 					//TODO  find right node!!! instead of graphBuilder.graph.nodes[0]
-					graphBuilder.graph.links.push({
-						source: graphBuilder.graph.nodes[0],
-						target: d,
-						value: 1});
-					setupLinks();		
-					setupNodes();
-					force.start();
+					$.each(NCI.Communities, function(index, community){
+						var connectedNode = undefined
+						if (community.Endpoints.indexOf(d.name) >= 0){
+							$.each(graphBuilder.graph.nodes, function(index, node){
+								if (node.name == community.Label){
+									connectedNode = node;
+									return;
+								}
+							});
+							
+							graphBuilder.graph.links.push({
+								source: connectedNode,
+								target: d,
+								value: 1});
+							setupLinks();		
+							setupNodes();
+							force.start();
+							return;
+						}
+					});
 				}
 			}).on('mouseup', function(d){
 				if (d.external) {
