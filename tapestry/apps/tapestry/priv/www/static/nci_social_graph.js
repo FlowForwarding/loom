@@ -207,11 +207,13 @@ NCI.socialGraph = function(socialGraphID, params){
 				}
 			}).on('mouseup', function(d){
 				if (d.external) {
-					tmpLine = undefined;
-					graphBuilder.graph.links.pop();
-					setupLinks();		
-					setupNodes();
-					force.start();
+					if (tmpLine !== undefined) {
+						tmpLine = undefined;
+						graphBuilder.graph.links.pop();
+						setupLinks();		
+						setupNodes();
+						force.start();
+					}
 				}
 			});
 			};
