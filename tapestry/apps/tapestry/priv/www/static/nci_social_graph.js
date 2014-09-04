@@ -24,6 +24,7 @@ NCI.socialGraph = function(socialGraphID, params){
 	var byActivities = me.find('.byactivities');
 	var prettyView = me.find('.pretty');
 	var showInternal = me.find('.internal');
+	var tmpLine = undefined;
 	
 	byActivities.on('click', function(event){
 		isDevided = this.checked;
@@ -87,8 +88,15 @@ NCI.socialGraph = function(socialGraphID, params){
 	
 	var zoom = d3.behavior.zoom()
 	    .scaleExtent([1, 10])
-	    .on("zoom", zoomed);
+	    .on("zoom", zoomed).on("zoomend", zoomend);
 		
+	function zoomend() {
+		if (tmpLine !== undefined) {
+			tmpLine = undefined;
+			graphBuilder.graph.links.pop();
+		}
+	}	
+	
 	function zoomed() {
 		me.link.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 		me.node.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
@@ -111,7 +119,7 @@ NCI.socialGraph = function(socialGraphID, params){
 			me.activitiesGraphSvg.selectAll("line").remove();
 			var linksData = me.activitiesGraphSvg.selectAll(".link").data(graphBuilder.graph.links);
 			me.link = linksData.enter().append("line")
-		    .attr("class", "activities_link"); 
+		    .attr("class", function(d){ return d.tmp ? "activities_link_tmp" : "activities_link"}); 
 			linksData.exit().remove();
 		};
 		
@@ -146,10 +154,10 @@ NCI.socialGraph = function(socialGraphID, params){
 			if (isExpandable) {
 				me.node.on('click', function(d){
 					var label = d.name.split(":")[0];
-					var group = selectedDots[label]
+					var group = selectedDots[label];
 					if (group !== undefined){
-						delete selectedDots[selectedDots[label]]
-						delete selectedDots[label]
+						delete selectedDots[selectedDots[label]];
+						delete selectedDots[label];
 						graphBuilder.removeCommunity(group);
 						setupLinks();		
 						setupNodes();
@@ -184,11 +192,12 @@ NCI.socialGraph = function(socialGraphID, params){
 									return;
 								}
 							});
-							
-							graphBuilder.graph.links.push({
+							tmpLine = {
 								source: connectedNode,
 								target: d,
-								value: 1});
+								tmp: true,
+								value: 1};
+							graphBuilder.graph.links.push(tmpLine);
 							setupLinks();		
 							setupNodes();
 							force.start();
@@ -198,6 +207,7 @@ NCI.socialGraph = function(socialGraphID, params){
 				}
 			}).on('mouseup', function(d){
 				if (d.external) {
+					tmpLine = undefined;
 					graphBuilder.graph.links.pop();
 					setupLinks();		
 					setupNodes();
