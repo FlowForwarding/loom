@@ -267,7 +267,7 @@ NCI.graphBuilder = function(communities){
 	thisBuilder.addCommunity = function(community, mainEndpoint, group){
 		if (community.Endpoints.length > NCI.max_vertices)
 		    return
-		document.getElementById('yes_sound').play();	
+		document.getElementById('blow_sound').play();	
 		var communityEndpoints = {};
 		var startIndex = Object.keys(endpointsHash).length
 		var addConnection = function(endPoint, endpoints){
@@ -318,7 +318,7 @@ NCI.graphBuilder = function(communities){
 	
 	//remove community
 	thisBuilder.removeCommunity = function(group){
-		document.getElementById('oops_sound').play();
+		document.getElementById('tink_sound').play();
 	    thisBuilder.graph.nodes = $.grep(thisBuilder.graph.nodes, function(node, index){
 			var remove = node.group == group
 			if (remove)
