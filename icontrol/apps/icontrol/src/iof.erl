@@ -49,6 +49,9 @@
     ping/1,
     forward_mod/3,
     forward_mod/4,
+    oe_forward_mod_eth_to_optical/5,
+    oe_forward_mod_between_optical/6,
+    oe_forward_mod_optical_to_eth/5,
     bridge/3,
     bridge/4,
     clear_flows0/0,
@@ -73,6 +76,9 @@
 ]).
 
 -type switch_key() :: integer().
+
+-define(OCH_SIGTYPE, <<10>>).
+-define(OCH_SIGID(ID), <<0:16, ID:16, 0:16>>).
 
 %% @hidden
 %% activate tracing for debugging
@@ -150,6 +156,50 @@ forward_mod(Key, Priority, InPort, OutPorts) when is_list(OutPorts) ->
     send(Key, Request);
 forward_mod(Key, Priority, InPort, OutPort) ->
     forward_mod(Key, Priority, InPort, [OutPort]).
+
+oe_forward_mod_eth_to_optical(Key, Priority, InPort, OutPort, ChannelNumber) ->
+    Version = version(Key),
+    Matches = [{in_port, <<InPort:32>>}],
+    Actions = [{set_field, och_sigid, ?OCH_SIGID(ChannelNumber)},
+               {output, OutPort, no_buffer}],
+    Instructions = [{apply_actions, Actions}],
+    Opts = [{table_id,0}, {priority, Priority},
+            {idle_timeout, 0}, {idle_timeout, 0},
+            {cookie, <<0,0,0,0,0,0,0,10>>},
+            {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
+    Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
+    send(Key, Request).
+
+oe_forward_mod_between_optical(Key, Priority, InPort, InChannelNumber,
+                               OutPort, OutChannelNumber) ->
+    Version = version(Key),
+    Matches = [{in_port, <<InPort:32>>},
+               {set_field, och_sigtype, ?OCH_SIGTYPE},
+               {set_field, och_sigid, ?OCH_SIGID(InChannelNumber)}],
+    Actions = [{set_field, och_sigid, ?OCH_SIGID(OutChannelNumber)},
+               {output, OutPort, no_buffer}],
+    Instructions = [{apply_actions, Actions}],
+    Opts = [{table_id,0}, {priority, Priority},
+            {idle_timeout, 0}, {idle_timeout, 0},
+            {cookie, <<0,0,0,0,0,0,0,10>>},
+            {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
+    Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
+    send(Key, Request).
+
+oe_forward_mod_optical_to_eth(Key, Priority, InPort, InChannelNumber,
+                              OutPort) ->
+    Version = version(Key),
+    Matches = [{in_port, <<InPort:32>>},
+               {set_field, och_sigtype, ?OCH_SIGTYPE},
+               {set_field, och_sigid, ?OCH_SIGID(InChannelNumber)}],
+    Actions = [{output, OutPort, no_buffer}],
+    Instructions = [{apply_actions, Actions}],
+    Opts = [{table_id,0}, {priority, Priority},
+            {idle_timeout, 0}, {idle_timeout, 0},
+            {cookie, <<0,0,0,0,0,0,0,10>>},
+            {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
+    Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
+    send(Key, Request).
 
 %% @equiv bridge(default, Priority, Port1, Port2)
 bridge(Priority, Port1, Port2) ->
