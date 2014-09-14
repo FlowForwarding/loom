@@ -42,6 +42,10 @@
     tr/0,
     version/0,
     version/1,
+    get_features/0,
+    get_features/1,
+    get_description/0,
+    get_description/1,
     debug/1,
     send/1,
     send/2,
@@ -536,6 +540,30 @@ version() ->
 %% @end
 version(Key) ->
     check_version(icontrol_logic:ofs_version(Key)).
+
+%% @equiv get_features(default)
+get_features() ->
+    get_features(default).
+
+%% @doc
+%% show features of switch associated with Key.
+%% @end
+get_features(Key) ->
+    Version = version(Key),
+    Request = of_msg_lib:get_features(Version),
+    show(send(Key, Request)).
+
+%% @equiv get_description(default)
+get_description() ->
+    get_description(default).
+
+%% @doc
+%% show description of switch associated with Key.
+%% @end
+get_description(Key) ->
+    Version = version(Key),
+    Request = of_msg_lib:get_description(Version),
+    show(send(Key, Request)).
 
 format_default(Key, Key) ->
     "*";
