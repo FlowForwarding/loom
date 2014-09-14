@@ -72,6 +72,10 @@
     disconnect/1,
     default/1,
     default/0,
+    ports/0,
+    ports/1,
+    oe_ports/0,
+    oe_ports/1,
     switches/0
 ]).
 
@@ -471,6 +475,41 @@ default(Key) ->
 -spec default() -> switch_key() | {error, error_reason()}.
 default() ->
     icontrol_logic:show_default().
+
+%% @doc
+%% show port descriptions
+%% @end
+-spec ports() -> term().
+ports() ->
+    ports(default).
+
+%% @doc
+%% show port descriptions on switch associated with Key.
+%% If Key is ``default'', shows port descriptions on the default switch.
+%% @end
+-spec ports(Key :: switch_key()) -> term().
+ports(Key) ->
+    Version = version(Key),
+    Request = of_msg_lib:get_port_descriptions(Version),
+    show(send(Key, Request)).
+
+%% @doc
+%% show optical emulation port descriptions
+%% @end
+-spec oe_ports() -> term().
+oe_ports() ->
+    oe_ports(default).
+
+%% @doc
+%% show optical port descriptions on switch associated with Key.
+%% If Key is ``default'', shows optical emulation port descriptions
+%% on the default switch.
+%% @end
+-spec oe_ports(Key :: switch_key()) -> term().
+oe_ports(Key) ->
+    Version = version(Key),
+    Request = of_msg_lib:oe_get_port_descriptions(Version),
+    show(send(Key, Request)).
 
 %% @doc
 %% show switches
