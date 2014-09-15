@@ -53,9 +53,9 @@
     ping/1,
     forward_mod/3,
     forward_mod/4,
-    oe_forward_mod_eth_to_optical/5,
-    oe_forward_mod_between_optical/6,
-    oe_forward_mod_optical_to_eth/5,
+    oe_flow_tw/5,
+    oe_flow_ww/6,
+    oe_flow_wt/5,
     bridge/3,
     bridge/4,
     clear_flows0/0,
@@ -165,7 +165,14 @@ forward_mod(Key, Priority, InPort, OutPorts) when is_list(OutPorts) ->
 forward_mod(Key, Priority, InPort, OutPort) ->
     forward_mod(Key, Priority, InPort, [OutPort]).
 
-oe_forward_mod_eth_to_optical(Key, Priority, InPort, OutPort, ChannelNumber) ->
+%% @doc
+%% Forward all packets from a TPort InPort to a WPort OutPort
+%% on the switch associated
+%% with Key assigning ChannelNumber to the OutPort data.  Flows
+%% are installed in table 0 with priority Priority.
+%% If Key is ``default'', send forward mod to the default switch.
+%% @end
+oe_flow_tw(Key, Priority, InPort, OutPort, ChannelNumber) ->
     Version = version(Key),
     Matches = [{in_port, <<InPort:32>>}],
     Actions = [{set_field, och_sigid, ?OCH_SIGID(ChannelNumber)},
@@ -178,8 +185,15 @@ oe_forward_mod_eth_to_optical(Key, Priority, InPort, OutPort, ChannelNumber) ->
     Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
     send(Key, Request).
 
-oe_forward_mod_between_optical(Key, Priority, InPort, InChannelNumber,
-                               OutPort, OutChannelNumber) ->
+%% @doc
+%% Forward all packets from a WPort InPort on InChannelNumber
+%% to a WPort OutPort
+%% on the switch associated
+%% with Key assigning ChannelNumber to the OutPort data.  Flows
+%% are installed in table 0 with priority Priority.
+%% If Key is ``default'', send forward mod to the default switch.
+%% @end
+oe_flow_ww(Key, Priority, InPort, InChannelNumber, OutPort, OutChannelNumber) ->
     Version = version(Key),
     Matches = [{in_port, <<InPort:32>>},
                {och_sigtype, ?OCH_SIGTYPE},
@@ -194,8 +208,15 @@ oe_forward_mod_between_optical(Key, Priority, InPort, InChannelNumber,
     Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
     send(Key, Request).
 
-oe_forward_mod_optical_to_eth(Key, Priority, InPort, InChannelNumber,
-                              OutPort) ->
+%% @doc
+%% Forward all packets from a WPort InPort on InChannelNumber
+%% to a WPort OutPort
+%% on the switch associated
+%% with Key.  Flows
+%% are installed in table 0 with priority Priority.
+%% If Key is ``default'', send forward mod to the default switch.
+%% @end
+oe_flow_wt(Key, Priority, InPort, InChannelNumber, OutPort) ->
     Version = version(Key),
     Matches = [{in_port, <<InPort:32>>},
                {och_sigtype, ?OCH_SIGTYPE},
