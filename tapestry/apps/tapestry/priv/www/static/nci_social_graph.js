@@ -28,18 +28,18 @@ NCI.socialGraph = function(socialGraphID, params){
 	
 	byActivities.on('click', function(event){
 		isDevided = this.checked;
-		me.show();
+		me.show(false, false);
 	});
 	prettyView.on('click', function(event){
 		isClustered = this.checked;
-		me.show();
+		me.show(false, true);
 	});
 	showInternal.on('click', function(event){
 		isFiltered = this.checked;
-		me.show();
+		me.show(false, false);
 	});
 	
-	me.show = function(needDraw){
+	me.show = function(needDraw, needForce){
 		
 		if (tooltip === undefined)
 			tooltip = d3.select(socialGraphSelector).append("div").attr("class", "endpoint-tooltip");
@@ -59,7 +59,9 @@ NCI.socialGraph = function(socialGraphID, params){
 		//otherwise just change appearance	
 		} else {
 		    me.setupNodes();
-		    force.start();
+			if (needForce) {
+				force.start();
+			};
 		}
 	};
 	
