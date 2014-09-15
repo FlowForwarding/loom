@@ -168,7 +168,7 @@ forward_mod(Key, Priority, InPort, OutPort) ->
 oe_forward_mod_eth_to_optical(Key, Priority, InPort, OutPort, ChannelNumber) ->
     Version = version(Key),
     Matches = [{in_port, <<InPort:32>>}],
-    Actions = [{och_sigid, ?OCH_SIGID(ChannelNumber)},
+    Actions = [{set_field, och_sigid, ?OCH_SIGID(ChannelNumber)},
                {output, OutPort, no_buffer}],
     Instructions = [{apply_actions, Actions}],
     Opts = [{table_id,0}, {priority, Priority},
