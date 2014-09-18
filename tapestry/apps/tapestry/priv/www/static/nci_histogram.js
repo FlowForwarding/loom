@@ -8,29 +8,39 @@ NCI.nciHistogram = (function(){
 	    width = 600,
 	    height = 250;
 
+    function ticksValuesForLogScale(ticksCount) {
+        return d3.range(Math.round(Math.log(ticksCount) / Math.LN10)).map(Math.pow.bind(null, 10));
+    }
+
 	me.show = function(){
 		chart.text("");
 		var endpointsMax = d3.max(NCI.Communities, function(d) { return d.Size; });
 		var endpointsMin;
 		var endpointsScale;
+        var endpointsAxisTicksValues;
 		if (endpointsMax > 100) {
 			endpointsMin = 0.5;
 			endpointsScale = d3.scale.log();
+            endpointsAxisTicksValues = ticksValuesForLogScale(endpointsMax);
 		} else {
 			endpointsMin = 0;
 			endpointsScale = d3.scale.linear();
+            endpointsAxisTicksValues = null;
 		}
 		endpointsScale.domain([endpointsMax, endpointsMin])
 				.range([0, height - margin.top - margin.bottom]);
 		
 		var activitiesScale = d3.scale.linear();
 		var activitiesMin = 0;
+        var activitiesAxisTickValues;
 		if (NCI.Communities.length < 800){
 			activitiesScale = d3.scale.linear();
 			activitiesMin = 0;
+            activitiesAxisTickValues = null;
 		} else{
 			activitiesScale = d3.scale.log();
 			activitiesMin = 0.5;
+            activitiesAxisTickValues = ticksValuesForLogScale(NCI.Communities.length);
 		};
 		activitiesScale.domain([NCI.Communities.length + 1, activitiesMin])
 					    .range([width - margin.right - margin.left, margin.left]);
@@ -40,14 +50,16 @@ NCI.nciHistogram = (function(){
 		    .orient('bottom')
 		    .tickSize(0)
 			.ticks(Math.min(NCI.Communities.length + 2, 10),  d3.format("d"))
+            .tickValues(activitiesAxisTickValues)
 		    .tickPadding(8);
 
 		var endpointsAxis = d3.svg.axis()
 		    .scale(endpointsScale)
 		    .orient('left')
-			.tickSize(0)
+			.tickSize(10)
 			.ticks(10,  d3.format("d"))
-		    .tickPadding(10);
+            .tickValues(endpointsAxisTicksValues)
+		    .tickPadding(8);
 
 		var barChartSvg = chart.append('svg')
 		    .attr('width', width)
@@ -93,7 +105,7 @@ NCI.nciHistogram = (function(){
 		html('Activities Sorted by Size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j').attr('x', width/2 - 100).attr('y', height - margin.top - 5);
 		barChartSvg.append('text').
 		attr('style', 'font-weight:bold').
-		html('Number of Endpoints per Activity&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X[j]').attr('x', -height/2 - 70).attr('y', -10)
+		html('Number of Endpoints per Activity&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X[j]').attr('x', -height/2 - 70).attr('y', -15)
 		.attr('transform', 'rotate(-90)');
 
 	};
