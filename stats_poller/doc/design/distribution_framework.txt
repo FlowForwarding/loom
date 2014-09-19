@@ -1,0 +1,14 @@
+Due to the scale of loom, every logical function has to be able to be distributed over several nodes.
+
+Requirements
+
+1, keep several pools of nodes for different functions, e.g.OpenFlow drivers or flow planning
+2, when a new process shall be started, decide based on some criteria, e.g. current load or proximity to some resource, which node to start the process on
+3, provide a routing function to route messages to the node currently handling the required service, e.g. OpenFlow driver for a specific OpenFlow switch
+4, supervise all nodes
+5, if a node fails, restart all processes that were running on the failed node on other nodes
+6, support redundancy, that includes
+   - provide two nodes when starting a new process
+   - routing all messages to both nodes
+   - supervise both processes, and if the executive fails notify the standby
+   - if the failed process is not restarted automatically within a specified time provision it on another node

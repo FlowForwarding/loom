@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>773BEECA-46BB-4087-AB8C-A8421FEC0211</string>
+	<key>IDESourceControlProjectName</key>
+	<string>Tapestry</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>005B776E28AAEC6A6904458E588A7ABEF2D221E9</key>
+		<string>https://github.com/FlowForwarding/loom.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>tapestry/ui/mobile/mixed/Tapestry/Tapestry.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>005B776E28AAEC6A6904458E588A7ABEF2D221E9</key>
+		<string>../../../../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/FlowForwarding/loom.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>005B776E28AAEC6A6904458E588A7ABEF2D221E9</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>005B776E28AAEC6A6904458E588A7ABEF2D221E9</string>
+			<key>IDESourceControlWCCName</key>
+			<string>loom</string>
+		</dict>
+	</array>
+</dict>
+</plist>

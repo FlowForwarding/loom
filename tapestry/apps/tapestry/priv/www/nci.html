@@ -1,0 +1,240 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title> Tapestry </title>
+		<link rel="shortcut icon" href="static/images/favicon.ico" >
+		<script type="text/javascript">
+	        var stylesFile = new XMLHttpRequest();
+			if (typeof NCI === 'undefined')
+			   NCI = {};
+			NCI.loadCallback = function(){};
+			
+			var head = document.getElementsByTagName('head')[0];
+	        stylesFile.open("GET", "app_styles", false);
+	        stylesFile.onreadystatechange = function (){
+				var styles = JSON.parse(stylesFile.responseText);		   
+				for (var i in styles){
+					var link = document.createElement('link');
+					link.rel = 'stylesheet';
+					link.href = styles[i]
+					head.appendChild(link);
+				 };	
+	        };
+		    stylesFile.send();
+		</script>
+		
+	</head>
+	<body>
+        <!-- <dl id="copyright">
+           <dt title="Copyright">&copy;</dt>
+           <dd>2013 Infoblox Inc</dd>
+        </dl> -->
+        <!-- <a rel="license" href="http://www.apache.org/licenses/LICENSE-2.0"> Apache 2.0 License </a> -->
+		<nav class="top-bar">
+		    <ul class="title-area">
+		      <li class="name">
+		        <h1><a href="#">Tapestry: A Real-Time Network Complexity Analyzer</a></h1>
+		      </li>
+		    </ul>
+			<i data-reveal-id="infoModal" class="round-info" data-reveal></i>
+		</nav> 
+		
+		<div class="row">
+			<div class="large-4 small-6 columns nci-label">
+				<div class="indexValue">
+					<name> NCI</name>
+					<span data-tooltip class="has-tip" title="Network Complexity Index">
+						<i class="icon-question-sign"></i></span>
+					<span id="nciLatestValue"> <val> &nbsp; </val> </span>
+				</div><br>
+			</div>	
+			<div class="large-4 small-6 columns"> 
+				<div class="indexValue qps-value"> 	
+				    <span class="collectorLabel">Flow Collectors</span>
+				    <span data-tooltip class="has-tip" title="Info about collectors"> 
+				    <i class="icon-question-sign"></i></span>	
+				    <span id="collectorsLatestValue"><val> &nbsp; </val> <br> <i>&nbsp;</i> </span>
+			    </div>
+				<div class="indexValue qps-value">
+				    <name>Endpoints</name>
+				    <span data-tooltip class="has-tip" title="Number of Connected Network Elements"> 
+				    <i class="icon-question-sign"></i></span>	
+				    <span id="nepLatestValue"><val> &nbsp; </val> <br> <i>&nbsp;</i> </span>
+				</div>
+			</div>
+			<div class="large-4 small-6 columns"> 
+				<div class="indexValue qps-value">
+				    <name>Flows per Second </name>
+				    <span data-tooltip class="has-tip" title="Successful DNS Query Responses per Second">
+				    <i class="icon-question-sign"></i></span>
+				    <span id="qpsLatestValue"><val> &nbsp; </val> <br> <i>&nbsp;</i> </span>
+				</div>
+				<div class="indexValue qps-value">
+				    <name>Number of flows</name>
+				    <span data-tooltip class="has-tip" title="Number of flows">
+				    <i class="icon-question-sign"></i></span>
+				    <span id="flowsLatestValue"><val> &nbsp; </val> <br> <i>&nbsp;</i> </span>
+				</div>
+			</div>
+		</div>  
+		<br><br>
+		<div class="row zoom-panel"> <span class="radius secondary label">Zoom: </span>
+			 <a data-time="86400000">1d</a>&nbsp;
+			 <a data-time="432000000">5d</a>&nbsp;
+			 <a data-time="2592000000">1m</a>&nbsp;
+			 <a data-time="7776000000">3m</a>&nbsp;
+			 <a data-time="15552000000">6m</a>&nbsp;
+			 <a data-time="31104000000">1y</a>&nbsp;
+			 <a data-time="155520000000">5y</a>&nbsp;
+			 <a data-time="311040000000">10y</a></div> 
+		<br><br>
+		<div id="nciChart" class="nci-chart" style="width:90%;"></div>
+		<div class="nci-range-dates">
+			<div id="range-start-date" style="width:50%; display:inline-block;"></div>
+		    <div id="range-middle-date" style="width:50%; display:inline;"></div>
+		 </div>
+		
+		<div id="infoModal" class="reveal-modal" data-reveal>
+			<a href='http://www.infoblox.com/sites/infobloxcom/files/resources/infoblox-whitepaper-network-complexity.pdf' target='blank'>About NCI</a> <br><br>
+			<a href='http://www.flowforwarding.org/nci-article' target='blank'>NCI – Technical paper</a>  <br><br>
+			<a href='http://www.flowforwarding.org/about-us' target='blank'>About FlowForwarding.Org</a>
+			<a class="close-reveal-modal">&#215;</a>
+		</div>
+		
+		<div id="collectorsInfo" class="details-view">
+			<div class="hide-collectorsdetails"></div>
+			<h6 class="centrate collectorsGeneral"></h6>
+				<table class='centrate'>
+					<thead>
+						<tr><th width='150'>Collector</th>
+							<th width='150'>Type</th>
+							<th width='150'>IP Address</th>
+							<th>Datapath ID</th>
+							<th width='150'>QPS</th>
+						</tr>
+					</thead>
+					<tbody id="collectorsTableBody">
+				    </tbody>
+				</table>
+				<ul id="collectorsPagination" class="pagination centrate">
+				</ul>
+		</div>	
+		
+		<div id="nciDetails" class="details-view" style="overflow-y:scroll;">
+			<div class="hide-ncidetails"></div>
+			<div id="histogramGeneral" class="row">
+				<div class="large-1 small-1 columns">&nbsp;</div>
+				<div class="large-6 small-6 columns">
+				    <div class="indexValue qps-value">
+				        <name>NCI</name>
+				        <span data-tooltip class="has-tip" title="Network Complexity Index"> 
+				           &nbsp; <i class="icon-question-sign"></i></span>	
+				        <span><val id="detailsNCI"> &nbsp; </val>  </span>
+				    </div>
+				    <div class="indexValue qps-value">
+				        <name>Time</name>
+				        <span data-tooltip class="has-tip" title="Snapshot time"> 
+				           &nbsp; <i class="icon-question-sign"></i></span>	
+				        <span><val> <i id="detailsTime"> &nbsp; </i> </val></span>
+				    </div>
+			    </div>
+				<div class="large-5 small-5 columns">
+				    <div class="indexValue qps-value">
+				        <name>Endpoints</name>
+				        <span data-tooltip class="has-tip" title="Number of Connected Network Elements"> 
+				           &nbsp; <i class="icon-question-sign"></i></span>	
+				        <span><val id="detailsEndpoints"> &nbsp; </val> </span>
+				    </div>
+				    <div class="indexValue qps-value">
+				        <name>Flows</name>
+				        <span data-tooltip class="has-tip" title="Number of Connections"> 
+				           &nbsp; <i class="icon-question-sign"></i></span>	
+				        <span><val id="detailsFlows"> &nbsp; </val>  </span>
+				    </div>
+				</div>
+			</div>
+			<br/><br/>
+			<div>
+				<dl class="tabs vertical" data-tab id="nciDetailsTabs">
+					<dd class="active"><a href="#panelFlows">Flows</a></dd>
+					<dd><a href="#panelActivities">Activities</a></dd>
+					<dd><a href="#panelActivitySizes">Activity Sizes</a></dd>
+				</dl>
+				<div class="tabs-content vertical">
+					<div class="content" id="panelFlows">
+				        <label> <input type="checkbox" class="byactivities"> by Activities</label>
+				        <label> <input type="checkbox" class="pretty"> Pretty</label>
+				        <label> <input type="checkbox" class="internal"> External </label>
+				        <div class="socialGraph" style="">
+				        </div>
+					</div>
+					<div class="content" id="panelActivities">
+						<label> <input type="checkbox" class="pretty"> Pretty</label>
+						<label> <input type="checkbox" class="internal"> External</label>
+						<div class="legend"></div>
+				        <div class="socialGraph" style="">
+				        </div>
+					</div>
+					<div class="content" id="panelActivitySizes">
+						<div class="row">
+				            <div id="nciHistogram" class="centrate"> </div>
+   						    <h6 class="centrate"> <b>NCI(N) = Max j, X[j] ≥ j </b> </h6>						
+   						    <h4 class="centrate"><small> where <b>NCI(N)</b> is the Network Complexity Index of network N and 
+   							<b>X[j]</b> is the number of endpoints engaged in an activity </small></h4>
+							<div class="expand-historgam"></div>
+					    </div>
+						<div class="histogram-details-graph">
+							<div class="histogramDetailsHeader">
+						        <div class="histogramDetailsInternal">
+ 							        <label><input type="checkbox" class="internal"> External</label>
+								    <div class="histogramDetailsClose"></div>
+							    </div>
+							</div>
+							<div class="legend"> </div>
+							<div class="socialGraph"> </div>
+						</div>		
+					</div>
+					</div>
+			</div>
+		</div>	
+		
+		<div class="disconected">
+			<img class="centrate" style="margin-top:100px;" src="static/images/unavailable.png"></img>
+		</div>
+		<script type="text/javascript">
+			var scripts = [];
+			var scriptsFile = new XMLHttpRequest();
+			scriptsFile.open("GET", "app_scripts", true);
+			scriptsFile.onreadystatechange = function (){
+				if (scriptsFile.readyState == 4 ){
+				    scripts = JSON.parse(scriptsFile.responseText);
+					loadScripts();
+			    }
+			};
+			scriptsFile.send();	
+		   	var loadedScripts = 0;
+		   	function loadedFunction(){
+				if (loadedScripts  == (scripts.length - 1) ){
+					$(document).foundation();
+					NCI.loadCallback();
+					NCI.initSocket();
+				}
+				++loadedScripts;
+		   	};		   
+			function loadScripts(){
+				for (var i = 0; i < scripts.length; i++) {
+					var script = document.createElement('script');
+					script.src = scripts[i]
+					script.type = 'text/javascript';
+					script.async = false;
+					script.addEventListener('load', function (e) { loadedFunction(e); }, false);
+					head.appendChild(script);
+				}
+			};
+            
+		</script>
+		<audio id="oops_sound" src="static/sounds/oops.mp3" preload="auto"></audio>	
+		<audio id="yes_sound" src="static/sounds/yes.mp3" preload="auto"></audio>		
+	</body>
+</html>

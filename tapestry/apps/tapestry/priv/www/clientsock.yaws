@@ -1,0 +1,8 @@
+<html>	
+<erl>
+out(A) ->
+    CallbackMod = clientsock,
+    Opts = [{origin, any}],
+    {websocket, CallbackMod, Opts}.
+</erl>
+</html>

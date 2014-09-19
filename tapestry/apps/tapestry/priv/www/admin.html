@@ -1,0 +1,75 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title> Tapestry Admin</title>
+		<link rel="shortcut icon" href="static/images/favicon.ico" >
+  	    <link rel="stylesheet" href="bower_components/foundation/css/normalize.css" />
+  	    <link rel="stylesheet" href="bower_components/foundation/css/foundation.min.css"/> 
+		<link rel="stylesheet" href="static/foundation.overrides.css"/> 
+	    <script src='bower_components/modernizr/modernizr.js'></script> 
+		
+	</head>
+	<body>
+		<nav class="top-bar" data-topbar>
+		  <ul class="title-area">
+		    <li class="name">
+		      <h1><a href="#">Tapestry Admin</a></h1>
+		    </li>
+		  </ul>
+		</nav>
+		
+	    <div class="row">
+		   <h6>Max Edges <small id="nciMaxEdges"></small></h6>
+		   <h6>Max Vertices <small id="nciMaxVertices"></small></h6>
+		   <h6>Max Communities <small id="nciMaxCommunities"></small></h6>
+		   <h6>Community Size Limit <small id="nciCommunitySizeLimit"></small></h6>
+		   <form data-abide>
+		     <div class="row">
+		       <div class="large-6 columns">
+		           <label>Max Edges
+		           <input id="newMaxEdges" type="text" pattern="[0-9]+" placeholder="" />
+		           </label>
+				   <small class="error">Should be an integer.</small>
+		       </div>
+		       </div>
+		       <div class="row">
+		           <div class="large-6 columns">
+		           <label>Max Vertices
+		               <input id="newMaxVertices" type="text" pattern="[0-9]+"/>
+		           </label>
+				   <small class="error">Should be an integer.</small>
+		           </div>
+		       </div>
+		       <div class="row">
+		           <div class="large-6 columns">
+		           <label>Max Communities
+		               <input id="newMaxCommunities" type="text" pattern="[0-9]+"/>
+		           </label>
+				   <small class="error">Should be an integer.</small>
+		       </div>
+		     </div>
+		     <div class="row">
+		         <div class="large-6 columns">
+		         <label>Community Size Limit
+		            <input id="newCommunitySizeLimit" type="text" pattern="[0-9]+"/>
+		         </label>
+				 <small class="error">Should be an integer.</small>
+		         </div>
+		     </div>
+			 <span class="button" id="saveLimits">Save</span>
+		   </form>
+	    </div>
+		
+		<div class="loading">
+	    </div>
+		<script src='bower_components/jquery/dist/jquery.min.js'></script>
+		<script src='bower_components/foundation/js/foundation.min.js'></script>
+		<script src='static/connection.js'></script>   
+		<script src='static/admin.js'></script>
+		<script type="text/javascript">
+		    	$(document).foundation();
+		</script>
+				
+	</body>
+</html>

@@ -1,0 +1,4 @@
+android/bin
+mixed/Tapestry/Tapestry/www/src/*
+xcshareddata
+Podfile.lock
