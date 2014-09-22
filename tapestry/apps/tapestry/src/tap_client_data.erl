@@ -60,6 +60,9 @@
                 collectors = [],
                 community_data = no_communities}).
 
+-define(DOTFILENAME, "/tmp/tapestry.dot").
+-define(NEATO, "/usr/local/bin/neato").
+
 %------------------------------------------------------------------------------
 % API
 %------------------------------------------------------------------------------
@@ -330,25 +333,21 @@ cinteractions(Interactions, CommunityList, Sizes) ->
             end
         end, [], Interactions).
 
-dict_value_length(D) ->
-    dict:fold(fun(_, List, Sum) -> Sum + length(List) end, 0, D).
+% dict_value_length(D) ->
+%     dict:fold(fun(_, List, Sum) -> Sum + length(List) end, 0, D).
 
 community_details(no_communities, _CommunityList, _Limits) ->
     [];
 community_details({{EndpointsD, InteractionsD}, SizesD, _Comms},
                                                     CommunityList, Limits) ->
-    MaxCommunitySize = proplists:get_value(comm_size_limit, Limits),
     MaxVertices = proplists:get_value(max_vertices, Limits),
     MaxEdges = proplists:get_value(max_edges, Limits),
-    EdgeCount = dict_value_length(InteractionsD),
-    VertexCount = dict_value_length(EndpointsD),
-    OverLimit = overlimit(EdgeCount, MaxEdges) orelse overlimit(VertexCount, MaxVertices),
     lists:foldl(
         fun(C, L) ->
             Interactions = dict_fetch(C, InteractionsD),
             Endpoints = dict_fetch(C, EndpointsD),
-            D = case OverLimit orelse
-                        overlimit(length(Endpoints), MaxCommunitySize) of
+            D = case overlimit(length(Interactions), MaxEdges) orelse
+                        overlimit(length(Endpoints), MaxVertices) of
                 true ->
                     {[
                         {<<"Interactions">>, []},
@@ -501,6 +500,40 @@ decode_limit(I) when is_integer(I) -> I.
 update_limit(Limits, Limit, Value) ->
     lists:keyreplace(Limit, 1, Limits, {Limit, Value}).
 
+% output:
+% {Width, Height, [[Vertex, X, Y]]}
+% Values are binaries
+graphviz(DotFile) ->
+    % delete old file
+    file_delete(?DOTFILENAME),
+
+    % write out file
+    ok = file:write_file(?DOTFILENAME, DotFile),
+
+    % run neato and collect output
+    Plain = os:cmd([?NEATO, " ", ?DOTFILENAME]),
+
+    % parse for output
+    parse_plain(Plain).
+
+% plain graph data format:
+% graph 1 1.0529 0.91677
+% node "1.2.3.4" 0.025 0.88519 0.05 0.05 "1.2.3.4" solid point black lightgrey
+% node "2.3.4.5" 1.0279 0.89177 0.05 0.05 "2.3.4.5" solid point black lightgrey
+% node "3.4.5.6" 0.53322 0.025 0.05 0.05 "3.4.5.6" solid point black lightgrey
+% edge "1.2.3.4" "2.3.4.5" 4 0.053932 0.88538 0.20038 0.88634 0.8585 0.89066 1.0007 0.89159 solid black
+% edge "2.3.4.5" "3.4.5.6" 4 1.0136 0.86677 0.94136 0.74019 0.61676 0.17138 0.54661 0.048465 solid black
+% edge "3.4.5.6" "1.2.3.4" 4 0.51856 0.049816 0.44435 0.17543 0.11083 0.73993 0.038758 0.86191 solid black
+% stop
+%
+% output:
+% {Width, Height, [[Vertex, X, Y]]}
+% Values are binaries
+parse_plain(Plain) ->
+    {match, [Width, Height]} = re:run(Plain, "^graph [0-9]+ ([.0-9]+) ([.0-9]+)", [{capture, all_but_first, binary}]),
+    {match, [Nodes]} = re:run(Plain, "^node \"([^\"]+)\" ([.0-9]+) ([.0-9]+)", [global, multiline, {capture, all_but_first, binary}]),
+    {Width, Height, Nodes}.
+
 dot_community_details(no_communities) ->
     [];
 dot_community_details({{EndpointsD, InteractionsD}, _SizesD, _CommGraph}) ->
@@ -508,10 +541,16 @@ dot_community_details({{EndpointsD, InteractionsD}, _SizesD, _CommGraph}) ->
     NodesS = set_from_dict_values_list(EndpointsD),
     % unique edges
     EdgesS = set_from_dict_values_list(InteractionsD),
+    dot_community_graph(sets:to_list(NodesS), sets:to_list(EdgesS), EndpointsD).
+
+dot_community_graph(Nodes, Edges) ->
+    dot_community_graph(Nodes, Edges, no_subgraph).
+
+dot_community_graph(Nodes, Edges, EndpointsD) ->
     [
         <<"graph {\n\n">>,
-        format_nodes(NodesS), <<"\n">>,
-        format_edges(EdgesS), <<"\n">>,
+        format_nodes(Nodes), <<"\n">>,
+        format_edges(Edges), <<"\n">>,
         format_subgraphs(EndpointsD), <<"\n">>,
         <<"}\n">>
     ].
@@ -522,18 +561,20 @@ set_from_dict_values_list(Dict) ->
             sets:union([Set, sets:from_list(ValueList)])
         end, sets:new(), Dict).
 
-format_nodes(NodesS) ->
-    format_set(
+format_nodes(Nodes) ->
+    format_list(
         fun(Node) ->
             [<<"node[shape=point] ">>,$",endpoint(Node),$",<<"\n">>]
-        end, NodesS).
+        end, Nodes).
 
-format_edges(EdgesS) ->
-    format_set(
+format_edges(Edges) ->
+    format_list(
         fun({N1, N2}) ->
             [$",endpoint(N1),$"," -- ",$",endpoint(N2),$",<<"\n">>]
-        end, EdgesS).
+        end, Edges).
 
+format_subgraphs(no_subgraph) ->
+    [];
 format_subgraphs(EndpointsD) ->
     dict:fold(
         fun(_, Endpoints, IOList) ->
@@ -557,8 +598,12 @@ join_endpoints([Endpoint | RestEndpoints], IOList) ->
 format_endpoint(Endpoint) ->
     [$", endpoint(Endpoint), $"].
 
-format_set(FormatFn, Set) ->
-        sets:fold(
+format_list(FormatFn, List) ->
+        lists:foldl(
             fun(Element, IOList) ->
                 [FormatFn(Element) | IOList]
-            end, [], Set).
+            end, [], List).
+
+file_delete(Filename) ->
+    % XXX log it not enoent?
+    file:delete(Filename).

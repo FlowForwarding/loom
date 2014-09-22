@@ -36,7 +36,10 @@ tap_data_test_() ->
      fun setup/0,
      fun cleanup/1,
      [
-         {"modularity_allin_is_zero", fun modularity_allin_is_zero/0}
+         {"create_graph", fun create_graph/0}
+        ,{"weights0", fun weights0/0}
+        ,{"weights1", fun weights1/0}
+        ,{"modularity_allin_is_zero", fun modularity_allin_is_zero/0}
         ,{"modularity_disjoint_clique", fun modularity_disjoint_clique/0}
         ,{"modularity_ring_clique", fun modularity_ring_clique/0}
         ,{"community_graph_nodes", fun community_graph_nodes/0}
@@ -55,6 +58,91 @@ setup() ->
 
 cleanup(ok) ->
     ok.
+
+%%------------------------------------------------------------------------------
+
+% part_louvain:graph creates a valid graph
+create_graph() ->
+    G = digraph:new(),
+    digraph:add_vertex(G, "a"),
+    digraph:add_vertex(G, "b"),
+    digraph:add_vertex(G, "c"),
+    digraph:add_vertex(G, "d"),
+    digraph:add_vertex(G, "e"),
+    digraph:add_edge(G, "a", "b"),
+    digraph:add_edge(G, "b", "c"),
+    digraph:add_edge(G, "c", "d"),
+    digraph:add_edge(G, "b", "b"),
+    {LG = #louvain_graph{}, CleanupFn} = part_louvain:graph(
+                                            digraph:vertices(G),
+                                            [digraph:edge(G, E) ||
+                                                E <- digraph:edges(G)]),
+    #louvain_graph{
+        neighbors = Neighbors,
+        edges = Edges} = LG,
+    ?assertEqual(5, length(Neighbors)),
+    ?assertEqual(4, length(Edges)),
+    NeighborsD = dict:from_list(Neighbors),
+    EdgesD = dict:from_list(Edges),
+    ?assertEqual([{"b",{"b","a"}}], lists:sort(dict:fetch("a", NeighborsD))),
+    ?assertEqual([{"a",{"b","a"}},{"b",{"b","b"}},{"c",{"c","b"}}], lists:sort(dict:fetch("b", NeighborsD))),
+    ?assertEqual([{"b",{"c","b"}},{"d",{"d","c"}}], lists:sort(dict:fetch("c", NeighborsD))),
+    ?assertEqual([{"c",{"d","c"}}], dict:fetch("d", NeighborsD)),
+    ?assertEqual([], dict:fetch("e", NeighborsD)),
+    ?assert(dict:is_key({"b","a"}, EdgesD)),
+    ?assert(dict:is_key({"c","b"}, EdgesD)),
+    ?assert(dict:is_key({"d","c"}, EdgesD)),
+    ?assert(dict:is_key({"b","b"}, EdgesD)),
+    CleanupFn(LG).
+
+% part_louvain:weights computes weights properly
+weights0() ->
+    G = digraph:new(),
+    digraph:add_vertex(G, "a"),
+    digraph:add_vertex(G, "b"),
+    digraph:add_vertex(G, "c"),
+    digraph:add_vertex(G, "d"),
+    digraph:add_vertex(G, "e"),
+    digraph:add_edge(G, "a", "b"),
+    digraph:add_edge(G, "b", "c"),
+    digraph:add_edge(G, "c", "d"),
+    digraph:add_edge(G, "b", "b"),
+    {LG = #louvain_graph{}, CleanupFn} = part_louvain:graph(
+                                            digraph:vertices(G),
+                                            [digraph:edge(G, E) ||
+                                                E <- digraph:edges(G)]),
+    #louvain_weights{m = M, weights = WeightsD} = part_louvain:weights(part_louvain:graphd(LG)),
+    % sum of weights per node is 2*M
+    ?assertEqual(4.0, M),
+    ?assertEqual(8.0, dict:fold(fun(_, {AW,_}, T) -> AW + T end, 0, WeightsD)),
+    ?assertEqual({1.0,0}, dict:fetch("a", WeightsD)),
+    ?assertEqual({4.0,1.0}, dict:fetch("b", WeightsD)),
+    ?assertEqual({2.0,0}, dict:fetch("c", WeightsD)),
+    ?assertEqual({1.0,0}, dict:fetch("d", WeightsD)),
+    CleanupFn(LG).
+
+weights1() ->
+    G = digraph:new(),
+    digraph:add_vertex(G, "a"),
+    digraph:add_vertex(G, "b"),
+    digraph:add_vertex(G, "c"),
+    digraph:add_vertex(G, "d"),
+    digraph:add_vertex(G, "e"),
+    digraph:add_edge(G, "a", "b"),
+    digraph:add_edge(G, "b", "c"),
+    digraph:add_edge(G, "c", "d"),
+    digraph:add_edge(G, "b", "b"),
+    {LG = #louvain_graph{}, CleanupFn} = part_louvain:graph(
+                                            digraph:vertices(G),
+                                            [digraph:edge(G, E) ||
+                                                E <- digraph:edges(G)]),
+    LGC = LG#louvain_graph{communities = [{"a","C"},{"b","C"},{"c","C"},{"d","C"},{"e","C"}]},
+    #louvain_weights{m = M, weights = WeightsD} = part_louvain:weights(part_louvain:graphd(LGC)),
+    % sum of weights per node is 2*M
+    ?assertEqual(4.0, M),
+    ?assertEqual(8.0, dict:fold(fun(_, {AW,_}, T) -> AW + T end, 0, WeightsD)),
+    ?assertEqual(4.0, dict:fold(fun(_, {_,CW}, T) -> CW + T end, 0, WeightsD)),
+    CleanupFn(LG).
 
 %%------------------------------------------------------------------------------
 
@@ -252,7 +340,7 @@ complete_graph(G, N, Base) ->
     {neighbors_from_digraph(G), edges_from_digraph(G), Vertices}.
 
 ring_clique_graph(G, NumClique) ->
-    SizeClique = random(5,20),
+    SizeClique = random(10,20),
     {SampleNodes, Communities} = lists:foldl(
         fun(C, {NS, CS}) ->
             Community = C * 1000,

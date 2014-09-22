@@ -51,6 +51,10 @@
     forward_mod/4,
     forward_mod_with_push_vlan/4,
     forward_mod_with_push_vlan/5,
+    forward_mod_via_queue/4,
+    forward_mod_via_queue/5,
+    get_queue_stats/2,
+    get_queue_stats/3,
     bridge/3,
     bridge/4,
     clear_flows0/0,
@@ -188,6 +192,53 @@ forward_mod_with_push_vlan(Key, Priority, InPort, OutPorts, VlanID)
     send(Key, Request);
 forward_mod_with_push_vlan(Key, Priority, InPort, OutPort, VlanID) ->
     forward_mod_with_push_vlan(Key, Priority, InPort, [OutPort], VlanID).
+
+%% forward_mod_via_queue(default, Key, Priority, InPort, OutPort, QueueId)
+forward_mod_via_queue(Priority, InPort, OutPort, QueueID) ->
+    forward_mod_via_queue(default, Priority, InPort, OutPort, QueueID).
+
+%% @doc
+%% Forward all packets from `InPort' to `OutPort' through a queue with
+%% `QueueID' attached to the `OutPort' on the switch associated with
+%% `Key'.
+%% Flows are installed in table 0 with priority `Priority'.
+%% If `Key' is ``default'', send forward mod to the default switch.
+%% @end
+-spec forward_mod_via_queue(Key :: switch_key(),
+                            Priority :: integer(),
+                            InPort :: integer(),
+                            OutPort :: integer() | [integer()],
+                            QueueID :: integer()) ->
+                                   {ok, ofp_message()} |
+                                   {error, error_reason()}.
+forward_mod_via_queue(Key, Priority, InPort, OutPort, QueueID) ->
+    Version = version(Key),
+    Matches = [{in_port, <<InPort:32>>}],
+    Instructions = [{apply_actions,[{set_queue, QueueID},
+                                    {output, OutPort, no_buffer}]}],
+    Opts = [{table_id,0}, {priority, Priority},
+            {idle_timeout, 0}, {idle_timeout, 0},
+            {cookie, <<0,0,0,0,0,0,0,10>>},
+            {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
+    Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
+    send(Key, Request).
+
+%% @equiv get_queue_stats(default, PortNo, QueueID)
+get_queue_stats(PortNo, QueueID) ->
+    get_queue_stats(default, PortNo, QueueID).
+
+%% @doc
+%% Return queue statistic for a queue identified by `QueueId' attached
+%% to a port with `PortNo' on the switch associated with `Key'.
+%% If `Key' is `default', send forward mod to the default switch.
+%% @end
+-spec get_queue_stats(Key :: switch_key(), PortNo :: integer(),
+                      QueueId :: integer())
+                     -> {ok, ofp_message()} | {error, error_reason()}.
+get_queue_stats(Key, PortNo, QueueID) ->
+    Version = version(Key),
+    Request = of_msg_lib:get_queue_statistics(Version, PortNo, QueueID),
+    send(Key, Request).
 
 %% @equiv bridge(default, Priority, Port1, Port2)
 bridge(Priority, Port1, Port2) ->

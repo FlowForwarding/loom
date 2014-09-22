@@ -28,6 +28,8 @@
 %% Python implementation - https://bitbucket.org/taynaud/python-louvain
 %% @end
 
+-define(ASSERTEQUAL(A,B), begin case A == B of true -> ok; false -> error({A, not_equal, B}) end end).
+
 -module(part_louvain).
 
 -export([graph/2,
@@ -42,7 +44,7 @@
          communities/1,
          dendrogram/1]).
 
--define(MIN_MODULARITY_CHANGE, 0.001).
+-define(MIN_MODULARITY_CHANGE, 0.0000001).
 
 -include("part_louvain.hrl").
 -include("tap_logger.hrl").
@@ -61,8 +63,8 @@ graph(Nodes, Edges) ->
         fun({_, N1, N2, _}, {D, L}) ->
             Edge = vsort({N1,N2}),
             {
-                dict_append(N1, Edge,
-                    dict_append(N2, Edge, D)),
+                dict_append(N1, {N2, Edge},
+                    dict_append(N2, {N1, Edge}, D)),
                 [{Edge, 1.0} | L]
             }
         end, {dict:new(), []}, Edges),
@@ -113,6 +115,14 @@ pivot_communities(CommunitiesPL) ->
         end, [], CommunitiesPL).
 
 graph(Communities, Neighbors, Edges) ->
+    % XXX validation - edges are unique, neighbors are unique
+    % XXX edges are unique
+%   ?ASSERTEQUAL(lists:sort(Edges), lists:usort(Edges)),
+    % XXX edges unique in neighbors
+%   lists:foreach(
+%       fun({_Node, NeighborNodes}) ->
+%           ?ASSERTEQUAL(lists:sort(NeighborNodes), lists:usort(NeighborNodes))
+%       end, Neighbors),
     #louvain_graph{
         communities = Communities,
         neighbors = Neighbors,
@@ -402,14 +412,18 @@ community_degrees(#louvain_graphd{communitiesd = CommunitiesD,
             % community as node
             lists:foldl(
                 fun({NeighborNode, Edge}, L2) ->
+                    SelfAdjustment = case Node of
+                                        NeighborNode -> 2.0;
+                                        _ -> 1.0
+                                    end,
                     NeighborCommunity = LookupCommunity(NeighborNode),
                     EdgeWeight = LookupWeight(Edge), 
                     [{Community,
-                      EdgeWeight,
+                      % edge to self need to be counted twice
+                      EdgeWeight*SelfAdjustment,
                       case NeighborCommunity of
-                          % all edges are seen twice, including edges
-                          % that loop back to the same node.
-                          Community -> EdgeWeight/2.0;
+                          % edges to self need to be counted twice
+                          Community -> (EdgeWeight/2.0)*SelfAdjustment;
                           _ -> 0
                       end
                       } | L2]

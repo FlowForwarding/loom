@@ -29,3 +29,4 @@ xcuserdata
 Pods
 tapestry/src/ui/mobile/android/gen/android/
 tapestry/src/ui/mobile/android/gen/com/infoblox/tapestry/R.java
+.idea

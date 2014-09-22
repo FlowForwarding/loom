@@ -5,6 +5,7 @@ NCI.socialGraph = function(socialGraphID, params){
 	var force;
 	var selectedDots = {};
 	var socialGraphSelector = socialGraphID + " .socialGraph";
+	var legendSelector = socialGraphID + " .legend";
 	var socialGraphID = socialGraphID.substring(1) + "_graph";
 	var color = d3.scale.category10();
 	var notNetworkColor = params.notNetworkColor || "#000000";
@@ -23,21 +24,23 @@ NCI.socialGraph = function(socialGraphID, params){
 	var byActivities = me.find('.byactivities');
 	var prettyView = me.find('.pretty');
 	var showInternal = me.find('.internal');
+	var tmpLine = undefined;
 	
 	byActivities.on('click', function(event){
 		isDevided = this.checked;
-		me.show();
+		me.show(false, false);
 	});
 	prettyView.on('click', function(event){
 		isClustered = this.checked;
-		me.show();
+		me.show(false, true);
 	});
 	showInternal.on('click', function(event){
 		isFiltered = this.checked;
-		me.show();
+		me.show(false, false);
 	});
 	
-	me.show = function(needDraw){
+	me.show = function(needDraw, needForce){
+		
 		if (tooltip === undefined)
 			tooltip = d3.select(socialGraphSelector).append("div").attr("class", "endpoint-tooltip");
 		if (NCI.Communities.length == 0){
@@ -56,7 +59,9 @@ NCI.socialGraph = function(socialGraphID, params){
 		//otherwise just change appearance	
 		} else {
 		    me.setupNodes();
-		    force.start();
+			if (needForce) {
+				force.start();
+			};
 		}
 	};
 	
@@ -83,6 +88,22 @@ NCI.socialGraph = function(socialGraphID, params){
 		force.linkStrength(isClustered ? 1 : 0);
 	};
 	
+	var zoom = d3.behavior.zoom()
+	    .scaleExtent([1, 10])
+	    .on("zoom", zoomed).on("zoomend", zoomend);
+		
+	function zoomend() {
+		if (tmpLine !== undefined) {
+			tmpLine = undefined;
+			graphBuilder.graph.links.pop();
+		}
+	}	
+	
+	function zoomed() {
+		me.link.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+		me.node.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+	};	
+	
 	me.draw = function(){	
 		force = d3.layout.force()
 		    .charge(charge())
@@ -93,14 +114,14 @@ NCI.socialGraph = function(socialGraphID, params){
 	    me.activitiesGraphSvg = d3.select(socialGraphSelector).append("svg")
 		    .attr("id", socialGraphID)
 			.attr("width", graphWidth)
-			.attr("height", graphHeight);
+			.attr("height", graphHeight).call(zoom);
 			
 		var setupLinks = function(){
 			force.links(graphBuilder.graph.links);
 			me.activitiesGraphSvg.selectAll("line").remove();
 			var linksData = me.activitiesGraphSvg.selectAll(".link").data(graphBuilder.graph.links);
 			me.link = linksData.enter().append("line")
-		    .attr("class", "activities_link"); 
+		    .attr("class", function(d){ return d.tmp ? "activities_link_tmp" : "activities_link"}); 
 			linksData.exit().remove();
 		};
 		
@@ -116,23 +137,29 @@ NCI.socialGraph = function(socialGraphID, params){
             nodesData.exit().remove();
 			me.setupNodes(isFiltered, isDevided, isClustered);
 			me.node.on('mouseover', function(d){
-				var info = d.fullname;
-				if (d.external){
-					info += "<br>doesn't belong to activity";
+				var info = d.name;
+				if (d.size){
+					info += "<br>size : " + d.size;
 				};
-				info += "<br>" + d.connections + " connections";
-				tooltip.html(info).style("top", d.py + me.position().top).
-				style("left", d.px + me.position().left).style("display", "inline");
+				info += "<br>connections : " + d.connections;
+				var newx = this.getCTM().e;
+				var newy = this.getCTM().f;
+				if (this.getCTM().d != 0) {
+					newx = newx / this.getCTM().d;
+					newy = newy / this.getCTM().d;
+				}
+				tooltip.html(info).style("top", d.py + newy + me.position().top).
+				style("left", d.px + newx + me.position().left).style("display", "inline");
 			}).on('mouseout', function(){
 				tooltip.style("display", "none");
 			});
 			if (isExpandable) {
 				me.node.on('click', function(d){
 					var label = d.name.split(":")[0];
-					var group = selectedDots[label]
+					var group = selectedDots[label];
 					if (group !== undefined){
-						delete selectedDots[selectedDots[label]]
-						delete selectedDots[label]
+						delete selectedDots[selectedDots[label]];
+						delete selectedDots[label];
 						graphBuilder.removeCommunity(group);
 						setupLinks();		
 						setupNodes();
@@ -155,7 +182,42 @@ NCI.socialGraph = function(socialGraphID, params){
 							return false;
 						}
 					});
-	 		    });
+	 		    }).on('mousedown', function(d){
+				if (d.external) {
+					//TODO  find right node!!! instead of graphBuilder.graph.nodes[0]
+					$.each(NCI.Communities, function(index, community){
+						var connectedNode = undefined
+						if (community.Endpoints.indexOf(d.name) >= 0){
+							$.each(graphBuilder.graph.nodes, function(index, node){
+								if (node.name == community.Label){
+									connectedNode = node;
+									return;
+								}
+							});
+							tmpLine = {
+								source: connectedNode,
+								target: d,
+								tmp: true,
+								value: 1};
+							graphBuilder.graph.links.push(tmpLine);
+							setupLinks();		
+							setupNodes();
+							force.start();
+							return;
+						}
+					});
+				}
+			}).on('mouseup', function(d){
+				if (d.external) {
+					if (tmpLine !== undefined) {
+						tmpLine = undefined;
+						graphBuilder.graph.links.pop();
+						setupLinks();		
+						setupNodes();
+						force.start();
+					}
+				}
+			});
 			};
 		};
 		
@@ -182,6 +244,29 @@ NCI.socialGraph = function(socialGraphID, params){
 		showInternal.prop('checked', false);
 	}
 	
+	me.setupLegend = function(legend_data){
+		var dim = 16;
+		var lineHeight = 30;
+		var legend = d3.select(legendSelector).append("svg").attr("width", 400);
+		$.each(legend_data, function(index, line){
+			switch(line[2]) {
+			    case "rect":
+					legend.append("rect").attr("height", dim).attr("width", dim).attr("fill", line[0]);
+					break;
+				case "none":
+				     break;
+				default:
+				 	legend.append("circle").attr("r", dim/2).attr("cy", lineHeight*index + 10).
+					attr("cx", dim/2).attr("fill", line[0]);	 		
+			}
+			legend.append("text").html(line[1] + "<br/>").attr("x", 30).attr("fill", notNetworkColor).attr("y", lineHeight*index + dim);
+		});
+	};
+	
+	if (params.legendData && $(legendSelector + " svg").length === 0){
+		me.setupLegend(params.legendData);
+	};
+	
 	return me;
 };
 
@@ -194,6 +279,9 @@ NCI.graphBuilder = function(communities){
 	
 	//add community
 	thisBuilder.addCommunity = function(community, mainEndpoint, group){
+		if (community.Endpoints.length > NCI.max_vertices)
+		    return
+		document.getElementById('blow_sound').play();	
 		var communityEndpoints = {};
 		var startIndex = Object.keys(endpointsHash).length
 		var addConnection = function(endPoint, endpoints){
@@ -244,6 +332,7 @@ NCI.graphBuilder = function(communities){
 	
 	//remove community
 	thisBuilder.removeCommunity = function(group){
+		document.getElementById('tink_sound').play();
 	    thisBuilder.graph.nodes = $.grep(thisBuilder.graph.nodes, function(node, index){
 			var remove = node.group == group
 			if (remove)

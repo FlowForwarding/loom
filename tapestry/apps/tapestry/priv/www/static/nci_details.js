@@ -25,6 +25,7 @@ NCI.setupCommunities = function(data){
 	});
 	
 	NCI.detailsEndpoints.html(NCI.parceNumberForView(sizesSum));
+	$("#loading_label").remove();
 };
 
 $(".hide-ncidetails").on('click', function(){
@@ -43,8 +44,13 @@ NCI.detailsTabs = function(){
 	var me = $('#nciDetailsTabs');
 	var flowsPanel;
 	var activitiesPanel;
+	var color = d3.scale.category10();
 	
 	me.on('toggled', function (event, tab) {
+		if (activitiesPanel)
+		    activitiesPanel.clean()
+		if (flowsPanel)
+			flowsPanel.clean()
 		switch(tab[0].id) {
 		    case "panelFlows":
 				flowsPanel = new NCI.socialGraph("#panelFlows",{
@@ -52,13 +58,15 @@ NCI.detailsTabs = function(){
 					numOfPoints: NCI.Social.endpoints
 				});
 		        flowsPanel.show(true);
-				if (activitiesPanel)
-				    activitiesPanel.clean()
 		        break;
 		    case "panelActivities":
 				activitiesPanel = new NCI.socialGraph("#panelActivities",{
 					isDevided : true,
 					isExpandable : true,
+					legendData : [[color(0), "- activity", "rect"],
+					    ["red", "- endpoint in a different activity"],
+					    ["#000000", "- external endpoint"],
+						["", "all other colored dots - endpoints in an activity", "none"]],
 					numOfPoints: NCI.CommunityGraph.Endpoints.length,
 					graphBuilder: new NCI.graphBuilder([NCI.CommunityGraph]),
 					radius: function(endpoint){
@@ -71,15 +79,9 @@ NCI.detailsTabs = function(){
 					}
 				});
 				activitiesPanel.show(true);
-				if (flowsPanel)
-				    flowsPanel.clean()
 		        break;
 		    default:
 				NCI.nciHistogram.show();
-				if (flowsPanel)
-				    flowsPanel.clean();
-				if (activitiesPanel)
-					activitiesPanel.clean();
 		};
 	});
 	
