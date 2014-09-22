@@ -49,6 +49,8 @@
     ping/1,
     forward_mod/3,
     forward_mod/4,
+    forward_mod_with_push_vlan/4,
+    forward_mod_with_push_vlan/5,
     forward_mod_via_queue/4,
     forward_mod_via_queue/5,
     get_queue_stats/2,
@@ -156,6 +158,41 @@ forward_mod(Key, Priority, InPort, OutPort) ->
     forward_mod(Key, Priority, InPort, [OutPort]).
 
 %% @equiv
+%% forward_mod_with_push_vlan(default, Priority, InPort, OutPort, VlanID)
+forward_mod_with_push_vlan(Priority, InPort, OutPort, VlanID) ->
+    forward_mod_with_push_vlan(default, Priority, InPort, OutPort,
+                               VlanID).
+
+%% @doc
+%% Forward all packets from `InPort' to `OutPorts' on the switch
+%% associated with `Key' adding a VLAN tag with `VlanID' to each
+%% outging packet.
+%% Flows are installed in table 0 with priority `Priority'.
+%% If Key is ``default'', send forward mod to the default switch.
+%% @end
+-spec forward_mod_with_push_vlan(Key :: switch_key(),
+                                 Priority :: integer(),
+                                 InPort :: integer(),
+                                 OutPorts :: integer() | [integer()],
+                                 VlanID :: integer()) ->
+                                        {ok, ofp_message()} |
+                                        {error, error_reason()}.
+forward_mod_with_push_vlan(Key, Priority, InPort, OutPorts, VlanID)
+  when is_list(OutPorts)->
+    Version = version(Key),
+    Matches = [{in_port, <<InPort:32>>}],
+    Actions = [{push_vlan, 16#8100}, {set_field, vlan_vid, <<VlanID:12>>}
+               | [{output, OutPort, no_buffer} || OutPort <- OutPorts]],
+    Instructions = [{apply_actions, Actions}],
+    Opts = [{table_id,0}, {priority, Priority},
+            {idle_timeout, 0}, {idle_timeout, 0},
+            {cookie, <<0,0,0,0,0,0,0,10>>},
+            {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
+    Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
+    send(Key, Request);
+forward_mod_with_push_vlan(Key, Priority, InPort, OutPort, VlanID) ->
+    forward_mod_with_push_vlan(Key, Priority, InPort, [OutPort], VlanID).
+
 %% forward_mod_via_queue(default, Key, Priority, InPort, OutPort, QueueId)
 forward_mod_via_queue(Priority, InPort, OutPort, QueueID) ->
     forward_mod_via_queue(default, Priority, InPort, OutPort, QueueID).
