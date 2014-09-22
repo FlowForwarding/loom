@@ -2,6 +2,7 @@ NCI.detailsNCI = $("#detailsNCI");
 NCI.detailsTime = $("#detailsTime");
 NCI.detailsFlows = $("#detailsFlows");
 NCI.detailsEndpoints = $("#detailsEndpoints");
+NCI.detailsActivities = $("#detailsActivities");
 NCI.maxActivitySize = 0;
 NCI.Social = {}
 
@@ -25,6 +26,7 @@ NCI.setupCommunities = function(data){
 	});
 	
 	NCI.detailsEndpoints.html(NCI.parceNumberForView(sizesSum));
+	NCI.detailsActivities.html(NCI.parceNumberForView(NCI.CommunityGraph.Endpoints.length));
 	$("#loading_label").remove();
 };
 
@@ -34,6 +36,7 @@ $(".hide-ncidetails").on('click', function(){
 	NCI.CommunityGraph = [];
 	NCI.Communities = [];
 	NCI.detailsEndpoints.html("");
+	NCI.detailsActivities.html("");
 	NCI.detailsNCI.html("");
 	NCI.detailsTime.html("");
 	NCI.detailsFlows.html("");
