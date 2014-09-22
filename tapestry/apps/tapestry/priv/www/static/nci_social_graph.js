@@ -137,6 +137,25 @@ NCI.socialGraph = function(socialGraphID, params){
             nodesData.exit().remove();
 			me.setupNodes(isFiltered, isDevided, isClustered);
 			me.node.on('mouseover', function(d){
+				var soundName = "MouseOverBlueSquare";
+				if (!(isExpandable && d.group == 0))  {
+					if (notNetworkColor == "#fff" && isFiltered && NCI.isExternal(d.name)) {
+						soundName = 'MouseOverWhiteDot';
+					} else if (d.external && !(isFiltered && NCI.isExternal(d.name))) {	
+						soundName = 'MouseOverRedDot';
+					} else if (notNetworkColor !== "#fff" && isFiltered && NCI.isExternal(d.name)){
+						soundName = undefined;
+					} else if (d.group == 0){
+						soundName = 'MouseOverBlueDot';
+					} else {
+						soundName = undefined;
+					};
+				} else if ( d.group == 0 && isFiltered && NCI.isExternal(d.name)) {
+					soundName = undefined;
+				};
+				if (soundName !== undefined){
+					document.getElementById(soundName).play();	
+				};
 				var info = d.name;
 				if (d.size){
 					info += "<br>size : " + d.size;
@@ -155,6 +174,7 @@ NCI.socialGraph = function(socialGraphID, params){
 			});
 			if (isExpandable) {
 				me.node.on('click', function(d){
+					document.getElementById('MouseClickActivity').play();
 					var label = d.name.split(":")[0];
 					var group = selectedDots[label];
 					if (group !== undefined){
@@ -280,8 +300,7 @@ NCI.graphBuilder = function(communities){
 	//add community
 	thisBuilder.addCommunity = function(community, mainEndpoint, group){
 		if (community.Endpoints.length > NCI.max_vertices)
-		    return
-		document.getElementById('blow_sound').play();	
+		    return	
 		var communityEndpoints = {};
 		var startIndex = Object.keys(endpointsHash).length
 		var addConnection = function(endPoint, endpoints){
@@ -332,7 +351,6 @@ NCI.graphBuilder = function(communities){
 	
 	//remove community
 	thisBuilder.removeCommunity = function(group){
-		document.getElementById('tink_sound').play();
 	    thisBuilder.graph.nodes = $.grep(thisBuilder.graph.nodes, function(node, index){
 			var remove = node.group == group
 			if (remove)

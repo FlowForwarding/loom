@@ -182,6 +182,7 @@ NCI.collectorsTable = (function(){
 }());
 
 $(".nci-label name").on('click', function(){
+	document.getElementById('MouseClickNCI').play();
 	$('#nciDetails').addClass('details-view-show');
 	$("#nciDetails").append('<div id="loading_label" class="centrate">Loading...</div>');
 	NCI.detailsFlows.html(NCI.flowsLatestIndex);
