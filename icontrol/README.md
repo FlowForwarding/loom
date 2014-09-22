@@ -305,6 +305,11 @@ Create a flow in table 0 on the switch associated with Key, or the
 default switch if Key is not given, forwarding traffic from the
 InPort to the OutPort at the Priority.
 
+### iof:forward_mod_via_queue(Key, Priority, InPort, OutPort, QueueID) ###
+
+Create the same flow as with iof:forward_mod/4 but place a packet in
+a queue identified by a `QueueID` attached to the output port.
+
 ### iof:bridge(Key, Priority, Port1, Port2)
 
 Create flows in table 0 on the switch associated with Key, or the
