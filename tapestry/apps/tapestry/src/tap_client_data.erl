@@ -357,7 +357,7 @@ community_details({{EndpointsD, InteractionsD}, SizesD, _Comms},
                     ]};
                 false ->
                     {[
-                        {<<"Interactions">>, interactions(Interactions, Endpoints)},
+                        {<<"Interactions">>, interactions(Interactions)},
                         {<<"Endpoints">>, endpoints(Endpoints)},
                         {<<"Label">>, endpoint(C)},
                         {<<"Size">>, dict:fetch(C, SizesD)}
@@ -379,20 +379,8 @@ dict_fetch(Key, Dict) ->
         error -> []
     end.
 
-interactions(L, Endpoints) ->
-    EndpointS = sets:from_list(Endpoints),
-    IsEndpoint = fun(E) -> sets:is_element(E, EndpointS) end,
-    Interactions = lists:foldl(
-        fun(I = {A, B}, S) ->
-            case IsEndpoint(A) andalso IsEndpoint(B) of
-                false ->
-                    S;
-                true ->
-                    NI = normalize_interaction(I),
-                    sets:add_element(NI, S)
-            end
-        end, sets:new(), L),
-    [[endpoint(A), endpoint(B)] || {A, B} <- sets:to_list(Interactions)].
+interactions(Interactions) ->
+    [[endpoint(A), endpoint(B)] || {A, B} <- Interactions].
 
 normalize_interaction({A, B}) when A > B ->
     {A, B};
