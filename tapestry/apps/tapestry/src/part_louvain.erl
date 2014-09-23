@@ -28,7 +28,7 @@
 %% Python implementation - https://bitbucket.org/taynaud/python-louvain
 %% @end
 
--define(ASSERTEQUAL(A,B), begin case A == B of true -> ok; false -> error({A, not_equal, B}) end end).
+-define(ASSERTEQUAL(A,B), begin case A == B of true -> ok; false -> error({?FILE, ?LINE, A, not_equal, B}) end end).
 
 -module(part_louvain).
 
@@ -270,10 +270,13 @@ one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
                 end, {NodeComm, 0.0}, NeighborCommWeightsD),
 %           file:write(FD, io_lib:format("add node comm: ~p degree ~p comm weight ~p~n", [BestComm, NodeDegree, LookupCommWeight(BestComm)])),
             Weights2 = add_node(BestComm, NodeDegree, LookupCommWeight(BestComm), Weights1),
+            % XXX
 %           file:write(FD, io_lib:format("weights after add: ~p~n", [dict:to_list(Weights2#louvain_weights.weights)])),
 %           file:write(FD, io_lib:format("node: ~p comm: ~p -> ~p~n", [Node, NodeComm, BestComm])),
             {(BestComm /= NodeComm) or Mods, Weights2, GD#louvain_graphd{communitiesd = dict:store(Node, BestComm, CommunitiesD)}}
         end, {false, Weights0, GD0}, GD0#louvain_graphd.neighborsd),
+    % XXX recompute weights and see if they match the new weights
+    compare_weights(NewWeights, weights(NewGD)),
     NewModularity = modularity(NewWeights),
     ?DEBUG("OneLevel Modularity: ~p -> ~p", [Modularity, NewModularity]),
 %   file:write(FD, io_lib:format("m: ~g, weights: ~p~n", [NewWeights#louvain_weights.m, dict:to_list(NewWeights#louvain_weights.weights)])),
@@ -309,6 +312,12 @@ add_node(NodeComm, NodeDegree, CommWeight, Weights) ->
         fun({AllDegree, InDegree}) ->
             {AllDegree + NodeDegree, InDegree + CommWeight}
         end, {NodeDegree, CommWeight}, Weights#louvain_weights.weights)}.
+
+compare_weights(WA, WB) ->
+    ?ASSERTEQUAL(WA#louvain_weights.m, WB#louvain_weights.m),
+    WeightsDA = lists:sort(lists:filter(fun({_,{0.0,0.0}}) -> false; (_) -> true end, dict:to_list(WA#louvain_weights.weights))),
+    WeightsDB = lists:sort(lists:filter(fun({_,{0.0,0.0}}) -> false; (_) -> true end, dict:to_list(WB#louvain_weights.weights))),
+    ?ASSERTEQUAL(WeightsDA, WeightsDB).
 
 % weight of all edges to neighbors, and weights to neighboring communities.
 % weights to neighboring communities exclude Node
@@ -470,3 +479,40 @@ vsort({N1,N2}) when N1 > N2 ->
     {N1,N2};
 vsort({N1,N2}) ->
     {N2,N1}.
+
+validate_graph(GD = #louvain_graphd{communitiesd = CommunitiesD, edgesd = EdgesD, neighborsd = NeighborsD}) ->
+    vg_neighbors_symmetric(GD),
+    % edge in neighbors is edge in edges
+    NeighborEdges = sets:from_list(
+        dict:fold(
+            fun(_, Neighbors, ES0) ->
+                lists:foldl(
+                    fun({_, Edge}, ES1) ->
+                        [Edge | ES1]
+                    end, ES0, Neighbors)
+            end, [], NeighborsD)),
+    Edges = sets:from_list(dict:fetch_keys(EdgesD)),
+    ?ASSERTEQUAL(true, sets:is_subset(NeighborEdges, Edges) andalso
+                        sets:is_subset(Edges, NeighborEdges)),
+
+    % node in community is node in neighbors
+    CommunityKeys = sets:from_list(dict:fetch_keys(CommunitiesD)),
+    NeighborKeys = sets:from_list(dict:fetch_keys(NeighborsD)),
+    ?ASSERTEQUAL(true, sets:is_subset(CommunityKeys, NeighborKeys)).
+
+% When N2 is a neighbor of N1, then N1 is a neighbor of N2.
+vg_neighbors_symmetric(#louvain_graphd{neighborsd = NeighborsD}) ->
+    {Left2Right, Right2Left} = dict:fold(
+        fun(Node, Neighbors, {L2R, R2L}) ->
+            {
+                % for {N, [N1, N2]} -> [{N, N1}, {N, N2}]
+                [ [{Node, NN1} || NN1 <- Neighbors] | L2R ],
+                % for {N, [N1, N2]} -> [{N1, N}, {N2, N}]
+                [ [{NN2, Node} || NN2 <- Neighbors] | R2L ]
+            }
+        end, {[], []}, NeighborsD),
+    % Left2Right and Right2Left lists should be the same
+    L2RSet = sets:from_list(lists:flatten(Left2Right)),
+    R2LSet = sets:from_list(lists:flatten(Right2Left)),
+    ?ASSERTEQUAL([], sets:to_list(sets:subtract(L2RSet, R2LSet))),
+    ?ASSERTEQUAL([], sets:to_list(sets:subtract(R2LSet, L2RSet))).
