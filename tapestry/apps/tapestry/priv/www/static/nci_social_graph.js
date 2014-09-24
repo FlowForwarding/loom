@@ -174,7 +174,8 @@ NCI.socialGraph = function(socialGraphID, params){
 			});
 			if (isExpandable) {
 				me.node.on('click', function(d){
-					document.getElementById('MouseClickActivity').play();
+					NCI.MouseClickActivitySound.currentTime = 0;
+					NCI.MouseClickActivitySound.play();
 					var label = d.name.split(":")[0];
 					var group = selectedDots[label];
 					if (group !== undefined){

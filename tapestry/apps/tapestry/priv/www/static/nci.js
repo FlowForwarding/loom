@@ -9,6 +9,12 @@ NCI.collectorsLatestValue = $('#collectorsLatestValue');
 NCI.lastUpdateTime = $('#lastUpdateTime');
 NCI.flowsLatestIndex;
 NCI.is_uiwebview = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent);
+NCI.GraphAppearsSound = document.getElementById("GraphAppears");
+NCI.MouseClickActivitySound = document.getElementById("MouseClickActivity");
+NCI.MouseOverBlueDot = document.getElementById("MouseOverBlueDot");
+NCI.MouseOverBlueSquare = document.getElementById("MouseOverBlueSquare");
+NCI.MouseOverRedDot = document.getElementById("MouseOverRedDot");
+NCI.MouseOverWhiteDot = document.getElementById("MouseOverWhiteDot");
 
 NCI.ifMobile = function(){
 	return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
