@@ -16,6 +16,12 @@ NCI.MouseOverBlueSquare = document.getElementById("MouseOverBlueSquare");
 NCI.MouseOverRedDot = document.getElementById("MouseOverRedDot");
 NCI.MouseOverWhiteDot = document.getElementById("MouseOverWhiteDot");
 
+NCI.ExternalOn = document.getElementById("ExternalOn");
+NCI.ExternalOff = document.getElementById("ExternalOff");
+NCI.PrettyOn = document.getElementById("PrettyOn");
+NCI.PrettyOff = document.getElementById("PrettyOff");
+NCI.MouseOverBlackSquare = document.getElementById("MouseOverBlackSquare");
+
 NCI.ifMobile = function(){
 	return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
 };

@@ -45,8 +45,6 @@ NCI.socialGraph = function(socialGraphID, params){
 		if (NCI.Communities.length == 0){
 			return;
 		};
-		NCI.GraphAppearsSound.currentTime = 0;
-		NCI.GraphAppearsSound.play();	
 		if (needDraw) {
 		    d3.select("#" + socialGraphID).remove();
 			if (numOfPoints > NCI.max_vertices) {
@@ -56,13 +54,21 @@ NCI.socialGraph = function(socialGraphID, params){
 				.attr('class', 'centrate');
 			} else {
 			    me.draw();
+				NCI.GraphAppearsSound.currentTime = 0;
+				NCI.GraphAppearsSound.play();	
 			}
 		//otherwise just change appearance	
 		} else {
 		    me.setupNodes();
+			var sound;
 			if (needForce) {
+				sound = isClustered ? NCI.PrettyOn : NCI.PrettyOff;
 				force.start();
-			};
+			} else {
+				sound =isFiltered ? NCI.ExternalOn : NCI.ExternalOff;
+			}
+			sound.currentTime = 0;
+			sound.play();
 		}
 	};
 	
@@ -138,24 +144,25 @@ NCI.socialGraph = function(socialGraphID, params){
             nodesData.exit().remove();
 			me.setupNodes(isFiltered, isDevided, isClustered);
 			me.node.on('mouseover', function(d){
-				var soundName = "MouseOverBlueSquare";
+				var soundName = NCI.MouseOverBlueSquare;
 				if (!(isExpandable && d.group == 0))  {
 					if (notNetworkColor == "#fff" && isFiltered && NCI.isExternal(d.name)) {
-						soundName = 'MouseOverWhiteDot';
+						soundName = NCI.MouseOverWhiteDot;
 					} else if (d.external && !(isFiltered && NCI.isExternal(d.name))) {	
-						soundName = 'MouseOverRedDot';
+						soundName = NCI.MouseOverRedDot;
 					} else if (notNetworkColor !== "#fff" && isFiltered && NCI.isExternal(d.name)){
 						soundName = undefined;
 					} else if (d.group == 0){
-						soundName = 'MouseOverBlueDot';
+						soundName = NCI.MouseOverBlueDot;
 					} else {
 						soundName = undefined;
 					};
 				} else if ( d.group == 0 && isFiltered && NCI.isExternal(d.name)) {
-					soundName = undefined;
+					console.log("black square");
+					soundName = NCI.MouseOverBlackSquare;
 				};
 				if (soundName !== undefined){
-					document.getElementById(soundName).play();	
+					soundName.play();	
 				};
 				var info = d.name;
 				if (d.size){
