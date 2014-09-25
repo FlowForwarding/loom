@@ -40,13 +40,13 @@ NCI.socialGraph = function(socialGraphID, params){
 	});
 	
 	me.show = function(needDraw, needForce){
-		NCI.GraphAppearsSound.currentTime = 0;
-		NCI.GraphAppearsSound.play();	
 		if (tooltip === undefined)
 			tooltip = d3.select(socialGraphSelector).append("div").attr("class", "endpoint-tooltip");
 		if (NCI.Communities.length == 0){
 			return;
 		};
+		NCI.GraphAppearsSound.currentTime = 0;
+		NCI.GraphAppearsSound.play();	
 		if (needDraw) {
 		    d3.select("#" + socialGraphID).remove();
 			if (numOfPoints > NCI.max_vertices) {
