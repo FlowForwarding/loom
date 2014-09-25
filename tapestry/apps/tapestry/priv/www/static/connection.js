@@ -86,7 +86,6 @@ NCI.Connection.onmessage  = function (e) {
 		case "NCIDetails":
 			NCI.setupCommunities(data);
 			$($('#nciDetailsTabs').find("a")[1]).click();
-			NCI.GraphAppearsSound.play();	
 			break;	
 		case "getCommunityDetails":
 			break;				
