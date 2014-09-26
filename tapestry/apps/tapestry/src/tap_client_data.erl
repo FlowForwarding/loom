@@ -61,7 +61,7 @@
                 community_data = no_communities}).
 
 -define(DOTFILENAME, "/tmp/tapestry.dot").
--define(NEATO, "/usr/local/bin/neato").
+-define(NEATO, ["/usr/local/bin/neato", " ", "-Tplain"]).
 
 %------------------------------------------------------------------------------
 % API
@@ -356,9 +356,16 @@ community_details({{EndpointsD, InteractionsD}, SizesD, _Comms},
                         {<<"Size">>, dict:fetch(C, SizesD)}
                     ]};
                 false ->
+                    {Width, Height, Nodes} =
+                                        gz_endpoints(Endpoints, Interactions),
                     {[
+                        {<<"Sizes">>, {[
+                            {<<"height">>, Height},
+                            {<<"width">>, Width}
+                        ]}},
                         {<<"Interactions">>, interactions(Interactions)},
                         {<<"Endpoints">>, endpoints(Endpoints)},
+                        {<<"GEndpoints">>, format_gz_nodes(Nodes)},
                         {<<"Label">>, endpoint(C)},
                         {<<"Size">>, dict:fetch(C, SizesD)}
                     ]}
@@ -382,11 +389,6 @@ dict_fetch(Key, Dict) ->
 interactions(Interactions) ->
     [[endpoint(A), endpoint(B)] || {A, B} <- Interactions].
 
-normalize_interaction({A, B}) when A > B ->
-    {A, B};
-normalize_interaction({A, B}) ->
-    {B, A}.
-
 endpoints(L) ->
     [endpoint(E) || E <- L].
 
@@ -400,6 +402,22 @@ endpoint(S) when is_list(S) ->
     list_to_binary(S);
 endpoint(_) ->
     <<"invalid">>.
+
+gz_endpoints(Endpoints, Edges) ->
+    DotFile = dot_community_graph(Endpoints, Edges),
+    graphviz(DotFile).
+
+
+% [[Vertex, X, Y]]
+format_gz_nodes(Nodes) ->
+    lists:map(
+        fun([Vertex, X, Y]) ->
+            {[
+                {<<"Id">>, Vertex},
+                {<<"x">>, binary_to_number(X)},
+                {<<"y">>, binary_to_number(Y)}
+            ]}
+        end, Nodes).
 
 json_collectors(Time, CollectorDict) ->
     jiffy:encode({[
@@ -519,8 +537,8 @@ graphviz(DotFile) ->
 % Values are binaries
 parse_plain(Plain) ->
     {match, [Width, Height]} = re:run(Plain, "^graph [0-9]+ ([.0-9]+) ([.0-9]+)", [{capture, all_but_first, binary}]),
-    {match, [Nodes]} = re:run(Plain, "^node \"([^\"]+)\" ([.0-9]+) ([.0-9]+)", [global, multiline, {capture, all_but_first, binary}]),
-    {Width, Height, Nodes}.
+    {match, Nodes} = re:run(Plain, "^node \"([^\"]+)\" ([.0-9]+) ([.0-9]+)", [global, multiline, {capture, all_but_first, binary}]),
+    {binary_to_number(Width), binary_to_number(Height), Nodes}.
 
 dot_community_details(no_communities) ->
     [];
@@ -595,3 +613,10 @@ format_list(FormatFn, List) ->
 file_delete(Filename) ->
     % XXX log it not enoent?
     file:delete(Filename).
+
+binary_to_number(B) when is_binary(B) ->
+    try binary_to_float(B)
+    catch
+        error:badarg ->
+            binary_to_integer(B)
+    end.

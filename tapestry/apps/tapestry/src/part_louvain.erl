@@ -276,7 +276,7 @@ one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
             {(BestComm /= NodeComm) or Mods, Weights2, GD#louvain_graphd{communitiesd = dict:store(Node, BestComm, CommunitiesD)}}
         end, {false, Weights0, GD0}, GD0#louvain_graphd.neighborsd),
     % XXX recompute weights and see if they match the new weights
-    compare_weights(NewWeights, weights(NewGD)),
+    % compare_weights(NewWeights, weights(NewGD)),
     NewModularity = modularity(NewWeights),
     ?DEBUG("OneLevel Modularity: ~p -> ~p", [Modularity, NewModularity]),
 %   file:write(FD, io_lib:format("m: ~g, weights: ~p~n", [NewWeights#louvain_weights.m, dict:to_list(NewWeights#louvain_weights.weights)])),
