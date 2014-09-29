@@ -111,6 +111,8 @@ NCI.nciHistogram = (function(){
 	};
 	
 	me.showDetails = function(d){
+		NCI.MouseClickActivitySound.currentTime = 0;
+		NCI.MouseClickActivitySound.play();
 		$('.histogram-details-graph').show();
 		var color = d3.scale.category10();
 		me.socialGraph = new NCI.socialGraph(".histogram-details-graph", 

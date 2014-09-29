@@ -9,6 +9,18 @@ NCI.collectorsLatestValue = $('#collectorsLatestValue');
 NCI.lastUpdateTime = $('#lastUpdateTime');
 NCI.flowsLatestIndex;
 NCI.is_uiwebview = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent);
+NCI.GraphAppearsSound = document.getElementById("GraphAppears");
+NCI.MouseClickActivitySound = document.getElementById("MouseClickActivity");
+NCI.MouseOverBlueDot = document.getElementById("MouseOverBlueDot");
+NCI.MouseOverBlueSquare = document.getElementById("MouseOverBlueSquare");
+NCI.MouseOverRedDot = document.getElementById("MouseOverRedDot");
+NCI.MouseOverWhiteDot = document.getElementById("MouseOverWhiteDot");
+
+NCI.ExternalOn = document.getElementById("ExternalOn");
+NCI.ExternalOff = document.getElementById("ExternalOff");
+NCI.PrettyOn = document.getElementById("PrettyOn");
+NCI.PrettyOff = document.getElementById("PrettyOff");
+NCI.MouseOverBlackSquare = document.getElementById("MouseOverBlackSquare");
 
 NCI.ifMobile = function(){
 	return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
@@ -182,7 +194,6 @@ NCI.collectorsTable = (function(){
 }());
 
 $(".nci-label name").on('click', function(){
-	document.getElementById('MouseClickNCI').play();
 	$('#nciDetails').addClass('details-view-show');
 	$("#nciDetails").append('<div id="loading_label" class="centrate">Loading...</div>');
 	NCI.detailsFlows.html(NCI.flowsLatestIndex);
