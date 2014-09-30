@@ -24,6 +24,7 @@ NCI.socialGraph = function(socialGraphID, params){
 	var byActivities = me.find('.byactivities');
 	var prettyView = me.find('.pretty');
 	var showInternal = me.find('.internal');
+	var experementialView = me.find('.experemential');
 	var tmpLine = undefined;
 	
 	byActivities.on('click', function(event){
@@ -37,6 +38,11 @@ NCI.socialGraph = function(socialGraphID, params){
 	showInternal.on('click', function(event){
 		isFiltered = this.checked;
 		me.show(false, false);
+	});
+	
+	experementialView.on('click', function(event){
+	    var experementialGraph = new NCI.experementialGraph();
+		me.clean();
 	});
 	
 	me.show = function(needDraw, needForce){
@@ -158,7 +164,6 @@ NCI.socialGraph = function(socialGraphID, params){
 						soundName = undefined;
 					};
 				} else if ( d.group == 0 && isFiltered && NCI.isExternal(d.name)) {
-					console.log("black square");
 					soundName = NCI.MouseOverBlackSquare;
 				};
 				if (soundName !== undefined){

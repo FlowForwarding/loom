@@ -7,6 +7,7 @@ NCI.maxActivitySize = 0;
 NCI.Social = {}
 
 NCI.setupCommunities = function(data){
+	console.log(data)
 	NCI.Communities = data.Communities;
 	NCI.CommunityGraph = data.CommunityGraph;
 	NCI.Communities.sort(function(a, b){
