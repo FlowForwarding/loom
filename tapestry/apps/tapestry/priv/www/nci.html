@@ -194,14 +194,35 @@
 							<div class="expand-historgam"></div>
 					    </div>
 						<div class="histogram-details-graph">
-							<div class="histogramDetailsHeader">
-						        <div class="histogramDetailsInternal">
- 							        <label><input type="checkbox" class="internal"> External</label>
-								    <div class="histogramDetailsClose"></div>
-							    </div>
-							</div>
-							<div class="legend"> </div>
-							<div class="socialGraph"> </div>
+                            <nav class="top-bar" data-topbar role="navigation">
+                                <section class="top-bar-section">
+                                    <ul class="left">
+                                        <li>
+                                            <a class="show-list" href="#">Show list</a>
+                                        </li>
+                                        <li class="hide">
+                                            <a class="show-graph" href="#">Show graph</a>
+                                        </li>
+                                        <li class="has-form">
+                                            <a class="button radius small export-list" href="#">Export to CSV</a>
+                                        </li>
+                                        <li class="has-form">
+                                            <span>
+                                                <input id="checkbox1" type="checkbox" class="internal" />
+                                                <label class="external-checkbox-label" for="checkbox1">External</label>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </section>
+                                <ul class="right">
+                                    <li><div class="histogramDetailsClose"></div></li>
+                                </ul>
+                            </nav>
+                            <section class="details-content">
+                                <div class="legend"> </div>
+                                <div class="socialGraph"> </div>
+                                <div class="activitiesList row" style="display: none;"></div>
+                            </section>
 						</div>		
 					</div>
 					</div>

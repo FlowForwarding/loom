@@ -1,7 +1,6 @@
 NCI.nciHistogram = (function(){
 	var me = $('#nciHistogram');
 	
-	//var internalEndpointsCheckbox = $('#histogramDetailsInternal');
 	var barWidth = 4;
 	var chart = d3.select("#nciHistogram");
 	var margin = {top: 10, right: 60, bottom: 40, left:40},
@@ -117,8 +116,8 @@ NCI.nciHistogram = (function(){
 		var color = d3.scale.category10();
 		me.socialGraph = new NCI.socialGraph(".histogram-details-graph", 
 		   {
-			   graphBuilder: new NCI.graphBuilder([d]),
-			   numOfPoints: d.Endpoints.length,
+			   communities: [d],
+               numOfPoints: d.Endpoints.length,
 			   width: $(window).width(), 
 			   height: $(window).height(),
 			   notNetworkColor: "#fff",

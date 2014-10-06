@@ -58,8 +58,8 @@ NCI.detailsTabs = function(){
 		switch(tab[0].id) {
 		    case "panelFlows":
 				flowsPanel = new NCI.socialGraph("#panelFlows",{
-					graphBuilder: new NCI.graphBuilder(NCI.Communities),
-					numOfPoints: NCI.Social.endpoints
+					communities: NCI.Communities,
+                    numOfPoints: NCI.Social.endpoints
 				});
 		        flowsPanel.show(true);
 		        break;
@@ -72,8 +72,8 @@ NCI.detailsTabs = function(){
 					    ["#000000", "- external endpoint"],
 						["", "all other colored dots - endpoints in an activity", "none"]],
 					numOfPoints: NCI.CommunityGraph.Endpoints.length,
-					graphBuilder: new NCI.graphBuilder([NCI.CommunityGraph]),
-					radius: function(endpoint){
+					communities: [NCI.CommunityGraph],
+                    radius: function(endpoint){
 						var radius = 4;
 						var size = parseInt(endpoint.size);
 					    if (NCI.maxActivitySize > 0 && (size == size)) {
