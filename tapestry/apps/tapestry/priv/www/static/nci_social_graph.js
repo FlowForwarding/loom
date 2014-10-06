@@ -110,7 +110,8 @@ NCI.socialGraph = function(socialGraphID, params){
 	//colorify and set radius
 	me.setupNodes = function(){
 		me.node.style("fill", function(d) {
-		    if ( isFiltered && NCI.isExternal(d.name)){
+            // TODO: review d.size, since right now it's only way to 100% detect that this is Activity node
+		    if ( isFiltered && NCI.isExternal(d.name) && d.size==undefined){
 			    return notNetworkColor;
 		    };
 			//if this dot is selected on Activities graph, draw it in red
