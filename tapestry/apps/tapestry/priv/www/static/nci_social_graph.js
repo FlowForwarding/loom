@@ -6,6 +6,8 @@ NCI.socialGraph = function(socialGraphID, params){
 	var selectedDots = {};
 	var socialGraphSelector = socialGraphID + " .socialGraph";
 	var legendSelector = socialGraphID + " .legend";
+    var activitiesListSelector = socialGraphID + " .activitiesList";
+
 	var socialGraphID = socialGraphID.substring(1) + "_graph";
 	var color = d3.scale.category10();
 	var notNetworkColor = params.notNetworkColor || "#000000";
@@ -17,13 +19,20 @@ NCI.socialGraph = function(socialGraphID, params){
 	var radius = params.radius || function() { return 4};
 	var charge = params.charge || function() { return -20};
 	var linkDistance = params.linkDistance || function() { return 30};
-	var graphBuilder = params.graphBuilder || undefined;
+    var communities = params.communities || null;
+	var graphBuilder = communities ? new NCI.graphBuilder(communities) : undefined;
+    var listBuilder = NCI.list.createListBuilder(communities);
 	var numOfPoints = params.numOfPoints || 0;
 	var isExpandable = params.isExpandable || false;
 	var tooltip;
 	var byActivities = me.find('.byactivities');
 	var prettyView = me.find('.pretty');
 	var showInternal = me.find('.internal');
+    var $showList = me.find('.show-list');
+    var $exportList = me.find('.export-list');
+    var $showGraph = me.find('.show-graph');
+    var $activitiesList = me.find(".activitiesList");
+
 	var tmpLine = undefined;
 	
 	byActivities.on('click', function(event){
@@ -38,7 +47,33 @@ NCI.socialGraph = function(socialGraphID, params){
 		isFiltered = this.checked;
 		me.show(false, false);
 	});
-	
+
+    function downloadActivityList() {
+        listBuilder.downloadCSV();
+    }
+
+    $exportList.on("click", downloadActivityList);
+
+    if ($activitiesList.length > 0) {
+        $showGraph.click(toggleListView);
+        $showList.click(toggleListView);
+
+        var activitiesList = d3.select(activitiesListSelector);
+        listBuilder.createTable(activitiesList);
+    }
+
+
+    function toggleListView() {
+        $showList.parent().toggleClass("hide");
+        $showGraph.parent().toggleClass("hide");
+        showInternal.parentsUntil("li").toggleClass("hide");
+
+        $(socialGraphSelector).toggle("hide");
+        $(legendSelector).toggle("hide");
+        $(activitiesListSelector).toggle("hide");
+
+    }
+
 	me.show = function(needDraw, needForce){
 		if (tooltip === undefined)
 			tooltip = d3.select(socialGraphSelector).append("div").attr("class", "endpoint-tooltip");
@@ -271,6 +306,12 @@ NCI.socialGraph = function(socialGraphID, params){
 		byActivities.prop('checked', false);
 		prettyView.prop('checked', false);
 		showInternal.prop('checked', false);
+
+        $showGraph.off("click", toggleListView);
+        $showList.off("click", toggleListView);
+        $exportList.off("click", downloadActivityList)
+
+        d3.select(activitiesListSelector + " table").remove();
 	}
 	
 	me.setupLegend = function(legend_data){

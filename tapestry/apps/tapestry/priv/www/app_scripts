@@ -9,5 +9,6 @@
 "static/nci_social_graph.js",
 "static/nci_histogram.js",
 "static/nci_details.js",
+"static/activityList.js",
 "static/chart.js"
 ]
