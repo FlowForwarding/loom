@@ -41,7 +41,7 @@ $(".hide-ncidetails").on('click', function(){
 	NCI.detailsNCI.html("");
 	NCI.detailsTime.html("");
 	NCI.detailsFlows.html("");
-	$($('#nciDetailsTabs').find("dd a")[0]).click();
+	$($('#nciDetailsTabs').find("dd a")[2]).click();
 });
 
 NCI.detailsTabs = function(){
