@@ -83,9 +83,10 @@ NCI.Connection.onmessage  = function (e) {
 				};
 			} ;
 			break;	
-		case "NCIDetails":
+        case "NCIDetails":
 			NCI.setupCommunities(data);
-			$($('#nciDetailsTabs').find("a")[1]).click();
+            // TODO: get rid of this magic numbers
+			$($('#nciDetailsTabs').find("a")[2]).click();
 			break;	
 		case "getCommunityDetails":
 			break;				
