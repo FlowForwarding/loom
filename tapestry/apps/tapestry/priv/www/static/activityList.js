@@ -111,6 +111,17 @@
         return Array.prototype.concat.apply([], activities.map(parseActivity));
     }
 
+    function sortActivities(activities) {
+        return activities.sort(function(a1, a2) {
+            if (a1.activity < a2.activity) {
+                return -1;
+            }
+            if (a1.activity > a2.activity)
+                return 1;
+            return a2.totalConnections - a1.totalConnections;
+        })
+    }
+
     function getCommunitiesColumns(communities) {
         return communities.length > 1 ? activitiesColumns : activityColumns;
     }
@@ -137,7 +148,7 @@
     function ListBuilder(communities) {
         this.columns = getCommunitiesColumns(communities);
         this.activityName = getActivityName(communities);
-        this.activities = parseActivities(communities);
+        this.activities = sortActivities(parseActivities(communities));
     }
 
     ListBuilder.prototype.downloadCSV = function() {
