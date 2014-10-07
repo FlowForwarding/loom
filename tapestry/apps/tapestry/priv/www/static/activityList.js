@@ -13,25 +13,34 @@
             .append("th")
             .text(function(column) { return column.text; });
 
-        // create a row for each object in the data
-        var rows = tbody.selectAll("tr")
-            .data(data)
-            .enter()
-            .append("tr");
-
-        // create a cell in each row for each column
-        var cells = rows.selectAll("td")
-            .data(function(row) {
-                return columns.map(function(column) {
-                    return {column: column, value: row[column.property]};
-                });
-            })
-            .enter()
-            .append("td")
-            .attr("style", "font-family: Courier")
-            .html(function(d) { return d.value; });
+        // apply data for table body
+        updateTableBody(columns, tbody, data);
 
         return table;
+    }
+
+    function updateTableBody(columns, tbody, data) {
+        var rows = tbody.selectAll("tr")
+            .data(data, function(d) {return d.endpoint});
+
+
+        var cells = rows.enter()
+            .append("tr")
+            .selectAll("td")
+            .data(function(row) {
+                return columns.map(function (column) {
+                    return {column: column, value: row[column.property]};
+                })
+            });
+
+        cells.enter()
+            .append("td")
+            .html(function(d) {return d.value});
+
+        rows.exit()
+            .remove();
+
+        rows.order();
     }
 
     function downloadFile(fileType, fileContent, fileName) {
@@ -130,6 +139,18 @@
         return communities.length > 1 ? "activities" : (communities[0].Label);
     }
 
+    function stringToRegex(str) {
+        // converts string with wildcards to regex
+        // * - zero or more
+        // ? - exact one
+
+        str = str.replace(/\./g, "\\.");
+        str = str.replace(/\?/g, ".");
+        str = str.replace(/\*/g, ".*");
+
+        return new RegExp(str, "g");
+    }
+
     var activityColumns = [
             {text: "Endpoint", property: "endpoint"},
             {text: "Connections", property: "totalConnections"},
@@ -149,6 +170,7 @@
         this.columns = getCommunitiesColumns(communities);
         this.activityName = getActivityName(communities);
         this.activities = sortActivities(parseActivities(communities));
+        this.table = null;
     }
 
     ListBuilder.prototype.downloadCSV = function() {
@@ -158,14 +180,30 @@
             csvContent = createCSV(columns, activities);
 
         return downloadCSV(csvContent, csvName);
-    }
+    };
 
-    ListBuilder.prototype.createTable = function (d3Selection) {
+    ListBuilder.prototype.createTable = function(d3Selection) {
         var columns = this.columns,
             activities = this.activities;
 
-        return createTable(columns, d3Selection, activities);
-    }
+        this.table = createTable(columns, d3Selection, activities);
+        return this.table;
+    };
+
+    ListBuilder.prototype.removeTable = function() {
+        this.table.remove();
+        this.table = null;
+    };
+
+    ListBuilder.prototype.filterTable = function(filterTerm) {
+        var tbody = this.table.select("tbody"),
+            re = stringToRegex(filterTerm),
+            data = this.activities.filter(function(d, index) {
+                return re.test(d.endpoint);
+            })
+
+        updateTableBody(this.columns, tbody, data);
+    };
 
     NCI.list = {
         createListBuilder: function(communities) {
