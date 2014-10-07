@@ -6,7 +6,6 @@ NCI.socialGraph = function(socialGraphID, params){
 	var selectedDots = {};
 	var socialGraphSelector = socialGraphID + " .socialGraph";
 	var legendSelector = socialGraphID + " .legend";
-    var activitiesListSelector = socialGraphID + " .activitiesList";
 
 	var socialGraphID = socialGraphID.substring(1) + "_graph";
 	var color = d3.scale.category10();
@@ -31,7 +30,8 @@ NCI.socialGraph = function(socialGraphID, params){
     var $showList = me.find('.show-list');
     var $exportList = me.find('.export-list');
     var $showGraph = me.find('.show-graph');
-    var $activitiesList = me.find(".activitiesList");
+    var $activitiesList = me.find(".activities-list");
+    var $endpointFilter = me.find(".endpoint-filter");
 
 	var tmpLine = undefined;
 	
@@ -54,11 +54,15 @@ NCI.socialGraph = function(socialGraphID, params){
 
     $exportList.on("click", downloadActivityList);
 
+    $endpointFilter.on("keyup", function() {
+        listBuilder.filterTable($(this).val());
+    });
+
     if ($activitiesList.length > 0) {
         $showGraph.click(toggleListView);
         $showList.click(toggleListView);
 
-        var activitiesList = d3.select(activitiesListSelector);
+        var activitiesList = d3.select($activitiesList.get(0));
         listBuilder.createTable(activitiesList);
     }
 
@@ -67,10 +71,12 @@ NCI.socialGraph = function(socialGraphID, params){
         $showList.parent().toggleClass("hide");
         $showGraph.parent().toggleClass("hide");
         showInternal.parentsUntil("li").toggleClass("hide");
+        $endpointFilter.parent().toggleClass("hide");
+
 
         $(socialGraphSelector).toggle("hide");
         $(legendSelector).toggle("hide");
-        $(activitiesListSelector).toggle("hide");
+        $activitiesList.toggle("hide");
 
     }
 
@@ -312,7 +318,8 @@ NCI.socialGraph = function(socialGraphID, params){
         $showList.off("click", toggleListView);
         $exportList.off("click", downloadActivityList)
 
-        d3.select(activitiesListSelector + " table").remove();
+        $endpointFilter.off("keyup");
+        listBuilder.removeTable();
 	}
 	
 	me.setupLegend = function(legend_data){
