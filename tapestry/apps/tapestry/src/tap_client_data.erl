@@ -58,6 +58,7 @@
                 last_qps_time,
                 nci,
                 collectors = [],
+                use_graphviz,
                 community_data = no_communities}).
 
 -define(DOTFILENAME, "/tmp/tapestry.dot").
@@ -106,14 +107,18 @@ init([]) ->
     gen_server:cast(?MODULE, start),
     Limits = [{Key, tap_config:getconfig(Key)} || Key <-
                 [max_vertices, max_edges, max_communities, comm_size_limit]],
-    {ok, #?STATE{collectors = dict:new(), limits = Limits}}.
+    UseGraphViz = tap_config:getconfig(use_graphviz),
+    {ok, #?STATE{use_graphviz = UseGraphViz, collectors = dict:new(), limits = Limits}}.
 
 % for debugging
 handle_call(nci_details, _From, State = #?STATE{community_data = CommunityData,
                                                 nci = NCI,
                                                 last_nci_time = Time,
+                                                use_graphviz = UseGraphViz,
                                                 limits = Limits}) ->
-    {reply, json_nci_details(Time, NCI, CommunityData, Limits), State};
+    {reply,
+        json_nci_details(Time, NCI, CommunityData, Limits, UseGraphViz),
+        State};
 handle_call(dot_community_details, _From,
                         State = #?STATE{community_data = CommunityData}) ->
     {reply, dot_community_details(CommunityData), State};
@@ -176,8 +181,10 @@ handle_cast({nci_details, Pid}, State = #?STATE{
                                             community_data = CommunityData,
                                             nci = NCI,
                                             last_nci_time = Time,
+                                            use_graphviz = UseGraphViz,
                                             limits = Limits}) ->
-    clientsock:send(Pid, json_nci_details(Time, NCI, CommunityData, Limits)),
+    clientsock:send(Pid,
+        json_nci_details(Time, NCI, CommunityData, Limits, UseGraphViz)),
     {noreply, State};
 handle_cast({collectors, Pid}, State = #?STATE{collectors = CollectorDict,
                                                last_qps_time = Time}) ->
@@ -281,9 +288,9 @@ send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
 broadcast_msg(Clients, Msg) ->
     [clientsock:send(C, Msg) || C <- Clients].
 
-json_nci_details(Time, undefined, CommunityData, Limits) ->
-    json_nci_details(Time, 0, CommunityData, Limits);
-json_nci_details(Time, NCI, CommunityData = {_, Sizes, _}, Limits) ->
+json_nci_details(Time, undefined, CommunityData, Limits, UseGraphViz) ->
+    json_nci_details(Time, 0, CommunityData, Limits, UseGraphViz);
+json_nci_details(Time, NCI, CommunityData = {_, Sizes, _}, Limits, UseGraphViz) ->
     MaxCommunities = proplists:get_value(max_communities, Limits),
     % make a list of the largest communities and truncate the list after
     % MaxCommunities elements.
@@ -296,7 +303,7 @@ json_nci_details(Time, NCI, CommunityData = {_, Sizes, _}, Limits) ->
         {<<"NCI">>,NCI},
         {<<"Time">>, Time},
         {<<"Communities">>, community_details(CommunityData,
-                                                CommunityList, Limits)},
+                                        CommunityList, Limits, UseGraphViz)},
         {<<"CommunityGraph">>, community_graph(CommunityData,
                                                 CommunityList, Limits)}
     ]}).
@@ -336,10 +343,10 @@ cinteractions(Interactions, CommunityList, Sizes) ->
 % dict_value_length(D) ->
 %     dict:fold(fun(_, List, Sum) -> Sum + length(List) end, 0, D).
 
-community_details(no_communities, _CommunityList, _Limits) ->
+community_details(no_communities, _CommunityList, _Limits, _UseGraphViz) ->
     [];
 community_details({{EndpointsD, InteractionsD}, SizesD, _Comms},
-                                                    CommunityList, Limits) ->
+                                        CommunityList, Limits, UseGraphViz) ->
     MaxVertices = proplists:get_value(max_vertices, Limits),
     MaxEdges = proplists:get_value(max_edges, Limits),
     lists:foldl(
@@ -356,22 +363,28 @@ community_details({{EndpointsD, InteractionsD}, SizesD, _Comms},
                         {<<"Size">>, dict:fetch(C, SizesD)}
                     ]};
                 false ->
-                    {Width, Height, Nodes} =
-                                        gz_endpoints(Endpoints, Interactions),
-                    {[
-                        {<<"Sizes">>, {[
-                            {<<"height">>, Height},
-                            {<<"width">>, Width}
-                        ]}},
+                    Body = [
                         {<<"Interactions">>, interactions(Interactions)},
                         {<<"Endpoints">>, endpoints(Endpoints)},
-                        {<<"GEndpoints">>, format_gz_nodes(Nodes)},
                         {<<"Label">>, endpoint(C)},
                         {<<"Size">>, dict:fetch(C, SizesD)}
-                    ]}
+                    ] ++ gz_community_details(Endpoints, Interactions, UseGraphViz),
+                    {Body}
             end,
             [D | L]
         end, [], CommunityList).
+
+gz_community_details(Endpoints, Interactions, true) ->
+    {Width, Height, Nodes} = gz_endpoints(Endpoints, Interactions),
+    [
+        {<<"Sizes">>, {[
+            {<<"height">>, Height},
+            {<<"width">>, Width}
+        ]}},
+        {<<"GEndpoints">>, format_gz_nodes(Nodes)}
+    ];
+gz_community_details(_Endpoints, _Interactions, false) ->
+    [].
 
 overlimit(_, 0) ->
     false;
