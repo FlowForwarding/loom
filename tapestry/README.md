@@ -18,7 +18,6 @@ Tapestry requires:
 
 * Erlang/OTP distributed computing platform, available from
     [Erlang.org](http://www.erlang.org/download.html)
-* graphviz: http://www.graphviz.org
 * One or more servers running the Erlang to aggregate the data and 
     calculate the NCI.
 * One or more internal recursive DNS servers to provide the raw data feeds
@@ -29,6 +28,7 @@ Tapestry requires:
     the internal recursive DNS servers
 * Network connectivity between the taps and machine or cluster running 
     the Erlang/OTP
+* EXPERIMENTAL: graphviz is required if the config parameter use_graphviz is true: http://www.graphviz.org
 
 ## Installation
 
