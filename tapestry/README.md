@@ -200,12 +200,15 @@ tapestry | qps_max_interval | {seconds, 15} | longest time between Query/Sec ui 
 tapestry | clean_interval | [{days,0},{hms,{1,0,0}}] | interval between purging old data from nci calculation
 tapestry | data_max_age | [{days,2},{hms,{0,0,0}}] | purge data older than data_max_age
 tapestry | use_graphviz | false | EXPERIMENTAL: use graphviz to calculate the location of the community dots in community graphs
+tapestry | neato_bin | "user/local/bin/neato" | path to neato from graphviz installation
 of_driver | listen_ip | {0,0,0,0} | open flow controller listener IP address
 of_driver | listen_port | 6653 | open flow controller listener port
 
 You may specify one or more datasources, however some combinations are
 not allowed.  test_ui should not be used with any other datasource and
 anonymized and logfile may not be used together.
+
+neato_bin must be the path to the neato binary from the graphviz installation.  This is only used if use_graphviz is true.
 
 datasource|Description
 ----------------|-----------
