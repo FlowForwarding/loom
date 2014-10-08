@@ -125,6 +125,11 @@ NCI.socialGraph = function(socialGraphID, params){
 			//if this dot is selected on Activities graph, draw it in red
 			if (d.external)
 			    return "red"
+
+            if (d.size && d.clicked) {
+                return "#1D5082";
+            }
+
 		    return isDevided ? color(d.group) : color(0);
 		});
 		me.node.attr("r", function(d) {
@@ -233,6 +238,7 @@ NCI.socialGraph = function(socialGraphID, params){
 					NCI.MouseClickActivitySound.play();
 					var label = d.name.split("|")[0];
 					var group = selectedDots[label];
+                    d.clicked = !d.clicked;
 					if (group !== undefined){
 						delete selectedDots[selectedDots[label]];
 						delete selectedDots[label];
