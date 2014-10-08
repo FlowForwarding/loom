@@ -226,7 +226,7 @@ NCI.socialGraph = function(socialGraphID, params){
 				me.node.on('click', function(d){
 					NCI.MouseClickActivitySound.currentTime = 0;
 					NCI.MouseClickActivitySound.play();
-					var label = d.name.split(":")[0];
+					var label = d.name.split("|")[0];
 					var group = selectedDots[label];
 					if (group !== undefined){
 						delete selectedDots[selectedDots[label]];
@@ -362,10 +362,10 @@ NCI.graphBuilder = function(communities){
 		var communityEndpoints = {};
 		var startIndex = Object.keys(endpointsHash).length
 		var addConnection = function(endPoint, endpoints){
-			var ip = endPoint.split(":")[0];
+			var ip = endPoint.split("|")[0];
 			if (!endpointsHash[ip]){
 			    if (!communityEndpoints[ip]){
-					var size = endPoint.split(":")[1];
+					var size = endPoint.split("|")[1];
 				    var index = Object.keys(communityEndpoints).length + startIndex
 				    communityEndpoints[ip] = {
 						fullname: endPoint,

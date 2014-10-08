@@ -314,7 +314,7 @@ cendpointsize(C, Sizes) ->
     FormattedC = endpoint(C),
     SizeI = dict:fetch(C, Sizes),
     Size = integer_to_binary(SizeI),
-    <<FormattedC/binary, $:, Size/binary>>.
+    <<FormattedC/binary, $|, Size/binary>>.
 
 cendpoints(Endpoints, Sizes) ->
     lists:map(fun(E) -> cendpointsize(E, Sizes) end, Endpoints).
