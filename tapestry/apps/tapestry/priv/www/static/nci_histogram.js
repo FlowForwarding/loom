@@ -120,11 +120,10 @@ NCI.nciHistogram = (function(){
                numOfPoints: d.Endpoints.length,
 			   width: $(window).width(), 
 			   height: $(window).height(),
-			   notNetworkColor: "#fff",
 			   isClustered: true,
-			legendData : [[color(0), "endpoint in activity"],
-			    ["red", "endpoint in a different activity"],
-			    ["#FFFFFf", "external endpoint"]],
+			legendData : [[color(0), " - endpoint in activity"],
+			    ["red", " - endpoint in a different activity"],
+			    [NCI.notNetworkColor, " - external endpoint"]],
 			   radius: function(){
 			    	var verticlesLimitForRadius = 250
 			   	 	var radius = 4

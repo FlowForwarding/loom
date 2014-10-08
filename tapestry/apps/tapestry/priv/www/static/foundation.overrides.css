@@ -312,3 +312,7 @@ body {
 .activities-content .tabs-content .content {
     height: 100%;
 }
+
+.histogram-details-graph svg text {
+    fill: white;
+}
