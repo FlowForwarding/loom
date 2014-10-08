@@ -70,9 +70,11 @@ NCI.socialGraph = function(socialGraphID, params){
     function toggleListView() {
         $showList.parent().toggleClass("hide");
         $showGraph.parent().toggleClass("hide");
-        showInternal.parentsUntil("li").toggleClass("hide");
         $endpointFilter.parent().toggleClass("hide");
 
+        byActivities.parent().toggleClass("hide");
+        prettyView.parent().toggleClass("hide");
+        showInternal.parent().toggleClass("hide");
 
         $(socialGraphSelector).toggle("hide");
         $(legendSelector).toggle("hide");
@@ -319,6 +321,7 @@ NCI.socialGraph = function(socialGraphID, params){
         $exportList.off("click", downloadActivityList)
 
         $endpointFilter.off("keyup");
+        $endpointFilter.val("");
         listBuilder.removeTable();
 	}
 	

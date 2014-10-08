@@ -191,7 +191,9 @@
     };
 
     ListBuilder.prototype.removeTable = function() {
-        this.table.remove();
+        if (this.table) {
+            this.table.remove();
+        }
         this.table = null;
     };
 

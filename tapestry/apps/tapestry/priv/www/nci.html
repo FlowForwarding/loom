@@ -122,8 +122,9 @@
 		</div>	
 		
 		<div id="nciDetails" class="details-view" style="overflow-y:scroll;">
-			<div class="hide-ncidetails"></div>
-			<div id="histogramGeneral" class="row">
+
+			<div id="histogramGeneral" class="row activities-header">
+                <div class="hide-ncidetails"></div>
 				<div class="large-1 small-1 columns">&nbsp;</div>
 				<div class="large-4 small-4 columns">
 				    <div class="indexValue qps-value">
@@ -162,38 +163,16 @@
                     </div>
                 </div>
 			</div>
-			<br/><br/>
-			<div>
-				<dl class="tabs vertical" data-tab id="nciDetailsTabs">
-					<dd><a href="#panelFlows">Flows</a></dd>
-					<dd><a href="#panelActivities">Activities</a></dd>
-					<dd class="active"><a href="#panelActivitySizes">Activity Sizes</a></dd>
-				</dl>
-				<div class="tabs-content vertical">
-					<div class="content" id="panelFlows">
-				        <label> <input type="checkbox" class="byactivities"> by Activities</label>
-				        <label> <input type="checkbox" class="pretty"> Pretty</label>
-				        <label> <input type="checkbox" class="internal"> External Endpoints </label>
-				        <div class="socialGraph" style="">
-				        </div>
-					</div>
-					<div class="content" id="panelActivities">
-						<label> <input type="checkbox" class="pretty"> Pretty</label>
-						<label> <input type="checkbox" class="internal"> External Endpoints </label>
-						<div class="legend"></div>
-				        <div class="socialGraph" style="">
-				        </div>
-					</div>
-					<div class="content" id="panelActivitySizes">
-						<div class="row">
-				            <div id="nciHistogram" class="centrate"> </div>
-   						    <h6 class="centrate"> <b>NCI(N) = Max j, X[j] ≥ j </b> </h6>						
-   						    <h4 class="centrate"><small> where <b>NCI(N)</b> is the Network Complexity Index of network N and 
-   							<b>X[j]</b> is the number of endpoints engaged in an activity </small></h4>
-							<div class="expand-historgam"></div>
-					    </div>
-						<div class="histogram-details-graph">
-                            <nav class="top-bar" data-topbar role="navigation">
+			<div class="activities-content">
+                <div class="activities-content-wrap">
+                    <dl class="tabs vertical" data-tab id="nciDetailsTabs">
+                        <dd><a href="#panelFlows">Flows</a></dd>
+                        <dd><a href="#panelActivities">Activities</a></dd>
+                        <dd class="active"><a href="#panelActivitySizes">Activity Sizes</a></dd>
+                    </dl>
+                    <div class="tabs-content vertical">
+                        <div class="content" id="panelFlows">
+                            <nav class="top-bar top-bar-light" data-topbar role="navigation">
                                 <section class="top-bar-section">
                                     <ul class="left">
                                         <li>
@@ -203,30 +182,93 @@
                                             <a class="show-graph" href="#">Show graph</a>
                                         </li>
                                         <li class="has-form">
-                                            <a class="button radius small export-list" href="#">Export to CSV</a>
+                                            <input id="panelFlows-byActivities" type="checkbox" class="byactivities" />
+                                            <label for="panelFlows-byActivities"> by Activities</label>
+                                        </li>
+                                        <li class="has-form">
+                                            <input id="panelFlows-pretty" type="checkbox" class="pretty" />
+                                            <label for="panelFlows-pretty"> Pretty</label>
+                                        </li>
+                                        <li class="has-form">
+                                            <input id="panelFlows-internal" type="checkbox" class="internal" />
+                                            <label for="panelFlows-internal"> External Endpoints </label>
                                         </li>
                                         <li class="has-form hide">
                                             <input class="endpoint-filter" type="text" />
                                         </li>
                                         <li class="has-form">
-                                            <span>
-                                                <input id="checkbox1" type="checkbox" class="internal" />
-                                                <label class="external-checkbox-label" for="checkbox1">External Endpoints </label>
-                                            </span>
+                                            <a class="button radius small export-list" href="#">Export to CSV</a>
                                         </li>
                                     </ul>
                                 </section>
-                                <ul class="right">
-                                    <li><div class="histogramDetailsClose"></div></li>
-                                </ul>
                             </nav>
                             <section class="details-content">
-                                <div class="legend"> </div>
-                                <div class="socialGraph"> </div>
-                                <div class="activities-list row" style="display: none;"></div>
+                                <div class="socialGraph" style=""></div>
+                                <div class="activities-list row" style="display: none"></div>
                             </section>
-						</div>		
-					</div>
+                        </div>
+                        <div class="content" id="panelActivities">
+                            <nav class="top-bar top-bar-light" data-topbar role="navigation">
+                                <section class="top-bar-section">
+                                    <ul class="left">
+                                        <li class="has-form">
+                                            <input id="panelActivities-pretty" type="checkbox" class="pretty" />
+                                            <label for="panelActivities-pretty"> Pretty</label>
+                                        </li>
+                                        <li class="has-form">
+                                            <input id="panelActivities-internal" type="checkbox" class="internal" />
+                                            <label for="panelActivities-internal"> External Endpoints </label>
+                                        </li>
+                                    </ul>
+                                </section>
+                            </nav>
+                            <section class="details-content">
+                                <div class="legend"></div>
+                                <div class="socialGraph" style=""></div>
+                            </section>
+                        </div>
+                        <div class="content" id="panelActivitySizes">
+                            <div class="row">
+                                <div id="nciHistogram" class="centrate"> </div>
+                                <h6 class="centrate"> <b>NCI(N) = Max j, X[j] ≥ j </b> </h6>
+                                <h4 class="centrate"><small> where <b>NCI(N)</b> is the Network Complexity Index of network N and
+                                <b>X[j]</b> is the number of endpoints engaged in an activity </small></h4>
+                                <div class="expand-historgam"></div>
+                            </div>
+                            <div class="histogram-details-graph">
+                                <nav class="top-bar" data-topbar role="navigation">
+                                    <section class="top-bar-section">
+                                        <ul class="left">
+                                            <li>
+                                                <a class="show-list" href="#">Show list</a>
+                                            </li>
+                                            <li class="hide">
+                                                <a class="show-graph" href="#">Show graph</a>
+                                            </li>
+                                            <li class="has-form">
+                                                <a class="button radius small export-list" href="#">Export to CSV</a>
+                                            </li>
+                                            <li class="has-form hide">
+                                                <input class="endpoint-filter" type="text" />
+                                            </li>
+                                            <li class="has-form">
+                                                <input id="checkbox1" type="checkbox" class="internal" />
+                                                <label class="" for="checkbox1">External Endpoints </label>
+                                            </li>
+                                        </ul>
+                                    </section>
+                                    <ul class="right">
+                                        <li><div class="histogramDetailsClose"></div></li>
+                                    </ul>
+                                </nav>
+                                <section class="details-content">
+                                    <div class="legend"> </div>
+                                    <div class="socialGraph"> </div>
+                                    <div class="activities-list row" style="display: none;"></div>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 			</div>
 		</div>	
