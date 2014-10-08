@@ -9,7 +9,7 @@ NCI.socialGraph = function(socialGraphID, params){
 
 	var socialGraphID = socialGraphID.substring(1) + "_graph";
 	var color = d3.scale.category10();
-	var notNetworkColor = params.notNetworkColor || "#000000";
+	var notNetworkColor = NCI.notNetworkColor;
 	var isClustered = params.isClustered || false ;
 	var isDevided = params.isDevided || false ;
 	var isFiltered = false;
@@ -190,12 +190,10 @@ NCI.socialGraph = function(socialGraphID, params){
 			me.node.on('mouseover', function(d){
 				var soundName = NCI.MouseOverBlueSquare;
 				if (!(isExpandable && d.group == 0))  {
-					if (notNetworkColor == "#fff" && isFiltered && NCI.isExternal(d.name)) {
-						soundName = NCI.MouseOverWhiteDot;
+					if (isFiltered && NCI.isExternal(d.name)) {
+						soundName = NCI.MouseOverExternalEndpoint;
 					} else if (d.external && !(isFiltered && NCI.isExternal(d.name))) {	
 						soundName = NCI.MouseOverRedDot;
-					} else if (notNetworkColor !== "#fff" && isFiltered && NCI.isExternal(d.name)){
-						soundName = undefined;
 					} else if (d.group == 0){
 						soundName = NCI.MouseOverBlueDot;
 					} else {
@@ -203,6 +201,7 @@ NCI.socialGraph = function(socialGraphID, params){
 					};
 				} else if ( d.group == 0 && isFiltered && NCI.isExternal(d.name)) {
 					console.log("black square");
+                    // TODO: since we don't have black squre, do we need special sound for that?
 					soundName = NCI.MouseOverBlackSquare;
 				};
 				if (soundName !== undefined){
@@ -342,9 +341,9 @@ NCI.socialGraph = function(socialGraphID, params){
 				     break;
 				default:
 				 	legend.append("circle").attr("r", dim/2).attr("cy", lineHeight*index + 10).
-					attr("cx", dim/2).attr("fill", line[0]);	 		
+					attr("cx", dim/2).attr("fill", line[0]);
 			}
-			legend.append("text").html(line[1] + "<br/>").attr("x", 30).attr("fill", notNetworkColor).attr("y", lineHeight*index + dim);
+			legend.append("text").html(line[1] + "<br/>").attr("x", 30).attr("y", lineHeight*index + dim);
 		});
 	};
 	
