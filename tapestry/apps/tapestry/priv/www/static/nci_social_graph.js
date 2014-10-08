@@ -226,8 +226,12 @@ NCI.socialGraph = function(socialGraphID, params){
 					newx = newx / this.getCTM().d;
 					newy = newy / this.getCTM().d;
 				}
-				tooltip.html(info).style("top", d.py + newy + me.position().top).
-				style("left", d.px + newx + me.position().left).style("display", "inline");
+                // TODO: calculate this values
+                var topAdjustment = -15,
+                    leftAdjustment = -50;
+
+				tooltip.html(info).style("top", d.py + newy + me.position().top + topAdjustment).
+				style("left", d.px + newx + me.position().left + leftAdjustment).style("display", "inline");
 			}).on('mouseout', function(){
 				tooltip.style("display", "none");
 			});
