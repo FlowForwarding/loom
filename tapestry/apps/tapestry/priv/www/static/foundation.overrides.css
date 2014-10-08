@@ -218,21 +218,97 @@
 .legend {
 	position: absolute;
 	right: 0px;
+    padding-top: 20px;
 }
 
 body {
     overflow: hidden;
 }
 
-.histogram-details-graph .details-content {
+.details-content {
     overflow: auto;
     height: 100%;
-    padding-bottom: 50px;
-    padding-top: 20px;
 }
 
-.external-checkbox-label {
+.histogram-details-graph .top-bar label {
     top: 7px;
     position: relative;
     color: white;
+}
+
+.tabs-content.vertical>.content {
+    padding-left: 0;
+    border-left: 1px solid #f0f0f0;
+}
+
+#histogramGeneral {
+    margin-bottom: 20px;
+    margin-top: 5px;
+}
+
+
+.top-bar-light .top-bar-section .has-form {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.top-bar-light .top-bar-section ul {
+    background-color: #ffffff;
+}
+
+.top-bar-light.top-bar {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.top-bar-light.top-bar label {
+    top: 7px;
+    position: relative;
+}
+
+.top-bar-light .top-bar-section li:not(.has-form) a:not(.button) {
+    color: #4d4d4d;
+    background-color: #efefef;
+}
+
+.top-bar-light .top-bar-section li:not(.has-form) a:not(.button):hover {
+    background-color: #e1e1e1;
+}
+
+.top-bar-light .top-bar-section ul li:hover:not(.has-form)>a {
+    color: #4d4d4d;
+    /*background-color: #ffffff;*/
+}
+
+.details-view {
+    flex-direction: column;
+    -webkit-flex-direction: column;
+    display: flex;
+    display: -webkit-flex;
+}
+
+.activities-content {
+    flex-grow: 1;
+    -webkit-flex-grow: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.activities-list {
+    padding-top: 20px;
+    padding-bottom: 50px;
+}
+
+.activities-content-wrap {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+.activities-content .tabs-content.vertical {
+    height: 100%;
+}
+
+.activities-content .tabs-content .content {
+    height: 100%;
 }

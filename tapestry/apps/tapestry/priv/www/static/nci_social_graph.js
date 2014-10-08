@@ -27,7 +27,7 @@ NCI.socialGraph = function(socialGraphID, params){
 	var byActivities = me.find('.byactivities');
 	var prettyView = me.find('.pretty');
 	var showInternal = me.find('.internal');
-	var experementialView = me.find('.experemential');
+	var experimentalView = me.find('.experimental');
 
     var $showList = me.find('.show-list');
     var $exportList = me.find('.export-list');
@@ -50,7 +50,7 @@ NCI.socialGraph = function(socialGraphID, params){
 		me.show(false, false);
 	});
 
-	experementialView.on('click', function(event){
+	experimentalView.on('click', function(event){
 	    var experementialGraph = new NCI.experementialGraph();
 		me.clean();
 	});
@@ -77,9 +77,12 @@ NCI.socialGraph = function(socialGraphID, params){
     function toggleListView() {
         $showList.parent().toggleClass("hide");
         $showGraph.parent().toggleClass("hide");
-        showInternal.parentsUntil("li").toggleClass("hide");
         $endpointFilter.parent().toggleClass("hide");
 
+        byActivities.parent().toggleClass("hide");
+        prettyView.parent().toggleClass("hide");
+        showInternal.parent().toggleClass("hide");
+        experimentalView.parent().toggleClass("hide");
 
         $(socialGraphSelector).toggle("hide");
         $(legendSelector).toggle("hide");
@@ -325,6 +328,7 @@ NCI.socialGraph = function(socialGraphID, params){
         $exportList.off("click", downloadActivityList)
 
         $endpointFilter.off("keyup");
+        $endpointFilter.val("");
         listBuilder.removeTable();
 	}
 	
