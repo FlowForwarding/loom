@@ -316,3 +316,7 @@ body {
 .histogram-details-graph svg text {
     fill: white;
 }
+
+.tabs dd.active a {
+    font-weight: bold;
+}
