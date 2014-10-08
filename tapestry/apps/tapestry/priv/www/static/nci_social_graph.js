@@ -101,7 +101,7 @@ NCI.socialGraph = function(socialGraphID, params){
 			if (numOfPoints > NCI.max_vertices) {
 				d3.select(socialGraphSelector).append('text')
 				.attr("id", socialGraphID)
-				.html('Too many endpoints to draw')
+				.html('Too many flows to draw')
 				.attr('class', 'centrate');
 			} else {
 			    me.draw();
