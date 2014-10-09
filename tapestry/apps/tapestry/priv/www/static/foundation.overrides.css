@@ -261,6 +261,16 @@ body {
     border-bottom: 1px solid #f0f0f0;
 }
 
+.top-bar {
+    box-shadow: 0;
+    transition: box-shadow .3s ease-out;
+}
+
+.top-bar.scrolled {
+    box-shadow: 0px 12px 14px -15px;
+    z-index: 2;/* TODO: check why we need zindex here*/
+}
+
 .top-bar-light.top-bar label {
     top: 7px;
     position: relative;

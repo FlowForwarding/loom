@@ -35,6 +35,9 @@ NCI.socialGraph = function(socialGraphID, params){
     var $activitiesList = me.find(".activities-list");
     var $endpointFilter = me.find(".endpoint-filter");
 
+    var $detailsContent = me.find(".details-content");
+    var $topBar = me.find(".top-bar");
+
 	var tmpLine = undefined;
 	
 	byActivities.on('click', function(event){
@@ -72,6 +75,15 @@ NCI.socialGraph = function(socialGraphID, params){
         var activitiesList = d3.select($activitiesList.get(0));
         listBuilder.createTable(activitiesList);
     }
+
+    $detailsContent.scroll(function() {
+        if ($(this).scrollTop() > 20) {
+            $topBar.addClass("scrolled");
+        } else {
+            $topBar.removeClass("scrolled");
+        }
+
+    });
 
 
     function toggleListView() {
@@ -335,6 +347,8 @@ NCI.socialGraph = function(socialGraphID, params){
         $showGraph.off("click", toggleListView);
         $showList.off("click", toggleListView);
         $exportList.off("click", downloadActivityList)
+
+        $detailsContent.off("scroll");
 
         $endpointFilter.off("keyup");
         $endpointFilter.val("");
