@@ -300,6 +300,8 @@ send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
 broadcast_msg(Clients, Msg) ->
     [clientsock:send(C, Msg) || C <- Clients].
 
+json_nci_details(_Time, undefined, no_communities, _Limits, _Neato, _UseGraphViz) ->
+    <<>>;
 json_nci_details(Time, undefined, CommunityData, Limits, Neato, UseGraphViz) ->
     json_nci_details(Time, 0, CommunityData, Limits, Neato, UseGraphViz);
 json_nci_details(Time, NCI, CommunityData = {_, Sizes, _}, Limits, Neato, UseGraphViz) ->
