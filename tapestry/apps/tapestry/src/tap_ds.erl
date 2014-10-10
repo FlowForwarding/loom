@@ -190,14 +190,30 @@ add_edges(Digraph, Edges)->
         digraph:no_vertices(Digraph), digraph:no_edges(Digraph), DateTime).
 
 clean(G, T, MaxAge)->
-    OldVertices = lists:filter(
+    ?DEBUG("~n**** Cleaning Vertices~n"),
+    digraph:del_vertices(G,
+        cleaner(
+            fun(X) ->
+                {_, TS} = digraph:vertex(G, X),
+                TS
+            end, T, MaxAge, digraph:vertices(G))),
+    ?DEBUG("~n**** Cleaning Edges~n"),
+    digraph:del_edges(G,
+        cleaner(
+            fun(X) ->
+                {_, _, _, TS} = digraph:edge(G, X),
+                TS
+            end, T, MaxAge, digraph:edges(G))).
+
+cleaner(TSFn, T, MaxAge, List) ->
+    Old = lists:filter(
                     fun(X)->
-                        {_, TS} = digraph:vertex(G, X),
+                        TS = TSFn(X),
                         Age = days_to_seconds(calendar:time_difference(TS, T)),
                         Age > MaxAge
-                    end, digraph:vertices(G)),
-    ?DEBUG("~n**** Cleaning at Time ~p ****~nMaxAge = ~p~nStale Vertices = ~p~n****",[T, MaxAge, OldVertices]),
-    digraph:del_vertices(G, OldVertices).
+                    end, List),
+    ?DEBUG("~n**** Cleaning at Time ~p ****~nMaxAge = ~p~nStale Count = ~p~n****",[T, MaxAge, length(Old)]),
+    Old.
 
 add_edge(G, E, Time)->
     {A, B} = E,
@@ -292,9 +308,9 @@ update_edge(G, V1, V2, Time) ->
     % XXX use add_edge(G, {V1,V2}, V1, V2, Time) instead?
     Found = lists:filter(
                     fun(X)-> 
-                        {_, FV1, FV2, _} = digraph:edge(G, X),
-                        (V1 == FV1) and (V2 == FV2)
-                    end, digraph:edges(G, V1)),
+                        {_, _, FV2, _} = digraph:edge(G, X),
+                        V2 == FV2
+                    end, digraph:out_edges(G, V1)),
     case Found of
         [] -> digraph:add_edge(G, V1, V2, Time);
         [E] -> digraph:add_edge(G, E, V1, V2, Time)

@@ -58,10 +58,12 @@
                 last_qps_time,
                 nci,
                 collectors = [],
+                use_graphviz,
+                neato_bin,
                 community_data = no_communities}).
 
 -define(DOTFILENAME, "/tmp/tapestry.dot").
--define(NEATO, ["/usr/local/bin/neato", " ", "-Tplain"]).
+-define(NEATO_OPTS, "-Tplain").
 
 %------------------------------------------------------------------------------
 % API
@@ -106,14 +108,24 @@ init([]) ->
     gen_server:cast(?MODULE, start),
     Limits = [{Key, tap_config:getconfig(Key)} || Key <-
                 [max_vertices, max_edges, max_communities, comm_size_limit]],
-    {ok, #?STATE{collectors = dict:new(), limits = Limits}}.
+    UseGraphViz = tap_config:getconfig(use_graphviz),
+    NeatoBin = tap_config:getconfig(neato_bin),
+    {ok, #?STATE{neato_bin = NeatoBin,
+                 use_graphviz = UseGraphViz,
+                 collectors = dict:new(),
+                 limits = Limits}}.
 
 % for debugging
 handle_call(nci_details, _From, State = #?STATE{community_data = CommunityData,
                                                 nci = NCI,
                                                 last_nci_time = Time,
+                                                neato_bin = NeatoBin,
+                                                use_graphviz = UseGraphViz,
                                                 limits = Limits}) ->
-    {reply, json_nci_details(Time, NCI, CommunityData, Limits), State};
+    Neato = neato_cmd(NeatoBin),
+    {reply,
+        json_nci_details(Time, NCI, CommunityData, Limits, Neato, UseGraphViz),
+        State};
 handle_call(dot_community_details, _From,
                         State = #?STATE{community_data = CommunityData}) ->
     {reply, dot_community_details(CommunityData), State};
@@ -176,8 +188,12 @@ handle_cast({nci_details, Pid}, State = #?STATE{
                                             community_data = CommunityData,
                                             nci = NCI,
                                             last_nci_time = Time,
+                                            neato_bin = NeatoBin,
+                                            use_graphviz = UseGraphViz,
                                             limits = Limits}) ->
-    clientsock:send(Pid, json_nci_details(Time, NCI, CommunityData, Limits)),
+    Neato = neato_cmd(NeatoBin),
+    clientsock:send(Pid,
+        json_nci_details(Time, NCI, CommunityData, Limits, Neato, UseGraphViz)),
     {noreply, State};
 handle_cast({collectors, Pid}, State = #?STATE{collectors = CollectorDict,
                                                last_qps_time = Time}) ->
@@ -255,6 +271,9 @@ code_change(_OldVersion, State, _Extra) ->
 % local functions
 %------------------------------------------------------------------------------
 
+neato_cmd(NeatoBin) ->
+    [NeatoBin, " ", ?NEATO_OPTS].
+
 save_collector(Sender, QPS, Collectors, CollectorDict) ->
     dict:store(Sender, {QPS, Collectors}, CollectorDict).
 
@@ -281,9 +300,11 @@ send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
 broadcast_msg(Clients, Msg) ->
     [clientsock:send(C, Msg) || C <- Clients].
 
-json_nci_details(Time, undefined, CommunityData, Limits) ->
-    json_nci_details(Time, 0, CommunityData, Limits);
-json_nci_details(Time, NCI, CommunityData = {_, Sizes, _}, Limits) ->
+json_nci_details(_Time, undefined, no_communities, _Limits, _Neato, _UseGraphViz) ->
+    <<>>;
+json_nci_details(Time, undefined, CommunityData, Limits, Neato, UseGraphViz) ->
+    json_nci_details(Time, 0, CommunityData, Limits, Neato, UseGraphViz);
+json_nci_details(Time, NCI, CommunityData = {_, Sizes, _}, Limits, Neato, UseGraphViz) ->
     MaxCommunities = proplists:get_value(max_communities, Limits),
     % make a list of the largest communities and truncate the list after
     % MaxCommunities elements.
@@ -296,7 +317,7 @@ json_nci_details(Time, NCI, CommunityData = {_, Sizes, _}, Limits) ->
         {<<"NCI">>,NCI},
         {<<"Time">>, Time},
         {<<"Communities">>, community_details(CommunityData,
-                                                CommunityList, Limits)},
+                                    CommunityList, Limits, Neato, UseGraphViz)},
         {<<"CommunityGraph">>, community_graph(CommunityData,
                                                 CommunityList, Limits)}
     ]}).
@@ -336,10 +357,10 @@ cinteractions(Interactions, CommunityList, Sizes) ->
 % dict_value_length(D) ->
 %     dict:fold(fun(_, List, Sum) -> Sum + length(List) end, 0, D).
 
-community_details(no_communities, _CommunityList, _Limits) ->
+community_details(no_communities, _CommunityList, _Limits, _Neato, _UseGraphViz) ->
     [];
 community_details({{EndpointsD, InteractionsD}, SizesD, _Comms},
-                                                    CommunityList, Limits) ->
+                                        CommunityList, Limits, Neato, UseGraphViz) ->
     MaxVertices = proplists:get_value(max_vertices, Limits),
     MaxEdges = proplists:get_value(max_edges, Limits),
     lists:foldl(
@@ -356,22 +377,28 @@ community_details({{EndpointsD, InteractionsD}, SizesD, _Comms},
                         {<<"Size">>, dict:fetch(C, SizesD)}
                     ]};
                 false ->
-                    {Width, Height, Nodes} =
-                                        gz_endpoints(Endpoints, Interactions),
-                    {[
-                        {<<"Sizes">>, {[
-                            {<<"height">>, Height},
-                            {<<"width">>, Width}
-                        ]}},
+                    Body = [
                         {<<"Interactions">>, interactions(Interactions)},
                         {<<"Endpoints">>, endpoints(Endpoints)},
-                        {<<"GEndpoints">>, format_gz_nodes(Nodes)},
                         {<<"Label">>, endpoint(C)},
                         {<<"Size">>, dict:fetch(C, SizesD)}
-                    ]}
+                    ] ++ gz_community_details(Neato, Endpoints, Interactions, UseGraphViz),
+                    {Body}
             end,
             [D | L]
         end, [], CommunityList).
+
+gz_community_details(Neato, Endpoints, Interactions, true) ->
+    {Width, Height, Nodes} = gz_endpoints(Neato, Endpoints, Interactions),
+    [
+        {<<"Sizes">>, {[
+            {<<"height">>, Height},
+            {<<"width">>, Width}
+        ]}},
+        {<<"GEndpoints">>, format_gz_nodes(Nodes)}
+    ];
+gz_community_details(_Neato, _Endpoints, _Interactions, false) ->
+    [].
 
 overlimit(_, 0) ->
     false;
@@ -403,9 +430,9 @@ endpoint(S) when is_list(S) ->
 endpoint(_) ->
     <<"invalid">>.
 
-gz_endpoints(Endpoints, Edges) ->
+gz_endpoints(Neato, Endpoints, Edges) ->
     DotFile = dot_community_graph(Endpoints, Edges),
-    graphviz(DotFile).
+    graphviz(Neato, DotFile).
 
 
 % [[Vertex, X, Y]]
@@ -509,7 +536,7 @@ update_limit(Limits, Limit, Value) ->
 % output:
 % {Width, Height, [[Vertex, X, Y]]}
 % Values are binaries
-graphviz(DotFile) ->
+graphviz(Neato, DotFile) ->
     % delete old file
     file_delete(?DOTFILENAME),
 
@@ -517,7 +544,7 @@ graphviz(DotFile) ->
     ok = file:write_file(?DOTFILENAME, DotFile),
 
     % run neato and collect output
-    Plain = os:cmd([?NEATO, " ", ?DOTFILENAME]),
+    Plain = os:cmd([Neato, " ", ?DOTFILENAME]),
 
     % parse for output
     parse_plain(Plain).

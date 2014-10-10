@@ -18,7 +18,6 @@ Tapestry requires:
 
 * Erlang/OTP distributed computing platform, available from
     [Erlang.org](http://www.erlang.org/download.html)
-* graphviz: http://www.graphviz.org
 * One or more servers running the Erlang to aggregate the data and 
     calculate the NCI.
 * One or more internal recursive DNS servers to provide the raw data feeds
@@ -29,6 +28,7 @@ Tapestry requires:
     the internal recursive DNS servers
 * Network connectivity between the taps and machine or cluster running 
     the Erlang/OTP
+* EXPERIMENTAL: graphviz is required if the config parameter use_graphviz is true: http://www.graphviz.org
 
 ## Installation
 
@@ -199,13 +199,16 @@ tapestry | comm_size_limit | 300 | when dropping community details, drop details
 tapestry | qps_max_interval | {seconds, 15} | longest time between Query/Sec ui updates
 tapestry | clean_interval | [{days,0},{hms,{1,0,0}}] | interval between purging old data from nci calculation
 tapestry | data_max_age | [{days,2},{hms,{0,0,0}}] | purge data older than data_max_age
-max_ | data_max_age | [{days,2},{hms,{0,0,0}}] | purge data older than data_max_age
+tapestry | use_graphviz | false | EXPERIMENTAL: use graphviz to calculate the location of the community dots in community graphs
+tapestry | neato_bin | "user/local/bin/neato" | path to neato from graphviz installation
 of_driver | listen_ip | {0,0,0,0} | open flow controller listener IP address
 of_driver | listen_port | 6653 | open flow controller listener port
 
 You may specify one or more datasources, however some combinations are
 not allowed.  test_ui should not be used with any other datasource and
 anonymized and logfile may not be used together.
+
+neato_bin must be the path to the neato binary from the graphviz installation.  This is only used if use_graphviz is true.
 
 datasource|Description
 ----------------|-----------
