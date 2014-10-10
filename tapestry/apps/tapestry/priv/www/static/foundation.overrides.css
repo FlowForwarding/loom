@@ -291,15 +291,15 @@ body {
 }
 
 .details-view {
-    flex-direction: column;
     -webkit-flex-direction: column;
-    display: flex;
+    flex-direction: column;
     display: -webkit-flex;
+    display: flex;
 }
 
 .activities-content {
-    flex-grow: 1;
     -webkit-flex-grow: 1;
+    flex-grow: 1;
     overflow: hidden;
     position: relative;
 }
