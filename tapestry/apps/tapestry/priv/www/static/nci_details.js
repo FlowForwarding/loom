@@ -67,10 +67,12 @@ NCI.detailsTabs = function(){
 				activitiesPanel = new NCI.socialGraph("#panelActivities",{
 					isDevided : true,
 					isExpandable : true,
-					legendData : [[color(0), "- activity", "rect"],
-					    ["red", "- endpoint in a different activity"],
-					    [NCI.notNetworkColor, "- external endpoint"],
-						["", "all other colored dots - endpoints in an activity", "none"]],
+					legendData: [
+                        [color(0), " - activity", "rect"],
+                        [null, " - endpoint in activity"],
+                        ["red", " - endpoint in a different activity"],
+                        [NCI.notNetworkColor, " - external endpoint"]
+                    ],
 					numOfPoints: NCI.CommunityGraph.Endpoints.length,
 					communities: [NCI.CommunityGraph],
                     radius: function(endpoint){

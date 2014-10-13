@@ -121,9 +121,11 @@ NCI.nciHistogram = (function(){
 			   width: $(window).width(), 
 			   height: $(window).height(),
 			   isClustered: true,
-			legendData : [[color(0), " - endpoint in activity"],
-			    ["red", " - endpoint in a different activity"],
-			    [NCI.notNetworkColor, " - external endpoint"]],
+                legendData : [
+                    [color(0), " - endpoint in activity"],
+                    ["red", " - endpoint in a different activity"],
+                    [NCI.notNetworkColor, " - external endpoint"]
+                ],
 			   radius: function(){
 			    	var verticlesLimitForRadius = 250
 			   	 	var radius = 4

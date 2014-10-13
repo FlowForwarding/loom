@@ -360,17 +360,34 @@ NCI.socialGraph = function(socialGraphID, params){
 		var lineHeight = 30;
 		var legend = d3.select(legendSelector).append("svg").attr("width", 400);
 		$.each(legend_data, function(index, line){
-			switch(line[2]) {
+            var shape = line[2],
+                shapeColor = line[0],
+                text = line[1];
+
+			switch(shape) {
 			    case "rect":
-					legend.append("rect").attr("height", dim).attr("width", dim).attr("fill", line[0]);
+					legend.append("rect").attr("height", dim).attr("width", dim).attr("fill", shapeColor);
 					break;
 				case "none":
-				     break;
-				default:
-				 	legend.append("circle").attr("r", dim/2).attr("cy", lineHeight*index + 10).
-					attr("cx", dim/2).attr("fill", line[0]);
+                    break;
+                default:
+				 	var circle = legend.append("circle").attr("r", dim/2).attr("cy", lineHeight*index + 10)
+                        .attr("cx", dim/2).attr("fill", shapeColor);
+
+                    if (shapeColor == null) {
+                        var i = 3,
+                            duration = 1000;
+
+                        setInterval(function() {
+                            circle
+                                .transition()
+                                .duration(duration)
+                                .attr("fill", color(i++));
+                        }, duration);
+                    }
+
 			}
-			legend.append("text").html(line[1] + "<br/>").attr("x", 30).attr("y", lineHeight*index + dim);
+			legend.append("text").html(text + "<br/>").attr("x", 30).attr("y", lineHeight*index + dim);
 		});
 	};
 	
