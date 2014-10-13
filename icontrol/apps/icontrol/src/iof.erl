@@ -86,7 +86,9 @@
 -type switch_key() :: integer().
 
 -define(OCH_SIGTYPE, <<10>>).
--define(OCH_SIGID(ID), <<0:16, ID:16, 0:16>>).
+-define(FIXED_OCH_SIGID(ChannelNumber), ?OCH_SIGID(1, 2, ChannelNumber, 1)).
+-define(OCH_SIGID(GridType, ChannelSpacing, ChannelNumber, SpectralWidth),
+        <<GridType:8, ChannelSpacing:8, ChannelNumber:16, SpectralWidth:16>>).
 
 %% @hidden
 %% activate tracing for debugging
@@ -175,7 +177,7 @@ forward_mod(Key, Priority, InPort, OutPort) ->
 oe_flow_tw(Key, Priority, InPort, OutPort, ChannelNumber) ->
     Version = version(Key),
     Matches = [{in_port, <<InPort:32>>}],
-    Actions = [{set_field, och_sigid, ?OCH_SIGID(ChannelNumber)},
+    Actions = [{set_field, och_sigid, ?FIXED_OCH_SIGID(ChannelNumber)},
                {output, OutPort, no_buffer}],
     Instructions = [{apply_actions, Actions}],
     Opts = [{table_id,0}, {priority, Priority},
@@ -197,8 +199,8 @@ oe_flow_ww(Key, Priority, InPort, InChannelNumber, OutPort, OutChannelNumber) ->
     Version = version(Key),
     Matches = [{in_port, <<InPort:32>>},
                {och_sigtype, ?OCH_SIGTYPE},
-               {och_sigid, ?OCH_SIGID(InChannelNumber)}],
-    Actions = [{set_field, och_sigid, ?OCH_SIGID(OutChannelNumber)},
+               {och_sigid, ?FIXED_OCH_SIGID(InChannelNumber)}],
+    Actions = [{set_field, och_sigid, ?FIXED_OCH_SIGID(OutChannelNumber)},
                {output, OutPort, no_buffer}],
     Instructions = [{apply_actions, Actions}],
     Opts = [{table_id,0}, {priority, Priority},
@@ -220,7 +222,7 @@ oe_flow_wt(Key, Priority, InPort, InChannelNumber, OutPort) ->
     Version = version(Key),
     Matches = [{in_port, <<InPort:32>>},
                {och_sigtype, ?OCH_SIGTYPE},
-               {och_sigid, ?OCH_SIGID(InChannelNumber)}],
+               {och_sigid, ?FIXED_OCH_SIGID(InChannelNumber)}],
     Actions = [{output, OutPort, no_buffer}],
     Instructions = [{apply_actions, Actions}],
     Opts = [{table_id,0}, {priority, Priority},
