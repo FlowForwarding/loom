@@ -1,22 +1,37 @@
 (function() {
     function createTable(columns, d3Selection, data) {
-        var table = d3Selection.append("table")
-                .attr("class", "columns"),
-            thead = table.append("thead"),
-            tbody = table.append("tbody");
+        var container = d3Selection
+                .append("div")
+                .classed("fixed-table-container", true)
+                .classed("columns", true),
+            background = container
+                .append("div")
+                .classed("header-background", true),
+            table = container
+                .append("div").classed("fixed-table-container-inner", true)
+                .append("table"),
 
-        // append the header row
-        thead.append("tr")
-            .selectAll("th")
-            .data(columns)
-            .enter()
-            .append("th")
-            .text(function(column) { return column.text; });
+            thead = table.append("thead"),
+            tbody = table.append("tbody"),
+
+            th = thead.append("tr")
+                .selectAll("th")
+                .data(columns)
+                .enter()
+                .append("th");
+
+            th.append("span")
+                .classed("th-container", true)
+                .text(function(column) { return column.text; });
+
+            th.append("div")
+                .classed("th-inner", true)
+                .text(function(column) { return column.text; });
 
         // apply data for table body
         updateTableBody(columns, tbody, data);
 
-        return table;
+        return container;
     }
 
     function updateTableBody(columns, tbody, data) {
@@ -170,7 +185,7 @@
         this.columns = getCommunitiesColumns(communities);
         this.activityName = getActivityName(communities);
         this.activities = sortActivities(parseActivities(communities));
-        this.table = null;
+        this.container = null;
     }
 
     ListBuilder.prototype.downloadCSV = function() {
@@ -184,25 +199,36 @@
 
     ListBuilder.prototype.createTable = function(d3Selection) {
         var columns = this.columns,
-            activities = this.activities;
+            activities = this.activities,
+            container = createTable(columns, d3Selection, activities),
+            $container = $(container[0]);
 
-        this.table = createTable(columns, d3Selection, activities);
-        return this.table;
+
+        $container.find(".fixed-table-container-inner").on("scroll", function() {
+            $container.toggleClass("shadowed", $(this).scrollTop() > 0);
+        });
+
+        this.container = container;
+        this.$container = $container;
+
+        return this.container;
     };
 
     ListBuilder.prototype.removeTable = function() {
-        if (this.table) {
-            this.table.remove();
+        if (this.container) {
+            this.container.remove();
+            this.$container.off("scroll");
         }
-        this.table = null;
+        this.container = null;
+        this.$container = null;
     };
 
     ListBuilder.prototype.filterTable = function(filterTerm) {
-        var tbody = this.table.select("tbody"),
+        var tbody = this.container.select("tbody"),
             re = stringToRegex(filterTerm),
             data = this.activities.filter(function(d, index) {
                 return re.test(d.endpoint);
-            })
+            });
 
         updateTableBody(this.columns, tbody, data);
     };
