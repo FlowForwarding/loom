@@ -146,6 +146,8 @@
             return {
                 activity: activity.Label,
                 endpoint: endpoint,
+                internalConnections: 0,
+                externalConnections: 0,
                 totalConnections: 0,
                 outsideConnections: 0,
                 external: NCI.isExternal(endpoint)
@@ -164,22 +166,25 @@
 
         activity.Interactions.forEach(
             function(interaction) {
-                var outsideInteraction = false,
-                    ep = null;
+                var endpointA = interaction[0],
+                    endpointB = interaction[1];
 
-                interaction.forEach(function(endpoint) {
-                    if (isOutside(endpoint)) {
-                        outsideInteraction = true
-                    } else {
-                        ep = getEndpoint(endpoint);
-                        ep.totalConnections += 1;
+                function updateInteractionConnections(epA, epB) {
+                    var endpoint = getEndpoint(epA),
+                        outside = isOutside(epB),
+                        external = NCI.isExternal(epB);
+
+                    if (endpoint) {
+                        if (outside) {
+                            endpoint.outsideConnections += 1;
+                        }
+                        endpoint[external ? "externalConnections" : "internalConnections"] += 1;
+                        endpoint.totalConnections += 1;
                     }
-                });
-
-                if (ep && outsideInteraction) {
-                    ep.outsideConnections += 1;
                 }
 
+                updateInteractionConnections(endpointA, endpointB);
+                updateInteractionConnections(endpointB, endpointA);
             }
         );
 
@@ -213,7 +218,9 @@
     function createActivityColumns() {
         return [
             {text: "Endpoint", property: "endpoint", sort: null, filter: null},
-            {text: "Connections", property: "totalConnections", sort: DESC_DIRECTION, filter: null},
+            {text: "Internal", property: "internalConnections"},
+            {text: "External", property: "externalConnections"},
+            {text: "Total", property: "totalConnections", sort: DESC_DIRECTION, filter: null},
             {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null},
             {text: "External", property: "external", sort: null, filter: null}
         ];
@@ -221,11 +228,14 @@
 
     function createActivitiesColumns() {
         return [
-            {text: "Activity", property: "activity", sort: null, filter: null},
             {text: "Endpoint", property: "endpoint", sort: null, filter: null},
-            {text: "Connections", property: "totalConnections", sort: DESC_DIRECTION, filter: null},
-            {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null},
-            {text: "External", property: "external", sort: null}
+            {text: "Internal", property: "internalConnections"},
+            {text: "External", property: "externalConnections"},
+            {text: "Total", property: "totalConnections", sort: DESC_DIRECTION, filter: null},
+
+//            {text: "External", property: "external", sort: null},
+            {text: "Activity", property: "activity", sort: null, filter: null},
+            {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null}
         ]
     }
 
@@ -290,7 +300,7 @@
 
     ListBuilder.prototype.getTable = function() {
         return this.container.select("table");
-    }
+    };
 
     ListBuilder.prototype.sortTable = function(field, direction) {
         var table = this.getTable();
@@ -303,7 +313,7 @@
         });
 
         updateTable(table, this.columns, this.activities);
-    }
+    };
 
     ListBuilder.prototype.filterTable = function(filterTerm) {
         var table = this.getTable();
