@@ -5,8 +5,24 @@
   {registered, []},
   {applications, [
                   kernel,
-                  stdlib
+                  stdlib,
+                  sasl,
+                  syntax_tools,
+                  compiler,
+                  crypto,
+                  ranch,
+                  cowlib,
+                  cowboy,
+                  ibrowse,
+                  jiffy,
+                  lager,
+                  meck,
+                  recon,
+                  grapher
                  ]},
   {mod, { net_observer_app, []}},
   {env, []}
  ]}.
+
+
+

@@ -7,3 +7,4 @@ deps/*
 apps/*/logs
 erl_crash.dump
 Mnesia*
+rel/net_observer
