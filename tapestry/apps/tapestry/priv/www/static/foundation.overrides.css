@@ -406,7 +406,7 @@ body {
     overflow: hidden;
 }
 
-.shadowed .header-background {
+.header-background {
     box-shadow: 0 2px 14px -7px;
 }
 

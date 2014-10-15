@@ -272,18 +272,11 @@
     ListBuilder.prototype.createTable = function(d3Selection) {
         var columns = this.columns,
             activities = this.activities,
-            container = createTable(columns, d3Selection, activities),
-            $container = $(container[0]);
-
-
-        $container.find(".fixed-table-container-inner").on("scroll", function() {
-            $container.toggleClass("shadowed", $(this).scrollTop() > 0);
-        });
+            container = createTable(columns, d3Selection, activities);
 
         container.selectAll(".th-inner").on("click", handleHeaderClick(this));
 
         this.container = container;
-        this.$container = $container;
 
         return this.container;
     };
@@ -291,11 +284,9 @@
     ListBuilder.prototype.removeTable = function() {
         if (this.container) {
             this.container.on(".click");
-            this.$container.off("scroll");
             this.container.remove();
         }
         this.container = null;
-        this.$container = null;
     };
 
     ListBuilder.prototype.getTable = function() {
