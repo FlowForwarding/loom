@@ -99,7 +99,9 @@
             .selectAll("td")
             .data(function(row) {
                 return columns.map(function (column) {
-                    return {column: column, value: row[column.property]};
+                    var renderer = column.renderer || defaultRenderer;
+
+                    return {column: column, value: renderer(row[column.property])};
                 })
             });
 
@@ -137,14 +139,14 @@
         return csvRows.join("\n");
     }
 
-    function parseActivity(activity) {
+    function parseActivity(activity, index) {
         function isOutside(endpoint) {
             return activity.Endpoints.indexOf(endpoint) < 0;
         }
 
         function createEndpoint(endpoint) {
             return {
-                activity: activity.Label,
+                activity: index + 1,
                 endpoint: endpoint,
                 internalConnections: 0,
                 externalConnections: 0,
@@ -215,6 +217,10 @@
         return new RegExp(str, "g");
     }
 
+    function defaultRenderer(value) {
+        return value;
+    }
+
     function createActivityColumns() {
         return [
             {text: "Endpoint", property: "endpoint", sort: null, filter: null},
@@ -222,7 +228,7 @@
             {text: "External", property: "externalConnections"},
             {text: "Total", property: "totalConnections", sort: DESC_DIRECTION, filter: null},
             {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null},
-            {text: "External", property: "external", sort: null, filter: null}
+//            {text: "External", property: "external", sort: null, filter: null}
         ];
     }
 
@@ -234,7 +240,8 @@
             {text: "Total", property: "totalConnections", sort: DESC_DIRECTION, filter: null},
 
 //            {text: "External", property: "external", sort: null},
-            {text: "Activity", property: "activity", sort: null, filter: null},
+            {text: "Activity", property: "activity", sort: null,
+                filter: null, renderer: function(value) {return "Activity #" + value}},
             {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null}
         ]
     }
