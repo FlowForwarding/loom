@@ -364,12 +364,41 @@ body {
     position: absolute;
     top: 0;
     line-height: 36px;
+    cursor: pointer;
+    -webkit-transform: translate3d(0, 0, 0);
 }
 
-.th-inner::before {
+.th-inner::before,
+.th-inner::after {
     content: "";
     padding: 5px;
 }
+
+.th-inner.sorted::after,
+.th-inner.sorted.desc::after {
+    width: 0;
+    height: 0;
+    content: "";
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    position: absolute;
+    top: 15px;
+    padding: 0;
+    margin-left: 10px;
+
+}
+
+.th-inner.sorted::after {
+    border-top: none;
+    border-bottom: 5px solid black;
+}
+
+
+.th-inner.sorted.desc::after {
+    border-bottom: none;
+    border-top: 5px solid black;
+}
+
 
 .th-container {
     height: 0;

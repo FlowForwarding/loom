@@ -1,4 +1,5 @@
 (function() {
+
     function createTable(columns, d3Selection, data) {
         var container = d3Selection
                 .append("div")
@@ -12,26 +13,80 @@
                 .append("table"),
 
             thead = table.append("thead"),
-            tbody = table.append("tbody"),
+            tbody = table.append("tbody");
 
-            th = thead.append("tr")
-                .selectAll("th")
-                .data(columns)
-                .enter()
-                .append("th");
+        thead.append("tr");
 
-            th.append("span")
-                .classed("th-container", true)
-                .text(function(column) { return column.text; });
-
-            th.append("div")
-                .classed("th-inner", true)
-                .text(function(column) { return column.text; });
-
-        // apply data for table body
-        updateTableBody(columns, tbody, data);
+        updateTable(table, columns, data);
 
         return container;
+    }
+
+    function sortActivities(activities, column, direction) {
+        return activities.sort(function(a1, a2) {
+            var sort = 0;
+            if (a1[column] < a2[column]) {
+                sort = -1;
+            }
+            if (a1[column] > a2[column]) {
+                sort = 1;
+            }
+            return sort*direction;
+        })
+    }
+
+    function filterActivities(activities, column, filter) {
+        var re = stringToRegex(filter);
+
+        return activities.filter(function(d) {
+            return re.test(d[column]);
+        });
+    }
+
+    function updateTable(table, columns, data) {
+        var thead = table.select("thead"),
+            tbody = table.select("tbody"),
+            currentData = data;
+
+        columns.forEach(function(column) {
+            if (column.filter) {
+                currentData = filterActivities(currentData, column.property, column.filter);
+            }
+        });
+
+        columns.forEach(function(column) {
+            if (column.sort) {
+                currentData = sortActivities(currentData, column.property, column.sort);
+            }
+        });
+
+        updateTableHeader(columns, thead);
+        updateTableBody(columns, tbody, currentData);
+    }
+
+    function updateTableHeader(columns, thead) {
+        var th = thead.select("tr")
+            .selectAll("th")
+            .data(columns),
+
+            thEnter = th.enter()
+                .append("th");
+
+        thEnter.append("span")
+            .classed("th-container", true)
+            .text(function(column) { return column.text; });
+
+        thEnter.append("div")
+            .classed("th-inner", true)
+            .text(function(column) { return column.text; });
+
+        th.selectAll(".th-inner")
+            .classed("sorted", function(d) {
+                return d.sort;
+            })
+            .classed("desc", function(d) {
+                return d.sort === DESC_DIRECTION;
+            });
     }
 
     function updateTableBody(columns, tbody, data) {
@@ -135,19 +190,8 @@
         return Array.prototype.concat.apply([], activities.map(parseActivity));
     }
 
-    function sortActivities(activities) {
-        return activities.sort(function(a1, a2) {
-            if (a1.activity < a2.activity) {
-                return -1;
-            }
-            if (a1.activity > a2.activity)
-                return 1;
-            return a2.totalConnections - a1.totalConnections;
-        })
-    }
-
     function getCommunitiesColumns(communities) {
-        return communities.length > 1 ? activitiesColumns : activityColumns;
+        return communities.length > 1 ? createActivitiesColumns() : createActivityColumns();
     }
 
     function getActivityName(communities) {
@@ -166,20 +210,34 @@
         return new RegExp(str, "g");
     }
 
-    var activityColumns = [
-            {text: "Endpoint", property: "endpoint"},
-            {text: "Connections", property: "totalConnections"},
-            {text: "Outside Connections", property: "outsideConnections"},
-            {text: "External", property: "external"}
-        ],
-        activitiesColumns = [
-            {text: "Activity", property: "activity"},
-            {text: "Endpoint", property: "endpoint"},
-            {text: "Connections", property: "totalConnections"},
-            {text: "Outside Connections", property: "outsideConnections"},
-            {text: "External", property: "external"}
-        ],
-        downloadCSV = downloadFile.bind(null, "data:text/csv;charset=utf-8,");
+    function createActivityColumns() {
+        return [
+            {text: "Endpoint", property: "endpoint", sort: null, filter: null},
+            {text: "Connections", property: "totalConnections", sort: DESC_DIRECTION, filter: null},
+            {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null},
+            {text: "External", property: "external", sort: null, filter: null}
+        ];
+    }
+
+    function createActivitiesColumns() {
+        return [
+            {text: "Activity", property: "activity", sort: null, filter: null},
+            {text: "Endpoint", property: "endpoint", sort: null, filter: null},
+            {text: "Connections", property: "totalConnections", sort: DESC_DIRECTION, filter: null},
+            {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null},
+            {text: "External", property: "external", sort: null}
+        ]
+    }
+
+    function handleHeaderClick(listBuilder) {
+        return function(data) {
+            var $el = $(this),
+                field = data.property,
+                direction = $el.hasClass("desc") ? ASC_DIRECTION : DESC_DIRECTION;
+
+            listBuilder.sortTable(field, direction);
+        }
+    }
 
     function ListBuilder(communities) {
         this.columns = getCommunitiesColumns(communities);
@@ -187,6 +245,10 @@
         this.activities = sortActivities(parseActivities(communities));
         this.container = null;
     }
+
+    var ASC_DIRECTION = 1,
+        DESC_DIRECTION = -1,
+        downloadCSV = downloadFile.bind(null, "data:text/csv;charset=utf-8,");
 
     ListBuilder.prototype.downloadCSV = function() {
         var columns = this.columns,
@@ -208,6 +270,8 @@
             $container.toggleClass("shadowed", $(this).scrollTop() > 0);
         });
 
+        container.selectAll(".th-inner").on("click", handleHeaderClick(this));
+
         this.container = container;
         this.$container = $container;
 
@@ -216,21 +280,42 @@
 
     ListBuilder.prototype.removeTable = function() {
         if (this.container) {
-            this.container.remove();
+            this.container.on(".click");
             this.$container.off("scroll");
+            this.container.remove();
         }
         this.container = null;
         this.$container = null;
     };
 
-    ListBuilder.prototype.filterTable = function(filterTerm) {
-        var tbody = this.container.select("tbody"),
-            re = stringToRegex(filterTerm),
-            data = this.activities.filter(function(d, index) {
-                return re.test(d.endpoint);
-            });
+    ListBuilder.prototype.getTable = function() {
+        return this.container.select("table");
+    }
 
-        updateTableBody(this.columns, tbody, data);
+    ListBuilder.prototype.sortTable = function(field, direction) {
+        var table = this.getTable();
+
+        this.columns.forEach(function(column) {
+            column.sort = null;
+            if (column.property === field) {
+                column.sort = direction;
+            }
+        });
+
+        updateTable(table, this.columns, this.activities);
+    }
+
+    ListBuilder.prototype.filterTable = function(filterTerm) {
+        var table = this.getTable();
+
+        this.columns.forEach(function(column) {
+            column.filter = null;
+            if (column.property === "endpoint") {
+                column.filter = filterTerm;
+            }
+        });
+
+        updateTable(table, this.columns, this.activities);
     };
 
     NCI.list = {
