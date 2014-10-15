@@ -83,8 +83,9 @@ handle_call({init, IpAddr, DatapathId, Version, Connection}, _From, #?STATE{grap
     ?INFO("add_vertex ~p, ~p",[DatapathId,AV]),
     ok = discovery(),
     {reply, ok, State};
-handle_call({connect, IpAddr, DatapathId, Version, Connection, AuxId}, _From, #?STATE{graph_name=GN} = State) ->
-%% Aux Id startup order still breaks this ........
+handle_call({connect, _IpAddr, DatapathId, _Version, _Connection, AuxId}, _From, #?STATE{graph_name=GN} = State) ->
+    %% XXX Aux Id startup order still breaks this ........
+    %% XXX Maybe check Version,IpAddr and connection with what has been stored on the init vertex....
     case dg:vertex(GN, list_to_binary(DatapathId)) of 
         {ok,{_DatapathIdBin,Labels}} ->
             AuxIDList = proplists:get_value(aux_ids, Labels),

@@ -39,7 +39,8 @@
 -type ofs_state() :: #?OFS_STATE{}.
 
 -spec init(handler_mode(), ipaddress(), datapath_id(), features(), of_version(), connection(), options()) -> {ok, ofs_state()}.
-init(Mode, IpAddr, DatapathId, Features, Version, Connection, Opts) ->
+init(Mode, IpAddr, DatapathId, _Features, Version, Connection, _Opts) ->
+    %% XXX store Features and opts as labels on vertex
     ok = net_observer_logic:ofsh_init(Mode, IpAddr, DatapathId, Version, Connection),
     {ok, #?OFS_STATE{datapath_id = DatapathId}}.
 
