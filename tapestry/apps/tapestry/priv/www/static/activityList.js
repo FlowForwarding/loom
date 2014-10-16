@@ -139,14 +139,14 @@
         return csvRows.join("\n");
     }
 
-    function parseActivity(activity, index) {
+    function parseActivity(activity, index, activities) {
         function isOutside(endpoint) {
             return activity.Endpoints.indexOf(endpoint) < 0;
         }
 
         function createEndpoint(endpoint) {
             return {
-                activity: index + 1,
+                activity: activities.length - index,
                 endpoint: endpoint,
                 internalConnections: 0,
                 externalConnections: 0,
