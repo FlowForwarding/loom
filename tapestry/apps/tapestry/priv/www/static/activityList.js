@@ -67,7 +67,7 @@
     function updateTableHeader(columns, thead) {
         var th = thead.select("tr")
             .selectAll("th")
-            .data(columns),
+            .data(columns.filter(function(d) {return !d.hidden})),
 
             thEnter = th.enter()
                 .append("th");
@@ -96,13 +96,19 @@
 
         var cells = rows.enter()
             .append("tr")
+            .classed("external-endpoint-row", function(d) {
+                return d.external;
+            })
             .selectAll("td")
             .data(function(row) {
-                return columns.map(function (column) {
+                var rowData = [];
+                columns.forEach(function (column) {
                     var renderer = column.renderer || defaultRenderer;
-
-                    return {column: column, value: renderer(row[column.property])};
-                })
+                    if (!column.hidden) {
+                        rowData.push({column: column, value: renderer(row[column.property])});
+                    }
+                });
+                return rowData;
             });
 
         cells.enter()
@@ -214,7 +220,7 @@
         str = str.replace(/\?/g, ".");
         str = str.replace(/\*/g, ".*");
 
-        return new RegExp(str, "g");
+        return new RegExp(str);
     }
 
     function defaultRenderer(value) {
@@ -228,7 +234,7 @@
             {text: "External", property: "externalConnections"},
             {text: "Total", property: "totalConnections", sort: DESC_DIRECTION, filter: null},
             {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null},
-//            {text: "External", property: "external", sort: null, filter: null}
+            {property: "external", sort: null, filter: "false", hidden: true}
         ];
     }
 
@@ -238,11 +244,10 @@
             {text: "Internal", property: "internalConnections"},
             {text: "External", property: "externalConnections"},
             {text: "Total", property: "totalConnections", sort: DESC_DIRECTION, filter: null},
-
-//            {text: "External", property: "external", sort: null},
             {text: "Activity", property: "activity", sort: null,
                 filter: null, renderer: function(value) {return "Activity #" + value}},
-            {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null}
+            {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null},
+            {property: "external", filter: "false", hidden: true}
         ]
     }
 
@@ -261,6 +266,14 @@
         this.activityName = getActivityName(communities);
         this.activities = sortActivities(parseActivities(communities));
         this.container = null;
+    }
+
+    function updateFilter(columns, property, filter) {
+        columns.forEach(function(column) {
+            if (column.property === property) {
+                column.filter = filter;
+            }
+        });
     }
 
     var ASC_DIRECTION = 1,
@@ -313,16 +326,19 @@
         updateTable(table, this.columns, this.activities);
     };
 
-    ListBuilder.prototype.filterTable = function(filterTerm) {
+    ListBuilder.prototype.filterTableByInternal = function(show) {
+        // if show == true we need to show all endpoints
+        // if show == false we need to show only internal endpoints (endpoint.external==false)
         var table = this.getTable();
 
-        this.columns.forEach(function(column) {
-            column.filter = null;
-            if (column.property === "endpoint") {
-                column.filter = filterTerm;
-            }
-        });
+        updateFilter(this.columns, "external", show ? null : "false");
+        updateTable(table, this.columns, this.activities);
+    };
 
+    ListBuilder.prototype.filterTableByEndpoint = function(filterTerm) {
+        var table = this.getTable();
+
+        updateFilter(this.columns, "endpoint", filterTerm);
         updateTable(table, this.columns, this.activities);
     };
 

@@ -410,3 +410,10 @@ body {
     box-shadow: 0 2px 14px -7px;
 }
 
+.external-endpoint-row {
+    font-style: italic;
+}
+
+.external-endpoint-row td {
+    color: darkred;
+}

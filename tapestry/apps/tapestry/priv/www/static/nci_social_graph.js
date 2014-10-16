@@ -35,8 +35,6 @@ NCI.socialGraph = function(socialGraphID, params){
     var $activitiesList = me.find(".activities-list");
     var $endpointFilter = me.find(".endpoint-filter");
 
-    var $topBar = me.find(".top-bar");
-
 	var tmpLine = undefined;
 	
 	byActivities.on('click', function(event){
@@ -50,6 +48,7 @@ NCI.socialGraph = function(socialGraphID, params){
 	showInternal.on('click', function(event){
 		isFiltered = this.checked;
 		me.show(false, false);
+        listBuilder.filterTableByInternal(isFiltered);
 	});
 
 	experimentalView.on('click', function(event){
@@ -64,7 +63,7 @@ NCI.socialGraph = function(socialGraphID, params){
     $exportList.on("click", downloadActivityList);
 
     $endpointFilter.on("keyup", function() {
-        listBuilder.filterTable($(this).val());
+        listBuilder.filterTableByEndpoint($(this).val());
     });
 
     if ($activitiesList.length > 0) {
@@ -83,7 +82,7 @@ NCI.socialGraph = function(socialGraphID, params){
 
         byActivities.parent().toggleClass("hide");
         prettyView.parent().toggleClass("hide");
-        showInternal.parent().toggleClass("hide");
+//        showInternal.parent().toggleClass("hide");
         experimentalView.parent().toggleClass("hide");
 
         $(socialGraphSelector).toggle("hide");
@@ -127,6 +126,9 @@ NCI.socialGraph = function(socialGraphID, params){
 	
 	//colorify and set radius
 	me.setupNodes = function(){
+        if (!me || !me.node) {
+            return;
+        }
 		me.node.style("fill", function(d) {
             // TODO: review d.size, since right now it's only way to 100% detect that this is Activity node
 		    if ( isFiltered && NCI.isExternal(d.name) && d.size==undefined){
