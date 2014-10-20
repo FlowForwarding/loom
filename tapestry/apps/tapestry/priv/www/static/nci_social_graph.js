@@ -198,11 +198,18 @@ NCI.socialGraph = function(socialGraphID, params){
 			me.activitiesGraphSvg.selectAll("rect").remove();
 			me.activitiesGraphSvg.selectAll("circle").remove();
 			var nodesData =  me.activitiesGraphSvg.selectAll(".node").data(graphBuilder.graph.nodes);
-			me.node = nodesData.enter().select(function(d) {
-				var type = (isExpandable && d.group == 0) ? "rect" : "circle"
-				return this.appendChild(document.createElementNS(d3.ns.prefix.svg, type));
-			}).call(force.drag);
-            nodesData.exit().remove();
+			me.node =
+                nodesData
+                    .enter()
+                    .append(function(d) {
+                        var type = (isExpandable && d.group == 0) ? "rect" : "circle"
+                        return document.createElementNS(d3.ns.prefix.svg, type);
+        			}).call(force.drag);
+
+            nodesData
+                .exit()
+                .remove();
+
 			me.setupNodes(isFiltered, isDevided, isClustered);
 			me.node.on('mouseover', function(d){
 				var soundName = NCI.MouseOverBlueSquare;
@@ -223,7 +230,9 @@ NCI.socialGraph = function(socialGraphID, params){
 				if (soundName !== undefined){
 					soundName.play();	
 				};
-				var info = d.name;
+				var info = d.label ? d.label + "</br>" : "";
+                info += d.name;
+
 				if (d.size){
 					info += "<br>size : " + d.size;
 				};
@@ -235,11 +244,12 @@ NCI.socialGraph = function(socialGraphID, params){
 					newy = newy / this.getCTM().d;
 				}
                 // TODO: calculate this values
-                var topAdjustment = -15,
-                    leftAdjustment = -50;
+                var leftAdjustment = -50;
 
-				tooltip.html(info).style("top", d.py + newy + me.position().top + topAdjustment).
-				style("left", d.px + newx + me.position().left + leftAdjustment).style("display", "inline");
+				tooltip.html(info)
+                    .style("display", "inline")
+                    .style("top", d.py + newy + me.position().top - tooltip.node().offsetHeight/2 + 5)
+                    .style("left", d.px + newx + me.position().left + leftAdjustment);
 			}).on('mouseout', function(){
 				tooltip.style("display", "none");
 			});
@@ -336,6 +346,8 @@ NCI.socialGraph = function(socialGraphID, params){
 		prettyView.prop('checked', false);
 		showInternal.prop('checked', false);
 
+        showInternal.off("click");
+
         $showGraph.off("click", toggleListView);
         $showList.off("click", toggleListView);
         $exportList.off("click", downloadActivityList)
@@ -396,7 +408,7 @@ NCI.graphBuilder = function(communities){
 	NCI.maxActivitySize = 0;
 	
 	//add community
-	thisBuilder.addCommunity = function(community, mainEndpoint, group){
+	thisBuilder.addCommunity = function(community, mainEndpoint, group, addLabel){
 		if (community.Endpoints.length > NCI.max_vertices)
 		    return	
 		var communityEndpoints = {};
@@ -410,6 +422,8 @@ NCI.graphBuilder = function(communities){
 				    communityEndpoints[ip] = {
 						fullname: endPoint,
 					    index: index,
+                        communityLabel: addLabel ?
+                            "Activity #" + (NCI.CommunityGraph.Endpoints.indexOf(endPoint) + 1) : null,
 					    external: endpoints.indexOf(endPoint) == -1,
 					    connections: 0,
 						size: size};
@@ -437,6 +451,7 @@ NCI.graphBuilder = function(communities){
 			    NCI.maxActivitySize = parseInt(endpoint.size);
 			thisBuilder.graph.nodes[endpoint.index] = {
 				name: key,
+                label: endpoint.communityLabel,
 				fullname: endpoint.fullname,
 				group: group,
 				connections: endpoint.connections,
@@ -462,9 +477,10 @@ NCI.graphBuilder = function(communities){
 		});
 		groupCount--;
 	};
-	
-	$.each(communities, function(index, community){	
-		thisBuilder.addCommunity(community, undefined, groupCount);
+
+	$.each(communities, function(index, community){
+        var addActivityLabel = community === NCI.CommunityGraph;
+		thisBuilder.addCommunity(community, undefined, groupCount, addActivityLabel);
 		groupCount++;
 	});
 };
