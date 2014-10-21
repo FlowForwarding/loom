@@ -146,8 +146,9 @@
     }
 
     function parseActivity(activity, index, activities) {
+        var endpoints = {};
         function isOutside(endpoint) {
-            return activity.Endpoints.indexOf(endpoint) < 0;
+            return endpoint in endpoints;
         }
 
         function createEndpoint(endpoint) {
@@ -166,30 +167,28 @@
             return endpoints[endpoint];
         }
 
-        var endpoints = {};
 
         activity.Endpoints.forEach(function(endpoint) {
             endpoints[endpoint] = createEndpoint(endpoint);
         });
+        function updateInteractionConnections(epA, epB) {
+            var endpoint = getEndpoint(epA),
+                outside = isOutside(epB),
+                external = NCI.isExternal(epB);
+
+            if (endpoint) {
+                if (outside) {
+                    endpoint.outsideConnections += 1;
+                }
+                endpoint[external ? "externalConnections" : "internalConnections"] += 1;
+                endpoint.totalConnections += 1;
+            }
+        }
 
         activity.Interactions.forEach(
             function(interaction) {
                 var endpointA = interaction[0],
                     endpointB = interaction[1];
-
-                function updateInteractionConnections(epA, epB) {
-                    var endpoint = getEndpoint(epA),
-                        outside = isOutside(epB),
-                        external = NCI.isExternal(epB);
-
-                    if (endpoint) {
-                        if (outside) {
-                            endpoint.outsideConnections += 1;
-                        }
-                        endpoint[external ? "externalConnections" : "internalConnections"] += 1;
-                        endpoint.totalConnections += 1;
-                    }
-                }
 
                 updateInteractionConnections(endpointA, endpointB);
                 updateInteractionConnections(endpointB, endpointA);
@@ -264,7 +263,7 @@
     function ListBuilder(communities) {
         this.columns = getCommunitiesColumns(communities);
         this.activityName = getActivityName(communities);
-        this.activities = sortActivities(parseActivities(communities));
+        this.activities = parseActivities(communities);
         this.container = null;
     }
 

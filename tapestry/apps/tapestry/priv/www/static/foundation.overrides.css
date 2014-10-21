@@ -417,3 +417,25 @@ body {
 .external-endpoint-row td {
     color: darkred;
 }
+
+
+.top-bar-light .top-bar-section li.disabled:not(.has-form) a:not(.button),
+.top-bar-section li.disabled:not(.has-form) a:not(.button) {
+    color: #808080;
+    cursor: no-drop;
+}
+
+.top-bar-section li.disabled:not(.has-form) a:not(.button):hover {
+    background: #333333;
+}
+
+.top-bar-light .top-bar-section li.disabled:not(.has-form) a:not(.button):hover {
+    background: #efefef;
+}
+
+.top-bar-light .top-bar-section li.disabled:not(.has-form) a:not(.button):hover,
+.top-bar-section li.disabled:not(.has-form) a:not(.button):hover {
+    color: #808080;
+}
+
+

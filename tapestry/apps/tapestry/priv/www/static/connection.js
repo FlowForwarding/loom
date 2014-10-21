@@ -34,7 +34,7 @@ NCI.Connection.onmessage  = function (e) {
 	
 	switch(data.action) {
 	    case "getlimits":
-			NCI.max_vertices = data.limits.max_vertices;
+//			NCI.max_vertices = data.limits.max_vertices;
 			//limits.max_vertices;
 			//limits.max_communities;
 			//limits.comm_size_limit;

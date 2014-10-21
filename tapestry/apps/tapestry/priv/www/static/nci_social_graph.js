@@ -67,27 +67,35 @@ NCI.socialGraph = function(socialGraphID, params){
     });
 
     if ($activitiesList.length > 0) {
-        $showGraph.click(toggleListView);
-        $showList.click(toggleListView);
+        $showGraph.click(function() {
+            showListView(false);
+        });
+        $showList.click(function() {
+            showListView(true);
+        });
 
         var activitiesList = d3.select($activitiesList.get(0));
         listBuilder.createTable(activitiesList);
     }
 
 
-    function toggleListView() {
-        $showList.parent().toggleClass("hide");
-        $showGraph.parent().toggleClass("hide");
-        $endpointFilter.parent().toggleClass("hide");
+    function showListView(state) {
+        // state == true to show ListView
+        // false to show graph
+        $showList.parent().toggleClass("hide", state);
 
-        byActivities.parent().toggleClass("hide");
-        prettyView.parent().toggleClass("hide");
-//        showInternal.parent().toggleClass("hide");
-        experimentalView.parent().toggleClass("hide");
+        $endpointFilter.parent().toggleClass("hide", !state);
+        $showGraph.parent().toggleClass("hide", !state);
 
-        $(socialGraphSelector).toggle("hide");
-        $(legendSelector).toggle("hide");
-        $activitiesList.toggle("hide");
+        byActivities.parent().toggleClass("hide", state);
+        prettyView.parent().toggleClass("hide", state);
+        experimentalView.parent().toggleClass("hide", state);
+
+
+        $(socialGraphSelector).toggle(!state);
+        $(legendSelector).toggle(!state);
+
+        $activitiesList.toggle(state);
 
     }
 
@@ -104,6 +112,12 @@ NCI.socialGraph = function(socialGraphID, params){
 				.attr("id", socialGraphID)
 				.html('Too many flows to draw')
 				.attr('class', 'centrate');
+
+                // if there is too many endpoints to show, disable show graph functionality
+                showListView(true);
+                $showGraph.parent().addClass("disabled");
+                $showGraph.off("click");
+
 			} else {
 			    me.draw();
 				NCI.GraphAppearsSound.currentTime = 0;
@@ -348,13 +362,17 @@ NCI.socialGraph = function(socialGraphID, params){
 
         showInternal.off("click");
 
-        $showGraph.off("click", toggleListView);
-        $showList.off("click", toggleListView);
+        $showGraph.off("click");
+        $showList.off("click");
         $exportList.off("click", downloadActivityList)
+
+        $showGraph.parent().removeClass("disabled");
 
         $endpointFilter.off("keyup");
         $endpointFilter.val("");
         listBuilder.removeTable();
+
+        showListView(false);
 	}
 	
 	me.setupLegend = function(legend_data){
