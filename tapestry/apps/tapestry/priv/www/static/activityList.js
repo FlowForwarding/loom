@@ -233,7 +233,7 @@
             {text: "External", property: "externalConnections"},
             {text: "Total", property: "totalConnections", sort: DESC_DIRECTION, filter: null},
             {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null},
-            {property: "external", sort: null, filter: "false", hidden: true}
+            {property: "external", sort: null, filter: "false", hidden: true, text: "isExternal"}
         ];
     }
 
@@ -246,7 +246,7 @@
             {text: "Activity", property: "activity", sort: null,
                 filter: null, renderer: function(value) {return "Activity #" + value}},
             {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null},
-            {property: "external", filter: "false", hidden: true}
+            {property: "external", filter: "false", hidden: true, text: "isExternal"}
         ]
     }
 
