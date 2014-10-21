@@ -357,7 +357,6 @@ body {
     top: 0;
     right: 0;
     left: 0;
-    transition: box-shadow .3s ease-out;
 }
 
 .th-inner {
@@ -404,10 +403,6 @@ body {
     height: 0;
     display: inline-block;
     overflow: hidden;
-}
-
-.header-background {
-    box-shadow: 0 2px 14px -7px;
 }
 
 .external-endpoint-row {
