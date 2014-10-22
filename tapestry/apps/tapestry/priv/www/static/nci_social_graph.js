@@ -48,7 +48,6 @@ NCI.socialGraph = function(socialGraphID, params){
 	showInternal.on('click', function(event){
 		isFiltered = this.checked;
 		me.show(false, false);
-        listBuilder.filterTableByInternal(isFiltered);
 	});
 
 	experimentalView.on('click', function(event){
@@ -73,8 +72,12 @@ NCI.socialGraph = function(socialGraphID, params){
         $showList.click(function() {
             showListView(true);
         });
+        showInternal.on('click', function(event) {
+            listBuilder.filterTableByInternal(this.checked);
+        });
 
         var activitiesList = d3.select($activitiesList.get(0));
+
         listBuilder.createTable(activitiesList);
     }
 
@@ -203,7 +206,7 @@ NCI.socialGraph = function(socialGraphID, params){
 			me.activitiesGraphSvg.selectAll("line").remove();
 			var linksData = me.activitiesGraphSvg.selectAll(".link").data(graphBuilder.graph.links);
 			me.link = linksData.enter().append("line")
-		    .attr("class", function(d){ return d.tmp ? "activities_link_tmp" : "activities_link"}); 
+		    .attr("class", function(d){ return d.tmp ? "activities_link_tmp" : "activities_link"});
 			linksData.exit().remove();
 		};
 		
@@ -269,8 +272,6 @@ NCI.socialGraph = function(socialGraphID, params){
 			});
 			if (isExpandable) {
 				me.node.on('click', function(d){
-					NCI.MouseClickActivitySound.currentTime = 0;
-					NCI.MouseClickActivitySound.play();
 					var label = d.name.split("|")[0];
 					var group = selectedDots[label];
                     d.clicked = !d.clicked;
@@ -292,11 +293,15 @@ NCI.socialGraph = function(socialGraphID, params){
 					}
 					$.each(NCI.Communities, function(index, community){
 						if (community.Label == label){
-							graphBuilder.addCommunity(community, label, selectedDots[label] );
-							setupLinks();		
-							setupNodes();
-							force.start();
-							return false;
+							var added = graphBuilder.addCommunity(community, label, selectedDots[label] );
+                            if (added !== false) {
+                                NCI.MouseClickActivitySound.currentTime = 0;
+                                NCI.MouseClickActivitySound.play();
+                            }
+                            setupLinks();
+                            setupNodes();
+                            force.start();
+                            return false;
 						}
 					});
 	 		    }).on('mousedown', function(d){
@@ -428,7 +433,7 @@ NCI.graphBuilder = function(communities){
 	//add community
 	thisBuilder.addCommunity = function(community, mainEndpoint, group, addLabel){
 		if (community.Endpoints.length > NCI.max_vertices)
-		    return	
+		    return false;
 		var communityEndpoints = {};
 		var startIndex = Object.keys(endpointsHash).length
 		var addConnection = function(endPoint, endpoints){
