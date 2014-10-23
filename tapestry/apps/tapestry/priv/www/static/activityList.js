@@ -122,11 +122,21 @@
     }
 
     function downloadFile(fileType, fileContent, fileName) {
-        $("<a>")
-            .attr("href", encodeURI(fileType + fileContent))
-            .attr("download", fileName)
-            .get(0)
-            .click();
+        var blob = new Blob([fileContent], {type: fileType}),
+            url = URL.createObjectURL(blob),
+            $a = $("<a>")
+                    .attr("href", url)
+                    .attr("download", fileName)
+                    .attr("target", "_blank");
+
+        // This timeout is to fix issue with Safari download
+        setTimeout(function() {
+            $a
+                .get(0)
+                .click();
+            // need timeout to have time to open file before we revoke it from memory
+            setTimeout(URL.revokeObjectURL.bind(URL, url), 100);
+        }, 0);
     }
 
     function createCSV(columns, data) {
@@ -277,7 +287,7 @@
 
     var ASC_DIRECTION = 1,
         DESC_DIRECTION = -1,
-        downloadCSV = downloadFile.bind(null, "data:text/csv;charset=utf-8,");
+        downloadCSV = downloadFile.bind(null, "text/csv");
 
     ListBuilder.prototype.downloadCSV = function() {
         var columns = this.columns,
