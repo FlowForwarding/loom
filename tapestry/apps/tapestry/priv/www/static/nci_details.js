@@ -13,6 +13,10 @@ NCI.setupCommunities = function(data){
 	NCI.Communities.sort(function(a, b){
 		return a.Size- b.Size;
 	});
+    var length = NCI.Communities.length;
+    NCI.Communities.forEach(function(community, index) {
+        community.Name = length - index;
+    });
 	NCI.timestampNCI = data.NCI;
 	NCI.timestamp = data.Time;
 
