@@ -115,14 +115,6 @@ pivot_communities(CommunitiesPL) ->
         end, [], CommunitiesPL).
 
 graph(Communities, Neighbors, Edges) ->
-    % XXX validation - edges are unique, neighbors are unique
-    % XXX edges are unique
-%   ?ASSERTEQUAL(lists:sort(Edges), lists:usort(Edges)),
-    % XXX edges unique in neighbors
-%   lists:foreach(
-%       fun({_Node, NeighborNodes}) ->
-%           ?ASSERTEQUAL(lists:sort(NeighborNodes), lists:usort(NeighborNodes))
-%       end, Neighbors),
     #louvain_graph{
         communities = Communities,
         neighbors = Neighbors,
@@ -214,6 +206,7 @@ propagate_communities(G, Mappings) ->
 %% repeat the partitioning until there is no significant
 %% improvement in the modularity.
 partition(GD, L) ->
+    validate_graph(GD),
     Weights = weights(GD),
     Modularity = modularity(Weights),
     {PartitionedGD, NewModularity} = one_level(GD, Weights, Modularity),
@@ -229,6 +222,7 @@ partition(GD, L) ->
         false ->
             % make a graph of the communities (communities are
             % nodes, edges weighted accordingly), and recurse.
+            validate_graph(PartitionedGD),
             CommunityGD = community_graph(PartitionedGD),
             partition(CommunityGD,
                       [graph(PartitionedGD) | L])
@@ -239,6 +233,8 @@ partition(GD, L) ->
 %% In the #louvain_graphd{}, the Communities are updated
 %% to reflect the paritioning.
 one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
+    % XXX make sure the graph is valid
+    validate_graph(GD0),
 %   {ok, FD} = file:open("/tmp/part", [append]),
 %   file:write(FD, io_lib:format("starting communities: ~p~n", [lists:sort(dict:to_list(GD0#louvain_graphd.communitiesd))])),
 %   file:write(FD, io_lib:format("edges: ~p~n", [lists:sort(dict:to_list(GD0#louvain_graphd.edgesd))])),
@@ -276,7 +272,7 @@ one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
             {(BestComm /= NodeComm) or Mods, Weights2, GD#louvain_graphd{communitiesd = dict:store(Node, BestComm, CommunitiesD)}}
         end, {false, Weights0, GD0}, GD0#louvain_graphd.neighborsd),
     % XXX recompute weights and see if they match the new weights
-    % compare_weights(NewWeights, weights(NewGD)),
+    compare_weights(NewWeights, weights(NewGD)),
     NewModularity = modularity(NewWeights),
     ?DEBUG("OneLevel Modularity: ~p -> ~p", [Modularity, NewModularity]),
 %   file:write(FD, io_lib:format("m: ~g, weights: ~p~n", [NewWeights#louvain_weights.m, dict:to_list(NewWeights#louvain_weights.weights)])),
@@ -378,7 +374,7 @@ community_graph(#louvain_graphd{communitiesd = CommunitiesD0,
 
 add_community(Node, GD = #louvain_graphd{neighborsd = NeighborsD,
                                          communitiesd = CommunitiesD}) ->
-    GD#louvain_graphd{neighborsd = dict:store(Node, [], NeighborsD),
+    GD#louvain_graphd{neighborsd = dict_init(Node, NeighborsD),
                       communitiesd = dict:store(Node, Node, CommunitiesD)}.
 
 add_edge(GD = #louvain_graphd{}, Node, NeighborNode, Weight) ->
@@ -453,6 +449,11 @@ dict_lookup(Key, Dict, Default) ->
         {ok, Value} -> Value
     end.
 
+% add Key to Dict with [] value if Key is not in Dict.  Otherwise
+% do nothing.
+dict_init(Key, Dict) ->
+    dict:update(Key, fun(Value) -> Value end, [], Dict).
+
 dict_append(Key, Value, Dict) ->
     dict:update(Key, fun(V0) -> [Value | V0] end, [Value], Dict).
 
@@ -480,9 +481,45 @@ vsort({N1,N2}) when N1 > N2 ->
 vsort({N1,N2}) ->
     {N2,N1}.
 
-validate_graph(GD = #louvain_graphd{communitiesd = CommunitiesD, edgesd = EdgesD, neighborsd = NeighborsD}) ->
+validate_graph(GD = #louvain_graphd{}) ->
+    vg_neighbors_unique(GD),
     vg_neighbors_symmetric(GD),
-    % edge in neighbors is edge in edges
+    vg_neighbor_edges(GD),
+    vg_nodes_in_community_are_neighbors(GD).
+
+vg_nodes_in_community_are_neighbors(#louvain_graphd{communitiesd = CommunitiesD, neighborsd = NeighborsD}) ->
+    % node in community is node in neighbors
+    CommunityKeys = sets:from_list(dict:fetch_keys(CommunitiesD)),
+    NeighborKeys = sets:from_list(dict:fetch_keys(NeighborsD)),
+    ?ASSERTEQUAL(true, sets:is_subset(CommunityKeys, NeighborKeys)).
+
+% neighbors to each vertex are unique, edges are unique
+vg_neighbors_unique(#louvain_graphd{neighborsd = NeighborsD}) ->
+    lists:foreach(
+        fun({_, NeighborEdgeList}) ->
+            vg_list_unique([NN || {NN, _} <- NeighborEdgeList]),
+            vg_list_unique([E || {_, E} <- NeighborEdgeList])
+        end, dict:to_list(NeighborsD)).
+
+% When N2 is a neighbor of N1, then N1 is a neighbor of N2.
+vg_neighbors_symmetric(#louvain_graphd{neighborsd = NeighborsD}) ->
+    {Left2Right, Right2Left} = dict:fold(
+        fun(Node, Neighbors, {L2R, R2L}) ->
+            {
+                % for {N, [N1, N2]} -> [{N, N1}, {N, N2}]
+                [lists:map(fun({NN1, _}) -> {Node, NN1} end, Neighbors) | L2R],
+                % for {N, [N1, N2]} -> [{N1, N}, {N2, N}]
+                [lists:map(fun({NN2, _}) -> {NN2, Node} end, Neighbors) | R2L]
+            }
+        end, {[], []}, NeighborsD),
+    % Left2Right and Right2Left lists should be the same
+    L2RSet = sets:from_list(lists:flatten(Left2Right)),
+    R2LSet = sets:from_list(lists:flatten(Right2Left)),
+    ?ASSERTEQUAL([], sets:to_list(sets:subtract(L2RSet, R2LSet))),
+    ?ASSERTEQUAL([], sets:to_list(sets:subtract(R2LSet, L2RSet))).
+
+% edge in neighbors is edge in edges
+vg_neighbor_edges(#louvain_graphd{edgesd = EdgesD, neighborsd = NeighborsD}) ->
     NeighborEdges = sets:from_list(
         dict:fold(
             fun(_, Neighbors, ES0) ->
@@ -493,26 +530,7 @@ validate_graph(GD = #louvain_graphd{communitiesd = CommunitiesD, edgesd = EdgesD
             end, [], NeighborsD)),
     Edges = sets:from_list(dict:fetch_keys(EdgesD)),
     ?ASSERTEQUAL(true, sets:is_subset(NeighborEdges, Edges) andalso
-                        sets:is_subset(Edges, NeighborEdges)),
+                        sets:is_subset(Edges, NeighborEdges)).
 
-    % node in community is node in neighbors
-    CommunityKeys = sets:from_list(dict:fetch_keys(CommunitiesD)),
-    NeighborKeys = sets:from_list(dict:fetch_keys(NeighborsD)),
-    ?ASSERTEQUAL(true, sets:is_subset(CommunityKeys, NeighborKeys)).
-
-% When N2 is a neighbor of N1, then N1 is a neighbor of N2.
-vg_neighbors_symmetric(#louvain_graphd{neighborsd = NeighborsD}) ->
-    {Left2Right, Right2Left} = dict:fold(
-        fun(Node, Neighbors, {L2R, R2L}) ->
-            {
-                % for {N, [N1, N2]} -> [{N, N1}, {N, N2}]
-                [ [{Node, NN1} || NN1 <- Neighbors] | L2R ],
-                % for {N, [N1, N2]} -> [{N1, N}, {N2, N}]
-                [ [{NN2, Node} || NN2 <- Neighbors] | R2L ]
-            }
-        end, {[], []}, NeighborsD),
-    % Left2Right and Right2Left lists should be the same
-    L2RSet = sets:from_list(lists:flatten(Left2Right)),
-    R2LSet = sets:from_list(lists:flatten(Right2Left)),
-    ?ASSERTEQUAL([], sets:to_list(sets:subtract(L2RSet, R2LSet))),
-    ?ASSERTEQUAL([], sets:to_list(sets:subtract(R2LSet, L2RSet))).
+vg_list_unique(L) ->
+    ?ASSERTEQUAL(lists:sort(L), lists:usort(L)).
