@@ -45,7 +45,7 @@ tap_data_test_() ->
         ,{"community_graph_nodes", fun community_graph_nodes/0}
         ,{"community_one", fun community_one/0}
         ,{"community_clique", fun community_clique/0}
-        ,{"partition_modularity_increase", fun partition_modularity_increase/0}
+        ,{timeout, 1000, {"partition_modularity_increase", fun partition_modularity_increase/0}}
         ,{"partition_ring_clique", fun partition_ring_clique/0}
         ,{"partition_sample_1000", fun partition_sample_1000/0}
 %       ,{timeout, 200, {"partition_sample_10000", fun partition_sample_10000/0}}
@@ -69,10 +69,10 @@ create_graph() ->
     digraph:add_vertex(G, "c"),
     digraph:add_vertex(G, "d"),
     digraph:add_vertex(G, "e"),
-    digraph:add_edge(G, "a", "b"),
-    digraph:add_edge(G, "b", "c"),
-    digraph:add_edge(G, "c", "d"),
-    digraph:add_edge(G, "b", "b"),
+    digraph_add_edge(G, "a", "b"),
+    digraph_add_edge(G, "b", "c"),
+    digraph_add_edge(G, "c", "d"),
+    digraph_add_edge(G, "b", "b"),
     {LG = #louvain_graph{}, CleanupFn} = part_louvain:graph(
                                             digraph:vertices(G),
                                             [digraph:edge(G, E) ||
@@ -103,10 +103,10 @@ weights0() ->
     digraph:add_vertex(G, "c"),
     digraph:add_vertex(G, "d"),
     digraph:add_vertex(G, "e"),
-    digraph:add_edge(G, "a", "b"),
-    digraph:add_edge(G, "b", "c"),
-    digraph:add_edge(G, "c", "d"),
-    digraph:add_edge(G, "b", "b"),
+    digraph_add_edge(G, "a", "b"),
+    digraph_add_edge(G, "b", "c"),
+    digraph_add_edge(G, "c", "d"),
+    digraph_add_edge(G, "b", "b"),
     {LG = #louvain_graph{}, CleanupFn} = part_louvain:graph(
                                             digraph:vertices(G),
                                             [digraph:edge(G, E) ||
@@ -128,10 +128,10 @@ weights1() ->
     digraph:add_vertex(G, "c"),
     digraph:add_vertex(G, "d"),
     digraph:add_vertex(G, "e"),
-    digraph:add_edge(G, "a", "b"),
-    digraph:add_edge(G, "b", "c"),
-    digraph:add_edge(G, "c", "d"),
-    digraph:add_edge(G, "b", "b"),
+    digraph_add_edge(G, "a", "b"),
+    digraph_add_edge(G, "b", "c"),
+    digraph_add_edge(G, "c", "d"),
+    digraph_add_edge(G, "b", "b"),
     {LG = #louvain_graph{}, CleanupFn} = part_louvain:graph(
                                             digraph:vertices(G),
                                             [digraph:edge(G, E) ||
@@ -250,6 +250,7 @@ community_clique() ->
 
 % Modularity increases with each layer of the dendrogram
 partition_modularity_increase() ->
+    % trace(),
     G = digraph:new(),
     {Neighbors, Edges, _Nodes} = random_graph(G, 1000, 0.01),
     Dendrogram = part_louvain:dendrogram(
@@ -315,7 +316,7 @@ random_graph(G, N, P) ->
         fun({V1, V2}) ->
             case random:uniform() < P of
                 true ->
-                    digraph:add_edge(G, {V1,V2}, V1, V2, []);
+                    digraph_add_edge(G, {V1,V2}, V1, V2, []);
                 false ->
                     ok
             end
@@ -335,7 +336,7 @@ complete_graph(G, N, Base) ->
     lists:foreach(fun(V) -> digraph:add_vertex(G, V) end, Vertices),
     lists:foreach(
         fun({V1, V2}) ->
-            digraph:add_edge(G, {V1,V2}, V1, V2, [])
+            digraph_add_edge(G, {V1,V2}, V1, V2, [])
         end, combinations2(Vertices)),
     {neighbors_from_digraph(G), edges_from_digraph(G), Vertices}.
 
@@ -394,7 +395,7 @@ roundto(V, P) ->
 link_ring(G, Nodes = [H | T]) ->
     lists:foreach(
         fun({V1, V2}) ->
-            digraph:add_edge(G, {V1,V2}, V1, V2, [])
+            digraph_add_edge(G, {V1,V2}, V1, V2, [])
         end, lists:zip(Nodes, T ++ [H])).
 
 communities_set(Communities) ->
@@ -442,8 +443,22 @@ graph_from_file_(Filename) ->
         fun({V1, V2}) ->
             digraph:add_vertex(G, V1),
             digraph:add_vertex(G, V2),
-            digraph:add_edge(G, {V1,V2}, V1, V2, [])
+            digraph_add_edge(G, {V1,V2}, V1, V2, [])
         end, UniqueEdges),
     R = graph_from_digraph(G),
     digraph:delete(G),
     R.
+
+digraph_add_edge(G, A, B) ->
+    digraph_add_edge(G, {A,B}, A, B, []).
+
+digraph_add_edge(G, E, A, B, Prop) ->
+    digraph:add_edge(G, E, A, B, Prop),
+    digraph:add_edge(G, E, B, A, Prop).
+
+trace() ->
+    dbg:start(),
+    dbg:tracer(),
+    dbg:p(all, c),
+    dbg:tpl(part_louvain, partition, []),
+    dbg:tpl(part_louvain, one_level, []).
