@@ -109,6 +109,7 @@
         var cells = rows.enter()
             .append("tr")
             .classed("external-endpoint-row", function(d) {
+                // TODO: handle this correctly
                 return d.external;
             })
             .selectAll("td")
@@ -191,10 +192,10 @@
 
         this.columns = columns;
 
-        this.container.selectAll(".th-inner").on("click", handleHeaderClick(this));
-
         this.setData(data || null);
         this._update();
+
+        this.table.selectAll(".th-inner").on("click", handleHeaderClick(this));
     }
 
     var ASC_DIRECTION = 1,
