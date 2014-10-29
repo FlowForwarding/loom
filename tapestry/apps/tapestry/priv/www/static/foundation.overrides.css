@@ -226,7 +226,7 @@ body {
 }
 
 .details-content {
-    overflow: auto;
+    overflow: hidden;
     height: 100%;
 }
 
@@ -318,7 +318,7 @@ body {
 
 .activities-list {
     padding-top: 20px;
-    padding-bottom: 50px;
+    padding-bottom: 60px;
     height: 100%;
 }
 
@@ -433,4 +433,8 @@ body {
     color: #808080;
 }
 
+.breadcrumbs {
+    margin-bottom: 3px;
+    margin-top: 5px;
+}
 

@@ -11,6 +11,7 @@
 "static/nci_details.js",
 "static/tableUI.js",
 "static/activityList.js",
+"static/endpointsView.js",
 "static/chart.js",
 "static/experemential.js",
 "static/endpoint.js"

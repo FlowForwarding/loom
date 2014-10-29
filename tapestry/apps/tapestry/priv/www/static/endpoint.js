@@ -1,5 +1,6 @@
 (function() {
-    var activities = {};
+    var activitiesMap = {},
+        endpointsMap = {};
 
     function createActivity(activity) {
         var name = activity.Name,
@@ -8,7 +9,7 @@
             interactions = activity.Interactions,
             activity = new Activity(name, mainIP, endpoints, interactions);
 
-        activities[mainIP] = activity;
+        activitiesMap[mainIP] = activity;
         return activity;
     }
 
@@ -40,11 +41,9 @@
         return ep1.activity === ep2.activity;
     }
 
-    var endpoints = {};
-
     function getOrCreateEndpoint(ip) {
-        var endpoint = endpoints[ip] || new Endpoint(ip);
-        endpoints[ip] = endpoint;
+        var endpoint = endpointsMap[ip] || new Endpoint(ip);
+        endpointsMap[ip] = endpoint;
         return endpoint;
     }
 
@@ -64,9 +63,7 @@
     }
 
     Endpoint.prototype.addConnection = function(endpoint) {
-        if (endpoint.ip in this.connections) {
-
-        } else {
+        if (!(endpoint.ip in this.connections)) {
             this.connections[endpoint.ip] = endpoint;
             this.totalConnections += 1;
             if (endpoint.external) {
@@ -81,6 +78,20 @@
         }
     };
 
-    NCI.createActivity = createActivity;
+    var endpointsList = [];
+
+    NCI.model = {
+        createActivity: createActivity,
+        parseActivities: function(activities) {
+            var activities = activities.map(createActivity);
+
+            endpointsList = Object.keys(endpointsMap).map(function(key) {return endpointsMap[key]});
+
+            return activities;
+        },
+        endpoints: function() {
+            return endpointsList;
+        }
+    }
 
 })();
