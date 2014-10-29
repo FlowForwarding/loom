@@ -1,6 +1,6 @@
 (function() {
 
-    function createTable(columns, d3Selection) {
+    function createTable(columns, d3Selection, options) {
         var container = d3Selection
                 .append("div")
                 .classed("fixed-table-container", true)
@@ -14,6 +14,32 @@
 
             thead = table.append("thead"),
             tbody = table.append("tbody");
+
+        options = options || {};
+
+        var pagesToShow = options.pagesToShow || 1,
+            itemsPerPage = options.itemsPerPage || 100;
+
+        table.datum({
+            columns: columns,
+            pagesToShow: pagesToShow,
+            itemsPerPage: itemsPerPage,
+            data: []
+        });
+
+        table.append("tfoot")
+            .append("tr")
+            .append("td")
+            .attr("colspan", columns.length)
+            .html('<a href="#">Show next ' + itemsPerPage + ' records</a>')
+            .on("click", function() {
+                var config = table.datum();
+
+                config.pagesToShow += 1;
+                table.datum(config);
+
+                updateTable(table, config.columns, config.data);
+            });
 
         thead.append("tr");
 
@@ -43,23 +69,51 @@
 
     function updateTable(table, columns, data) {
         var thead = table.select("thead"),
-            tbody = table.select("tbody"),
-            currentData = data;
+            tfoot = table.select("tfoot"),
+            currentData = data,
+            config = table.datum(),
+            pagesToShow,
+            itemsPerPage = config.itemsPerPage,
+            chunks = [],
+            totalChunks,
+            nextText = "Show next " + itemsPerPage + " rows. ";
 
-        columns.forEach(function(column) {
-            if (column.filter) {
-                currentData = filterData(currentData, column.property, column.filter);
-            }
-        });
+        if (config.data!==data) {
+            config.pagesToShow = 1;
+        }
 
-        columns.forEach(function(column) {
-            if (column.sort) {
-                currentData = sortData(currentData, column.property, column.sort);
-            }
-        });
+        pagesToShow = config.pagesToShow;
+
+        for (var i=0; i < pagesToShow; i++) {
+            chunks.push(currentData.slice(i*itemsPerPage, (i + 1)*itemsPerPage));
+        }
+
+        totalChunks = Math.ceil(data.length/itemsPerPage);
+
+        config.data = data;
+        table.datum(config);
+
+        nextText += (data.length - pagesToShow*itemsPerPage) + " left";
+
+        if (totalChunks - 1 == pagesToShow) {
+            nextText = "Show last " + data.length%itemsPerPage + " rows";
+        }
+
+        tfoot.select("a")
+            .text(nextText);
+
+        tfoot.classed("hide", totalChunks==pagesToShow);
 
         updateTableHeader(columns, thead);
-        updateTableBody(columns, tbody, currentData);
+
+        table.on(".click");
+
+        updateTableBody(columns, table, chunks);
+
+        table.selectAll("tbody").selectAll("tr")
+            .on("click", function(d) {
+                $(table.node).trigger("rowClick", d);
+            });
     }
 
     function updateTableHeader(columns, thead) {
@@ -100,11 +154,20 @@
         return property;
     }
 
-    function updateTableBody(columns, tbody, data) {
+    function updateTableBody(columns, table, dataChunks) {
         var idProperty = getIdProperty(columns),
-            rows = tbody.selectAll("tr")
-            .data(data, function(d) {return d[idProperty]});
+            chunks = table.selectAll("tbody")
+                .data(dataChunks),
+            chunksEnter = chunks.enter()
+                .insert("tbody", "tfoot"),
 
+            rows = chunks.selectAll("tr")
+                .data(function(chunk) {
+                    return chunk;
+                }, function(d) {return d[idProperty]});
+
+        chunks.exit()
+            .remove()
 
         var cells = rows.enter()
             .append("tr")
@@ -175,8 +238,18 @@
  *     {text: "Internal", property: "internalConnections"},
  *     {text: "External", property: "externalConnections"},
  *     {text: "Total", property: "totalConnections", sort: DESC_DIRECTION, filter: null},
- *     {text: "Activity", property: "activity", sort: null,
- *                        filter: null, renderer: function(value) {return "Activity #" + value}},
+ *     {
+ *          text: "Activity",
+ *          property: "activity",
+ *          sort: null,
+ *          filter: null,
+ *          sortFn: function(value1, value2) {
+ *              return value1.name - value2.name
+ *          },
+ *          renderer: function(value) {
+ *              return "Activity #" + value
+ *          }
+ *     },
  *     {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null},
  *     {property: "external", filter: "false", hidden: true, text: "isExternal"}
  * ]
@@ -190,10 +263,15 @@
         this.container = createTable(columns, container);
         this.table = getTable(this.container);
 
+        var $me = $(this);
+
+        $(this.table.node).on("rowClick", function(event, data) {
+            $me.trigger("click", data);
+        });
+
         this.columns = columns;
 
         this.setData(data || null);
-        this._update();
 
         this.table.selectAll(".th-inner").on("click", handleHeaderClick(this));
     }
@@ -206,18 +284,32 @@
 
     Table.prototype.setData = function(data) {
         this.data = data;
-
         this._update();
     };
 
-    Table.prototype.filter = function(field, filter) {
 
+    Table.prototype.filter = function(field, filter) {
         updateFilter(this.columns, field, filter);
         this._update();
     };
 
     Table.prototype._update = function() {
-        updateTable(this.table, this.columns, this.data);
+        var currentData = this.data.slice(),
+            columns = this.columns;
+
+        columns.forEach(function(column) {
+            if (column.filter) {
+                currentData = filterData(currentData, column.property, column.filter);
+            }
+        });
+
+        columns.forEach(function(column) {
+            if (column.sort) {
+                currentData = sortData(currentData, column.property, column.sort);
+            }
+        });
+
+        updateTable(this.table, this.columns, currentData);
     };
 
     Table.prototype.sort = function(field, direction) {
