@@ -149,6 +149,7 @@ modularity(#louvain_weights{m = M, weights = WeightsD}) ->
     dict:fold(
         fun(_, {AW, CW}, Modularity) ->
             Modularity + CW/M -
+            % XXX make x * x
             math:pow(AW/(M * 2.0), 2)
         end, 0, WeightsD).
 
@@ -235,51 +236,63 @@ partition(GD, L) ->
 one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
     % XXX make sure the graph is valid
     validate_graph(GD0),
-%   {ok, FD} = file:open("/tmp/part", [append]),
-%   file:write(FD, io_lib:format("starting communities: ~p~n", [lists:sort(dict:to_list(GD0#louvain_graphd.communitiesd))])),
-%   file:write(FD, io_lib:format("edges: ~p~n", [lists:sort(dict:to_list(GD0#louvain_graphd.edgesd))])),
-%   file:write(FD, io_lib:format("weights: ~p~n", [dict:to_list(Weights0#louvain_weights.weights)])),
-    {Modified, NewWeights, NewGD} = dict:fold(
-        fun(Node, NodeNeighbors, {Mods, Weights, GD}) ->
-            CommunitiesD = GD#louvain_graphd.communitiesd,
+    EdgesD = GD0#louvain_graphd.edgesd,
+    {Modified, NewWeights, NewCommunitiesD} = dict:fold(
+        fun(Node, NodeNeighbors, {Mods, Weights, CommunitiesD}) ->
             NodeComm = dict_lookup(Node, CommunitiesD),
             {NodeDegree, NeighborCommWeightsD} =
-                        neighboring_community_weights(Node, NodeNeighbors, GD),
-%           file:write(FD, io_lib:format("node: ~p comm weights: ~p~n", [Node, dict:to_list(NeighborCommWeightsD)])),
+                        neighboring_community_weights(Node,
+                                                      NodeNeighbors,
+                                                      EdgesD,
+                                                      CommunitiesD),
             LookupCommWeight = fun(Comm) ->
                                    dict_lookup(Comm, NeighborCommWeightsD, 0.0)
                                end,
+            % 2k(i)sum(tot)/2m
+            %  k(i) === NodeDegree
+            %  sum(tot) === CommunityAllDegree
             DegCTotW = NodeDegree / (Weights#louvain_weights.m * 2.0),
-%           file:write(FD, io_lib:format("remove node comm: ~p degree ~p comm weight ~p~n", [NodeComm, NodeDegree, LookupCommWeight(NodeComm)])),
-            Weights1 = remove_node(NodeComm, NodeDegree, LookupCommWeight(NodeComm), Weights),
-%           file:write(FD, io_lib:format("weights after remove: ~p~n", [dict:to_list(Weights1#louvain_weights.weights)])),
+            Weights1 = remove_node(NodeComm,
+                                   NodeDegree,
+                                   LookupCommWeight(NodeComm),
+                                   Weights),
+            % test node in each neighboring community and find the
+            % community that gives the best modularity gain
             {BestComm, _} = dict:fold(
                 fun(Community,
-                    CommunityWeight,
-                    {TopCommunity, TopModularityGain}) ->
-                    {CommunityDegree, _} = dict_lookup(Community, Weights1#louvain_weights.weights, {0,0}),
-                    ModularityGain = CommunityWeight - CommunityDegree * DegCTotW,
+                        CommunityWeight,
+                        {TopCommunity, TopModularityGain}) ->
+                    {CommunityDegree, _} =
+                        dict_lookup(Community,
+                                    Weights1#louvain_weights.weights,
+                                    {0,0}),
+                    % XXX modualarity gain needs another 2m in the denominator
+                    ModularityGain =
+                                CommunityWeight - CommunityDegree * DegCTotW,
                     case ModularityGain > TopModularityGain of
                         true -> {Community, ModularityGain};
                         false -> {TopCommunity, TopModularityGain}
                     end
                 end, {NodeComm, 0.0}, NeighborCommWeightsD),
-%           file:write(FD, io_lib:format("add node comm: ~p degree ~p comm weight ~p~n", [BestComm, NodeDegree, LookupCommWeight(BestComm)])),
-            Weights2 = add_node(BestComm, NodeDegree, LookupCommWeight(BestComm), Weights1),
-            % XXX
-%           file:write(FD, io_lib:format("weights after add: ~p~n", [dict:to_list(Weights2#louvain_weights.weights)])),
-%           file:write(FD, io_lib:format("node: ~p comm: ~p -> ~p~n", [Node, NodeComm, BestComm])),
-            {(BestComm /= NodeComm) or Mods, Weights2, GD#louvain_graphd{communitiesd = dict:store(Node, BestComm, CommunitiesD)}}
-        end, {false, Weights0, GD0}, GD0#louvain_graphd.neighborsd),
+            Weights2 = add_node(BestComm,
+                                NodeDegree,
+                                LookupCommWeight(BestComm),
+                                Weights1),
+% XXX check weights
+
+            {(BestComm /= NodeComm) or Mods,
+             Weights2,
+             dict:store(Node, BestComm, CommunitiesD)}
+        end,
+        {false, Weights0, GD0#louvain_graphd.communitiesd},
+        GD0#louvain_graphd.neighborsd),
+        NewGD = GD0#louvain_graphd{communitiesd = NewCommunitiesD},
+
     % XXX recompute weights and see if they match the new weights
     compare_weights(NewWeights, weights(NewGD)),
+
     NewModularity = modularity(NewWeights),
     ?DEBUG("OneLevel Modularity: ~p -> ~p", [Modularity, NewModularity]),
-%   file:write(FD, io_lib:format("m: ~g, weights: ~p~n", [NewWeights#louvain_weights.m, dict:to_list(NewWeights#louvain_weights.weights)])),
-%   file:write(FD, io_lib:format("weight sums: ~p~n", [dict:fold(fun(_, {A, B}, {SA, SB}) -> {A + SA, B + SB} end, {0.0,0.0}, NewWeights#louvain_weights.weights)])),
-%   file:write(FD, io_lib:format("modularity old: ~g, new ~g, modified: ~p~n", [Modularity, NewModularity, Modified])),
-%   file:write(FD, io_lib:format("ending communities: ~p~n", [lists:sort(dict:to_list(NewGD#louvain_graphd.communitiesd))])),
-%   file:close(FD),
     % stop if the communities didn't change, or the modularity did not
     % increase by very much, or (due to a buggy implementation) the
     % modularity is more than 1.0.
@@ -295,6 +308,8 @@ one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
             one_level(NewGD, NewWeights, NewModularity)
     end.
 
+% Remove 2*CommWeight when edge is copmletely in the community
+% self edges are not doubled
 remove_node(NodeComm, NodeDegree, CommWeight, Weights = #louvain_weights{}) ->
     Weights#louvain_weights{weights = dict:update(
         NodeComm,
@@ -302,6 +317,8 @@ remove_node(NodeComm, NodeDegree, CommWeight, Weights = #louvain_weights{}) ->
             {AllDegree - NodeDegree, InDegree - CommWeight}
         end, {-NodeDegree, -CommWeight}, Weights#louvain_weights.weights)}.
 
+% Add 2*CommWeight
+% self edges are not doubled
 add_node(NodeComm, NodeDegree, CommWeight, Weights) ->
     Weights#louvain_weights{weights = dict:update(
         NodeComm,
@@ -318,19 +335,19 @@ compare_weights(WA, WB) ->
 % weight of all edges to neighbors, and weights to neighboring communities.
 % weights to neighboring communities exclude Node
 % {NodeDegree, dict: community -> weight to community
-neighboring_community_weights(Node, NodeNeighbors, GD) ->
+neighboring_community_weights(Node, NodeNeighbors, EdgesD, CommunitiesD) ->
     lists:foldl(
         fun({NeighborNode, EdgeId}, {Sum, WeightsD}) ->
             case Node == NeighborNode of
                 false ->
                     EdgeWeight =
-                            dict_lookup(EdgeId, GD#louvain_graphd.edgesd, 1.0),
-                    NeighborComm = dict_lookup(NeighborNode,
-                                                GD#louvain_graphd.communitiesd),
+                            dict_lookup(EdgeId, EdgesD, 1.0),
+                    NeighborComm = dict_lookup(NeighborNode, CommunitiesD),
                     NewWeightsD = 
                         dict:update_counter(NeighborComm, EdgeWeight, WeightsD),
                     {Sum + EdgeWeight, NewWeightsD};
                 true ->
+                    % XXX Sum + 2*EdgeWeight, WeightsD += for community
                     {Sum, WeightsD}
             end
         end, {0.0, dict:new()}, NodeNeighbors).
