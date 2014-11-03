@@ -29,6 +29,7 @@ NCI.socialGraph = function(socialGraphID, params){
 	var showInternal = me.find('.internal');
 	var experimentalView = me.find('.experimental');
 
+    var $showOutside = me.find('.outside');
     var $showList = me.find('.show-list');
     var $exportList = me.find('.export-list');
     var $showGraph = me.find('.show-graph');
@@ -54,6 +55,12 @@ NCI.socialGraph = function(socialGraphID, params){
 	    var experementialGraph = new NCI.experementialGraph();
 		me.clean();
 	});
+
+    $showOutside.on("click", function() {
+        var showOutside = this.checked;
+        graphBuilder = new NCI.graphBuilder(communities, showOutside);
+        me.show(true, prettyView.prop("checked"));
+    });
 
     function downloadActivityList() {
         listBuilder.downloadCSV();
@@ -93,6 +100,8 @@ NCI.socialGraph = function(socialGraphID, params){
         byActivities.parent().toggleClass("hide", state);
         prettyView.parent().toggleClass("hide", state);
         experimentalView.parent().toggleClass("hide", state);
+
+        $showOutside.parent().toggleClass("hide", state);
 
 
         $(socialGraphSelector).toggle(!state);
@@ -367,6 +376,9 @@ NCI.socialGraph = function(socialGraphID, params){
 
         showInternal.off("click");
 
+        $showOutside.prop("checked", false);
+        $showOutside.off("click");
+
         $showGraph.off("click");
         $showList.off("click");
         $exportList.off("click", downloadActivityList)
@@ -423,7 +435,7 @@ NCI.socialGraph = function(socialGraphID, params){
 	return me;
 };
 
-NCI.graphBuilder = function(communities){
+NCI.graphBuilder = function(communities, includeOutside){
 	var thisBuilder = this;
 	var endpointsHash = {};
 	var groupCount = 0;
@@ -447,7 +459,7 @@ NCI.graphBuilder = function(communities){
 					    index: index,
                         communityLabel: addLabel ?
                             "Activity #" + (NCI.CommunityGraph.Endpoints.indexOf(endPoint) + 1) : null,
-					    external: endpoints.indexOf(endPoint) == -1,
+					    external: isOutside(endPoint),
 					    connections: 0,
 						size: size};
 			    };
@@ -458,12 +470,19 @@ NCI.graphBuilder = function(communities){
 		    	return endpointsHash[ip].index;
 		    }
 		};
+
+        function isOutside(endpoint) {
+            return community.Endpoints.indexOf(endpoint) == -1;
+        }
 		
 		$.each(community.Interactions, function(index, interacton){
-			thisBuilder.graph.links.push({
-				source: addConnection(interacton[0], community.Endpoints),
-				target: addConnection(interacton[1], community.Endpoints),
-				value: 1});
+            if (includeOutside || !(isOutside(interacton[0]) || isOutside(interacton[1]))) {
+                thisBuilder.graph.links.push({
+                    source: addConnection(interacton[0], community.Endpoints),
+                    target: addConnection(interacton[1], community.Endpoints),
+                    value: 1
+                });
+            }
 		});
 		
 		$.each(Object.keys(communityEndpoints), function(index, key){
