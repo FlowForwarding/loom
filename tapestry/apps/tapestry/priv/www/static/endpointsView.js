@@ -2,10 +2,23 @@
 
     var columns = [
         {text: "Endpoint", property: "ip", sort: null, filter: null},
-//        {text: "Activity", property: "activity", sort: null, filter: null, renderer: function(activity) {
-//            return activity ? "Activity #" + activity.name : "Activity not loaded";
-//        }},
+        {text: "Internal", property: "internalConnections"},
+        {text: "External", property: "externalConnections"},
         {text: "Total", property: "totalConnections", sort: NCI.Table.DESC_DIRECTION, filter: null},
+        {
+            text: "Activity",
+            property: "activity",
+            sort: null,
+            filter: null,
+            renderer: function(activity) {
+                return activity ? "Activity #" + activity.index : "Activity not loaded";
+            },
+            sortFn: function(activity1, activity2) {
+                return activity2.index - activity1.index;
+            }
+        },
+//        {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null},
+        {property: "external", filter: "false", hidden: true, text: "isExternal"}
     ];
 
 

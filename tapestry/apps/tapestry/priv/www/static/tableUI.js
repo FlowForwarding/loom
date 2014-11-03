@@ -46,17 +46,21 @@
         return container;
     }
 
-    function sortData(data, column, direction) {
+    function sortData(data, column, direction, sortFn) {
         return data.sort(function(a1, a2) {
-            var sort = 0;
-            if (a1[column] < a2[column]) {
-                sort = -1;
-            }
-            if (a1[column] > a2[column]) {
-                sort = 1;
-            }
-            return sort*direction;
+            return sortFn(a1[column], a2[column])*direction;
         })
+    }
+
+    function defaultSortFn(v1, v2) {
+        var sort = 0;
+        if (v1 < v2) {
+            sort = -1;
+        }
+        if (v1 > v2) {
+            sort = 1;
+        }
+        return sort;
     }
 
     function filterData(data, column, filter) {
@@ -304,8 +308,9 @@
         });
 
         columns.forEach(function(column) {
+            var sortFn = column.sortFn || defaultSortFn;
             if (column.sort) {
-                currentData = sortData(currentData, column.property, column.sort);
+                currentData = sortData(currentData, column.property, column.sort, sortFn);
             }
         });
 

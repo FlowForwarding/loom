@@ -3,18 +3,18 @@
         endpointsMap = {};
 
     function createActivity(activity) {
-        var name = activity.Name,
+        var index = activity.NameIndex,
             mainIP = activity.Label,
             endpoints = activity.Endpoints,
             interactions = activity.Interactions,
-            activity = new Activity(name, mainIP, endpoints, interactions);
+            activity = new Activity(index, mainIP, endpoints, interactions);
 
         activitiesMap[mainIP] = activity;
         return activity;
     }
 
-    function Activity(name, mainEndpointIP, endpoints, interactions) {
-        this.name = name;
+    function Activity(index, mainEndpointIP, endpoints, interactions) {
+        this.index = index;
         this.size = 0;
         this.mainEndpoint = getOrCreateEndpoint(mainEndpointIP);
         this.endpoints = {};

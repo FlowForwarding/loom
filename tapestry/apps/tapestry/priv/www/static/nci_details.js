@@ -15,7 +15,7 @@ NCI.setupCommunities = function(data){
 	});
     var length = NCI.Communities.length;
     NCI.Communities.forEach(function(community, index) {
-        community.Name = length - index;
+        community.NameIndex = length - index;
     });
 	NCI.timestampNCI = data.NCI;
 	NCI.timestamp = data.Time;
