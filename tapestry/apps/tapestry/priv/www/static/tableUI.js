@@ -116,7 +116,7 @@
 
         table.selectAll("tbody").selectAll("tr")
             .on("click", function(d) {
-                $(table.node).trigger("rowClick", d);
+                $(table.node()).trigger("rowClick", d);
             });
     }
 
@@ -269,7 +269,7 @@
 
         var $me = $(this);
 
-        $(this.table.node).on("rowClick", function(event, data) {
+        $(this.table.node()).on("rowClick", function(event, data) {
             $me.trigger("click", data);
         });
 
