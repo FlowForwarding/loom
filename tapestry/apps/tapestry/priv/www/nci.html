@@ -213,38 +213,57 @@
                             </section>
                         </div>
                         <div class="content" id="panelEndpoints">
-                            <!--<nav class="top-bar top-bar-light" data-topbar role="navigation">-->
-                                <!--<section class="top-bar-section">-->
-                                    <!--<ul class="left">-->
-                                        <!--<li>-->
-                                            <!--<a class="show-list" href="#">Show endpoints</a>-->
-                                        <!--</li>-->
-                                        <!--<li class="hide">-->
-                                            <!--<a class="show-graph" href="#">Show flows</a>-->
-                                        <!--</li>-->
+                            <nav class="top-bar top-bar-light" data-topbar role="navigation">
+                                <section class="top-bar-section">
+                                    <ul class="left">
+                                        <li>
+                                            <a class="show-histogram" href="#">Histogram</a>
+                                        </li>
+                                        <li>
+                                            <a class="show-table" href="#">Table</a>
+                                        </li>
+                                        <li class="has-dropdown endpoint-sort">
+                                            <a href="#">Sort by</a>
+                                            <ul class="dropdown">
+                                                <li data-sort-field="internalConnections" class="has-dropdown"><a href="#">Internal</a>
+                                                    <ul class="dropdown">
+                                                        <li data-sort-direction="asc"><a href="#">ASC</a></li>
+                                                        <li data-sort-direction="desc"><a href="#">DESC</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li data-sort-field="externalConnections" class="has-dropdown"><a href="#">External</a>
+                                                    <ul class="dropdown">
+                                                        <li data-sort-direction="asc"><a href="#">ASC</a></li>
+                                                        <li data-sort-direction="desc"><a href="#">DESC</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li data-sort-field="totalConnections" class="has-dropdown"><a href="#">Total</a>
+                                                    <ul class="dropdown">
+                                                        <li data-sort-direction="asc"><a href="#">ASC</a></li>
+                                                        <li data-sort-direction="desc"><a href="#">DESC</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
                                         <!--<li class="has-form">-->
                                             <!--<a class="button radius small export-list" href="#">Export to CSV</a>-->
                                         <!--</li>-->
-                                        <!--<li class="has-form hide">-->
+                                        <!--<li class="has-form">-->
                                             <!--<input class="endpoint-filter" type="text" />-->
                                         <!--</li>-->
                                         <!--<li class="has-form">-->
                                             <!--<input id="panelEndpoints-internal" type="checkbox" class="internal" />-->
                                             <!--<label for="panelEndpoints-internal"> External Endpoints </label>-->
                                         <!--</li>-->
-                                    <!--</ul>-->
-                                <!--</section>-->
-                            <!--</nav>-->
+                                    </ul>
+                                </section>
+                            </nav>
                             <section class="details-content">
-                                <!--<div class="socialGraph" style=""></div>-->
                                 <div class="breadcrumbs-container row">
                                     <ul class="breadcrumbs">
-                                        <!--<li><a href="#">Home</a></li>-->
-                                        <!--<li><a href="#">Features</a></li>-->
-                                        <!--<li class="unavailable"><a href="#">Gene Splicing</a></li>-->
-                                        <!--<li class="current"><a href="#">Cloning</a></li>-->
                                     </ul>
                                 </div>
+                                <div class="endpoints-histogram" style=""></div>
                                 <div class="activities-list row"></div>
                             </section>
                         </div>
