@@ -26,6 +26,10 @@
         NCI.model.parseActivities(NCI.Communities);
 
         var container = $container.get(0),
+            $histogramView = $container.find(".show-histogram"),
+            $tableView = $container.find(".show-table"),
+            $endpointSortMenu = $container.find(".endpoint-sort"),
+            $prevSort = $(),
             endpoints = sortEndpoints(NCI.model.endpoints(), "totalConnections", "desc"),
             d3Container = d3.select(container),
             activitiesListContainer = d3Container.select(".activities-list"),
@@ -36,10 +40,7 @@
                 name: "All Endpoints",
                 endpoints: endpoints
             },
-            breadcrumbsData = [topHundred],
-            $histogramView = $container.find(".show-histogram"),
-            $tableView = $container.find(".show-table"),
-            $endpointSortMenu = $container.find(".endpoint-sort");
+            breadcrumbsData = [topHundred];
 
 
         $histogramView.on("click", function() {
@@ -57,6 +58,12 @@
         });
 
         function sortEndpoints(endpoints, field, direction) {
+            var $fieldItem = $endpointSortMenu.find("[data-sort-field=" + field + "] [data-sort-direction=" + direction + "]");
+            triggerActive($prevSort, false);
+            triggerActive($fieldItem, true);
+
+            $prevSort = $fieldItem;
+
             direction = direction === "desc" ? -1 : 1;
             return endpoints.sort(function(item1, item2) {
                 var res = (item1[field] - item2[field])*direction;
@@ -72,9 +79,6 @@
             $el.toggleClass("active", shouldSet);
         }
 
-        var $prevSort = $endpointSortMenu.find("[data-sort-field=totalConnections] [data-sort-direction=desc]");
-        triggerActive($prevSort, true);
-
         $endpointSortMenu.on("click", "[data-sort-direction]", function() {
             var $el = $(this),
                 sortDirection = $el.data("sortDirection"),
@@ -84,13 +88,7 @@
                     Object.keys(endpoint.connections).map(function(key) {return endpoint.connections[key]}) :
                     endpoints;
 
-            triggerActive($prevSort, false);
-            triggerActive($el, true);
-
-            $prevSort = $el;
-
             currentData = sortEndpoints(currentData, sortField, sortDirection);
-            console.log("sorted?");
             setEndpoints(currentData);
         });
 
@@ -153,7 +151,7 @@
             }
 
             updateBreadcrumbs();
-            setEndpoints(endpoints);
+            setEndpoints(sortEndpoints(endpoints, "totalConnections", "desc"));
 
         }
 
