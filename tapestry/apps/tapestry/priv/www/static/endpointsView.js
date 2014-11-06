@@ -18,7 +18,7 @@
             }
         },
 //        {text: "Outside Connections", property: "outsideConnections", sort: null, filter: null},
-        {property: "external", filter: "false", hidden: true, text: "isExternal"}
+        {property: "external", filter: null, hidden: false, text: "isExternal"}
     ];
 
 
