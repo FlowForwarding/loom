@@ -48,6 +48,7 @@
             $tableView.show();
             $(activitiesListContainer.node()).hide();
             $(endpointsHistogramContainer.node()).show();
+            $endpointSortMenu.show();
         });
 
         $tableView.on("click", function() {
@@ -55,6 +56,7 @@
             $histogramView.show();
             $(activitiesListContainer.node()).show();
             $(endpointsHistogramContainer.node()).hide();
+            $endpointSortMenu.hide();
         });
 
         function sortEndpoints(endpoints, field, direction) {
