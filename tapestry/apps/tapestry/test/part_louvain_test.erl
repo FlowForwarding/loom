@@ -45,8 +45,10 @@ tap_data_test_() ->
         ,{"community_graph_nodes", fun community_graph_nodes/0}
         ,{"community_one", fun community_one/0}
         ,{"community_clique", fun community_clique/0}
-        ,{timeout, 1000, {"partition_modularity_increase", fun partition_modularity_increase/0}}
-        ,{"partition_ring_clique", fun partition_ring_clique/0}
+        ,{"simple1", fun simple1/0}
+        ,{"cgsimple1", fun cgsimple1/0}
+        ,{timeout, 1000, {"partition_ring_clique", fun partition_ring_clique/0}}
+        ,{timeout, 2000, {"partition_modularity_increase", fun partition_modularity_increase/0}}
         ,{"partition_sample_1000", fun partition_sample_1000/0}
 %       ,{timeout, 200, {"partition_sample_10000", fun partition_sample_10000/0}}
 %       ,{timeout, 1000, {"partition_sample_100000", fun partition_sample_100000/0}}
@@ -115,10 +117,10 @@ weights0() ->
     % sum of weights per node is 2*M
     ?assertEqual(4.0, M),
     ?assertEqual(8.0, dict:fold(fun(_, {AW,_}, T) -> AW + T end, 0, WeightsD)),
-    ?assertEqual({1.0,0}, dict:fetch("a", WeightsD)),
-    ?assertEqual({4.0,1.0}, dict:fetch("b", WeightsD)),
-    ?assertEqual({2.0,0}, dict:fetch("c", WeightsD)),
-    ?assertEqual({1.0,0}, dict:fetch("d", WeightsD)),
+    ?assertEqual({1.0,0.0}, dict:fetch("a", WeightsD)),
+    ?assertEqual({4.0,2.0}, dict:fetch("b", WeightsD)),
+    ?assertEqual({2.0,0.0}, dict:fetch("c", WeightsD)),
+    ?assertEqual({1.0,0.0}, dict:fetch("d", WeightsD)),
     CleanupFn(LG).
 
 weights1() ->
@@ -141,7 +143,7 @@ weights1() ->
     % sum of weights per node is 2*M
     ?assertEqual(4.0, M),
     ?assertEqual(8.0, dict:fold(fun(_, {AW,_}, T) -> AW + T end, 0, WeightsD)),
-    ?assertEqual(4.0, dict:fold(fun(_, {_,CW}, T) -> CW + T end, 0, WeightsD)),
+    ?assertEqual(8.0, dict:fold(fun(_, {_,CW}, T) -> CW + T end, 0, WeightsD)),
     CleanupFn(LG).
 
 %%------------------------------------------------------------------------------
@@ -248,22 +250,53 @@ community_clique() ->
         end, GC#louvain_graph.edges),
     digraph:delete(G).
 
-% Modularity increases with each layer of the dendrogram
-partition_modularity_increase() ->
-    % trace(),
+simple1() ->
     G = digraph:new(),
-    {Neighbors, Edges, _Nodes} = random_graph(G, 1000, 0.01),
-    Dendrogram = part_louvain:dendrogram(
-                                part_louvain:graph([], Neighbors, Edges)),
-    digraph:delete(G),
-    LGs = Dendrogram#louvain_dendrogram.louvain_graphs,
-    ?assert(length(LGs) > 0),
-    lists:foldl(
-        fun(LG, LastModularity) ->
-            Modularity = part_louvain:modularity(LG),
-            ?assert(Modularity > LastModularity),
-            Modularity
-        end, -1.0, lists:reverse(LGs)).
+    digraph:add_vertex(G, "a"),
+    digraph:add_vertex(G, "b"),
+    digraph:add_vertex(G, "c"),
+    digraph:add_vertex(G, "d"),
+    digraph_add_edge(G, "a", "b"),
+    digraph_add_edge(G, "c", "d"),
+    {LG = #louvain_graph{}, CleanupFn} = part_louvain:graph(
+                                            digraph:vertices(G),
+                                            [digraph:edge(G, E) ||
+                                                E <- digraph:edges(G)]),
+    Dendrogram = part_louvain:dendrogram(LG),
+    % XXX two communities
+    CleanupFn(LG).
+
+cgsimple1() ->
+    G = digraph:new(),
+    digraph:add_vertex(G, "a"),
+    digraph:add_vertex(G, "b"),
+    digraph:add_vertex(G, "c"),
+    digraph:add_vertex(G, "d"),
+    digraph:add_vertex(G, "e"),
+    digraph:add_vertex(G, "f"),
+    digraph_add_edge(G, "a", "b"),
+    digraph_add_edge(G, "c", "d"),
+    digraph_add_edge(G, "e", "f"),
+    digraph_add_edge(G, "a", "e"),
+    digraph_add_edge(G, "a", "f"),
+    {LG = #louvain_graph{}, CleanupFn} = part_louvain:graph(
+                                            digraph:vertices(G),
+                                            [digraph:edge(G, E) ||
+                                                E <- digraph:edges(G)]),
+    LGC = LG#louvain_graph{communities = [
+                    {"a","AB"},
+                    {"b","AB"},
+                    {"c","CD"},
+                    {"d","CD"},
+                    {"e","EF"},
+                    {"f","EF"}
+                ]},
+    CG = community_graph(LGC),
+    ?debugFmt("~p", [CG]),
+    W = part_louvain:weights(part_louvain:graphd(CG)),
+    ?debugFmt("~p", [W]),
+    Dendrogram = part_louvain:dendrogram(LGC),
+    CleanupFn(LG).
 
 partition_ring_clique() ->
     G = digraph:new(),
@@ -281,6 +314,24 @@ partition_ring_clique() ->
                     ?assertEqual(Community div 1000, Node div 1000)
                 end, Nodes)
         end, CommunitiesPL).
+
+% Modularity increases with each layer of the dendrogram
+partition_modularity_increase() ->
+    trace(),
+    G = digraph:new(),
+    {Neighbors, Edges, Nodes} = random_graph(G, 1000, 0.01),
+    Communities = [{N, list_to_atom("c" ++ integer_to_list(N))} || N <- Nodes],
+    Dendrogram = part_louvain:dendrogram(
+                                part_louvain:graph(Communities, Neighbors, Edges)),
+    digraph:delete(G),
+    LGs = Dendrogram#louvain_dendrogram.louvain_graphs,
+    ?assert(length(LGs) > 0),
+    lists:foldl(
+        fun(LG, LastModularity) ->
+            Modularity = part_louvain:modularity(LG),
+            ?assert(Modularity > LastModularity),
+            Modularity
+        end, -1.0, lists:reverse(LGs)).
 
 % Nodes in a particular community in level N are together in a
 % community in level N+1.
@@ -411,7 +462,11 @@ total_weight(Edges) ->
         end, 0.0, Edges).
 
 community_graph(Communities, Neighbors, Edges) ->
-    GD = part_louvain:graphd(part_louvain:graph(Communities, Neighbors, Edges)),
+    community_graph(part_louvain:graph(Communities, Neighbors, Edges)).
+
+community_graph(G = #louvain_graph{}) ->
+    community_graph(part_louvain:graphd(G));
+community_graph(GD) ->
     part_louvain:graph(part_louvain:community_graph(GD)).
 
 community_cliques(Nodes, Cliques) ->
@@ -460,5 +515,6 @@ trace() ->
     dbg:start(),
     dbg:tracer(),
     dbg:p(all, c),
-    dbg:tpl(part_louvain, partition, []),
-    dbg:tpl(part_louvain, one_level, []).
+%   dbg:tpl(part_louvain, partition, []),
+%   dbg:tpl(part_louvain, one_level, []),
+    dbg:tpl(part_louvain, community_graph, []).
