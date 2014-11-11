@@ -255,7 +255,9 @@ one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
             % test node in each neighboring community and find the
             % community that gives the best modularity gain
             {BestComm, _} = dict:fold(
-                fun(Community,
+                fun(Community, _, R) when Community == NodeComm ->
+                        R;
+                   (Community,
                         CommunityWeight,
                         {TopCommunity, TopModularityGain}) ->
                     {CommunityDegree, _} =
@@ -284,6 +286,7 @@ one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
 
             % XXX check weights
             compare_weights(Weights2,
+                GD0,
                 GD0#louvain_graphd{communitiesd = CommunitiesD1}),
             {(BestComm /= NodeComm) or Mods,
              Weights2,
@@ -315,23 +318,29 @@ one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
 
 % Remove 2*CommWeight when edge is copmletely in the community
 % self edges are not doubled
-remove_node(NodeComm, NodeDegree, CommWeight, Weights = #louvain_weights{}) ->
+remove_node(NodeComm, NodeDegree, CommWeight, Weights) ->
     Weights#louvain_weights{weights = dict:update(
         NodeComm,
         fun({AllDegree, InDegree}) ->
             {AllDegree - NodeDegree, InDegree - 2.0 * CommWeight}
         end, {-NodeDegree, -2.0 * CommWeight}, Weights#louvain_weights.weights)}.
 
-% Add 2*CommWeight
-% self edges are not doubled
+% Moving Node into NodeComm means adding the weights of the edges of
+% the new community to the weight of the community, as well as 2x the
+% weight of the edges looping back to the node.
+% Add 2*CommWeight and 2*SelfWeight
 add_node(NodeComm, NodeDegree, CommWeight, Weights) ->
     Weights#louvain_weights{weights = dict:update(
         NodeComm,
         fun({AllDegree, InDegree}) ->
-            {AllDegree + NodeDegree, InDegree + 2.0 * CommWeight}
+            {AllDegree + NodeDegree,
+                        InDegree + 2.0 * CommWeight}
         end, {NodeDegree, 2.0 * CommWeight}, Weights#louvain_weights.weights)}.
 
 compare_weights(WA, GD) ->
+    compare_weights(WA, GD, GD).
+
+compare_weights(WA, OGD, GD) ->
     WB = weights(GD),
     ?ASSERTEQUAL(WA#louvain_weights.m, WB#louvain_weights.m),
     WeightsDA = lists:sort(lists:filter(fun({_,{0.0,0.0}}) -> false; (_) -> true end, dict:to_list(WA#louvain_weights.weights))),
@@ -339,7 +348,22 @@ compare_weights(WA, GD) ->
     Missing = WeightsDA -- WeightsDB,
     Extra = WeightsDB -- WeightsDA,
     Details = cw_details(GD, Missing ++ Extra),
-    ?ASSERTEQUAL({[], [], []}, {Details, Missing, Extra}).
+    case Info = {Details, Missing, Extra} of
+        {[],[],[]} -> ok;
+        _ ->
+            % dump graph
+            file:write_file("/tmp/graph",
+                ["-module(cg_test).\n"
+                 "-compile(export_all).\n\n",
+                 io_lib:format("% ~p~n~n", [Info]),
+                 "t() ->\n",
+                 io_lib:format("OGD = ~p,~n", [OGD]),
+                 io_lib:format("GD = ~p,~n", [GD]),
+                 io_lib:format("W = ~p.~n", [WA])
+                 ]),
+            error({weight_mismatch, Info})
+    end,
+    ok.
 
 cw_details(_, []) ->
     [];
@@ -365,7 +389,7 @@ neighboring_community_weights(Node, NodeNeighbors, EdgesD, CommunitiesD) ->
             EdgeWeight = dict_lookup(EdgeId, EdgesD, 1.0),
             NeighborComm = dict_lookup(NeighborNode, CommunitiesD),
             NewWeightsD = 
-                        dict:update_counter(NeighborComm, EdgeWeight, WeightsD),
+                    dict:update_counter(NeighborComm, EdgeWeight, WeightsD),
             case Node == NeighborNode of
                 true ->
                     {Sum + 2.0 * EdgeWeight, NewWeightsD};
@@ -386,8 +410,8 @@ community_graph(#louvain_graphd{communitiesd = CommunitiesD0,
     % every edge is in the neighbors list twice, once for each end
     % of the edge.  As a consequence, it's only necessary to add the
     % community of the Node (not the neighbors) and the weight is
-    % div by 2 because it will be added in twice.  Links from Node -> Node
-    % are also listed twice.
+    % div by 2 because it will be added in twice.  Self edges are only
+    % listed once and should not be halved.
     GDC = dict:fold(
         fun(Node0, Node0Neighbors, UCG) ->
             NodeCommunity = GetNodeCommunity(Node0),
@@ -395,7 +419,12 @@ community_graph(#louvain_graphd{communitiesd = CommunitiesD0,
                 fun({Neighbor, Edge}, UCGn) ->
                     NeighborCommunity = GetNodeCommunity(Neighbor),
                     Weight = GetEdgeWeight(Edge),
-                    add_edge(UCGn, NodeCommunity, NeighborCommunity, Weight)
+                    WeightAdjustment = case Node0 of
+                                           Neighbor -> 1.0;
+                                           _ -> 2.0
+                                       end,
+                        
+                    add_edge(UCGn, NodeCommunity, NeighborCommunity, Weight/WeightAdjustment)
                 end,
                 add_community(GetNodeCommunity(Node0), UCG),
                 Node0Neighbors)
@@ -424,7 +453,7 @@ add_edge(GD = #louvain_graphd{}, Node, NeighborNode, Weight) ->
                                   EdgeId,
                                   GD#louvain_graphd.neighborsd),
         edgesd = add_weight(EdgeId,
-                            Weight/2.0,
+                            Weight,
                             GD#louvain_graphd.edgesd)}.
 
 edge_id(E = {V1, V2}) when V1 < V2 ->
