@@ -226,7 +226,7 @@ body {
 }
 
 .details-content {
-    overflow: auto;
+    overflow: hidden;
     height: 100%;
 }
 
@@ -318,7 +318,7 @@ body {
 
 .activities-list {
     padding-top: 20px;
-    padding-bottom: 50px;
+    padding-bottom: 60px;
     height: 100%;
 }
 
@@ -413,6 +413,9 @@ body {
     color: darkred;
 }
 
+.top-bar-light .dropdown>li.active:not(.has-form)>a:not(.button) {
+    background-color: #d7d7d7;
+}
 
 .top-bar-light .top-bar-section li.disabled:not(.has-form) a:not(.button),
 .top-bar-section li.disabled:not(.has-form) a:not(.button) {
@@ -433,4 +436,80 @@ body {
     color: #808080;
 }
 
+.breadcrumbs {
+    margin-bottom: 3px;
+    margin-top: 5px;
+}
+
+
+.endpoints-histogram {
+    position: relative;
+}
+
+.endpoints-histogram a,
+.endpoints-histogram svg {
+    display: inline-block;
+}
+
+.endpoints-histogram a {
+    position: absolute;
+    height: 1em;
+    margin: auto 25px;
+    top: 0;
+    bottom: 0;
+}
+
+.histogram-tooltip {
+    position: absolute;
+    border: 1px solid #dcdcdc;
+    background-color: rgba(244, 244, 244, .7);
+    top: 20px;
+    right: 80px;
+    border-radius: 3px;
+    color: #000000;
+    padding: 5px;
+
+    font-size: 0.87rem;
+}
+
+#panelEndpoints .details-content {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding-bottom: 70px;
+}
+
+#panelEndpoints .endpoints-histogram {
+    flex-grow: 1;
+}
+
+.page-indicator {
+    text-align: center;
+    margin-bottom: 80px;
+    padding-bottom: 80px;
+}
+
+.chart .internal-connections {
+    fill: #a1d99b;
+}
+
+.mouse-over .internal-connections {
+    fill: #31a354;
+}
+
+.chart .external-connections {
+    fill: #ff9896;
+}
+
+.mouse-over .external-connections {
+    fill: #d62728;
+}
+
+.chart .external rect {
+    fill: darkred;
+}
+
+.chart .mouse-over.external rect {
+    fill: darkgreen;
+}
 

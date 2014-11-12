@@ -167,6 +167,7 @@
                 <div class="activities-content-wrap">
                     <dl class="tabs vertical" data-tab id="nciDetailsTabs">
                         <dd><a href="#panelFlows">Flows</a></dd>
+                        <dd><a href="#panelEndpoints">Endpoints</a></dd>
                         <dd><a href="#panelActivities">Activities</a></dd>
                         <dd class="active"><a href="#panelActivitySizes">Activity Sizes</a></dd>
                     </dl>
@@ -209,6 +210,61 @@
                             <section class="details-content">
                                 <div class="socialGraph" style=""></div>
                                 <div class="activities-list row" style="display: none"></div>
+                            </section>
+                        </div>
+                        <div class="content" id="panelEndpoints">
+                            <nav class="top-bar top-bar-light" data-topbar role="navigation">
+                                <section class="top-bar-section">
+                                    <ul class="left">
+                                        <li>
+                                            <a class="show-histogram" href="#">Histogram</a>
+                                        </li>
+                                        <li>
+                                            <a class="show-table" href="#">Table</a>
+                                        </li>
+                                        <li class="has-dropdown endpoint-sort">
+                                            <a href="#">Sort by</a>
+                                            <ul class="dropdown">
+                                                <li data-sort-field="internalConnections" class="has-dropdown"><a href="#">Internal</a>
+                                                    <ul class="dropdown">
+                                                        <li data-sort-direction="asc"><a href="#">ASC</a></li>
+                                                        <li data-sort-direction="desc"><a href="#">DESC</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li data-sort-field="externalConnections" class="has-dropdown"><a href="#">External</a>
+                                                    <ul class="dropdown">
+                                                        <li data-sort-direction="asc"><a href="#">ASC</a></li>
+                                                        <li data-sort-direction="desc"><a href="#">DESC</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li data-sort-field="totalConnections" class="has-dropdown"><a href="#">Total</a>
+                                                    <ul class="dropdown">
+                                                        <li data-sort-direction="asc"><a href="#">ASC</a></li>
+                                                        <li data-sort-direction="desc"><a href="#">DESC</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <!--<li class="has-form">-->
+                                            <!--<a class="button radius small export-list" href="#">Export to CSV</a>-->
+                                        <!--</li>-->
+                                        <!--<li class="has-form">-->
+                                            <!--<input class="endpoint-filter" type="text" />-->
+                                        <!--</li>-->
+                                        <!--<li class="has-form">-->
+                                            <!--<input id="panelEndpoints-internal" type="checkbox" class="internal" />-->
+                                            <!--<label for="panelEndpoints-internal"> External Endpoints </label>-->
+                                        <!--</li>-->
+                                    </ul>
+                                </section>
+                            </nav>
+                            <section class="details-content">
+                                <div class="breadcrumbs-container row">
+                                    <ul class="breadcrumbs">
+                                    </ul>
+                                </div>
+                                <div class="endpoints-histogram" style=""></div>
+                                <div class="activities-list row"></div>
                             </section>
                         </div>
                         <div class="content" id="panelActivities">
@@ -256,8 +312,12 @@
                                                 <input class="endpoint-filter" type="text" />
                                             </li>
                                             <li class="has-form">
-                                                <input id="checkbox1" type="checkbox" class="internal" />
-                                                <label class="" for="checkbox1">External Endpoints </label>
+                                                <input id="panelActivitySizes-internal" type="checkbox" class="internal" />
+                                                <label class="" for="panelActivitySizes-internal">External Endpoints </label>
+                                            </li>
+                                            <li class="has-form">
+                                                <input id="panelActivitySizes-outside" type="checkbox" class="outside" />
+                                                <label class="" for="panelActivitySizes-outside">Outside Activity Endpoints </label>
                                             </li>
                                         </ul>
                                     </section>

@@ -29,6 +29,7 @@ NCI.socialGraph = function(socialGraphID, params){
 	var showInternal = me.find('.internal');
 	var experimentalView = me.find('.experimental');
 
+    var $showOutside = me.find('.outside');
     var $showList = me.find('.show-list');
     var $exportList = me.find('.export-list');
     var $showGraph = me.find('.show-graph');
@@ -48,13 +49,18 @@ NCI.socialGraph = function(socialGraphID, params){
 	showInternal.on('click', function(event){
 		isFiltered = this.checked;
 		me.show(false, false);
-        listBuilder.filterTableByInternal(isFiltered);
 	});
 
 	experimentalView.on('click', function(event){
 	    var experementialGraph = new NCI.experementialGraph();
 		me.clean();
 	});
+
+    $showOutside.on("click", function() {
+        var showOutside = this.checked;
+        graphBuilder = new NCI.graphBuilder(communities, showOutside);
+        me.show(true, prettyView.prop("checked"));
+    });
 
     function downloadActivityList() {
         listBuilder.downloadCSV();
@@ -73,8 +79,12 @@ NCI.socialGraph = function(socialGraphID, params){
         $showList.click(function() {
             showListView(true);
         });
+        showInternal.on('click', function(event) {
+            listBuilder.filterTableByInternal(this.checked);
+        });
 
         var activitiesList = d3.select($activitiesList.get(0));
+
         listBuilder.createTable(activitiesList);
     }
 
@@ -90,6 +100,8 @@ NCI.socialGraph = function(socialGraphID, params){
         byActivities.parent().toggleClass("hide", state);
         prettyView.parent().toggleClass("hide", state);
         experimentalView.parent().toggleClass("hide", state);
+
+        $showOutside.parent().toggleClass("hide", state);
 
 
         $(socialGraphSelector).toggle(!state);
@@ -203,7 +215,7 @@ NCI.socialGraph = function(socialGraphID, params){
 			me.activitiesGraphSvg.selectAll("line").remove();
 			var linksData = me.activitiesGraphSvg.selectAll(".link").data(graphBuilder.graph.links);
 			me.link = linksData.enter().append("line")
-		    .attr("class", function(d){ return d.tmp ? "activities_link_tmp" : "activities_link"}); 
+		    .attr("class", function(d){ return d.tmp ? "activities_link_tmp" : "activities_link"});
 			linksData.exit().remove();
 		};
 		
@@ -269,8 +281,6 @@ NCI.socialGraph = function(socialGraphID, params){
 			});
 			if (isExpandable) {
 				me.node.on('click', function(d){
-					NCI.MouseClickActivitySound.currentTime = 0;
-					NCI.MouseClickActivitySound.play();
 					var label = d.name.split("|")[0];
 					var group = selectedDots[label];
                     d.clicked = !d.clicked;
@@ -292,11 +302,15 @@ NCI.socialGraph = function(socialGraphID, params){
 					}
 					$.each(NCI.Communities, function(index, community){
 						if (community.Label == label){
-							graphBuilder.addCommunity(community, label, selectedDots[label] );
-							setupLinks();		
-							setupNodes();
-							force.start();
-							return false;
+							var added = graphBuilder.addCommunity(community, label, selectedDots[label] );
+                            if (added !== false) {
+                                NCI.MouseClickActivitySound.currentTime = 0;
+                                NCI.MouseClickActivitySound.play();
+                            }
+                            setupLinks();
+                            setupNodes();
+                            force.start();
+                            return false;
 						}
 					});
 	 		    }).on('mousedown', function(d){
@@ -362,6 +376,9 @@ NCI.socialGraph = function(socialGraphID, params){
 
         showInternal.off("click");
 
+        $showOutside.prop("checked", false);
+        $showOutside.off("click");
+
         $showGraph.off("click");
         $showList.off("click");
         $exportList.off("click", downloadActivityList)
@@ -418,7 +435,7 @@ NCI.socialGraph = function(socialGraphID, params){
 	return me;
 };
 
-NCI.graphBuilder = function(communities){
+NCI.graphBuilder = function(communities, includeOutside){
 	var thisBuilder = this;
 	var endpointsHash = {};
 	var groupCount = 0;
@@ -428,7 +445,7 @@ NCI.graphBuilder = function(communities){
 	//add community
 	thisBuilder.addCommunity = function(community, mainEndpoint, group, addLabel){
 		if (community.Endpoints.length > NCI.max_vertices)
-		    return	
+		    return false;
 		var communityEndpoints = {};
 		var startIndex = Object.keys(endpointsHash).length
 		var addConnection = function(endPoint, endpoints){
@@ -442,7 +459,7 @@ NCI.graphBuilder = function(communities){
 					    index: index,
                         communityLabel: addLabel ?
                             "Activity #" + (NCI.CommunityGraph.Endpoints.indexOf(endPoint) + 1) : null,
-					    external: endpoints.indexOf(endPoint) == -1,
+					    external: isOutside(endPoint),
 					    connections: 0,
 						size: size};
 			    };
@@ -453,12 +470,19 @@ NCI.graphBuilder = function(communities){
 		    	return endpointsHash[ip].index;
 		    }
 		};
+
+        function isOutside(endpoint) {
+            return community.Endpoints.indexOf(endpoint) == -1;
+        }
 		
 		$.each(community.Interactions, function(index, interacton){
-			thisBuilder.graph.links.push({
-				source: addConnection(interacton[0], community.Endpoints),
-				target: addConnection(interacton[1], community.Endpoints),
-				value: 1});
+            if (includeOutside || !(isOutside(interacton[0]) || isOutside(interacton[1]))) {
+                thisBuilder.graph.links.push({
+                    source: addConnection(interacton[0], community.Endpoints),
+                    target: addConnection(interacton[1], community.Endpoints),
+                    value: 1
+                });
+            }
 		});
 		
 		$.each(Object.keys(communityEndpoints), function(index, key){

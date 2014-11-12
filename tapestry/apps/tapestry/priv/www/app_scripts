@@ -9,7 +9,11 @@
 "static/nci_social_graph.js",
 "static/nci_histogram.js",
 "static/nci_details.js",
+"static/tableUI.js",
+"static/endpointsHistogram.js",
 "static/activityList.js",
+"static/endpointsView.js",
 "static/chart.js",
-"static/experemential.js"
+"static/experemential.js",
+"static/endpoint.js"
 ]

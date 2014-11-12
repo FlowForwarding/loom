@@ -13,6 +13,10 @@ NCI.setupCommunities = function(data){
 	NCI.Communities.sort(function(a, b){
 		return a.Size- b.Size;
 	});
+    var length = NCI.Communities.length;
+    NCI.Communities.forEach(function(community, index) {
+        community.NameIndex = length - index;
+    });
 	NCI.timestampNCI = data.NCI;
 	NCI.timestamp = data.Time;
 
@@ -48,6 +52,7 @@ NCI.detailsTabs = function(){
 	var me = $('#nciDetailsTabs');
 	var flowsPanel;
 	var activitiesPanel;
+    var endpointsView;
 	var color = d3.scale.category10();
 	
 	me.on('toggled', function (event, tab) {
@@ -56,6 +61,12 @@ NCI.detailsTabs = function(){
 		if (flowsPanel)
 			flowsPanel.clean()
 		switch(tab[0].id) {
+            case "panelEndpoints":
+                if (!endpointsView) {
+                    endpointsView = new NCI.EndpointsView($("#panelEndpoints"));
+                }
+
+                break;
 		    case "panelFlows":
 				flowsPanel = new NCI.socialGraph("#panelFlows",{
 					communities: NCI.Communities,
