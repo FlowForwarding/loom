@@ -46,6 +46,10 @@
          communities/1,
          dendrogram/1]).
 
+% debugging code
+-export([compare_weights/2,
+         validate_graph/1]).
+
 -define(MIN_MODULARITY_CHANGE, 0.0000001).
 
 -include("part_louvain.hrl").
@@ -221,7 +225,7 @@ partition(GD, L) ->
         false ->
             % make a graph of the communities (communities are
             % nodes, edges weighted accordingly), and recurse.
-            validate_graph(PartitionedGD),
+            % validate_graph(PartitionedGD),
             CommunityGD = community_graph(PartitionedGD),
             partition(CommunityGD,
                       [graph(PartitionedGD) | L])
@@ -233,7 +237,7 @@ partition(GD, L) ->
 %% to reflect the paritioning.
 one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
     % XXX make sure the graph is valid
-    validate_graph(GD0),
+    % validate_graph(GD0),
     EdgesD = GD0#louvain_graphd.edgesd,
     {Modified, NewWeights, NewCommunitiesD} = dict:fold(
         fun(Node, NodeNeighbors, {Mods, Weights, CommunitiesD}) ->
@@ -248,7 +252,7 @@ one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
                                end,
             M = Weights#louvain_weights.m,
             DegCTotW = NodeDegree/?SQUARE(M * 2.0),
-            Weights1 = remove_node(NodeComm,
+            Weights1 = remove_node(Node, NodeComm,
                                    NodeDegree,
                                    LookupCommWeight(NodeComm),
                                    Weights),
@@ -278,16 +282,29 @@ one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
                         false -> {TopCommunity, TopModularityGain}
                     end
                 end, {NodeComm, 0.0}, NeighborCommWeightsD),
-            Weights2 = add_node(BestComm,
-                                NodeDegree,
-                                LookupCommWeight(BestComm),
-                                Weights1),
+            % if the node doesn't change communities, use the old weights
+            % before node was removed.  Otherwise, update the weights
+            % to accomodate the move of the node from NodeComm to
+            % BestComm.
+            Weights2 = case BestComm of
+                           NodeComm ->
+                               Weights;
+                           _ ->
+                                SelfWeight =
+                                    dict_lookup(self_edge(Node), EdgesD, 0.0),
+                               % Add the weight of the edges to BestComm
+                               % to the InDegree of the community as well
+                               % the weight the self edge of the node
+                               % moving to BestComm.
+                               add_node(Node, BestComm,
+                                    NodeDegree,
+                                    LookupCommWeight(BestComm) + SelfWeight,
+                                    Weights1)
+            end,
             CommunitiesD1 = dict:store(Node, BestComm, CommunitiesD),
 
             % XXX check weights
-            compare_weights(Weights2,
-                GD0,
-                GD0#louvain_graphd{communitiesd = CommunitiesD1}),
+            % compare_weights(Weights2, GD0, GD0#louvain_graphd{communitiesd = CommunitiesD1}),
             {(BestComm /= NodeComm) or Mods,
              Weights2,
              CommunitiesD1}
@@ -297,7 +314,7 @@ one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
         NewGD = GD0#louvain_graphd{communitiesd = NewCommunitiesD},
 
     % XXX recompute weights and see if they match the new weights
-    compare_weights(NewWeights, NewGD),
+    % compare_weights(NewWeights, NewGD),
 
     NewModularity = modularity(NewWeights),
     ?DEBUG("OneLevel Modularity: ~p -> ~p", [Modularity, NewModularity]),
@@ -318,7 +335,7 @@ one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
 
 % Remove 2*CommWeight when edge is copmletely in the community
 % self edges are not doubled
-remove_node(NodeComm, NodeDegree, CommWeight, Weights) ->
+remove_node(_, NodeComm, NodeDegree, CommWeight, Weights) ->
     Weights#louvain_weights{weights = dict:update(
         NodeComm,
         fun({AllDegree, InDegree}) ->
@@ -329,7 +346,7 @@ remove_node(NodeComm, NodeDegree, CommWeight, Weights) ->
 % the new community to the weight of the community, as well as 2x the
 % weight of the edges looping back to the node.
 % Add 2*CommWeight and 2*SelfWeight
-add_node(NodeComm, NodeDegree, CommWeight, Weights) ->
+add_node(_, NodeComm, NodeDegree, CommWeight, Weights) ->
     Weights#louvain_weights{weights = dict:update(
         NodeComm,
         fun({AllDegree, InDegree}) ->
@@ -375,7 +392,7 @@ cw_details(GD, Weights) ->
 
 dump_community(Community, GD) ->
     % nodes in community
-    Nodes = [N || {N, C} <- dict:to_list(GD#louvain_graphd.communitiesd),
+    _Nodes = [N || {N, C} <- dict:to_list(GD#louvain_graphd.communitiesd),
                                 C == Community].
     % [{N, dict_lookup(N, GD#louvain_graphd.neighborsd, [])} || N <- Nodes].
 
@@ -460,6 +477,9 @@ edge_id(E = {V1, V2}) when V1 < V2 ->
     E;
 edge_id({V1, V2}) ->
     {V2, V1}.
+
+self_edge(V) ->
+    {V,V}.
 
 add_neighbor(Node, NeighborNode, EdgeId, NeighborsD) ->
     dict_append(Node, {NeighborNode, EdgeId}, NeighborsD),
