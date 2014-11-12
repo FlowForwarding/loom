@@ -472,7 +472,8 @@ body {
     font-size: 0.87rem;
 }
 
-#panelEndpoints .details-content {
+#panelEndpoints .details-content,
+#panelActivitySizes .details-content {
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -513,3 +514,33 @@ body {
     fill: darkgreen;
 }
 
+.chart .mouse-over.activity rect {
+    fill: #aec7e8;
+}
+
+#nciHistogram a,
+#nciHistogram svg {
+    display: inline-block;
+}
+
+#nciHistogram .page-indicator {
+    display: none;
+}
+
+#nciHistogram {
+    flex-grow: 1;
+}
+
+#panelActivitySizes .details-content {
+    height: 100%;
+    padding-bottom: 20px;
+}
+
+.axis line {
+    stroke-width: .5;
+    opacity: .7;
+}
+
+.y.axis path {
+    display: none;
+}

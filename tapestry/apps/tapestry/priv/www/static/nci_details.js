@@ -37,7 +37,7 @@ NCI.setupCommunities = function(data){
 
 $(".hide-ncidetails").on('click', function(){
 	$('#nciDetails').removeClass('details-view-show');
-	NCI.nciHistogram.clean();
+//	NCI.nciHistogram.clean();
 	NCI.CommunityGraph = [];
 	NCI.Communities = [];
 	NCI.detailsEndpoints.html("");
@@ -98,7 +98,25 @@ NCI.detailsTabs = function(){
 				activitiesPanel.show(true);
 		        break;
 		    default:
-				NCI.nciHistogram.show();
+                var activities = NCI.model.parseActivities(NCI.Communities);
+
+                NCI.CommunityGraph.Endpoints.forEach(function (community) {
+                    var tmp = community.split("|"),
+                        size = tmp.pop(),
+                        mainEndpointId = tmp.pop(),
+                        activity = NCI.model.getActivityByMainEndpoint(mainEndpointId);
+
+                    activity.size = parseInt(size, 10);
+                });
+
+                activities = activities.sort(function(a1, a2) {
+                    return a2.size - a1.size;
+                });
+
+				new NCI.NCIHistogram(d3.select("#nciHistogram"), activities, {
+                    itemsPerPage: activities.length
+//                    itemsPerPage: 20
+                });
 		};
 	});
 	
