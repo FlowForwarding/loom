@@ -13,13 +13,14 @@ NCI.socialGraph = function(socialGraphID, params){
 	var isClustered = params.isClustered || false ;
 	var isDevided = params.isDevided || false ;
 	var isFiltered = false;
+    var isFlows = params.isFlows || false;
 	var graphWidth = params.width || me.width();
 	var graphHeight =  params.height || $('#nciDetails').height() - 150;
 	var radius = params.radius || function() { return 4};
 	var charge = params.charge || function() { return -20};
 	var linkDistance = params.linkDistance || function() { return 30};
     var communities = params.communities || null;
-	var graphBuilder = communities ? new NCI.graphBuilder(communities) : undefined;
+	var graphBuilder = communities ? new NCI.graphBuilder(communities, isFlows) : undefined;
     var listBuilder = NCI.list.createListBuilder(communities);
 	var numOfPoints = params.numOfPoints || 0;
 	var isExpandable = params.isExpandable || false;
@@ -161,8 +162,8 @@ NCI.socialGraph = function(socialGraphID, params){
 			    return notNetworkColor;
 		    };
 			//if this dot is selected on Activities graph, draw it in red
-			if (d.external)
-			    return "red"
+			if (d.external && !isFlows)
+			    return "red";
 
             if (d.size && d.clicked) {
                 return "#1D5082";

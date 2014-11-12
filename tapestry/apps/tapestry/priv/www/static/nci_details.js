@@ -70,6 +70,7 @@ NCI.detailsTabs = function(){
 		    case "panelFlows":
 				flowsPanel = new NCI.socialGraph("#panelFlows",{
 					communities: NCI.Communities,
+                    isFlows: true,
                     numOfPoints: NCI.Social.endpoints
 				});
 		        flowsPanel.show(true);
