@@ -246,7 +246,6 @@ parse_logfile(Bin) ->
     %   outlook.infoblox.com. 10 IN CNAME casarray1.infoblox.com.;
     %   casarray1.infoblox.com. 10 IN A 10.120.3.104;
 
-
     Matches = case re:run(Bin,"client ((?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})|(?:[:a-f0-9]+)).* UDP: query: (.*) IN A+ response: NOERROR .*? IN A+ ((?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})|(?:[:a-f0-9]+));", [global, {capture,[2,1,3],binary}]) of
         {match, M} -> M;
         _ -> []

@@ -194,14 +194,14 @@ clean(G, T, MaxAge)->
     digraph:del_vertices(G,
         cleaner(
             fun(X) ->
-                {_, TS} = digraph:vertex(G, X),
+                {_, {TS, _}} = digraph:vertex(G, X),
                 TS
             end, T, MaxAge, digraph:vertices(G))),
     ?DEBUG("~n**** Cleaning Edges~n"),
     digraph:del_edges(G,
         cleaner(
             fun(X) ->
-                {_, _, _, TS} = digraph:edge(G, X),
+                {_, _, _, {TS, _}} = digraph:edge(G, X),
                 TS
             end, T, MaxAge, digraph:edges(G))).
 
@@ -215,14 +215,18 @@ cleaner(TSFn, T, MaxAge, List) ->
     ?DEBUG("~n**** Cleaning at Time ~p ****~nMaxAge = ~p~nStale Count = ~p~n****",[T, MaxAge, length(Old)]),
     Old.
 
-add_edge(G, E, Time)->
-    {A, B} = E,
+add_edge(G, {{A, B}, Metadata}, Time) ->
+    add_edge(G, {A, B}, Time, Metadata);
+add_edge(G, {A, B}, Time) ->
+    add_edge(G, {{A, B}, []}, Time).
+
+add_edge(G, {A, B}, Time, Metadata) ->
     case A =/= B of
         true ->
-            V1 = digraph:add_vertex(G, A, Time),
-            V2 = digraph:add_vertex(G, B, Time),
-            update_edge(G, V1, V2, Time),
-            update_edge(G, V2, V1, Time);
+            V1 = digraph:add_vertex(G, A, {Time, Metadata}),
+            V2 = digraph:add_vertex(G, B, {Time, Metadata}),
+            update_edge(G, V1, V2, {Time, []}),
+            update_edge(G, V2, V1, {Time, []});
         false -> error
     end.
 
@@ -304,7 +308,7 @@ interactions_for_endpoints(InteractionsD, Endpoints) ->
         end, [], Endpoints),
     lists:usort(lists:flatten(Edges)).
 
-update_edge(G, V1, V2, Time) ->
+update_edge(G, V1, V2, TimeMetadata) ->
     % XXX use add_edge(G, {V1,V2}, V1, V2, Time) instead?
     Found = lists:filter(
                     fun(X)-> 
@@ -312,8 +316,8 @@ update_edge(G, V1, V2, Time) ->
                         V2 == FV2
                     end, digraph:out_edges(G, V1)),
     case Found of
-        [] -> digraph:add_edge(G, V1, V2, Time);
-        [E] -> digraph:add_edge(G, E, V1, V2, Time)
+        [] -> digraph:add_edge(G, V1, V2, TimeMetadata);
+        [E] -> digraph:add_edge(G, E, V1, V2, TimeMetadata)
     end.
 
 days_to_seconds({D, {H, M, S}}) ->
@@ -357,9 +361,9 @@ load_graph(Filename) ->
     DateTime = calendar:universal_time(),
     lists:foreach(
         fun({V1, V2}) ->
-            digraph:add_vertex(G, V1, DateTime),
-            digraph:add_vertex(G, V2, DateTime),
-            digraph:add_edge(G, V1, V2, DateTime)
+            digraph:add_vertex(G, V1, {DateTime, []}),
+            digraph:add_vertex(G, V2, {DateTime, []}),
+            digraph:add_edge(G, V1, V2, {DateTime, []})
         end, Data),
     ?INFO("Load Complete~n"),
     G.
