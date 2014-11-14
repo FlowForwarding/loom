@@ -208,7 +208,7 @@ parse_file(<<BitString:53/binary, BinaryData/binary>>, Data) ->
     <<_Time:10/binary, _S:1/binary,
        ID1:20/binary, _S:1/binary,
        ID2:20/binary, _Rest/binary>> = BitString,
-    Interaction = {ID1, ID2},
+    Interaction = {ID1, anonymous, ID2, anonymous},
     parse_file(BinaryData, [Interaction | Data]);
 parse_file(_BinaryData, Data)->
     lists:reverse(Data).
@@ -254,8 +254,11 @@ parse_logfile(Bin) ->
     % results in references to the larger binary that impedes gc of the
     % binry heap.  Could also binary:copy/1.  This makes the batch
     % processing more consistent with the packet_in processing.
-    [{inet_parse_address(Requester), inet_parse_address(Resolved)} ||
-                                    [_Query, Requester, Resolved] <- Matches].
+    [{tap_ds:endpoint(inet_parse_address(Requester),
+                        tap_dns:gethostbyaddr(Requester)),
+     tap_ds:endpoint(inet_parse_address(Resolved),
+                        Query)} ||
+                                    [Query, Requester, Resolved] <- Matches].
 
 inet_parse_address(B) ->
     {ok, IpAddr} = inet:parse_address(binary_to_list(B)),

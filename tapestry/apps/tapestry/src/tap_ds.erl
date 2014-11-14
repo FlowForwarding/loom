@@ -32,7 +32,8 @@
          save/1,
          load/1,
          community_detector/0,
-         community_detector/1]).
+         community_detector/1,
+         endpoint/2]).
 
 -export([init/1,
          handle_call/3,
@@ -91,6 +92,9 @@ community_detector(CD = part_labelprop) ->
     application:set_env(tapestry, community_detector, CD);
 community_detector(CD = part_louvain) ->
     application:set_env(tapestry, community_detector, CD).
+
+endpoint(IPAddr, Label) ->
+    {IPAddr, [{label, Label}]}.
 
 %------------------------------------------------------------------------------
 % gen_server callbacks
@@ -215,20 +219,17 @@ cleaner(TSFn, T, MaxAge, List) ->
     ?DEBUG("~n**** Cleaning at Time ~p ****~nMaxAge = ~p~nStale Count = ~p~n****",[T, MaxAge, length(Old)]),
     Old.
 
-add_edge(G, {{A, B}, Metadata}, Time) ->
-    add_edge(G, {A, B}, Time, Metadata);
-add_edge(G, {A, B}, Time) ->
-    add_edge(G, {{A, B}, []}, Time).
-
-add_edge(G, {A, B}, Time, Metadata) ->
+add_edge(G, {{A, MA}, {B, MB}}, Time) ->
     case A =/= B of
         true ->
-            V1 = digraph:add_vertex(G, A, {Time, Metadata}),
-            V2 = digraph:add_vertex(G, B, {Time, Metadata}),
+            V1 = digraph:add_vertex(G, A, {Time, MA}),
+            V2 = digraph:add_vertex(G, B, {Time, MB}),
             update_edge(G, V1, V2, {Time, []}),
             update_edge(G, V2, V1, {Time, []});
         false -> error
-    end.
+    end;
+add_edge(G, {A, B}, Time) ->
+    add_edge(G, {{A, []}, {B, []}}, Time).
 
 push_nci(_Digraph, 0) ->
     % no data to process

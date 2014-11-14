@@ -166,7 +166,7 @@ process_packetin(nomatch, _TableId, _Match, _Data, _DatapathId, _IpAddr) ->
 process_packetin(Reason, _TableId, _Match, _Data, _DatapathId, _IpAddr) ->
     ?DEBUG("packetin reason = ~p~n", [Reason]).
 
-dns_reply(Data, DatapathId, IpAddr) ->
+dns_reply(Data, DatapathId, CollectorIP) ->
     try
 	Packet = pkt:decapsulate({ether, Data}),
 	case Packet of 
@@ -185,13 +185,16 @@ dns_reply(Data, DatapathId, IpAddr) ->
 			case Match of
 			    {error, _} ->
                                 ?DEBUG("No match dropped: ~p~n",[Match]);
-			    ID ->
+			    {ok, ID, Query} ->
 				R = list_to_tuple(
                                         binary_to_list(Header1#ipv4.daddr)),
-				SendValue = {R, ID},
-				?DEBUG("Sending: ~p~n",[SendValue]),
-                                tap_aggr:dns_reply(DatapathId, IpAddr,
-                                                                    SendValue)
+				Interaction = {
+                                   tap_ds:endpoint(R,
+                                        tap_dns:gethostbyaddr(R)),
+                                   tap_ds:endpoint(ID, Query)},
+				?DEBUG("Sending: ~p~n",[Interaction]),
+                                tap_aggr:dns_reply(DatapathId, CollectorIP,
+                                                                Interaction)
 			end;
 		    _ -> ?DEBUG("No match dropped: ~p~n",[Result])
 		end;
@@ -203,12 +206,12 @@ dns_reply(Data, DatapathId, IpAddr) ->
     end.
 
 match_reply({dns_rec, {dns_header, _, true, _, _, _, _, _, _, _},
-                      [{dns_query, _, a, in}], RRSet, _, _})->
+                      [{dns_query, Query, a, in}], RRSet, _, _})->
     Record = lists:keyfind(a, 3, RRSet),
     case Record of
 	false ->
 	    {error, no_a_record};
-	{dns_rr, _, a, _, _, _, ID, _, _, _} -> ID
+	{dns_rr, _, a, _, _, _, ID, _, _, _} -> {ok, ID, Query}
     end;
 match_reply(_) ->
     {error, bad_response}.

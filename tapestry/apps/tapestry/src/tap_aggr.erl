@@ -95,7 +95,7 @@ handle_cast(push_qps, State = #?STATE{collectors = Collectors}) ->
     {noreply, NewState#?STATE{last_qps_time = Now, query_count = 0}};
 handle_cast({dns_reply, Reply, DatapathId, IpAddr},
                             State = #?STATE{query_count = QueryCount}) ->
-    tap_ds:ordered_edge(dns_reply_order(Reply)),
+    tap_ds:ordered_edge(Reply),
     NewState = update_metrics(DatapathId, IpAddr,
                                 State#?STATE{query_count = QueryCount + 1}),
     maybe_push_qps(NewState),
@@ -148,11 +148,6 @@ maybe_push_qps(#?STATE{query_count = QueryCount, last_qps_time = LastUpdate}) ->
         _ -> ok
     end,
     ok.
-
-dns_reply_order({A, B} = R) when A < B ->
-    R;
-dns_reply_order({A, B}) ->
-    {B, A}.
 
 new_metrics() ->
     new_metric(?TOTAL_QCOUNT).
