@@ -236,6 +236,7 @@ push_nci(_Digraph, 0) ->
     no_process;
 push_nci(Digraph, _NumVertices) ->
     Vertices = ?LOGDURATION(digraph:vertices(Digraph)),
+    VertexInfo = ?LOGDURATION([digraph:vertex(Digraph, V) || V <- Vertices]),
     Edges = ?LOGDURATION([digraph:edge(Digraph, E) || E <- digraph:edges(Digraph)]),
     % Read the environment to get the module to use for label propagation.
     % Do this everytime the calculation is done so it can be changed at
@@ -258,8 +259,9 @@ push_nci(Digraph, _NumVertices) ->
                     ?LOGDURATION(pivot_communities(Communities, Graph)),
                 tap_client_data:nci(NCI,
                                     CommunityD,
-                                    CommunitySizes,
+                                    dict:from_list(CommunitySizes),
                                     CommunityGraph,
+                                    dict:from_list(VertexInfo),
                                     calendar:universal_time()),
                 CleanupFn(G)
             catch
