@@ -11,6 +11,7 @@
 "static/nci_histogram.js",
 "static/nci_details.js",
 "static/tableUI.js",
+"static/graphUI.js",
 "static/endpointsHistogram.js",
 "static/activityList.js",
 "static/endpointsView.js",

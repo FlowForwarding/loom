@@ -85,6 +85,9 @@
         getActivityByMainEndpoint: function(endpoint) {
             return activitiesMap[endpoint];
         },
+        getEndpointByIp: function(ip) {
+            return endpointsMap[ip];
+        },
         parseActivities: function(activities) {
             var activities = activities.map(createActivity);
 

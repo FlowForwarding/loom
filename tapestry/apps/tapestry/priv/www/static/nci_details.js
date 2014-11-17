@@ -57,14 +57,19 @@ NCI.detailsTabs = function(){
 	
 	me.on('toggled', function (event, tab) {
 		if (activitiesPanel)
-		    activitiesPanel.clean()
+		    activitiesPanel.clean();
 		if (flowsPanel)
-			flowsPanel.clean()
+			flowsPanel.clean();
+
+        if (endpointsView) {
+            endpointsView.stop();
+        }
 		switch(tab[0].id) {
             case "panelEndpoints":
                 if (!endpointsView) {
                     endpointsView = new NCI.EndpointsView($("#panelEndpoints"));
                 }
+                endpointsView.resume();
 
                 break;
 		    case "panelFlows":

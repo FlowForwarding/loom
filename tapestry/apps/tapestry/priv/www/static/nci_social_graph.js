@@ -390,6 +390,10 @@ NCI.socialGraph = function(socialGraphID, params){
         $endpointFilter.val("");
         listBuilder.removeTable();
 
+        if (force) {
+            force.stop();
+        }
+
         showListView(false);
 	}
 	

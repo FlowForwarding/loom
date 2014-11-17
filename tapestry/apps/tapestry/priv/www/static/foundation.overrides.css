@@ -480,7 +480,8 @@ body {
     padding-bottom: 70px;
 }
 
-#panelEndpoints .endpoints-histogram {
+#panelEndpoints .endpoints-histogram,
+#panelEndpoints .endpoints-graph {
     flex-grow: 1;
 }
 
@@ -543,4 +544,26 @@ body {
 
 .y.axis path {
     display: none;
+}
+
+
+.node {
+    stroke: #fff;
+    stroke-width: 1.5px;
+}
+
+.link {
+    stroke: #999;
+    stroke-opacity: .6;
+}
+
+svg {
+    transform: translate3d(0,0,0);
+}
+
+body>canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 900;
 }

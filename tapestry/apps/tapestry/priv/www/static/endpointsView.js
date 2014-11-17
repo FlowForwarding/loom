@@ -28,35 +28,82 @@
         var container = $container.get(0),
             $histogramView = $container.find(".show-histogram"),
             $tableView = $container.find(".show-table"),
+            $graphView = $container.find(".show-graph"),
             $endpointSortMenu = $container.find(".endpoint-sort"),
             $prevSort = $(),
             endpoints = sortEndpoints(NCI.model.endpoints(), "totalConnections", "desc"),
             d3Container = d3.select(container),
             activitiesListContainer = d3Container.select(".activities-list"),
             endpointsHistogramContainer = d3Container.select(".endpoints-histogram"),
-            table = new NCI.Table(activitiesListContainer, columns, endpoints),
-            histogram = new NCI.EndpointsHistogram(endpointsHistogramContainer, endpoints),
+            endpointsGraphContainer = d3Container.select(".endpoints-graph"),
+            table = new NCI.Table(activitiesListContainer, columns, []),
+            histogram = new NCI.EndpointsHistogram(endpointsHistogramContainer, []),
+            graph = new NCI.Graph(endpointsGraphContainer, []),
+            isGraphActive = false,
             topHundred = {
                 name: "All Endpoints",
                 endpoints: endpoints
             },
             breadcrumbsData = [topHundred];
 
+        this.stop = function() {
+            graph.stop();
+        };
+
+        this.resume = function() {
+            if (isGraphActive) {
+                graph.resume();
+            }
+        };
 
         $histogramView.on("click", function() {
             $histogramView.hide();
             $tableView.show();
+            $graphView.show();
+            graph.stop();
             $(activitiesListContainer.node()).hide();
+            $(endpointsGraphContainer.node()).hide();
             $(endpointsHistogramContainer.node()).show();
             $endpointSortMenu.show();
+            // trigger resize here in order to adjust histogram height;
+            // TODO: get rid of this hack
+            $(window).resize();
+
+            isGraphActive = false;
         });
+
+        function setGraphViewActive() {
+            $histogramView.show();
+            $graphView.hide();
+            $tableView.show();
+            graph.resume();
+            $(activitiesListContainer.node()).hide();
+            $(endpointsHistogramContainer.node()).hide();
+            $(endpointsGraphContainer.node()).show();
+            $endpointSortMenu.hide();
+            // trigger resize here in order to adjust histogram height;
+            // TODO: get rid of this hack
+            $(window).resize();
+
+            isGraphActive = true;
+        }
+
+        $graphView.on("click", setGraphViewActive);
 
         $tableView.on("click", function() {
             $tableView.hide();
             $histogramView.show();
+            $graphView.show();
+            graph.stop();
             $(activitiesListContainer.node()).show();
             $(endpointsHistogramContainer.node()).hide();
+            $(endpointsGraphContainer.node()).hide();
             $endpointSortMenu.hide();
+            // trigger resize here in order to adjust histogram height;
+            // TODO: get rid of this hack
+            $(window).resize();
+
+            isGraphActive = false;
         });
 
         function sortEndpoints(endpoints, field, direction) {
@@ -130,6 +177,24 @@
         function setEndpoints(endpoints) {
             table.setData(endpoints);
             histogram.setData(endpoints);
+
+            if (endpoints.length > NCI.max_vertices) {
+                $graphView.parent("li").addClass("disabled");
+                $graphView.off("click");
+
+                if (isGraphActive) {
+                    $histogramView.click();
+                }
+
+            } else {
+                $graphView.parent("li").removeClass("disabled");
+                $graphView.on("click", setGraphViewActive);
+                graph.setData(endpoints);
+            }
+
+            if (isGraphActive) {
+                graph.resume();
+            }
         }
 
         function setActiveEndpoint(endpoint) {
@@ -159,15 +224,16 @@
 
         updateBreadcrumbs(breadcrumbsData);
 
-        $([table, histogram]).on("click", function(event, data) {
+        $([table, histogram, graph]).on("click", function(event, data) {
             setActiveEndpoint(data);
+            if (this==graph) {
+                graph.resume();
+            }
         });
 
+        setEndpoints(endpoints);
         $histogramView.click();
 
-        // trigger resize here in order to adjust histogram height;
-        // TODO: get rid of this hack
-        $(window).resize();
     }
 
     NCI.EndpointsView = EndpointsView;
