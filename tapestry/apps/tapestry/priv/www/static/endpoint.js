@@ -82,6 +82,9 @@
 
     NCI.model = {
         createActivity: createActivity,
+        getActivityByMainEndpoint: function(endpoint) {
+            return activitiesMap[endpoint];
+        },
         parseActivities: function(activities) {
             var activities = activities.map(createActivity);
 
