@@ -46,7 +46,11 @@ NCI.NCIHistogram = (function(){
             size = this.getSize(),
             height = size.height,
             width = size.width,
-            barPadding = 1,
+            length = data.length,
+            barMaxWidth = 10,
+            barActualWidth = width / length,
+            barWidth = Math.min(barActualWidth, barMaxWidth),
+            barPadding = barActualWidth - barWidth - 1,
             endpointsMin,
             endpointsScale,
             endpointsAxisTicksValues;
@@ -66,7 +70,6 @@ NCI.NCIHistogram = (function(){
 
         var activitiesScale = d3.scale.linear(),
             activitiesMin = 0,
-            length = data.length,
             activitiesAxisTickValues;
 
         if (length < 800){
@@ -108,15 +111,14 @@ NCI.NCIHistogram = (function(){
 
 
         //draw bars
-        var barWidth = width / length,
-            bar = chart.selectAll('.activity')
+        var bar = chart.selectAll('.activity')
                 .data(data, function(d) {return d.index}),
             barEnter = bar.enter()
                 .append("g")
                 .classed("activity", true);
 
         bar.attr("transform", function(d, i) {
-            return "translate(" + i * barWidth + ",0)";
+            return "translate(" + (i * (barWidth + barPadding)) + ",0)";
         });
 
         barEnter
@@ -139,7 +141,7 @@ NCI.NCIHistogram = (function(){
             .attr("height", function(d) {
                 return height - endpointsScale(d.size);
             })
-            .attr("width", barWidth - barPadding)
+            .attr("width", barWidth)
 //            .attr("fill", color.range(2));
 
         function createSmt(selection, smth) {
@@ -171,7 +173,7 @@ NCI.NCIHistogram = (function(){
         //draw axis
         chart.append('g')
             .attr('class', 'x axis')
-            .attr('transform', 'translate(0,' + (height) + ')')
+            .attr('transform', 'translate(' + (-barPadding - barWidth) + ',' + (height) + ')')
             .call(activitiesAxis);
 
 
@@ -180,12 +182,12 @@ NCI.NCIHistogram = (function(){
 
         chart.append("circle")
             .attr("cy", endpointsScale(NCI.timestampNCI))
-            .attr("cx", activitiesScale(NCI.timestampNCI) - barWidth/2)
+            .attr("cx", activitiesScale(NCI.timestampNCI) - barWidth - barPadding*2)
             .style("fill", "red")
             .attr("r", 6);
         chart.append("circle")
             .attr("cy", endpointsScale(endpointsMin))
-            .attr("cx", activitiesScale(NCI.timestampNCI) - barWidth/2 )
+            .attr("cx", activitiesScale(NCI.timestampNCI) - barWidth - barPadding*2)
             .style("fill", "red")
             .attr("r", 4);
         chart.append("circle")
