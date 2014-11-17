@@ -201,6 +201,7 @@ tapestry | clean_interval | [{days,0},{hms,{1,0,0}}] | interval between purging 
 tapestry | data_max_age | [{days,2},{hms,{0,0,0}}] | purge data older than data_max_age
 tapestry | use_graphviz | false | EXPERIMENTAL: use graphviz to calculate the location of the community dots in community graphs
 tapestry | neato_bin | "user/local/bin/neato" | path to neato from graphviz installation
+tapestry | community_detector | part_louvain | module to use for community detector (only set in sys.config)
 of_driver | listen_ip | {0,0,0,0} | open flow controller listener IP address
 of_driver | listen_port | 6653 | open flow controller listener port
 
