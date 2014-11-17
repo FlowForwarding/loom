@@ -69,7 +69,7 @@
     communities,
     sizes,
     cgraph,
-    vertexinfo
+    vertexinfo          % dictionary[Vertex] = Label
 }).
 
 %------------------------------------------------------------------------------
@@ -311,8 +311,10 @@ json_nci_details(_Time, undefined, no_communities, _Limits, _Neato, _UseGraphViz
     <<>>;
 json_nci_details(Time, undefined, CommunityData, Limits, Neato, UseGraphViz) ->
     json_nci_details(Time, 0, CommunityData, Limits, Neato, UseGraphViz);
-json_nci_details(Time, NCI, CommunityData = #community_data{sizes = Sizes},
-                                                Limits, Neato, UseGraphViz) ->
+json_nci_details(Time, NCI,
+            CommunityData = #community_data{sizes = Sizes,
+                                            vertexinfo = VertexInfoD},
+            Limits, Neato, UseGraphViz) ->
     MaxCommunities = proplists:get_value(max_communities, Limits),
     % make a list of the largest communities and truncate the list after
     % MaxCommunities elements.
@@ -327,8 +329,27 @@ json_nci_details(Time, NCI, CommunityData = #community_data{sizes = Sizes},
         {<<"Communities">>, community_details(CommunityData,
                                     CommunityList, Limits, Neato, UseGraphViz)},
         {<<"CommunityGraph">>, community_graph(CommunityData,
-                                                CommunityList, Limits)}
+                                                CommunityList, Limits)},
+        {<<"Labels">>, labels(VertexInfoD)}
     ]}).
+
+labels(VertexInfoD) ->
+    {
+        [{endpoint(K), label(PL)} || {K,{_, PL}} <- dict:to_list(VertexInfoD)]
+    }.
+
+label(PL) ->
+    format_label(name_value(proplists:get_value(label, PL))).
+
+format_label(Name) ->
+    {[{<<"Name">>, Name}]}.
+
+name_value(undefined) ->
+    <<"undefined">>;
+name_value(L) when is_binary(L) ->
+    L;
+name_value(L) when is_list(L) ->
+    list_to_binary(L).
 
 community_graph(no_communities, _CommunityList, _Limits) ->
     [];

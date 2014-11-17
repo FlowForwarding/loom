@@ -29,6 +29,6 @@ gethostbyaddr(Addr) ->
         {ok, #hostent{h_name = Hostname}} ->
             Hostname;
         {error, Error} ->
-            lists:flatten(io_lib:format("notfound~p", [Error]))
+            lists:flatten(io_lib:format("notfound_~p", [Error]))
     end,
     list_to_binary(R).
