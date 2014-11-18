@@ -523,7 +523,7 @@ community_degrees(#louvain_graphd{communitiesd = CommunitiesD,
                 end, L, NodeNeighbors)
         end, [], NeighborsD),
     % aggregate the Weights list by Community
-    ok = file:write_file("/tmp/bb", io_lib:format("~ncommunity_degrees: ~p~n", [Weights]), [append]),
+    % ok = file:write_file("/tmp/bb", io_lib:format("~ncommunity_degrees: ~p~n", [Weights]), [append]),
     lists:foldl(
         fun({C, AW, CW}, D) ->
             dict:update(C, fun({AS, CS}) -> {AS + AW, CS + CW} end, {AW, CW}, D)
