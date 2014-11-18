@@ -92,8 +92,10 @@
             .attr("r", 5)
             .style("fill", function(d) { return color(d.group); })
             .on("click", function(data) {
+                if (d3.event.defaultPrevented) return;
                 $(graph.node()).trigger("nodeClick", data);
             })
+            .call(this.force.drag)
             .append("title")
             .text(function(d) { return d.name; });
 
@@ -105,8 +107,6 @@
             .links(data.links)
             .start()
             .stop();
-
-        node.call(this.force.drag);
 
         this.force.on("tick", function() {
             link.attr("x1", function(d) { return d.source.x; })
