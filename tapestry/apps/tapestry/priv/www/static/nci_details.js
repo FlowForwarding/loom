@@ -116,7 +116,11 @@ NCI.detailsTabs = function(){
                 });
 
                 activities = activities.sort(function(a1, a2) {
-                    return a2.size - a1.size;
+                    var result = a2.size - a1.size;
+                    if (!result) {
+                        result = a1.index - a2.index;
+                    }
+                    return result;
                 });
 
 				new NCI.NCIHistogram(d3.select("#nciHistogram"), activities, {

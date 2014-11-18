@@ -118,7 +118,7 @@ NCI.NCIHistogram = (function(){
                 .classed("activity", true);
 
         bar.attr("transform", function(d, i) {
-            return "translate(" + (i * (barWidth + barPadding)) + ",0)";
+            return "translate(" + activitiesScale(i) + ",0)";
         });
 
         barEnter
@@ -173,7 +173,7 @@ NCI.NCIHistogram = (function(){
         //draw axis
         chart.append('g')
             .attr('class', 'x axis')
-            .attr('transform', 'translate(' + (-barPadding - barWidth) + ',' + (height) + ')')
+            .attr('transform', 'translate(' + (-barPadding) + ',' + (height) + ')')
             .call(activitiesAxis);
 
 
@@ -182,12 +182,12 @@ NCI.NCIHistogram = (function(){
 
         chart.append("circle")
             .attr("cy", endpointsScale(NCI.timestampNCI))
-            .attr("cx", activitiesScale(NCI.timestampNCI) - barWidth - barPadding*2)
+            .attr("cx", activitiesScale(NCI.timestampNCI) - barPadding - barWidth/2)
             .style("fill", "red")
             .attr("r", 6);
         chart.append("circle")
             .attr("cy", endpointsScale(endpointsMin))
-            .attr("cx", activitiesScale(NCI.timestampNCI) - barWidth - barPadding*2)
+            .attr("cx", activitiesScale(NCI.timestampNCI) - barPadding - barWidth/2)
             .style("fill", "red")
             .attr("r", 4);
         chart.append("circle")
