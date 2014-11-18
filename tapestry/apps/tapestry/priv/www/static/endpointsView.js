@@ -189,7 +189,12 @@
             } else {
                 $graphView.parent("li").removeClass("disabled");
                 $graphView.on("click", setGraphViewActive);
-                graph.setData(endpoints);
+                var graphData = endpoints.slice(),
+                    currentBreadcrumb = breadcrumbsData[breadcrumbsData.length - 1];
+                if (currentBreadcrumb !== topHundred) {
+                    graphData.push(currentBreadcrumb.endpoint);
+                }
+                graph.setData(graphData);
             }
 
             if (isGraphActive) {

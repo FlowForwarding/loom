@@ -75,7 +75,7 @@
             .data(data.links, function(d) {return d.index});
 
         link.enter()
-            .append("line")
+            .insert("line", ":first-child")
             .attr("class", "link")
             .style("stroke-width", function(d) { return Math.sqrt(d.value); });
 
@@ -83,27 +83,22 @@
             .remove();
 
         var node = graph.selectAll(".node")
-            .data(data.nodes, function(d) {return d.name}),
-            nodeEnter = node.enter()
-                .append("circle");
+            .data(data.nodes, function(d) {return d.name});
 
-        nodeEnter
+
+        node.enter()
+            .append("circle")
             .attr("class", "node")
             .attr("r", 5)
             .style("fill", function(d) { return color(d.group); })
             .on("click", function(data) {
                 $(graph.node()).trigger("nodeClick", data);
-            });
-
-        nodeEnter
+            })
             .append("title")
             .text(function(d) { return d.name; });
 
         node.exit()
             .remove();
-
-        node.order();
-        link.order();
 
         this.force
             .nodes(data.nodes)
@@ -139,7 +134,6 @@
         $(this.graph.node()).on("nodeClick", function(event, data) {
             var ip = data.name;
             $me.trigger("click", NCI.model.getEndpointByIp(ip));
-            console.log(data);
         });
 
 
