@@ -26,7 +26,7 @@
 
 -export([start_link/0,
          num_endpoints/3,
-         nci/5,
+         nci/6,
          qps/4,
          new_client/1,
          more_nci_data/4,
@@ -65,6 +65,13 @@
 -define(DOTFILENAME, "/tmp/tapestry.dot").
 -define(NEATO_OPTS, "-Tplain").
 
+-record(community_data, {
+    communities,
+    sizes,
+    cgraph,
+    vertexinfo          % dictionary[Vertex] = Label
+}).
+
 %------------------------------------------------------------------------------
 % API
 %------------------------------------------------------------------------------
@@ -75,9 +82,14 @@ start_link() ->
 num_endpoints(Endpoints, Edges, DateTime) ->
     gen_server:cast(?MODULE, {num_endpoints, Endpoints, Edges, DateTime}).
 
-nci(NCI, Communities, CommunitySizes, CommunityGraph, DateTime) ->
-    gen_server:cast(?MODULE,
-            {nci, NCI, Communities, CommunitySizes, CommunityGraph, DateTime}).
+nci(NCI, Communities, CommunitySizes, CommunityGraph, VertexInfo, DateTime) ->
+    CommunityData = #community_data{
+        communities = Communities,
+        sizes = CommunitySizes,
+        cgraph = CommunityGraph,
+        vertexinfo = VertexInfo
+    },
+    gen_server:cast(?MODULE, {nci, NCI, CommunityData, DateTime}).
 
 qps(Sender, QPS, Collectors, DateTime) ->
     gen_server:cast(?MODULE, {qps, Sender, QPS, Collectors, DateTime}).
@@ -161,8 +173,7 @@ handle_cast({num_endpoints, NEP, NE, UT},
         false -> State
     end,
     {noreply, NewState};
-handle_cast({nci, NCI, Communities, CommunitySizes, CommunityGraph, UT},
-                                        State = #?STATE{nci_log = NCILog,
+handle_cast({nci, NCI, CommunityData, UT}, State = #?STATE{nci_log = NCILog,
                                                         clients = Clients}) ->
     true = ets:insert(NCILog, {UT, NCI}),
     Time = list_to_binary(tap_time:rfc3339(UT)),
@@ -171,11 +182,7 @@ handle_cast({nci, NCI, Communities, CommunitySizes, CommunityGraph, UT},
     {noreply, State#?STATE{last_nci = JSON,
                            nci = NCI,
                            last_nci_time = Time,
-                           community_data =
-                                {Communities,
-                                 dict:from_list(CommunitySizes),
-                                 CommunityGraph
-                                }
+                           community_data = CommunityData
                           }};
 handle_cast({limits, Pid}, State = #?STATE{limits = Limits}) ->
     clientsock:send(Pid, json_limits(<<"getlimits">>, Limits)),
@@ -304,7 +311,10 @@ json_nci_details(_Time, undefined, no_communities, _Limits, _Neato, _UseGraphViz
     <<>>;
 json_nci_details(Time, undefined, CommunityData, Limits, Neato, UseGraphViz) ->
     json_nci_details(Time, 0, CommunityData, Limits, Neato, UseGraphViz);
-json_nci_details(Time, NCI, CommunityData = {_, Sizes, _}, Limits, Neato, UseGraphViz) ->
+json_nci_details(Time, NCI,
+            CommunityData = #community_data{sizes = Sizes,
+                                            vertexinfo = VertexInfoD},
+            Limits, Neato, UseGraphViz) ->
     MaxCommunities = proplists:get_value(max_communities, Limits),
     % make a list of the largest communities and truncate the list after
     % MaxCommunities elements.
@@ -319,13 +329,34 @@ json_nci_details(Time, NCI, CommunityData = {_, Sizes, _}, Limits, Neato, UseGra
         {<<"Communities">>, community_details(CommunityData,
                                     CommunityList, Limits, Neato, UseGraphViz)},
         {<<"CommunityGraph">>, community_graph(CommunityData,
-                                                CommunityList, Limits)}
+                                                CommunityList, Limits)},
+        {<<"Labels">>, labels(VertexInfoD)}
     ]}).
+
+labels(VertexInfoD) ->
+    {
+        [{endpoint(K), label(PL)} || {K,{_, PL}} <- dict:to_list(VertexInfoD)]
+    }.
+
+label(PL) ->
+    format_label(name_value(proplists:get_value(label, PL))).
+
+format_label(Name) ->
+    {[{<<"Name">>, Name}]}.
+
+name_value(undefined) ->
+    <<"undefined">>;
+name_value(L) when is_binary(L) ->
+    L;
+name_value(L) when is_list(L) ->
+    list_to_binary(L).
 
 community_graph(no_communities, _CommunityList, _Limits) ->
     [];
-community_graph({{_Endpoints, _Interactions}, Sizes,
-                    {_Cendpoints, Cinteractions}}, CommunityList, _Limits) ->
+community_graph(#community_data{sizes = Sizes,
+                                cgraph = {_Cendpoints, Cinteractions}
+                               },
+                               CommunityList, _Limits) ->
     {[
         {<<"Endpoints">>, cendpoints(CommunityList, Sizes)},
         {<<"Interactions">>, cinteractions(Cinteractions, CommunityList, Sizes)}
@@ -359,8 +390,10 @@ cinteractions(Interactions, CommunityList, Sizes) ->
 
 community_details(no_communities, _CommunityList, _Limits, _Neato, _UseGraphViz) ->
     [];
-community_details({{EndpointsD, InteractionsD}, SizesD, _Comms},
-                                        CommunityList, Limits, Neato, UseGraphViz) ->
+community_details(#community_data{communities = {EndpointsD, InteractionsD},
+                                  sizes = SizesD
+                                 },
+                                 CommunityList, Limits, Neato, UseGraphViz) ->
     MaxVertices = proplists:get_value(max_vertices, Limits),
     MaxEdges = proplists:get_value(max_edges, Limits),
     lists:foldl(

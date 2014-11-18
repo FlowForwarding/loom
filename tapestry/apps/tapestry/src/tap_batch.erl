@@ -26,7 +26,8 @@
 
 -export([start_link/0,
          load/2,
-         push_qps/0]).
+         push_qps/0,
+         parse_logfile/1]).
 
 -export([init/1,
          handle_call/3,
@@ -174,7 +175,7 @@ load_tar(IpAddr, FtpFile, State) ->
     State1.
 
 load_logfile(IpAddr, FtpFile, State) ->
-    Data = parse_logfile(FtpFile),
+    Data = parse_zlogfile(FtpFile),
     ?DEBUG("ftp log data tar length from ~p: ~p~n",[IpAddr, length(Data)]),
     tap_ds:ordered_edges(Data),
     State1 = add_collector(IpAddr, length(Data), State),
@@ -207,13 +208,16 @@ parse_file(<<BitString:53/binary, BinaryData/binary>>, Data) ->
     <<_Time:10/binary, _S:1/binary,
        ID1:20/binary, _S:1/binary,
        ID2:20/binary, _Rest/binary>> = BitString,
-    Interaction = {ID1, ID2},
+    Interaction = {ID1, anonymous, ID2, anonymous},
     parse_file(BinaryData, [Interaction | Data]);
 parse_file(_BinaryData, Data)->
     lists:reverse(Data).
 
-parse_logfile(ZBin) ->
+parse_zlogfile(ZBin) ->
     Bin =  safe_gunzip(ZBin),
+    parse_logfile(Bin).
+
+parse_logfile(Bin) ->
     % match log records:
     % ipv4 example:
     %   15-May-2014 13:33:18.468 client 192.168.11.172#50276: view
@@ -223,7 +227,7 @@ parse_logfile(ZBin) ->
     %   p14-keyvalueservice.icloud.com.akadns.net. 120 IN A 17.151.226.32;
     %   p14-keyvalueservice.icloud.com.akadns.net. 120 IN A 17.151.226.33;
 
-    % ipv6 example:
+    % ipv6 examples:
     %   15-May-2014 13:33:26.049 client 192.168.11.130#49974: view
     %   8: UDP: query: www.isg-apple.com.akadns.net IN AAAA response:
     %   NOERROR + www.isg-apple.com.akadns.net. 27 IN CNAME
@@ -232,8 +236,17 @@ parse_logfile(ZBin) ->
     %   20 IN AAAA 2001:418:142a:194::c77; e3191.dscc.akamaiedge.net.
     %   20 IN AAAA 2001:418:142a:19d::c77; e3191.dscc.akamaiedge.net.
     %   20 IN AAAA 2001:418:142a:18e::c77;
+    %
+    %   29-Oct-2014 09:48:02.588 client 2620:10a:6000:2000::2c6#7908:
+    %   UDP: query: daisy.ubuntu.com IN A response: NOERROR + daisy.ubuntu.com.
+    %   339 IN A 91.189.92.55; daisy.ubuntu.com. 339 IN A 91.189.92.57;
+    %
+    %   29-Oct-2014 09:48:06.309 client 2620:10a:6000:2000::28c#23959:
+    %   UDP: query: outlook.infoblox.com IN A response: NOERROR +A
+    %   outlook.infoblox.com. 10 IN CNAME casarray1.infoblox.com.;
+    %   casarray1.infoblox.com. 10 IN A 10.120.3.104;
 
-    Matches = case re:run(Bin,"client ([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})#.* UDP: query: (.*) IN A+ response: NOERROR .*? IN A+ ((?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})|(?:[:a-f0-9]+));", [global, {capture,[2,1,3],binary}]) of
+    Matches = case re:run(Bin,"client ((?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})|(?:[:a-f0-9]+)).* UDP: query: (.*) IN A+ response: NOERROR .*? IN A+ ((?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})|(?:[:a-f0-9]+));", [global, {capture,[2,1,3],binary}]) of
         {match, M} -> M;
         _ -> []
     end,
@@ -241,8 +254,11 @@ parse_logfile(ZBin) ->
     % results in references to the larger binary that impedes gc of the
     % binry heap.  Could also binary:copy/1.  This makes the batch
     % processing more consistent with the packet_in processing.
-    [{inet_parse_address(Requester), inet_parse_address(Resolved)} ||
-                                [_Query, Requester, Resolved] <- Matches].
+    [{tap_ds:endpoint(inet_parse_address(Requester),
+                        tap_dns:gethostbyaddr(Requester)),
+     tap_ds:endpoint(inet_parse_address(Resolved),
+                        Query)} ||
+                                    [Query, Requester, Resolved] <- Matches].
 
 inet_parse_address(B) ->
     {ok, IpAddr} = inet:parse_address(binary_to_list(B)),
