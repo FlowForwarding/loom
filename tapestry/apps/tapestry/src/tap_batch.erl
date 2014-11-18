@@ -27,7 +27,7 @@
 -export([start_link/0,
          load/2,
          push_qps/0,
-         parse_logfile/1]).
+         parse_logfile/2]).
 
 -export([init/1,
          handle_call/3,
@@ -46,7 +46,11 @@
         last_qps_time,
         qps_update_interval,
         qps_timer,
-        last_qps = 0.0
+        last_qps = 0.0,
+        requester_whitelist = [],
+        requester_blacklist = [],
+        resolved_whitelist = [],
+        resolved_blacklist = []
     }).
 
 -define(MIN_UPDATE_TIME_MILLIS, 250).
@@ -71,12 +75,22 @@ push_qps() ->
 
 init([]) ->
     gen_server:cast(?MODULE, start),
+    State = #?STATE{
+        requester_whitelist =
+                        mkmasks(tap_config:getconfig(requester_whitelist)),
+        requester_blacklist =
+                        mkmasks(tap_config:getconfig(requester_blacklist)),
+        resolved_whitelist =
+                        mkmasks(tap_config:getconfig(resolved_whitelist)),
+        resolved_blacklist =
+                        mkmasks(tap_config:getconfig(resolved_blacklist))
+    },
     case {tap_config:is_defined(anonymized, datasources),
                     tap_config:is_defined(logfile, datasources)} of
         {true, false} ->
-            {ok, #?STATE{mode = anonymized}};
+            {ok, State#?STATE{mode = anonymized}};
         {false, true} ->
-            {ok, #?STATE{mode = logfile}};
+            {ok, State#?STATE{mode = logfile}};
         {true, true} ->
             {stop, bad_config_has_both_logfile_and_anonymized_datasources}
     end.
@@ -175,7 +189,15 @@ load_tar(IpAddr, FtpFile, State) ->
     State1.
 
 load_logfile(IpAddr, FtpFile, State) ->
-    Data = parse_zlogfile(FtpFile),
+    FilterFn = fun(RequesterIpAddr, ResolvedIpAddr) ->
+                   tap_dns:allow(RequesterIpAddr,
+                       State#?STATE.requester_whitelist,
+                       State#?STATE.requester_blacklist) andalso
+                   tap_dns:allow(ResolvedIpAddr,
+                       State#?STATE.resolved_whitelist,
+                       State#?STATE.resolved_blacklist)
+               end,
+    Data = parse_zlogfile(FtpFile, FilterFn),
     ?DEBUG("ftp log data tar length from ~p: ~p~n",[IpAddr, length(Data)]),
     tap_ds:ordered_edges(Data),
     State1 = add_collector(IpAddr, length(Data), State),
@@ -213,11 +235,11 @@ parse_file(<<BitString:53/binary, BinaryData/binary>>, Data) ->
 parse_file(_BinaryData, Data)->
     lists:reverse(Data).
 
-parse_zlogfile(ZBin) ->
+parse_zlogfile(ZBin, FilterFn) ->
     Bin =  safe_gunzip(ZBin),
-    parse_logfile(Bin).
+    parse_logfile(Bin, FilterFn).
 
-parse_logfile(Bin) ->
+parse_logfile(Bin, FilterFn) ->
     % match log records:
     % ipv4 example:
     %   15-May-2014 13:33:18.468 client 192.168.11.172#50276: view
@@ -252,16 +274,27 @@ parse_logfile(Bin) ->
     end,
     % convert addresses to the tuple format. Storing the binaries directly
     % results in references to the larger binary that impedes gc of the
-    % binry heap.  Could also binary:copy/1.  This makes the batch
-    % processing more consistent with the packet_in processing.
-    [{tap_ds:endpoint(inet_parse_address(Requester),
+    % binry heap.  Could also binary:copy/1.  Decoding addresses
+    % This makes the batch processing more consistent with the packet_in
+    % processing.
+    lists:reverse(lists:foldl(
+        fun([Query, Requester, Resolved], L) ->
+            RequesterIpAddr = inet_parse_address(Requester),
+            ResolvedIpAddr = inet_parse_address(Resolved),
+            case FilterFn(RequesterIpAddr, ResolvedIpAddr) of
+                false ->
+                    L;
+                true ->
+                    [{tap_ds:endpoint(RequesterIpAddr,
                         tap_dns:gethostbyaddr(Requester)),
-     tap_ds:endpoint(inet_parse_address(Resolved),
-                        Query)} ||
-                                    [Query, Requester, Resolved] <- Matches].
+                      tap_ds:endpoint(ResolvedIpAddr, Query)} | L]
+            end
+        end, [], Matches)).
 
-inet_parse_address(B) ->
-    {ok, IpAddr} = inet:parse_address(binary_to_list(B)),
+inet_parse_address(B) when is_binary(B) ->
+    inet_parse_address(binary_to_list(B));
+inet_parse_address(L) when is_list(L) ->
+    {ok, IpAddr} = inet:parse_address(L),
     IpAddr.
 
 safe_gunzip(ZBin) ->
@@ -270,3 +303,7 @@ safe_gunzip(ZBin) ->
     catch
         error:data_error -> <<>>
     end.
+
+mkmasks(MaskList) ->
+    [tap_dns:mkmask(inet_parse_address(Addr), Length) ||
+                                            {Addr, Length} <- MaskList].
