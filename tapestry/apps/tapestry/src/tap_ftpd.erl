@@ -369,7 +369,11 @@ set_path({dir, Root, FileInfo}, [Current | Rest], Val) ->
 
 save_file(Name, Data) ->
     case tap_config:getconfig(save_files) of
-        true -> file:write_file(Name, Data);
+        true ->
+            SaveFileDir = tap_config:getconfig(save_file_dir),
+            BaseName = filename:basename(Name),
+            SaveName = filename:join(SaveFileDir, BaseName),
+            file:write_file(SaveName, Data);
         _ -> ok
     end.
 
