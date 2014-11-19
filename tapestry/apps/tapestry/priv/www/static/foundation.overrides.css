@@ -546,6 +546,10 @@ body {
     display: none;
 }
 
+.axis .axis-line {
+    stroke-width: 2px;
+}
+
 
 .node {
     stroke: #fff;
