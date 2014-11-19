@@ -181,7 +181,7 @@
             indexMap[endpoint.ip] = index;
             nodes.push({
                 name: endpoint.ip,
-                group: endpoint.activity.index
+                group: endpoint.activity ? endpoint.activity.index : 0
             });
         });
 
