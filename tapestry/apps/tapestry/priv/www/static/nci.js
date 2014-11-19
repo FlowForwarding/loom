@@ -211,43 +211,6 @@ $(".hide-collectorsdetails").on('click', function(){
 	$('#collectorsInfo').removeClass('details-view-show');
 });
 
-NCI.isExternal = (function() {
-    function ip4ToNum(ip4) {
-        // use 3 since it's ip4
-        return ip4.split(".").reduce(function(res, bit, index) {
-            return res + bit*Math.pow(256, 3 - index);
-        }, 0);
-    }
-
-    function makeMask(n) {
-        return (maxBits<<(32 - n)) & maxBits;
-    }
-
-    function parseNetwork(network) {
-        var buf = network.split("/"),
-            mask = makeMask(buf[1]),
-            networkIPNum = ip4ToNum(buf[0]),
-            networkRes = networkIPNum & mask;
-        return {
-            mask: mask,
-            networkRes: networkRes
-        }
-    }
-
-    var maxBits = Math.pow(2, 32) - 1,
-        networks = ["10/8", "172.16/12", "192.168/16"].map(parseNetwork);
-
-    return function(endpoint) {
-        var ip4NumAddress = ip4ToNum(endpoint),
-            result = networks.reduce(function(val, network) {
-                return val || ((ip4NumAddress & network.mask) == network.networkRes)
-            }, false);
-
-        return !result;
-    };
-})();
-
-
 NCI.initSocket = function(){
 	if (NCI.is_uiwebview && (NCI.connectionURL == ("ws://" + location.host + "/clientsock.yaws"))){
 		return;
