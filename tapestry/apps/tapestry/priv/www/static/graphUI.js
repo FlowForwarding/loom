@@ -64,11 +64,16 @@
 
         if (this.force) {
             this.force.stop();
+
+        } else {
+            this.force = d3.layout.force()
+                .charge(-120)
+                .linkDistance(30)
         }
 
-        this.force = d3.layout.force()
-            .charge(-120)
-            .linkDistance(30)
+        this.force
+            .nodes(data.nodes)
+            .links(data.links)
             .size([width, height]);
 
         var link = graph.selectAll(".link")
@@ -103,8 +108,6 @@
             .remove();
 
         this.force
-            .nodes(data.nodes)
-            .links(data.links)
             .start()
             .stop();
 
@@ -149,7 +152,9 @@
     };
 
     Graph.prototype.setData = function(data) {
-        this.data = buildGraphData(data);
+        var currentData = buildGraphData(data, this.data);
+
+        this.data = currentData;
         this._update();
     };
 
@@ -172,30 +177,54 @@
         this.container = null;
     };
 
-    function buildGraphData(data) {
+    function buildGraphData(data, currentData) {
         var nodes = [],
             links = [],
-            indexMap = {};
+            indexMap = {},
+            currentNodesMap = {},
+            currentLinksMap = {};
 
+        if (currentData) {
+            currentData.nodes.forEach(function(node) {
+                currentNodesMap[node.name] = node;
+            });
+            currentData.links.forEach(function (link) {
+                currentLinksMap[link.hash] = link;
+            });
+        }
         data.forEach(function (endpoint, index) {
             indexMap[endpoint.ip] = index;
-            nodes.push({
-                name: endpoint.ip,
-                group: endpoint.activity ? endpoint.activity.index : 0
-            });
+            if (endpoint.ip in currentNodesMap) {
+                nodes.push(currentNodesMap[endpoint.ip]);
+            } else {
+                nodes.push({
+                    name: endpoint.ip,
+                    group: endpoint.activity ? endpoint.activity.index : 0
+                });
+            }
         });
 
         data.forEach(function (endpoint) {
             var sourceIndex = indexMap[endpoint.ip];
             Object.keys(endpoint.connections).forEach(function (ip) {
-                var targetIndex = indexMap[ip];
+                var targetIndex = indexMap[ip],
+                    hash,
+                    link;
                 if (targetIndex !== null && targetIndex !== undefined) {
-                    links.push({
-                        source: sourceIndex,
-                        target: targetIndex,
-                        value: 1,
-                        index: [sourceIndex, targetIndex].join("|")
-                    });
+                    hash = [endpoint.ip, ip].join("|");
+
+                    if (hash in currentLinksMap) {
+                        link = currentLinksMap[hash];
+                        links.push(link);
+                    } else {
+                        links.push({
+                            source: sourceIndex,
+                            target: targetIndex,
+                            value: 1,
+                            hash: hash,
+                            index: [sourceIndex, targetIndex].join("|")
+                        });
+                    }
                 }
             });
 
@@ -208,52 +237,3 @@
 
     NCI.Graph = Graph;
 })();
-
-function buildVivaGraph(data) {
-    var nodes = [],
-        links = [],
-        indexMap = {};
-
-    data.forEach(function (endpoint, index) {
-        indexMap[endpoint.ip] = index;
-        nodes.push({
-            name: endpoint.ip,
-            group: endpoint.activity.index
-        });
-    });
-
-    var graph = Viva.Graph.graph();
-
-    data.forEach(function (endpoint) {
-        var sourceIndex = indexMap[endpoint.ip];
-        Object.keys(endpoint.connections).forEach(function (ip) {
-            var targetIndex = indexMap[ip];
-            if (targetIndex !== null && targetIndex !== undefined) {
-                graph.addLink(sourceIndex, targetIndex);
-            }
-        });
-
-        indexMap[endpoint.ip] = null;
-    });
-
-    var layout = Viva.Graph.Layout.forceDirected(graph, {
-        springLength : 80,
-        springCoeff : 0.0005,
-        dragCoeff : 0.02,
-        gravity : -1.2,
-        stableThreshold: 1
-    });
-
-    var graphics = Viva.Graph.View.webglGraphics();
-
-    var renderer = Viva.Graph.View.renderer(graph, {
-        graphics: graphics,
-        layout: layout
-    });
-    var result = {nodes: nodes, links: links};
-
-    console.log(result);
-
-    renderer.run();
-
-}
