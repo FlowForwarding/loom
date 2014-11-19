@@ -203,7 +203,7 @@
         }
 
         function setActiveEndpoint(endpoint) {
-            var endpoints = Object.keys(endpoint.connections).map(function(key) {return endpoint.connections[key]}),
+            var endpoints = endpoint.getConnections(),
                 indexOfBreadcrumb = -1;
 
             breadcrumbsData.forEach(function(breadcrumb, index) {
