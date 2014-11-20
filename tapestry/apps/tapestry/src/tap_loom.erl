@@ -167,6 +167,7 @@ process_packetin(Reason, _TableId, _Match, _Data, _DatapathId, _IpAddr) ->
     ?DEBUG("packetin reason = ~p~n", [Reason]).
 
 dns_reply(Data, DatapathId, CollectorIP) ->
+    % XXX apply white lists and black lists
     try
 	Packet = pkt:decapsulate({ether, Data}),
 	case Packet of 

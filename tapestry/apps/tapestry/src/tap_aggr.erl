@@ -85,6 +85,7 @@ handle_cast(start, State) ->
                     qps_update_interval = qps_update_interval()}),
     {noreply, NewState};
 handle_cast(push_qps, State = #?STATE{collectors = Collectors}) ->
+    % XXX expire collectors
     Now = tap_time:now(),
     CollectorStats = [{ofswitch,
                     DatapathId, IpAddr, per_sec(?DP_QCOUNT(DatapathId))} ||

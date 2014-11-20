@@ -149,7 +149,7 @@ handle_call(Msg, From, State) ->
 
 handle_cast(start, State) ->
     StartTime = calendar:universal_time(),
-    Time = list_to_binary(tap_time:rfc3339(StartTime)),
+    Time = rfc3339bin(StartTime),
     COLS = encode_cols(Time, 0),
     LNCI = encode_nci(Time, 0),
     LNEP = encode_nep(Time, 0, 0),
@@ -166,7 +166,7 @@ handle_cast({num_endpoints, NEP, NE, UT},
                                                     clients = Clients}) ->
     NewState = case NEP =/= LIntNEP of
         true ->
-            Time = list_to_binary(tap_time:rfc3339(UT)),
+            Time = rfc3339bin(UT),
             JSON = encode_nep(Time, NEP, NE),
             broadcast_msg(Clients, JSON),
             State#?STATE{last_nep = JSON, last_int_nep = NEP};
@@ -176,7 +176,7 @@ handle_cast({num_endpoints, NEP, NE, UT},
 handle_cast({nci, NCI, CommunityData, UT}, State = #?STATE{nci_log = NCILog,
                                                         clients = Clients}) ->
     true = ets:insert(NCILog, {UT, NCI}),
-    Time = list_to_binary(tap_time:rfc3339(UT)),
+    Time = rfc3339bin(UT),
     JSON = encode_nci(Time, NCI),
     broadcast_msg(Clients, JSON),
     {noreply, State#?STATE{last_nci = JSON,
@@ -210,7 +210,7 @@ handle_cast({qps, Sender, QPS, Collectors, UT},
                                 State = #?STATE{clients = Clients,
                                                 collectors = CollectorDict}) ->
     NewCollectorDict = save_collector(Sender, QPS, Collectors, CollectorDict),
-    Time = list_to_binary(tap_time:rfc3339(UT)),
+    Time = rfc3339bin(UT),
     QPSMsg = encode_qps(Time, collector_qps(NewCollectorDict)),
     broadcast_msg(Clients, QPSMsg),
     COLMsg = encode_cols(Time, collector_count(NewCollectorDict)),
@@ -228,10 +228,9 @@ handle_cast({new_client, Pid}, State = #?STATE{clients = Clients,
     monitor(process, Pid),
     ?DEBUG("tap_client_data: new client ~p~n",[Pid]),
     HELLO = jiffy:encode({[{<<"action">>, <<"hello">>},
-                           {<<"start_time">>,
-                                list_to_binary(tap_time:rfc3339(StartTime))},
+                           {<<"start_time">>, rfc3339bin(StartTime)},
                            {<<"current_time">>,
-                                list_to_binary(tap_time:rfc3339(calendar:universal_time()))}]}),
+                                rfc3339bin(calendar:universal_time())}]}),
     clientsock:send(Pid, HELLO),
     clientsock:send(Pid, LNCI),
     clientsock:send(Pid, LNEP),
@@ -298,7 +297,7 @@ send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
     ?DEBUG("tap_client_data: sending more data ~p to ~p~n",[Data,Pid]),
     JSONData = lists:foldl(
                     fun({Time, Value}, AccIn) ->
-                        [{[{<<"Time">>, list_to_binary(tap_time:rfc3339(Time))},
+                        [{[{<<"Time">>, rfc3339bin(Time)},
                          {<<"NCI">>, Value}]} | AccIn]
                     end, [], Data),
     JSON = jiffy:encode(JSONData),
@@ -506,11 +505,12 @@ collector({ofswitch, DatapathId, IpAddr, QPS}) ->
         {<<"datapath_id">>,list_to_binary(DatapathId)},
         {<<"qps">>,format_qps(QPS)}
     ];
-collector({grid, IpAddr, QPS}) ->
+collector({grid, IpAddr, LastUpdate, QPS}) ->
     [
         {<<"collector_type">>,<<"IB Grid Member">>},
         {<<"ip">>,endpoint(IpAddr)},
         {<<"datapath_id">>,<<>>},
+        {<<"lastupdate">>,rfc3339bin(LastUpdate)},
         {<<"qps">>,format_qps(QPS)}
     ].
 
@@ -680,3 +680,6 @@ binary_to_number(B) when is_binary(B) ->
         error:badarg ->
             binary_to_integer(B)
     end.
+
+rfc3339bin(T) ->
+    list_to_binary(tap_time:rfc3339(T)).

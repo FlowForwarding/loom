@@ -191,6 +191,7 @@ tapestry | web_id | "tapestry" | webserver identifier
 tapestry | ftpd_address | {0,0,0,0} | ftp server listener IP address
 tapestry | ftpd_port | 7777 | ftp server listener port
 tapestry | datasources | [packet_in] | identifies sources of DNS information
+tapestry | max_collector_idle_time | 600 | remove a collector from the report if no data received for this many seconds
 tapestry | nci_min_interval | {seconds, 15} | shortest time between nci calculations
 tapestry | max_vertices | 300 | maximum number of vertices before dropping a community's detail
 tapestry | max_edges | 1000 | maximum number of edges before dropping a community's detail

@@ -42,9 +42,9 @@
 -record(?STATE, {
         mode,
         collectors = dict:new(),
+        max_collector_idle_time,
         total_count = 0,
         last_qps_time,
-        qps_update_interval,
         qps_timer,
         last_qps = 0.0,
         requester_whitelist = [],
@@ -83,7 +83,8 @@ init([]) ->
         resolved_whitelist =
                         mkmasks(tap_config:getconfig(resolved_whitelist)),
         resolved_blacklist =
-                        mkmasks(tap_config:getconfig(resolved_blacklist))
+                        mkmasks(tap_config:getconfig(resolved_blacklist)),
+        max_collector_idle_time = tap_config:getconfig(max_collector_idle_time)
     },
     case {tap_config:is_defined(anonymized, datasources),
                     tap_config:is_defined(logfile, datasources)} of
@@ -108,9 +109,10 @@ handle_cast({load, IpAddr, FtpFile}, State = #?STATE{mode = logfile}) ->
     NewState = load_logfile(IpAddr, FtpFile, State),
     {noreply, NewState, hibernate};
 handle_cast(push_qps, State) ->
-    State1 = push_qps(State),
-    State2 = qps_timer(State1),
-    {noreply, State2, hibernate};
+    State1 = qps_timer(
+                push_qps(
+                    expire_collectors(State))),
+    {noreply, State1, hibernate};
 handle_cast(Msg, State) ->
     error({no_handle_cast, ?MODULE}, [Msg, State]).
 
@@ -151,8 +153,24 @@ maybe_push_qps(#?STATE{last_qps_time = LastUpdate}) ->
         _ -> ok
     end.
 
+expire_collectors(State = #?STATE{max_collector_idle_time =
+                                                MaxCollectorIdleTime,
+                                  collectors = Collectors}) ->
+    ActiveCollectors = dict:fold(
+        fun(IpAddr, Value = {Time, _}, D) ->
+            case tap_time:since(Time) > MaxCollectorIdleTime of
+                true ->
+                    ?DEBUG("Expire collector ~p", [IpAddr]),
+                    D;
+                false ->
+                    dict:store(IpAddr, Value, D)
+            end
+        end, dict:new(), Collectors),
+    State#?STATE{collectors = ActiveCollectors}.
+
 push_qps(State = #?STATE{collectors = Collectors}) ->
-    CollectorStats = [{grid, IpAddr, per_sec(Count, Time)} ||
+    CollectorStats = [{grid, IpAddr,
+                        tap_time:universal(Time), per_sec(Count, Time)} ||
                         {IpAddr, {Time, Count}} <- dict:to_list(Collectors)],
     Now = tap_time:now(),
     {QPS, NewState} = update_qps(State),
