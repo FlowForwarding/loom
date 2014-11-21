@@ -39,8 +39,7 @@
 -define(STATE, tap_ds_state).
 -record(?STATE,{
             nci_update_timer,
-            clean_timer,
-            data_max_age}).
+            clean_timer}).
 
 %------------------------------------------------------------------------------
 % API
@@ -72,16 +71,15 @@ handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
 handle_cast(start, State) ->
-    DataMaxAge = data_max_age(),
     {ok, NCITimer} = interval_timer(fun nci_min_interval/0, fun push_nci/0),
     {ok, CleanTimer} = interval_timer(fun clean_interval/0, fun clean_data/0),
     {noreply, State#?STATE{nci_update_timer = NCITimer,
-                           clean_timer = CleanTimer,
-                           data_max_age = DataMaxAge}};
-handle_cast(push_nci, State = #?STATE{}) ->
+                           clean_timer = CleanTimer}};
+handle_cast(push_nci, State) ->
     tap_ds:push_nci(),
     {noreply, State};
-handle_cast(clean_data, State = #?STATE{data_max_age = DataMaxAge}) ->
+handle_cast(clean_data, State) ->
+    DataMaxAge = data_max_age(),
     tap_ds:clean_data(DataMaxAge),
     {noreply, State};
 handle_cast(Msg, State) ->
