@@ -201,19 +201,6 @@
         rows.order();
     }
 
-
-    function stringToRegex(str) {
-        // converts string with wildcards to regex
-        // * - zero or more
-        // ? - exact one
-
-        str = str.replace(/\./g, "\\.");
-        str = str.replace(/\?/g, ".");
-        str = str.replace(/\*/g, ".*");
-
-        return new RegExp(str);
-    }
-
     function defaultRenderer(value) {
         return value;
     }
@@ -281,7 +268,8 @@
     }
 
     var ASC_DIRECTION = 1,
-        DESC_DIRECTION = -1;
+        DESC_DIRECTION = -1,
+        stringToRegex = NCI.utils.wildcardStringToRegExp;
 
     Table.ASC_DIRECTION = ASC_DIRECTION;
     Table.DESC_DIRECTION = DESC_DIRECTION;

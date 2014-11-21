@@ -103,11 +103,24 @@ NCI.NCIHistogram = (function(){
         chart.selectAll(".axis")
             .remove();
 
+        //draw axis
+        chart.append('g')
+            .attr('class', 'x axis')
+            .attr('transform', 'translate(' + (-barPadding) + ',' + (height) + ')')
+            .call(activitiesAxis);
 
         chart.insert('g')
             .attr('class', 'y axis')
             .attr('transform', 'translate(' + (width - barPadding) + ')')
-            .call(endpointsAxis);
+            .call(endpointsAxis)
+            .append("line")
+            .attr({
+                class: "axis-line",
+                x1: -width,
+                x2: -width,
+                y1: -10,
+                y2: height
+            });
 
 
         //draw bars
@@ -169,14 +182,6 @@ NCI.NCIHistogram = (function(){
 //            $(chart.node()).trigger("barClick", d);
         });
 
-
-        //draw axis
-        chart.append('g')
-            .attr('class', 'x axis')
-            .attr('transform', 'translate(' + (-barPadding) + ',' + (height) + ')')
-            .call(activitiesAxis);
-
-
         chart.selectAll("circle")
             .remove();
 
@@ -192,7 +197,7 @@ NCI.NCIHistogram = (function(){
             .attr("r", 4);
         chart.append("circle")
             .attr("cy", endpointsScale(NCI.timestampNCI))
-            .attr("cx", activitiesScale(activitiesMin))
+            .attr("cx", activitiesScale(activitiesMin) - barPadding)
             .style("fill", "red")
             .attr("r", 4);
 

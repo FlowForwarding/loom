@@ -78,6 +78,11 @@
         }
     };
 
+    Endpoint.prototype.getConnections = function() {
+        var connections = this.connections;
+        return Object.keys(connections).map(function(key) {return connections[key]});
+    };
+
     var endpointsList = [];
 
     NCI.model = {

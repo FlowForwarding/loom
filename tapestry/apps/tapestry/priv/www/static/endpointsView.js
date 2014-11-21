@@ -30,8 +30,8 @@
             $tableView = $container.find(".show-table"),
             $graphView = $container.find(".show-graph"),
             $endpointSortMenu = $container.find(".endpoint-sort"),
+            $endpointFilter = $container.find(".endpoint-filter"),
             $prevSort = $(),
-            endpoints = sortEndpoints(NCI.model.endpoints(), "totalConnections", "desc"),
             d3Container = d3.select(container),
             activitiesListContainer = d3Container.select(".activities-list"),
             endpointsHistogramContainer = d3Container.select(".endpoints-histogram"),
@@ -42,9 +42,9 @@
             isGraphActive = false,
             topHundred = {
                 name: "All Endpoints",
-                endpoints: endpoints
+                endpoints: sortEndpoints(NCI.model.endpoints(), "totalConnections", "desc")
             },
-            breadcrumbsData = [topHundred];
+            breadcrumbsData;
 
         this.stop = function() {
             graph.stop();
@@ -55,6 +55,27 @@
                 graph.resume();
             }
         };
+
+        $endpointFilter.on("keyup", function() {
+            var filterRe = NCI.utils.wildcardStringToRegExp($(this).val()),
+                currentBreadcrumb = breadcrumbsData[breadcrumbsData.length - 1],
+                endpoints = currentBreadcrumb.endpoints;
+
+            if (currentBreadcrumb !== topHundred) {
+                endpoints = currentBreadcrumb.endpoint.getConnections();
+            }
+
+            endpoints = endpoints.filter(function(ep) {
+                return filterRe.test(ep.ip);
+            });
+
+//            if ($endpointSortMenu.filter(":hidden").length == 0) {
+                var sortOptions = getSortOptions($endpointSortMenu.find("[data-sort-direction].active"));
+                endpoints = sortEndpoints(endpoints, sortOptions.field, sortOptions.direction);
+//            }
+
+            setEndpoints(endpoints);
+        });
 
         $histogramView.on("click", function() {
             $histogramView.hide();
@@ -128,15 +149,24 @@
             $el.toggleClass("active", shouldSet);
         }
 
+        function getSortOptions($el) {
+            return {
+                field: $el.parents("[data-sort-field]").data("sortField"),
+                direction: $el.data("sortDirection")
+            }
+        }
+
         $endpointSortMenu.on("click", "[data-sort-direction]", function() {
             var $el = $(this),
-                sortDirection = $el.data("sortDirection"),
-                sortField = $el.parents("[data-sort-field]").data("sortField"),
+                sortOptions = getSortOptions($el),
+                sortDirection = sortOptions.direction,
+                sortField = sortOptions.field,
                 endpoint = breadcrumbsData[breadcrumbsData.length - 1].endpoint,
                 currentData = endpoint ?
-                    Object.keys(endpoint.connections).map(function(key) {return endpoint.connections[key]}) :
-                    endpoints;
+                    endpoint.getConnections() :
+                    topHundred.endpoints;
 
+            $endpointFilter.val("");
             currentData = sortEndpoints(currentData, sortField, sortDirection);
             setEndpoints(currentData);
         });
@@ -165,9 +195,7 @@
                     if (d !== topHundred) {
                         setActiveEndpoint(d.endpoint);
                     } else {
-                        breadcrumbsData = [topHundred];
-                        updateBreadcrumbs();
-                        setEndpoints(topHundred.endpoints);
+                        setActiveAllEndpoints();
                     }
                 });
 
@@ -203,7 +231,7 @@
         }
 
         function setActiveEndpoint(endpoint) {
-            var endpoints = Object.keys(endpoint.connections).map(function(key) {return endpoint.connections[key]}),
+            var endpoints = endpoint.getConnections(),
                 indexOfBreadcrumb = -1;
 
             breadcrumbsData.forEach(function(breadcrumb, index) {
@@ -223,11 +251,18 @@
             }
 
             updateBreadcrumbs();
+            $endpointFilter.val("");
             setEndpoints(sortEndpoints(endpoints, "totalConnections", "desc"));
-
         }
 
-        updateBreadcrumbs(breadcrumbsData);
+        function setActiveAllEndpoints() {
+            breadcrumbsData = [topHundred];
+            updateBreadcrumbs();
+            $endpointFilter.val("");
+            setEndpoints(topHundred.endpoints);
+        }
+
+        setActiveAllEndpoints();
 
         $([table, histogram, graph]).on("click", function(event, data) {
             setActiveEndpoint(data);
@@ -236,7 +271,6 @@
             }
         });
 
-        setEndpoints(endpoints);
         $histogramView.click();
 
     }
