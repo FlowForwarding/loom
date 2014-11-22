@@ -197,7 +197,7 @@ load_logfile(IpAddr, FtpFile, State) ->
     State1.
 
 edges(Data) ->
-    [Edge || {_, Edge} <- Data].
+    [{A, B} || {_, A, B} <- Data].
 
 extract_file(CompressedTarBytes)->
     case erl_tar:extract({binary, CompressedTarBytes}, [compressed, memory]) of
