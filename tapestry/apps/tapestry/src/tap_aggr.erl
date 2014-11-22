@@ -34,6 +34,8 @@
          terminate/2,
          code_change/3]).
 
+-include("tap_logger.hrl").
+
 -define(STATE, tap_aggr_state).
 -record(?STATE, {
             dp_qps = dict:new(),
@@ -41,6 +43,7 @@
             qps_update_interval,
             qps_timer,
             query_count = 0,
+            max_collector_idle_time,
             collectors = dict:new()
         }).
 
@@ -82,18 +85,23 @@ handle_cast(start, State) ->
     new_metrics(),
     NewState = qps_timer(
                     State#?STATE{last_qps_time = tap_time:now(),
-                    qps_update_interval = qps_update_interval()}),
+                    qps_update_interval = qps_update_interval(),
+                    max_collector_idle_time =
+                        tap_config:getconfig(max_collector_idle_time)}),
     {noreply, NewState};
-handle_cast(push_qps, State = #?STATE{collectors = Collectors}) ->
-    % XXX expire collectors
+handle_cast(push_qps, State0) ->
+    State1 = expire_collectors(State0),
     Now = tap_time:now(),
+    Collectors = State1#?STATE.collectors,
     CollectorStats = [{ofswitch,
-                    DatapathId, IpAddr, per_sec(?DP_QCOUNT(DatapathId))} ||
-                            {DatapathId, IpAddr} <- dict:to_list(Collectors)],
-    NewState = qps_timer(State),
+                        DatapathId, IpAddr,
+                        tap_time:universal(LastUpdate),
+                        per_sec(?DP_QCOUNT(DatapathId))} ||
+            {DatapathId, {LastUpdate, IpAddr}} <- dict:to_list(Collectors)],
+    State2 = qps_timer(State1),
     tap_client_data:qps(?MODULE, per_sec(?TOTAL_QCOUNT), CollectorStats,
                                                     tap_time:universal(Now)),
-    {noreply, NewState#?STATE{last_qps_time = Now, query_count = 0}};
+    {noreply, State2#?STATE{last_qps_time = Now, query_count = 0}};
 handle_cast({dns_reply, Reply, DatapathId, IpAddr},
                             State = #?STATE{query_count = QueryCount}) ->
     tap_ds:ordered_edge(Reply),
@@ -104,7 +112,9 @@ handle_cast({dns_reply, Reply, DatapathId, IpAddr},
 handle_cast({new_collector, DatapathId, IpAddr},
                                 State = #?STATE{collectors = Collectors}) ->
     DPMetric = ?DP_QCOUNT(DatapathId),
-    NewCollectors = maybe_new_metric(DatapathId, IpAddr, DPMetric, Collectors),
+    maybe_new_metric(DatapathId, DPMetric, Collectors),
+    NewCollectors = dict:store(DatapathId,
+                                    {tap_time:now(), IpAddr}, Collectors),
     {noreply, State#?STATE{collectors = NewCollectors}};
 handle_cast(Msg, State) ->
     error({no_handle_cast, ?MODULE}, [Msg, State]).
@@ -121,6 +131,21 @@ code_change(_OldVersion, State, _Extra) ->
 %------------------------------------------------------------------------------
 % local functions
 %------------------------------------------------------------------------------
+
+expire_collectors(State = #?STATE{max_collector_idle_time =
+                                                MaxCollectorIdleTime,
+                                  collectors = Collectors}) ->
+    ActiveCollectors = dict:fold(
+        fun(DatapathId, Value = {Time, _}, D) ->
+            case tap_time:since(Time) > MaxCollectorIdleTime of
+                true ->
+                    ?DEBUG("Expire collector ~p", [DatapathId]),
+                    D;
+                false ->
+                    dict:store(DatapathId, Value, D)
+            end
+        end, dict:new(), Collectors),
+    State#?STATE{collectors = ActiveCollectors}.
 
 qps_update_interval() ->
     {seconds, Time} = tap_config:getconfig(qps_max_interval),
@@ -156,24 +181,24 @@ new_metrics() ->
 new_metric(Metric) ->
     folsom_metrics:new_spiral(Metric).
 
-update_metrics(DatapathId, IpAddr, State) ->
+update_metrics(DatapathId, IpAddr, State = #?STATE{collectors = Collectors}) ->
     % update the metrics for data received from the datapathid.
     folsom_metrics:notify(?TOTAL_QCOUNT, 1),
     DPMetric = ?DP_QCOUNT(DatapathId),
-    NewCollectors = maybe_new_metric(DatapathId, IpAddr, DPMetric,
-                                                    State#?STATE.collectors),
+    maybe_new_metric(DatapathId, DPMetric, Collectors),
+    NewCollectors = dict:store(DatapathId,
+                                    {tap_time:now(), IpAddr}, Collectors),
     folsom_metrics:notify(DPMetric, 1),
     State#?STATE{collectors = NewCollectors}.
 
 % if metric is not in the existing set, create the metrfic and add
 % the metric to the existing set.
-maybe_new_metric(DatapathId, IpAddr, Metric, Collectors) ->
+maybe_new_metric(DatapathId, Metric, Collectors) ->
     case dict:is_key(DatapathId, Collectors) of
         false ->
-            new_metric(Metric),
-            dict:store(DatapathId, IpAddr, Collectors);
+            new_metric(Metric);
         _ ->
-            Collectors
+            ok
     end.
 
 per_sec(Metric) ->

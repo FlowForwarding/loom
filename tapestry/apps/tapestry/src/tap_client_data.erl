@@ -498,11 +498,12 @@ format_collectors(CollectorDict) ->
         end, 0, Collectors),
     JSON.
 
-collector({ofswitch, DatapathId, IpAddr, QPS}) ->
+collector({ofswitch, DatapathId, LastUpdate, IpAddr, QPS}) ->
     [
         {<<"collector_type">>,<<"OF1.3 Switch">>},
         {<<"ip">>,endpoint(IpAddr)},
         {<<"datapath_id">>,list_to_binary(DatapathId)},
+        {<<"lastupdate">>,rfc3339bin(LastUpdate)},
         {<<"qps">>,format_qps(QPS)}
     ];
 collector({grid, IpAddr, LastUpdate, QPS}) ->
