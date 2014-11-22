@@ -108,8 +108,6 @@ interval_timer(IntervalFunc, Func) ->
               Func(),
               interval_timer(IntervalFunc, Func)
           end,
-    % schedule ourselves to run
-    ?DEBUG("schedule: ~p for ~p sec in future", [Func, IntervalSec]),
     timer:apply_after(IntervalSec*1000, ?MODULE, caller, [Fun]).
 
 nci_min_interval() ->
