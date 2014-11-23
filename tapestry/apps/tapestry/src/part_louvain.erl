@@ -35,10 +35,10 @@
 -module(part_louvain).
 
 -export([graph/2,
-         find_communities/1,
          graph/3,
          graph/1,
          graphd/1,
+         find_communities/1,
          community_graph/1,
          weights/1,
          weights/2,
@@ -221,7 +221,15 @@ partition(GD, L) ->
         (NewModularity > 1.0 andalso length(L) > 0)
     of
         true ->
-            L;
+            case L of
+                [] ->
+                    % partitioning didn't find any communitites, which
+                    % probably means the graph wasn't big enough to
+                    % yield anything interesting.  Return the
+                    % original graph.
+                    [graph(GD)];
+                _ -> L
+            end;
         false ->
             % make a graph of the communities (communities are
             % nodes, edges weighted accordingly), and recurse.
@@ -236,7 +244,7 @@ partition(GD, L) ->
 %% In the #louvain_graphd{}, the Communities are updated
 %% to reflect the paritioning.
 one_level(GD0 = #louvain_graphd{}, Weights0 = #louvain_weights{}, Modularity) ->
-    % XXX make sure the graph is valid
+   % make sure the graph is valid
     % validate_graph(GD0),
     EdgesD = GD0#louvain_graphd.edgesd,
     {Modified, NewWeights, NewCommunitiesD} = dict:fold(

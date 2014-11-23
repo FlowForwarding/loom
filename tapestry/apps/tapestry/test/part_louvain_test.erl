@@ -49,6 +49,7 @@ tap_data_test_() ->
         ,{"simple2", fun simple2/0}
         ,{"simple3", fun simple3/0}
         ,{"cgsimple1", fun cgsimple1/0}
+        ,{"smallgraph", fun smallgraph/0}
         ,{timeout, 1000, {"partition_ring_clique", fun partition_ring_clique/0}}
         ,{timeout, 2000, {"partition_modularity_increase", fun partition_modularity_increase/0}}
         ,{"partition_sample_1000", fun partition_sample_1000/0}
@@ -359,6 +360,18 @@ cgsimple1() ->
     CG = community_graph(LGC),
 %   W = part_louvain:weights(part_louvain:graphd(CG)),
     _Dendrogram = part_louvain:dendrogram(CG),
+    CleanupFn(LG).
+
+smallgraph() ->
+    G = digraph:new(),
+    digraph:add_vertex(G, "a"),
+    digraph:add_vertex(G, "b"),
+    digraph_add_edge(G, "a", "b"),
+    {LG = #louvain_graph{}, CleanupFn} = part_louvain:graph(
+                                            digraph:vertices(G),
+                                            [digraph:edge(G, E) ||
+                                                E <- digraph:edges(G)]),
+    Communities = part_louvain:find_communities(LG),
     CleanupFn(LG).
 
 partition_ring_clique() ->
