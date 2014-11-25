@@ -25,6 +25,8 @@
 -export([gethostbyaddr/1,
          allow/3,
          mkmask/2,
+         allowquery/3,
+         mkre/1,
          intaddr/1,
          binaryaddr/1]).
 
@@ -72,3 +74,19 @@ mask(Addr = {Size, IpAddr}, [{{Size, Mask}, {Size, Value}} | Rest]) ->
     end;
 mask(Addr, [_ | Rest]) ->
     mask(Addr, Rest).
+
+allowquery(Query, WhiteList, BlackList) ->
+    re(Query, WhiteList) andalso (not re(Query, BlackList)).
+
+re(_, []) ->
+    false;
+re(Query, [RE | REList]) ->
+    case re:run(Query, RE, [{capture, none}]) of
+        match -> true;
+        nomatch ->
+            re(Query, REList)
+    end.
+
+mkre(RE) ->
+    {ok, MP} = re:compile(RE),
+    MP.
