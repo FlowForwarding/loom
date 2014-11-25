@@ -234,6 +234,8 @@ parse_file(<<BitString:53/binary, BinaryData/binary>>, Data) ->
        ID2:20/binary, _Rest/binary>> = BitString,
     Interaction = {ID1, anonymous, ID2, anonymous},
     parse_file(BinaryData, [{Time, Interaction} | Data]);
+parse_file(_BinaryData, []) ->
+    {0, []};
 parse_file(_BinaryData, Atad) ->
     Data = lists:reverse(Atad),
     [{StartTime, _, _}|_] = Data,
@@ -245,14 +247,20 @@ parse_file(_BinaryData, Atad) ->
 parse_zlogfile(ZBin, FilterFn) ->
     Bin = safe_gunzip(ZBin),
     Data = parse_logfile(Bin, FilterFn),
-    % extract first and last datetime
-    [{StartTime, _, _}|_] = Data,
-    {EndTime, _, _} = lists:last(Data),
-    TimeDiff = tap_time:universal_time_diff(
-                    parse_timestamp(StartTime),
-                    parse_timestamp(EndTime)),
-    QPS = safe_div(length(Data), TimeDiff),
-    {QPS, Data}.
+    case Data of
+        [] ->
+            % special case if there is no data
+            {0, []};
+        _ ->
+            % extract first and last datetime
+            [{StartTime, _, _}|_] = Data,
+            {EndTime, _, _} = lists:last(Data),
+            TimeDiff = tap_time:universal_time_diff(
+                            parse_timestamp(StartTime),
+                            parse_timestamp(EndTime)),
+            QPS = safe_div(length(Data), TimeDiff),
+            {QPS, Data}
+    end.
 
 parse_logfile(Bin, FilterFn) ->
     % match log records:
