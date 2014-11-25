@@ -17,7 +17,7 @@ in Web based interface.
 Tapestry requires:
 
 * Erlang/OTP distributed computing platform, available from
-    [Erlang.org](http://www.erlang.org/download.html)
+    [Erlang.org](http://www.erlang.org/download.html).  R16B03 or newer.
 * One or more servers running the Erlang to aggregate the data and 
     calculate the NCI.
 * One or more internal recursive DNS servers to provide the raw data feeds
@@ -191,6 +191,7 @@ tapestry | web_id | "tapestry" | webserver identifier
 tapestry | ftpd_address | {0,0,0,0} | ftp server listener IP address
 tapestry | ftpd_port | 7777 | ftp server listener port
 tapestry | datasources | [packet_in] | identifies sources of DNS information
+tapestry | max_collector_idle_time | 600 | remove a collector from the report if no data received for this many seconds
 tapestry | nci_min_interval | {seconds, 15} | shortest time between nci calculations
 tapestry | max_vertices | 300 | maximum number of vertices before dropping a community's detail
 tapestry | max_edges | 1000 | maximum number of edges before dropping a community's detail
@@ -206,6 +207,8 @@ tapestry | requester_whitelist | [{"10.0.0.0",8}] | include these ip addresses a
 tapestry | requester_blacklist | [{"192.168.0.0",16}] | exclude these ip addresses as requesters
 tapestry | resolved_whitelist | [{"::",0}] | include these ip addresses as resolved responses
 tapestry | resolved_blacklist | [{"10.13.11.24",32}] | exclude these ip addresses as reolved responses
+tapestry | save_files | false | save copies of the log files loaded via ftp
+tapestry | save_file_dir | false | directory to store copies of log files loaded via ftp (only applicable when save_files is true)
 of_driver | listen_ip | {0,0,0,0} | open flow controller listener IP address
 of_driver | listen_port | 6653 | open flow controller listener port
 

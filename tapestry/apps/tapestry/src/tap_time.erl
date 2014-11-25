@@ -25,6 +25,8 @@
          diff/2,
          diff_millis/2,
          universal/1,
+         universal_now/0,
+         universal_time_diff/2,
          rfc3339/1,
          rfc3339_to_epoch/1]).
 
@@ -34,6 +36,7 @@ now() ->
 since(A) ->
     diff(tap_time:now(), A).
 
+% time difference (B - A) in seconds
 diff(A, B) ->
     diff_millis(A, B) div 1000.
 
@@ -42,6 +45,13 @@ diff_millis(A, B) ->
 
 universal(T) ->
     calendar:now_to_universal_time(T).
+
+universal_now() ->
+    universal(tap_time:now()).
+
+universal_time_diff(A, B) ->
+    calendar:datetime_to_gregorian_seconds(B) -
+                                calendar:datetime_to_gregorian_seconds(A).
 
 rfc3339({{Year, Month, Day}, {Hour, Minute, Second}})->
     lists:flatten(

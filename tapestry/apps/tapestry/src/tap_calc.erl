@@ -24,7 +24,8 @@
 
 -export([start_link/0,
          push_nci/0,
-         clean_data/0]).
+         clean_data/0,
+         caller/1]).
 
 -export([init/1,
          handle_call/3,
@@ -38,8 +39,7 @@
 -define(STATE, tap_ds_state).
 -record(?STATE,{
             nci_update_timer,
-            clean_timer,
-            data_max_age}).
+            clean_timer}).
 
 %------------------------------------------------------------------------------
 % API
@@ -54,6 +54,11 @@ push_nci() ->
 clean_data() ->
     gen_server:cast(?MODULE, clean_data).
 
+% helper function because API to timer:apply_after doesn't allow
+% for calling a function reference, only function by atom.
+caller(Fun) ->
+    Fun().
+
 %------------------------------------------------------------------------------
 % gen_server callbacks
 %------------------------------------------------------------------------------
@@ -66,16 +71,15 @@ handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
 handle_cast(start, State) ->
-    DataMaxAge = data_max_age(),
-    {ok, NCITimer} = interval_timer(nci_min_interval(), push_nci),
-    {ok, CleanTimer} = interval_timer(clean_interval(), clean_data),
+    {ok, NCITimer} = interval_timer(fun nci_min_interval/0, fun push_nci/0),
+    {ok, CleanTimer} = interval_timer(fun clean_interval/0, fun clean_data/0),
     {noreply, State#?STATE{nci_update_timer = NCITimer,
-                           clean_timer = CleanTimer,
-                           data_max_age = DataMaxAge}};
-handle_cast(push_nci, State = #?STATE{}) ->
+                           clean_timer = CleanTimer}};
+handle_cast(push_nci, State) ->
     tap_ds:push_nci(),
     {noreply, State};
-handle_cast(clean_data, State = #?STATE{data_max_age = DataMaxAge}) ->
+handle_cast(clean_data, State) ->
+    DataMaxAge = data_max_age(),
     tap_ds:clean_data(DataMaxAge),
     {noreply, State};
 handle_cast(Msg, State) ->
@@ -94,8 +98,17 @@ code_change(_OldVersion, State, _Extra) ->
 % local functions
 %------------------------------------------------------------------------------
 
-interval_timer(IntervalSec, Func) ->
-    timer:apply_interval(IntervalSec*1000, ?MODULE, Func, []).
+interval_timer(IntervalFunc, Func) ->
+    % get the interval to wait
+    IntervalSec = IntervalFunc(),
+    % Function to call the worker function, then schedule ourselves to run
+    % again.  Intentionally re-read the interval so we pick up any
+    % runtime changes.
+    Fun = fun() ->
+              Func(),
+              interval_timer(IntervalFunc, Func)
+          end,
+    timer:apply_after(IntervalSec*1000, ?MODULE, caller, [Fun]).
 
 nci_min_interval() ->
     {seconds, Time} = tap_config:getconfig(nci_min_interval),

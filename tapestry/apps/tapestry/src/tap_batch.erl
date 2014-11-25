@@ -14,11 +14,8 @@
 %%
 %%-----------------------------------------------------------------------------
 %%
-%% @author Ryan Crum <ryan.j.crum@gmail.com>, Infoblox Inc <info@infoblox.com>
-%% @copyright 2013 Infoblox Inc
-%% @doc FTP service to connect Tapestry to the Infoblox Grid (6.9 or later).  The code is based on 
-%% memory_server.erl example from Ryan Crum's bifrost Erlang based ftp server
-
+%% @author Infoblox Inc <info@infoblox.com>
+%% @copyright 2014 Infoblox Inc
 
 -module(tap_batch).
 
@@ -42,11 +39,9 @@
 -record(?STATE, {
         mode,
         collectors = dict:new(),
-        total_count = 0,
+        max_collector_idle_time,
         last_qps_time,
-        qps_update_interval,
         qps_timer,
-        last_qps = 0.0,
         requester_whitelist = [],
         requester_blacklist = [],
         resolved_whitelist = [],
@@ -83,7 +78,8 @@ init([]) ->
         resolved_whitelist =
                         mkmasks(tap_config:getconfig(resolved_whitelist)),
         resolved_blacklist =
-                        mkmasks(tap_config:getconfig(resolved_blacklist))
+                        mkmasks(tap_config:getconfig(resolved_blacklist)),
+        max_collector_idle_time = tap_config:getconfig(max_collector_idle_time)
     },
     case {tap_config:is_defined(anonymized, datasources),
                     tap_config:is_defined(logfile, datasources)} of
@@ -108,7 +104,8 @@ handle_cast({load, IpAddr, FtpFile}, State = #?STATE{mode = logfile}) ->
     NewState = load_logfile(IpAddr, FtpFile, State),
     {noreply, NewState, hibernate};
 handle_cast(push_qps, State) ->
-    State1 = push_qps(State),
+    State1 = expire_collectors(State),
+    push_qps(State1),
     State2 = qps_timer(State1),
     {noreply, State2, hibernate};
 handle_cast(Msg, State) ->
@@ -135,11 +132,9 @@ qps_timer(State = #?STATE{qps_timer = OldTimer}) ->
 
 add_collector(_IpAddr, 0, State) ->
     State;
-add_collector(IpAddr, Count, State = #?STATE{
-                                        total_count = TCount,
-                                        collectors = Collectors}) ->
-    NewCollectors = dict:store(IpAddr, {tap_time:now(), Count}, Collectors),
-    State#?STATE{total_count = TCount + Count, collectors = NewCollectors}.
+add_collector(IpAddr, QPS, State = #?STATE{collectors = Collectors}) ->
+    NewCollectors = dict:store(IpAddr, {tap_time:now(), QPS}, Collectors),
+    State#?STATE{collectors = NewCollectors}.
 
 maybe_push_qps(#?STATE{last_qps_time = LastUpdate}) ->
     % push update if:
@@ -151,40 +146,37 @@ maybe_push_qps(#?STATE{last_qps_time = LastUpdate}) ->
         _ -> ok
     end.
 
-push_qps(State = #?STATE{collectors = Collectors}) ->
-    CollectorStats = [{grid, IpAddr, per_sec(Count, Time)} ||
-                        {IpAddr, {Time, Count}} <- dict:to_list(Collectors)],
-    Now = tap_time:now(),
-    {QPS, NewState} = update_qps(State),
-    tap_client_data:qps(?MODULE, QPS, CollectorStats, tap_time:universal(Now)),
-    NewState.
+expire_collectors(State = #?STATE{max_collector_idle_time =
+                                                MaxCollectorIdleTime,
+                                  collectors = Collectors}) ->
+    ActiveCollectors = dict:fold(
+        fun(IpAddr, Value = {Time, _}, D) ->
+            case tap_time:since(Time) > MaxCollectorIdleTime of
+                true ->
+                    ?DEBUG("Expire collector ~p", [IpAddr]),
+                    D;
+                false ->
+                    dict:store(IpAddr, Value, D)
+            end
+        end, dict:new(), Collectors),
+    State#?STATE{collectors = ActiveCollectors}.
 
-update_qps(State = #?STATE{
-                        total_count = TCount,
-                        last_qps_time = TTime,
-                        last_qps = LastQPS}) ->
-    CurrentQPS = per_sec(TCount, TTime),
-    case CurrentQPS == 0 of
-        true ->
-            {LastQPS, State};
-        _ ->
-            {CurrentQPS, State#?STATE{total_count = 0,
-                                      last_qps_time = tap_time:now(),
-                                      last_qps = CurrentQPS}}
-    end.
-
-per_sec(Count, LastTime) ->
-    safe_div(Count, tap_time:since(LastTime)).
+push_qps(#?STATE{collectors = Collectors}) ->
+    {CollectorStats, QPS} = lists:mapfoldl(
+        fun({IpAddr, {Time, QPS}}, Sum) ->
+            {{grid, IpAddr, tap_time:universal(Time), QPS}, Sum + QPS}
+        end, 0.0, dict:to_list(Collectors)),
+    tap_client_data:qps(?MODULE, QPS, CollectorStats, tap_time:universal_now()).
 
 safe_div(_, 0) -> 0;
 safe_div(N, D) -> N/D.
 
 load_tar(IpAddr, FtpFile, State) ->
     BinaryFile = extract_file(FtpFile),
-    Data = parse_file(BinaryFile),
+    {QPS, Data} = parse_file(BinaryFile),
     ?DEBUG("ftp tar data tar length from ~p: ~p~n",[IpAddr, length(Data)]),
-    tap_ds:ordered_edges(Data),
-    State1 = add_collector(IpAddr, length(Data), State),
+    tap_ds:ordered_edges(edges(Data)),
+    State1 = add_collector(IpAddr, QPS, State),
     maybe_push_qps(State1),
     State1.
 
@@ -197,12 +189,15 @@ load_logfile(IpAddr, FtpFile, State) ->
                        State#?STATE.resolved_whitelist,
                        State#?STATE.resolved_blacklist)
                end,
-    Data = parse_zlogfile(FtpFile, FilterFn),
+    {QPS, Data} = parse_zlogfile(FtpFile, FilterFn),
     ?DEBUG("ftp log data tar length from ~p: ~p~n",[IpAddr, length(Data)]),
-    tap_ds:ordered_edges(Data),
-    State1 = add_collector(IpAddr, length(Data), State),
+    tap_ds:ordered_edges(edges(Data)),
+    State1 = add_collector(IpAddr, QPS, State),
     maybe_push_qps(State1),
     State1.
+
+edges(Data) ->
+    [{A, B} || {_, A, B} <- Data].
 
 extract_file(CompressedTarBytes)->
     case erl_tar:extract({binary, CompressedTarBytes}, [compressed, memory]) of
@@ -227,17 +222,30 @@ parse_file(BinaryData) ->
     parse_file(BinaryData, []).
 
 parse_file(<<BitString:53/binary, BinaryData/binary>>, Data) ->
-    <<_Time:10/binary, _S:1/binary,
+    <<Time:10/binary, _S:1/binary,
        ID1:20/binary, _S:1/binary,
        ID2:20/binary, _Rest/binary>> = BitString,
     Interaction = {ID1, anonymous, ID2, anonymous},
-    parse_file(BinaryData, [Interaction | Data]);
-parse_file(_BinaryData, Data)->
-    lists:reverse(Data).
+    parse_file(BinaryData, [{Time, Interaction} | Data]);
+parse_file(_BinaryData, Atad) ->
+    Data = lists:reverse(Atad),
+    [{StartTime, _, _}|_] = Data,
+    [{EndTime, _, _}|_] = Atad,
+    TimeDiff = binary_to_integer(EndTime) - binary_to_integer(StartTime),
+    QPS = safe_div(length(Data), TimeDiff),
+    {QPS, Data}.
 
 parse_zlogfile(ZBin, FilterFn) ->
-    Bin =  safe_gunzip(ZBin),
-    parse_logfile(Bin, FilterFn).
+    Bin = safe_gunzip(ZBin),
+    Data = parse_logfile(Bin, FilterFn),
+    % extract first and last datetime
+    [{StartTime, _, _}|_] = Data,
+    {EndTime, _, _} = lists:last(Data),
+    TimeDiff = tap_time:universal_time_diff(
+                    parse_timestamp(StartTime),
+                    parse_timestamp(EndTime)),
+    QPS = safe_div(length(Data), TimeDiff),
+    {QPS, Data}.
 
 parse_logfile(Bin, FilterFn) ->
     % match log records:
@@ -268,7 +276,7 @@ parse_logfile(Bin, FilterFn) ->
     %   outlook.infoblox.com. 10 IN CNAME casarray1.infoblox.com.;
     %   casarray1.infoblox.com. 10 IN A 10.120.3.104;
 
-    Matches = case re:run(Bin,"client ((?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})|(?:[:a-f0-9]+)).* UDP: query: (.*) IN A+ response: NOERROR .*? IN A+ ((?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})|(?:[:a-f0-9]+));", [global, {capture,[2,1,3],binary}]) of
+    Matches = case re:run(Bin,"(..-...-.... ..:..:......) client ((?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})|(?:[:a-f0-9]+)).* UDP: query: (.*) IN A+ response: NOERROR .*? IN A+ ((?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})|(?:[:a-f0-9]+));", [global, {capture,[1,3,2,4],binary}]) of
         {match, M} -> M;
         _ -> []
     end,
@@ -278,18 +286,37 @@ parse_logfile(Bin, FilterFn) ->
     % This makes the batch processing more consistent with the packet_in
     % processing.
     lists:reverse(lists:foldl(
-        fun([Query, Requester, Resolved], L) ->
+        fun([Timestamp, Query, Requester, Resolved], L) ->
             RequesterIpAddr = inet_parse_address(Requester),
             ResolvedIpAddr = inet_parse_address(Resolved),
             case FilterFn(RequesterIpAddr, ResolvedIpAddr) of
                 false ->
                     L;
                 true ->
-                    [{tap_ds:endpoint(RequesterIpAddr,
-                        tap_dns:gethostbyaddr(Requester)),
+                    [{Timestamp,
+                      tap_ds:endpoint(RequesterIpAddr,
+                                            tap_dns:gethostbyaddr(Requester)),
                       tap_ds:endpoint(ResolvedIpAddr, Query)} | L]
             end
         end, [], Matches)).
+
+parse_timestamp(TimestampB) ->
+    {ok,[Day, Month, Year, Hour, Min, Sec],_} =
+        io_lib:fread("~2d-~3s-~4d ~2d:~2d:~2d", binary_to_list(TimestampB)),
+    {{Year, parse_month(Month), Day},{Hour, Min, Sec}}.
+
+parse_month("Jan") -> 1;
+parse_month("Feb") -> 2;
+parse_month("Mar") -> 3;
+parse_month("Apr") -> 4;
+parse_month("May") -> 5;
+parse_month("Jun") -> 6;
+parse_month("Jul") -> 7;
+parse_month("Aug") -> 8;
+parse_month("Sep") -> 9;
+parse_month("Oct") -> 10;
+parse_month("Nov") -> 11;
+parse_month("Dec") -> 12.
 
 inet_parse_address(B) when is_binary(B) ->
     inet_parse_address(binary_to_list(B));
