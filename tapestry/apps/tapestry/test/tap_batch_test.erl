@@ -47,7 +47,7 @@ parse_logfile() ->
 29-Oct-2014 09:48:02.588 client 2620:10a:6000:2000::2c6#7908: UDP: query: daisy.ubuntu.com IN A response: NOERROR + daisy.ubuntu.com.  339 IN A 91.189.92.55; daisy.ubuntu.com. 339 IN A 91.189.92.57;
 29-Oct-2014 09:48:06.309 client 2620:10a:6000:2000::28c#23959: UDP: query: outlook.infoblox.com IN A response: NOERROR +A outlook.infoblox.com. 10 IN CNAME casarray1.infoblox.com.; casarray1.infoblox.com. 10 IN A 10.120.3.104;
 ">>,
-    R = tap_batch:parse_logfile(Bin, fun(_,_) -> true end),
+    R = tap_batch:parse_logfile(Bin, fun(_,_,_) -> true end),
     ?assertMatch(
         [{<<"15-May-2014 13:33:18.468">>,{{192,168,11,172},_},{{17,151,226,32},_}},
          {<<"15-May-2014 13:33:26.049">>,{{192,168,11,130},_},{{8193,1048,5162,404,0,0,0,3191},_}},

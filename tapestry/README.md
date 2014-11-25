@@ -207,6 +207,8 @@ tapestry | requester_whitelist | [{"10.0.0.0",8}] | include these ip addresses a
 tapestry | requester_blacklist | [{"192.168.0.0",16}] | exclude these ip addresses as requesters
 tapestry | resolved_whitelist | [{"::",0}] | include these ip addresses as resolved responses
 tapestry | resolved_blacklist | [{"10.13.11.24",32}] | exclude these ip addresses as reolved responses
+tapestry | query_whitelist | [".com$"] | list of regular expressions of dns queries to include
+tapestry | query_blacklist | ["google.com$"] | list of regular expressions of dns queries to exclude
 tapestry | save_files | false | save copies of the log files loaded via ftp
 tapestry | save_file_dir | false | directory to store copies of log files loaded via ftp (only applicable when save_files is true)
 of_driver | listen_ip | {0,0,0,0} | open flow controller listener IP address

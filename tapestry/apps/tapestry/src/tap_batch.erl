@@ -45,7 +45,9 @@
         requester_whitelist = [],
         requester_blacklist = [],
         resolved_whitelist = [],
-        resolved_blacklist = []
+        resolved_blacklist = [],
+        query_whitelist = [],
+        query_blacklist = []
     }).
 
 -define(MIN_UPDATE_TIME_MILLIS, 250).
@@ -79,6 +81,8 @@ init([]) ->
                         mkmasks(tap_config:getconfig(resolved_whitelist)),
         resolved_blacklist =
                         mkmasks(tap_config:getconfig(resolved_blacklist)),
+        query_whitelist = mkres(tap_config:getconfig(query_whitelist)),
+        query_blacklist = mkres(tap_config:getconfig(query_blacklist)),
         max_collector_idle_time = tap_config:getconfig(max_collector_idle_time)
     },
     case {tap_config:is_defined(anonymized, datasources),
@@ -181,13 +185,16 @@ load_tar(IpAddr, FtpFile, State) ->
     State1.
 
 load_logfile(IpAddr, FtpFile, State) ->
-    FilterFn = fun(RequesterIpAddr, ResolvedIpAddr) ->
+    FilterFn = fun(RequesterIpAddr, ResolvedIpAddr, Query) ->
                    tap_dns:allow(RequesterIpAddr,
                        State#?STATE.requester_whitelist,
                        State#?STATE.requester_blacklist) andalso
                    tap_dns:allow(ResolvedIpAddr,
                        State#?STATE.resolved_whitelist,
-                       State#?STATE.resolved_blacklist)
+                       State#?STATE.resolved_blacklist) andalso
+                   tap_dns:allowquery(Query,
+                       State#?STATE.query_whitelist,
+                       State#?STATE.query_blacklist)
                end,
     {QPS, Data} = parse_zlogfile(FtpFile, FilterFn),
     ?DEBUG("ftp log data tar length from ~p: ~p~n",[IpAddr, length(Data)]),
@@ -289,7 +296,7 @@ parse_logfile(Bin, FilterFn) ->
         fun([Timestamp, Query, Requester, Resolved], L) ->
             RequesterIpAddr = inet_parse_address(Requester),
             ResolvedIpAddr = inet_parse_address(Resolved),
-            case FilterFn(RequesterIpAddr, ResolvedIpAddr) of
+            case FilterFn(RequesterIpAddr, ResolvedIpAddr, Query) of
                 false ->
                     L;
                 true ->
@@ -334,3 +341,6 @@ safe_gunzip(ZBin) ->
 mkmasks(MaskList) ->
     [tap_dns:mkmask(inet_parse_address(Addr), Length) ||
                                             {Addr, Length} <- MaskList].
+
+mkres(REList) ->
+    [tap_dns:mkre(RE) || RE <- REList].

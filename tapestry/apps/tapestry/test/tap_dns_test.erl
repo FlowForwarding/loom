@@ -35,6 +35,7 @@ tap_data_test_() ->
         ,{"black list", fun black_list/0}
         ,{"combo", fun combo/0}
         ,{"none", fun none/0}
+        ,{"re", fun re/0}
      ]
     }.
 
@@ -130,6 +131,17 @@ none() ->
     BlackList = [],
     ?assert(tap_dns:allow({1,2,3,4}, WhiteList, BlackList)),
     ?assert(tap_dns:allow({1,2,3,4,5,6,7,8}, WhiteList, BlackList)).
+
+re() ->
+    WhiteList = [tap_dns:mkre(RE) || RE <- [".com$", ".org$"]],
+    BlackList = [tap_dns:mkre(RE) || RE <- ["google.com$", "acm.org$"]],
+    ?assert(tap_dns:allowquery("yahoo.com", WhiteList, BlackList)),
+    ?assert(tap_dns:allowquery("hoopla.org", WhiteList, BlackList)),
+    ?assert(tap_dns:allowquery("oogle.com", WhiteList, BlackList)),
+    ?assertNot(tap_dns:allowquery("google.com", WhiteList, BlackList)),
+    ?assertNot(tap_dns:allowquery("mail.google.com", WhiteList, BlackList)),
+    ?assertNot(tap_dns:allowquery("acm.org", WhiteList, BlackList)),
+    ?assertNot(tap_dns:allowquery("pickle.acm.org", WhiteList, BlackList)).
 
 %-------------------------------------------------------------------------------
 % helpers
