@@ -95,6 +95,7 @@
         totalChunks = Math.ceil(data.length/itemsPerPage);
 
         config.data = data;
+        config.columns = columns;
         table.datum(config);
 
         nextText += (data.length - pagesToShow*itemsPerPage) + " left";
@@ -123,10 +124,13 @@
     function updateTableHeader(columns, thead) {
         var th = thead.select("tr")
                 .selectAll("th")
-                .data(columns.filter(function(d) {return !d.hidden})),
+                .data(columns.filter(function(d) {return !d.hidden}), function(d) {return d.property}),
 
             thEnter = th.enter()
                 .append("th");
+
+        th.exit()
+            .remove();
 
         thEnter.append("span")
             .classed("th-container", true)
@@ -143,6 +147,8 @@
             .classed("desc", function(d) {
                 return d.sort === DESC_DIRECTION;
             });
+
+        th.order();
     }
 
     function getIdProperty(columns) {
@@ -171,29 +177,38 @@
                 }, function(d) {return d[idProperty]});
 
         chunks.exit()
-            .remove()
+            .remove();
 
-        var cells = rows.enter()
+        rows.enter()
             .append("tr")
             .classed("external-endpoint-row", function(d) {
                 // TODO: handle this correctly
                 return d.external;
-            })
+            });
+
+        var cells = rows
             .selectAll("td")
             .data(function(row) {
                 var rowData = [];
                 columns.forEach(function (column) {
-                    var renderer = column.renderer || defaultRenderer;
+                    var renderer = column.renderer || defaultRenderer,
+                        value;
                     if (!column.hidden) {
-                        rowData.push({column: column, value: renderer(row[column.property])});
+                        value = renderer(row[column.property]);
+                        rowData.push({row: row, column: column, value: value});
                     }
                 });
                 return rowData;
-            });
+            }, function(d) {return (d.row[idProperty] + "|" + d.column.property);});
 
         cells.enter()
             .append("td")
-            .html(function(d) {return d.value});
+            .html(function(d) {return d.value;});
+
+        cells.exit()
+            .remove();
+
+        cells.order();
 
         rows.exit()
             .remove();
@@ -279,6 +294,10 @@
         this._update();
     };
 
+    Table.prototype.setColumns = function(columns) {
+        this.columns = columns;
+        this._update();
+    };
 
     Table.prototype.filter = function(field, filter) {
         updateFilter(this.columns, field, filter);

@@ -1,8 +1,13 @@
 (function() {
 
-    var color = d3.scale.category20();
+    var color = d3.scale.category20(),
+        showHostname = false;
 
-    function updateTooltip(container, item) {
+    $(NCI).on("showHostnames", function(e, show) {
+        showHostname = show;
+    });
+
+        function updateTooltip(container, item) {
         var tooltip = this.getTooltip(container);
 
         if (item) {
@@ -12,6 +17,9 @@
                 "<div>Endpoint: ",
                 item.ip,
                 "</div>",
+                showHostname ? ["<div>Host: ",
+                                item.host,
+                                "</div>"].join("") : "",
                 "<div>Activity: #",
                 item.activity ? item.activity.index : "Activity not loaded",
                 "</div>",

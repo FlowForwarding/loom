@@ -3,7 +3,6 @@
     var width = 960,
         height = 200;
 
-
     function createGraph(container, options) {
 
         var graph = container.append("div"),
@@ -57,6 +56,34 @@
         return container.select(".graph");
     }
 
+    function createTooltip(endpoint) {
+
+        return ["Ip"]
+    }
+
+    var createTooltip = (function() {
+        var showHostname = false;
+
+        $(NCI).on("showHostnames", function(e, show) {
+            showHostname = show;
+        });
+
+        return function(endpoint) {
+            var result = ["Endpoint: " + endpoint.ip];
+
+            if (showHostname) {
+                result.push("Host: " + endpoint.host);
+            }
+
+            return result.concat(["Activity: #" +
+                (endpoint.activity ? endpoint.activity.index : "Activity not loaded"),
+                "Total Connections: " + endpoint.totalConnections,
+                "External Connections: " + endpoint.externalConnections,
+                "Internal Connections: " + endpoint.internalConnections
+            ]).join("\n");
+        }
+    })();
+
     function updateGraph(container, data) {
         var graph = selectGraph(container);
 
@@ -88,8 +115,7 @@
             .remove();
 
         var node = graph.selectAll(".node")
-            .data(data.nodes, function(d) {return d.name});
-
+            .data(data.nodes, function(d) {return d.id});
 
         node.enter()
             .append("circle")
@@ -100,9 +126,17 @@
                 if (d3.event.defaultPrevented) return;
                 $(graph.node()).trigger("nodeClick", data);
             })
+            .on("mouseover", function(data) {
+                console.log(arguments);
+            })
             .call(this.force.drag)
-            .append("title")
-            .text(function(d) { return d.name; });
+
+        node.selectAll("title")
+            .remove();
+
+        node.append("title")
+            .text(function(d) { return d.tooltip });
+
 
         node.exit()
             .remove();
@@ -135,8 +169,8 @@
         var $me = $(this);
 
         $(this.graph.node()).on("nodeClick", function(event, data) {
-            var ip = data.name;
-            $me.trigger("click", NCI.model.getEndpointByIp(ip));
+            var endpoint = data.endpoint;
+            $me.trigger("click", endpoint);
         });
 
 
@@ -186,19 +220,23 @@
 
         if (currentData) {
             currentData.nodes.forEach(function(node) {
-                currentNodesMap[node.name] = node;
+                currentNodesMap[node.id] = node;
             });
             currentData.links.forEach(function (link) {
                 currentLinksMap[link.hash] = link;
             });
         }
         data.forEach(function (endpoint, index) {
+            var tooltip = createTooltip(endpoint);
             indexMap[endpoint.ip] = index;
             if (endpoint.ip in currentNodesMap) {
                 nodes.push(currentNodesMap[endpoint.ip]);
+                currentNodesMap[endpoint.ip].tooltip = tooltip;
             } else {
                 nodes.push({
-                    name: endpoint.ip,
+                    id: endpoint.ip,
+                    endpoint: endpoint,
+                    tooltip: tooltip,
                     group: endpoint.activity ? endpoint.activity.index : 0
                 });
             }
@@ -206,8 +244,9 @@
 
         data.forEach(function (endpoint) {
             var sourceIndex = indexMap[endpoint.ip];
-            Object.keys(endpoint.connections).forEach(function (ip) {
-                var targetIndex = indexMap[ip],
+            endpoint.getConnections().forEach(function (ep) {
+                var ip = ep.ip,
+                    targetIndex = indexMap[ip],
                     hash,
                     link;
                 if (targetIndex !== null && targetIndex !== undefined) {

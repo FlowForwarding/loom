@@ -1,7 +1,9 @@
 (function() {
 
-    var columns = [
+    var hostColumn = {text: "Host", property: "host", hidden: true},
+        columns = [
         {text: "Endpoint", property: "ip", sort: null, filter: null},
+        hostColumn,
         {text: "Internal", property: "internalConnections"},
         {text: "External", property: "externalConnections"},
         {text: "Total", property: "totalConnections", sort: NCI.Table.DESC_DIRECTION, filter: null},
@@ -23,7 +25,6 @@
 
 
     function EndpointsView($container) {
-        NCI.model.parseActivities(NCI.Communities);
 
         var container = $container.get(0),
             $histogramView = $container.find(".show-histogram"),
@@ -74,6 +75,23 @@
                 endpoints = sortEndpoints(endpoints, sortOptions.field, sortOptions.direction);
 //            }
 
+            setEndpoints(endpoints);
+        });
+
+        $(NCI).on("showHostnames", function(e, show) {
+            hostColumn.hidden = !show;
+            table.setColumns(columns);
+            // TODO: think how to avoid this call here.
+
+            var currentBreadcrumb = breadcrumbsData[breadcrumbsData.length - 1],
+                endpoints = currentBreadcrumb.endpoints;
+
+            if (currentBreadcrumb !== topHundred) {
+                endpoints = currentBreadcrumb.endpoint.getConnections();
+            }
+
+            var sortOptions = getSortOptions($endpointSortMenu.find("[data-sort-direction].active"));
+            endpoints = sortEndpoints(endpoints, sortOptions.field, sortOptions.direction);
             setEndpoints(endpoints);
         });
 

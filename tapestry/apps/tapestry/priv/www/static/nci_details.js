@@ -7,17 +7,23 @@ NCI.maxActivitySize = 0;
 NCI.Social = {}
 
 NCI.setupCommunities = function(data){
-	console.log(data)
 	NCI.Communities = data.Communities;
+    NCI.Lables = data.Labels;
+
 	NCI.CommunityGraph = data.CommunityGraph;
 	NCI.Communities.sort(function(a, b){
 		return a.Size- b.Size;
 	});
+
     var length = NCI.Communities.length;
     NCI.Communities.forEach(function(community, index) {
         community.NameIndex = length - index;
     });
-	NCI.timestampNCI = data.NCI;
+
+    NCI.model.parseActivities(NCI.Communities);
+    NCI.model.parseLabels(NCI.Lables);
+
+    NCI.timestampNCI = data.NCI;
 	NCI.timestamp = data.Time;
 
 	NCI.detailsNCI.html(NCI.timestampNCI);
@@ -46,6 +52,12 @@ $(".hide-ncidetails").on('click', function(){
 	NCI.detailsTime.html("");
 	NCI.detailsFlows.html("");
 	$($('#nciDetailsTabs').find("dd a")[2]).click();
+});
+
+$("#settingsDropdown-checkbox").on("click", function() {
+    var checked = this.checked;
+
+    $(NCI).trigger("showHostnames", checked);
 });
 
 NCI.detailsTabs = function(){
@@ -104,7 +116,7 @@ NCI.detailsTabs = function(){
 				activitiesPanel.show(true);
 		        break;
 		    default:
-                var activities = NCI.model.parseActivities(NCI.Communities);
+                var activities = NCI.model.activities();
 
                 NCI.CommunityGraph.Endpoints.forEach(function (community) {
                     var tmp = community.split("|"),
@@ -112,6 +124,7 @@ NCI.detailsTabs = function(){
                         mainEndpointId = tmp.pop(),
                         activity = NCI.model.getActivityByMainEndpoint(mainEndpointId);
 
+                    // TODO: get rid of hits hack;
                     activity.size = parseInt(size, 10);
                 });
 
