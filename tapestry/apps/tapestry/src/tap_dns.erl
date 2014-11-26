@@ -30,14 +30,18 @@
          intaddr/1,
          binaryaddr/1]).
 
-gethostbyaddr(Addr) ->
-    R = case inet:gethostbyaddr(Addr) of
-        {ok, #hostent{h_name = Hostname}} ->
-            Hostname;
-        {error, Error} ->
-            lists:flatten(io_lib:format("notfound_~p", [Error]))
-    end,
-    list_to_binary(R).
+gethostbyaddr(_) ->
+    <<"unknown">>.
+
+% reverse lookups causing too much DNS traffic
+% gethostbyaddr(Addr) ->
+%     R = case inet:gethostbyaddr(Addr) of
+%         {ok, #hostent{h_name = Hostname}} ->
+%             Hostname;
+%         {error, Error} ->
+%             lists:flatten(io_lib:format("notfound_~p", [Error]))
+%     end,
+%     list_to_binary(R).
 
 allow(IpAddr, WhiteList, BlackList) ->
     IpAddrI = intaddr(binaryaddr(IpAddr)),
