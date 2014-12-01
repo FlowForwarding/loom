@@ -567,3 +567,14 @@ body>canvas {
     left: 0;
     z-index: 900;
 }
+
+.settingsLabel {
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+    color: #000000;
+}
+
+#settingsDropdown-checkbox {
+    margin: 0;
+}

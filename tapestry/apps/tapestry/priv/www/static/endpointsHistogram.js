@@ -1,8 +1,14 @@
 (function() {
 
-    var color = d3.scale.category20();
+    var color = d3.scale.category20(),
+        showHostname = false,
+        margin = {top: 50, right: 70, bottom: 40, left: 100};
 
-    function updateTooltip(container, item) {
+    $(NCI).on("showHostnames", function(e, show) {
+        showHostname = show;
+    });
+
+        function updateTooltip(container, item) {
         var tooltip = this.getTooltip(container);
 
         if (item) {
@@ -12,6 +18,9 @@
                 "<div>Endpoint: ",
                 item.ip,
                 "</div>",
+                showHostname ? ["<div>Host: ",
+                                item.host,
+                                "</div>"].join("") : "",
                 "<div>Activity: #",
                 item.activity ? item.activity.index : "Activity not loaded",
                 "</div>",
@@ -61,6 +70,7 @@
             yAxis = d3.svg.axis()
                 .scale(y)
                 .tickFormat(d3.format("d"))
+                .tickSize(width)
                 .orient("left");
 
 
@@ -120,16 +130,60 @@
 
         bar.order();
 
+        chart.selectAll(".axis")
+            .remove();
+
+        chart.append("g")
+            .attr("class", "x axis")
+            .append("line")
+            .attr({
+                class: "axis-line",
+                x1: 0,
+                x2: width + 10,
+                y1: height,
+                y2: height
+            });
 
         chart.append("g")
             .attr("class", "y axis")
-            .call(yAxis);
+            .attr('transform', 'translate(' + (width) + ')')
+            .call(yAxis)
+            .append("line")
+            .attr({
+                class: "axis-line",
+                x1: -width,
+                x2: -width,
+                y1: -10,
+                y2: height
+            });
+        ;
+
+        var yAxisText = "Number of connected endpoints",
+            xAxisText = "Endpoints";
+
+        chart.selectAll(".axis-caption")
+            .remove();
+
+        chart.append('text')
+            .classed("axis-caption", true)
+            .attr('style', 'font-weight:bold')
+            .html(xAxisText)
+            .attr('transform', "translate(" + (width/2 - margin.left + 30) +", " + (height + 20) + ")"); // 30 is height of xaxis
+
+        chart.append('text')
+            .classed("axis-caption", true)
+            .attr('style', 'font-weight:bold')
+            .html(yAxisText)
+            .attr('transform', "rotate(-90) translate(" + (-height + margin.top) + ", " + (-30) + ") ");
 
     }
 
 
-    function EndpointsHistogram(container, data) {
-        NCI.HistogramUI.apply(this, arguments);
+    function EndpointsHistogram(container, data, options) {
+        options = options || {};
+        options.margin = margin;
+
+        NCI.HistogramUI.call(this, container, data, options);
     }
 
     // subclass extends superclass

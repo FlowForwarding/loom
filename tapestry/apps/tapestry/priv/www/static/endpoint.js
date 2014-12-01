@@ -1,6 +1,8 @@
 (function() {
     var activitiesMap = {},
-        endpointsMap = {};
+        endpointsMap = {},
+        hostsMap = {},
+        showHostNames = false;
 
     function createActivity(activity) {
         var index = activity.NameIndex,
@@ -62,6 +64,16 @@
         this.activity = activity;
     }
 
+    Object.defineProperty(Endpoint.prototype, 'host', {
+        get: function() {
+            var name = "";
+            if (showHostNames) {
+                name = hostsMap[this.ip];
+            }
+            return name;
+        }
+    });
+
     Endpoint.prototype.addConnection = function(endpoint) {
         if (!(endpoint.ip in this.connections)) {
             this.connections[endpoint.ip] = endpoint;
@@ -83,7 +95,13 @@
         return Object.keys(connections).map(function(key) {return connections[key]});
     };
 
-    var endpointsList = [];
+    var endpointsList = [],
+        activitiesList = [];
+
+
+    $(NCI).on("showHostnames", function(e, show) {
+        showHostNames = show;
+    });
 
     NCI.model = {
         createActivity: createActivity,
@@ -93,15 +111,29 @@
         getEndpointByIp: function(ip) {
             return endpointsMap[ip];
         },
+        parseLabels: function(labels) {
+            Object.keys(labels).forEach(function(ip) {
+                hostsMap[ip] = labels[ip].Name;
+            });
+        },
+        hostNameForIp: function(ip) {
+            var result = "";
+            if (showHostNames) {
+                result = hostsMap[ip];
+            }
+            return result;
+        },
         parseActivities: function(activities) {
-            var activities = activities.map(createActivity);
-
+            activitiesList = activities.map(createActivity);
             endpointsList = Object.keys(endpointsMap).map(function(key) {return endpointsMap[key]});
 
-            return activities;
+            return activitiesList;
         },
         endpoints: function() {
             return endpointsList;
+        },
+        activities: function() {
+            return activitiesList;
         }
     }
 
