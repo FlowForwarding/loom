@@ -493,26 +493,37 @@ body {
 
 .chart .internal-connections {
     fill: #a1d99b;
-}
-
-.mouse-over .internal-connections {
-    fill: #31a354;
+    background-color: #a1d99b;
 }
 
 .chart .external-connections {
     fill: #ff9896;
+    background-color: #ff9896;
 }
 
-.mouse-over .external-connections {
-    fill: #d62728;
+.chart .external .external-connections {
+    fill: #581A00;
+    background-color: #581A00;
 }
 
-.chart .external rect {
-    fill: darkred;
+.chart .external .internal-connections {
+    fill: darkgreen;
+    background-color: darkgreen;
+}
+
+.chart .mouse-over .external-connections {
+    fill: #1f77b4;
+    background-color: #1f77b4;
+}
+
+.chart .mouse-over .internal-connections {
+    fill: #1f77b4;
+    background-color: #1f77b4;
 }
 
 .chart .mouse-over.external rect {
-    fill: darkgreen;
+    fill: #1f77b4;
+    background-color: #1f77b4;
 }
 
 .chart .mouse-over.activity rect {
