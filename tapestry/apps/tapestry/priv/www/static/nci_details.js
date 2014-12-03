@@ -64,6 +64,7 @@ NCI.detailsTabs = function(){
 	var me = $('#nciDetailsTabs');
 	var flowsPanel;
 	var activitiesPanel;
+    var activitiesSize;
     var endpointsView;
 	var color = d3.scale.category10();
 	
@@ -76,6 +77,8 @@ NCI.detailsTabs = function(){
         if (endpointsView) {
             endpointsView.stop();
         }
+
+        $(window).trigger("resize");
 		switch(tab[0].id) {
             case "panelEndpoints":
                 if (!endpointsView) {
@@ -136,10 +139,12 @@ NCI.detailsTabs = function(){
                     return result;
                 });
 
-				new NCI.NCIHistogram(d3.select("#nciHistogram"), activities, {
-                    itemsPerPage: activities.length
-//                    itemsPerPage: 20
-                });
+                if (!activitiesSize) {
+                    activitiesSize = new NCI.NCIHistogram(d3.select("#nciHistogram"), activities, {
+                        itemsPerPage: activities.length
+                        //                    itemsPerPage: 20
+                    });
+                }
 		};
 	});
 	

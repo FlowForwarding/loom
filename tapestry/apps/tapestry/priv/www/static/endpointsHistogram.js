@@ -174,7 +174,7 @@
             .classed("axis-caption", true)
             .attr('style', 'font-weight:bold')
             .html(yAxisText)
-            .attr('transform', "rotate(-90) translate(" + (-height + margin.top) + ", " + (-30) + ") ");
+            .attr('transform', "rotate(-90) translate(" + (-height + margin.top) + ", " + (-50) + ") ");
 
         chart.call(updateLegends, height);
     }
@@ -184,7 +184,7 @@
 
         function createContainer(legends, text, cls) {
             var container = legends.append("g")
-                .attr("class", cls)
+                .attr("class", cls);
 
             container.append("text")
                 .text(text);
