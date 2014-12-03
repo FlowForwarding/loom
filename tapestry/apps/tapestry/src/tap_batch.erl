@@ -311,7 +311,7 @@ parse_logfile(Bin, FilterFn) ->
                     [{Timestamp,
                       tap_ds:endpoint(RequesterIpAddr,
                                             tap_dns:gethostbyaddr(Requester)),
-                      tap_ds:endpoint(ResolvedIpAddr, Query)} | L]
+                      tap_ds:endpoint(ResolvedIpAddr, binary:copy(Query))} | L]
             end
         end, [], Matches)).
 
