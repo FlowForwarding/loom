@@ -498,7 +498,7 @@ format_collectors(CollectorDict) ->
         end, 0, Collectors),
     JSON.
 
-collector({ofswitch, DatapathId, LastUpdate, IpAddr, QPS}) ->
+collector({ofswitch, DatapathId, IpAddr, LastUpdate, QPS}) ->
     [
         {<<"collector_type">>,<<"OF1.3 Switch">>},
         {<<"ip">>,endpoint(IpAddr)},
