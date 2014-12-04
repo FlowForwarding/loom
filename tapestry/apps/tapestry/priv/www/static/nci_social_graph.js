@@ -38,6 +38,11 @@ NCI.socialGraph = function(socialGraphID, params){
     var $endpointFilter = me.find(".endpoint-filter");
 
 	var tmpLine = undefined;
+    var showHostname = NCI.showHostnames;
+
+    $(NCI).on("showHostnames", function(event, show) {
+        showHostname = show;
+    });
 	
 	byActivities.on('click', function(event){
 		isDevided = this.checked;
@@ -259,6 +264,8 @@ NCI.socialGraph = function(socialGraphID, params){
 				};
 				var info = d.label ? d.label + "</br>" : "";
                 info += d.name;
+
+                info += (showHostname && !d.size) ? ("</br>" + NCI.model.hostNameForIp(d.name)) : "";
 
 				if (d.size){
 					info += "<br>size : " + d.size;

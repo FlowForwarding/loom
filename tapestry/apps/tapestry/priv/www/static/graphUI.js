@@ -62,7 +62,7 @@
     }
 
     var createTooltip = (function() {
-        var showHostname = false;
+        var showHostname = NCI.showHostnames;
 
         $(NCI).on("showHostnames", function(e, show) {
             showHostname = show;

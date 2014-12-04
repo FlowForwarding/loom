@@ -54,9 +54,11 @@ $(".hide-ncidetails").on('click', function(){
 	$($('#nciDetailsTabs').find("dd a")[2]).click();
 });
 
+NCI.showHostnames = false;
+
 $("#settingsDropdown-checkbox").on("click", function() {
     var checked = this.checked;
-
+    NCI.showHostnames = checked;
     $(NCI).trigger("showHostnames", checked);
 });
 

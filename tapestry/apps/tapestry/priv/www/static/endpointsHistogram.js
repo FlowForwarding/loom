@@ -1,7 +1,7 @@
 (function() {
 
     var color = d3.scale.category20(),
-        showHostname = false,
+        showHostname = NCI.showHostnames,
         margin = {top: 50, right: 70, bottom: 100, left: 100};
 
     $(NCI).on("showHostnames", function(e, show) {

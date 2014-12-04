@@ -1,6 +1,6 @@
 (function() {
 
-    var hostColumn = {text: "Host", property: "host", hidden: true},
+    var hostColumn = {text: "Host", property: "host", hidden: !NCI.showHostnames},
         columns = [
         {text: "Endpoint", property: "ip", sort: null, filter: null},
         hostColumn,
@@ -25,6 +25,8 @@
 
 
     function EndpointsView($container) {
+
+        hostColumn.hidden = !NCI.showHostnames;
 
         var container = $container.get(0),
             $histogramView = $container.find(".show-histogram"),

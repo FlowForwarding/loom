@@ -1,8 +1,8 @@
 (function() {
     var activitiesMap = {},
         endpointsMap = {},
-        hostsMap = {},
-        showHostNames = false;
+        hostsMap = {};
+
 
     function createActivity(activity) {
         var index = activity.NameIndex,
@@ -66,11 +66,7 @@
 
     Object.defineProperty(Endpoint.prototype, 'host', {
         get: function() {
-            var name = "";
-            if (showHostNames) {
-                name = hostsMap[this.ip];
-            }
-            return name;
+            return hostsMap[this.ip];
         }
     });
 
@@ -99,10 +95,6 @@
         activitiesList = [];
 
 
-    $(NCI).on("showHostnames", function(e, show) {
-        showHostNames = show;
-    });
-
     NCI.model = {
         createActivity: createActivity,
         getActivityByMainEndpoint: function(endpoint) {
@@ -117,11 +109,7 @@
             });
         },
         hostNameForIp: function(ip) {
-            var result = "";
-            if (showHostNames) {
-                result = hostsMap[ip];
-            }
-            return result;
+            return this.getEndpointByIp(ip).host;
         },
         parseActivities: function(activities) {
             activitiesList = activities.map(createActivity);
