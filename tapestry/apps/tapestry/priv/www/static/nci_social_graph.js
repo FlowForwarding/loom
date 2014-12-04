@@ -125,6 +125,7 @@ NCI.socialGraph = function(socialGraphID, params){
 		};
 		if (needDraw) {
 		    d3.select("#" + socialGraphID).remove();
+            $(".too-many-msg").remove();
 			if (numOfPoints > NCI.max_vertices) {
 				d3.select(socialGraphSelector).append('text')
 				.attr("id", socialGraphID)
@@ -136,7 +137,12 @@ NCI.socialGraph = function(socialGraphID, params){
                 $showGraph.parent().addClass("disabled");
                 $showGraph.off("click");
 
-			} else {
+			} else if (numOfPoints === 0) {
+                // this means that we haven't receive endpoints from BE, because of limits
+
+                $(socialGraphSelector).append('<div class="too-many-msg">Too many endpoints</div>');
+
+            } else {
 			    me.draw();
 				NCI.GraphAppearsSound.currentTime = 0;
 				NCI.GraphAppearsSound.play();	
