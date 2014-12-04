@@ -55,6 +55,7 @@ tap_data_test_() ->
         ,{"partition_sample_1000", fun partition_sample_1000/0}
 %       ,{timeout, 200, {"partition_sample_10000", fun partition_sample_10000/0}}
 %       ,{timeout, 1000, {"partition_sample_100000", fun partition_sample_100000/0}}
+        ,{"findonecommunity", fun findonecommunity/0}
      ]
     }.
 
@@ -371,7 +372,7 @@ smallgraph() ->
                                             digraph:vertices(G),
                                             [digraph:edge(G, E) ||
                                                 E <- digraph:edges(G)]),
-    Communities = part_louvain:find_communities(LG),
+    _Communities = part_louvain:find_communities(LG),
     CleanupFn(LG).
 
 partition_ring_clique() ->
@@ -424,6 +425,31 @@ partition_sample_100000() ->
     CommunitiesPL = partition_sample_file("../test/sample_100000"),
     % XXX getting 14253, but data generator says 11243
     ?assertEqual(11243, length(CommunitiesPL)).
+
+%%------------------------------------------------------------------------------
+
+findonecommunity() ->
+    G = digraph:new(),
+    digraph:add_vertex(G, "a"),
+    digraph:add_vertex(G, "b"),
+    digraph:add_vertex(G, "c"),
+    digraph:add_vertex(G, "d"),
+    digraph:add_vertex(G, "e"),
+    digraph:add_vertex(G, "f"),
+    digraph_add_edge(G, "a", "b"),
+    digraph_add_edge(G, "a", "c"),
+    digraph_add_edge(G, "a", "d"),
+    digraph_add_edge(G, "a", "e"),
+    digraph_add_edge(G, "a", "f"),
+    {LG = #louvain_graph{}, CleanupFn} = part_louvain:graph(
+                                            digraph:vertices(G),
+                                            [digraph:edge(G, E) ||
+                                                E <- digraph:edges(G)]),
+    {Communities, _Graph, _CommunityGraph} = part_louvain:find_communities(LG),
+    % all nodes are in the same community
+    [{_, Community}|_] = Communities,
+    ?assert(lists:all(fun({_,C}) -> C == Community end, Communities)),
+    CleanupFn(LG).
 
 %%------------------------------------------------------------------------------
 

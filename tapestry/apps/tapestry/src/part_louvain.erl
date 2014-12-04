@@ -226,8 +226,9 @@ partition(GD, L) ->
                     % partitioning didn't find any communitites, which
                     % probably means the graph wasn't big enough to
                     % yield anything interesting.  Return the
-                    % original graph.
-                    [graph(GD)];
+                    % original graph with all of the vertices
+                    % in the same community.
+                    [all_same_community(graph(GD))];
                 _ -> L
             end;
         false ->
@@ -536,6 +537,14 @@ community_degrees(#louvain_graphd{communitiesd = CommunitiesD,
         fun({C, AW, CW}, D) ->
             dict:update(C, fun({AS, CS}) -> {AS + AW, CS + CW} end, {AW, CW}, D)
         end, dict:new(), Weights).
+
+% put all of the vertices in the same community
+all_same_community(GD = #louvain_graph{neighbors = []}) ->
+    GD;
+all_same_community(GD =
+                    #louvain_graph{neighbors = Neighbors = [{First,_}|_]}) ->
+    Communities = [{Node, First} || {Node, _} <- Neighbors],
+    GD#louvain_graph{communities = Communities}.
 
 dict_lookup(Key, Dict) ->
     dict_lookup(Key, Dict, Key).
