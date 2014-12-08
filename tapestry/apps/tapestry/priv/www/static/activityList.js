@@ -44,6 +44,7 @@
             return {
                 activity: activities.length - index,
                 endpoint: endpoint,
+                host: NCI.model.hostNameForIp(endpoint),
                 internalConnections: 0,
                 externalConnections: 0,
                 totalConnections: 0,
@@ -102,6 +103,7 @@
     function createActivityColumns() {
         return [
             {text: "Endpoint", property: "endpoint", sort: null, filter: null},
+            {text: "Host", property: "host", sort: null, filter: null, hidden: !NCI.showHostnames},
             {text: "Internal", property: "internalConnections"},
             {text: "External", property: "externalConnections"},
             {text: "Total", property: "totalConnections", sort: NCI.Table.DESC_DIRECTION, filter: null},
@@ -113,6 +115,7 @@
     function createActivitiesColumns() {
         return [
             {text: "Endpoint", property: "endpoint", sort: null, filter: null},
+            {text: "Host", property: "host", sort: null, filter: null, hidden: !NCI.showHostnames},
             {text: "Internal", property: "internalConnections"},
             {text: "External", property: "externalConnections"},
             {text: "Total", property: "totalConnections", sort: NCI.Table.DESC_DIRECTION, filter: null},
@@ -123,14 +126,27 @@
         ]
     }
 
+
+    function findHostColumn(columns) {
+        return columns.filter(function(col) {
+            return col.property == "host"
+        })[0];
+    }
+
     function ListBuilder(communities) {
         this.columns = getCommunitiesColumns(communities);
         this.activityName = getActivityName(communities);
         this.activities = parseActivities(communities);
 
+        this.hostnameListener = (function(e, show) {
+            findHostColumn(this.columns).hidden = !show;
+            this.table.setColumns(this.columns);
+        }).bind(this);
+
+        $(NCI).on("showHostnames", this.hostnameListener);
+
         this.table = null;
     }
-
 
     var downloadCSV = downloadFile.bind(null, "text/csv");
 
@@ -154,6 +170,7 @@
         if (this.table) {
             this.table.remove();
         }
+        $(NCI).off("showHostnames", this.hostnameListener);
         this.table = null;
     };
 
