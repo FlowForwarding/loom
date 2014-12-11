@@ -34,6 +34,12 @@
         return csvRows.join("\n");
     }
 
+    function fixEndpointName(endpoint) {
+        var res = endpoint.split("|");
+        res.pop();
+        return res.length > 0 ? res[0] : endpoint;
+    }
+
     function parseActivity(activity, index, activities) {
         var endpoints = {};
         function isOutside(endpoint) {
@@ -41,6 +47,7 @@
         }
 
         function createEndpoint(endpoint) {
+            endpoint = fixEndpointName(endpoint);
             return {
                 activity: activities.length - index,
                 endpoint: endpoint,
@@ -77,8 +84,8 @@
 
         activity.Interactions.forEach(
             function(interaction) {
-                var endpointA = interaction[0],
-                    endpointB = interaction[1];
+                var endpointA = fixEndpointName(interaction[0]),
+                    endpointB = fixEndpointName(interaction[1]);
 
                 updateInteractionConnections(endpointA, endpointB);
                 updateInteractionConnections(endpointB, endpointA);
