@@ -130,7 +130,10 @@ NCI.detailsTabs = function(){
                         activity = NCI.model.getActivityByMainEndpoint(mainEndpointId);
 
                     // TODO: get rid of hits hack;
-                    activity.size = parseInt(size, 10);
+                    if (activity) {
+                        activity.size = parseInt(size, 10);
+                    }
+
                 });
 
                 activities = activities.sort(function(a1, a2) {
