@@ -56,7 +56,7 @@
                 externalConnections: 0,
                 totalConnections: 0,
                 outsideConnections: 0,
-                external: NCI.isExternal(endpoint)
+                external: NCI.model.getEndpointByIp(endpoint).external
             }
         }
 
@@ -71,7 +71,7 @@
         function updateInteractionConnections(epA, epB) {
             var endpoint = getEndpoint(epA),
                 outside = isOutside(epB),
-                external = NCI.isExternal(epB);
+                external = NCI.model.getEndpointByIp(epB).external;
 
             if (endpoint) {
                 if (outside) {
