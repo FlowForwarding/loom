@@ -598,3 +598,12 @@ body>canvas {
     color: #ffffff;
 }
 
+.chart .activity.avg-flows-max rect {
+    fill: #2ca02c;
+}
+
+.chart .activity.mouse-over.avg-flows-max rect {
+    fill: #98df8a;
+}
+
+
