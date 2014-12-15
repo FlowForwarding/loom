@@ -29,7 +29,7 @@
             var ep1 = getOrCreateEndpoint(interaction[0]),
                 ep2 = getOrCreateEndpoint(interaction[1]);
 
-            if (this.hasEndpoint(ep1) && this.hasEndpoint(ep2)) {
+            if (!ep1.external && !ep2.external) {
                 this.internalFlows += 1;
             } else {
                 this.externalFlows += 1;

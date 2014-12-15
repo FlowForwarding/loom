@@ -59,7 +59,7 @@ NCI.NCIHistogram = (function(){
         var maxActivities = data.slice().sort(function(activity1, activity2) {
             return activity2.avgInternalFlows - activity1.avgInternalFlows;
         }).filter(function(d, i) {
-            return i < 5
+            return i < 5 && d.avgInternalFlows > 0;
         });
 
 
