@@ -1,39 +1,5 @@
 (function() {
 
-    function downloadFile(fileType, fileContent, fileName) {
-        var blob = new Blob([fileContent], {type: fileType}),
-            url = URL.createObjectURL(blob),
-            $a = $("<a>")
-                    .attr("href", url)
-                    .attr("download", fileName)
-                    .attr("target", "_blank");
-
-        // This timeout is to fix issue with Safari download
-        setTimeout(function() {
-            $a
-                .get(0)
-                .click();
-            // need timeout to have time to open file before we revoke it from memory
-            setTimeout(URL.revokeObjectURL.bind(URL, url), 100);
-        }, 0);
-    }
-
-    function createCSV(columns, data) {
-        var csvRows = [columns.map(function(item) {
-                return ['"',
-                        item.text.replace('"', '""'),
-                        '"'].join("");
-            }).join(",")];
-
-        csvRows = csvRows.concat(data.map(function(item) {
-            return columns.map(function(column) {
-                return item[column.property];
-            }).join(",");
-        }));
-
-        return csvRows.join("\n");
-    }
-
     function fixEndpointName(endpoint) {
         var res = endpoint.split("|");
         res.pop();
@@ -155,15 +121,13 @@
         this.table = null;
     }
 
-    var downloadCSV = downloadFile.bind(null, "text/csv");
-
     ListBuilder.prototype.downloadCSV = function() {
         var columns = this.columns,
             csvName = this.activityName + ".csv",
             activities = this.activities,
-            csvContent = createCSV(columns, activities);
+            csvContent = NCI.utils.csv.create(columns, activities);
 
-        return downloadCSV(csvContent, csvName);
+        return NCI.utils.csv.download(csvContent, csvName);
     };
 
     ListBuilder.prototype.createTable = function(d3Selection) {
