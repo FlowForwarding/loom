@@ -39,8 +39,7 @@ rel/files/sys.config has the listen port for the controller:
 This is the default port, so this value probably doesn't need to change.
 
 To set the ports for the flows, there is also a tapestry.config
-file.  I've checked this file into the top directory for tap_install.
-tap_install expects to find this file in rel/tap_install (after you
+file.  tap_install expects to find this file in rel/tap_install (after you
 rebar generate).
 
 The sys.config specifies the name and location of the file:
