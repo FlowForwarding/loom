@@ -57,9 +57,9 @@ NCI.NCIHistogram = (function(){
 
         // TODO: move this to chart.datum()
         var maxActivities = data.slice().sort(function(activity1, activity2) {
-            return activity2.avgInternalFlows - activity1.avgInternalFlows;
+            return activity2.internalFlows - activity1.internalFlows;
         }).filter(function(d, i) {
-            return i < 5 && d.avgInternalFlows > 0;
+            return i < 5 && d.internalFlows > 0;
         });
 
 
@@ -137,7 +137,7 @@ NCI.NCIHistogram = (function(){
             barEnter = bar.enter()
                 .append("g")
                 .classed("activity", true)
-                .classed("avg-flows-max", function(data) {
+                .classed("internal-flows-max", function(data) {
                     return maxActivities.indexOf(data) >= 0;
                 });
 
