@@ -233,6 +233,8 @@ NCI.NCIHistogram = (function(){
 
     function showDetails(activity) {
 
+        $("#activity-index").text(activity.index);
+
         $('.histogramDetailsClose').on('click', function(){
             clean();
             $('.histogram-details-graph').hide();
