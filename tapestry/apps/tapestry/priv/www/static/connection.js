@@ -47,7 +47,7 @@ NCI.Connection.onmessage  = function (e) {
 			//limits.comm_size_limit;
 			break;
 		case "collectors":
-			NCI.collectorsTable.fillData(data.Collectors);
+			NCI.collectorsTable.fillData(data.Collectors.sort(function(c1, c2) {return c2.qps - c1.qps}));
 			break;
 		case "QPS":
 			NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS, 1), NCI.parceDateForLastUpdate(data.Time));
