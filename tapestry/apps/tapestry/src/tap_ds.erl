@@ -32,8 +32,7 @@
          save/1,
          load/1,
          community_detector/0,
-         community_detector/1,
-         endpoint/2]).
+         community_detector/1]).
 
 -export([init/1,
          handle_call/3,
@@ -92,9 +91,6 @@ community_detector(CD = part_labelprop) ->
     application:set_env(tapestry, community_detector, CD);
 community_detector(CD = part_louvain) ->
     application:set_env(tapestry, community_detector, CD).
-
-endpoint(IPAddr, Label) ->
-    {IPAddr, [{label, Label}]}.
 
 %------------------------------------------------------------------------------
 % gen_server callbacks
@@ -238,6 +234,7 @@ push_nci(Digraph, _NumVertices) ->
     Vertices = ?LOGDURATION(digraph:vertices(Digraph)),
     VertexInfo = ?LOGDURATION([digraph:vertex(Digraph, V) || V <- Vertices]),
     Edges = ?LOGDURATION([digraph:edge(Digraph, E) || E <- digraph:edges(Digraph)]),
+    FilterFn = filter_function(),
     % Read the environment to get the module to use for label propagation.
     % Do this everytime the calculation is done so it can be changed at
     % runtime.
@@ -246,10 +243,14 @@ push_nci(Digraph, _NumVertices) ->
         fun() ->
             % wrap in a try/catch so we get stack traces for any errors
             try
+                ?DEBUG("Applying black/white lists"),
+                {FilteredVertexInfo, FilteredEdges} =
+                                    apply_filter(FilterFn, VertexInfo, Edges),
+                FilteredVertices = [V || {V, _} <- FilteredVertexInfo],
                 ?DEBUG("Starting NCI Calculation"),
                 random:seed(now()),
                 {G, CleanupFn} =
-                        ?LOGDURATION(CommunityDetector:graph(Vertices, Edges)),
+                        ?LOGDURATION(CommunityDetector:graph(FilteredVertices, FilteredEdges)),
                 {Communities, Graph, CommunityGraph} =
                         ?LOGDURATION(CommunityDetector:find_communities(G)),
                 CommunitySizes = [{Community, length(Vs)} ||
@@ -261,7 +262,7 @@ push_nci(Digraph, _NumVertices) ->
                                     CommunityD,
                                     dict:from_list(CommunitySizes),
                                     CommunityGraph,
-                                    dict:from_list(VertexInfo),
+                                    dict:from_list(FilteredVertexInfo),
                                     calendar:universal_time()),
                 CleanupFn(G)
             catch
@@ -273,6 +274,56 @@ push_nci(Digraph, _NumVertices) ->
         end),
     Pid.
 
+filter_function() ->
+    RequesterWhitelist = mkmasks(tap_config:getconfig(requester_whitelist)),
+    RequesterBlacklist = mkmasks(tap_config:getconfig(requester_blacklist)),
+    ResolvedWhitelist = mkmasks(tap_config:getconfig(resolved_whitelist)),
+    ResolvedBlacklist = mkmasks(tap_config:getconfig(resolved_blacklist)),
+    QueryWhitelist = mkres(tap_config:getconfig(query_whitelist)),
+    QueryBlacklist = mkres(tap_config:getconfig(query_blacklist)),
+    fun(resolved, ResolvedIpAddr, Query) ->
+        tap_dns:allow(ResolvedIpAddr, ResolvedWhitelist, ResolvedBlacklist)
+            andalso
+        tap_dns:allowquery(Query, QueryWhitelist, QueryBlacklist);
+       (requester, RequesterIpAddr, Query) ->
+        tap_dns:allow(RequesterIpAddr, RequesterWhitelist, RequesterBlacklist)
+            andalso
+        tap_dns:allowquery(Query, QueryWhitelist, QueryBlacklist)
+   end.
+
+apply_filter(FilterFn, VertexInfo, Edges) ->
+    FilteredVertexInfo =
+        lists:filter(
+            fun(V) ->
+                {Who, IpAddr, Query} = vertex(V),
+                FilterFn(Who, IpAddr, Query)
+            end, VertexInfo),
+    FilteredVerticesSet = sets:from_list([V || {V, _} <- FilteredVertexInfo]),
+    FilteredEdges = 
+        lists:filter(
+            fun({_, V1, V2, _}) ->
+                sets:is_element(V1, FilteredVerticesSet) andalso
+                    sets:is_element(V2, FilteredVerticesSet)
+            end, Edges),
+    {FilteredVertexInfo, FilteredEdges}.
+
+vertex({IpAddr, {_, Properties}}) ->
+    {Who, Query} = vertex_properties(Properties, {undefined, undefined}),
+    {Who, IpAddr, Query}.
+
+vertex_properties([], Result) ->
+    Result;
+vertex_properties([{who, Who} | Rest], {_, Query}) ->
+    vertex_properties(Rest, {Who, Query});
+vertex_properties([{label, Query} | Rest], {Who, _}) ->
+    vertex_properties(Rest, {Who, Query}).
+
+mkmasks(MaskList) ->
+    [tap_dns:mkmask(tap_dns:inet_parse_address(Addr), Length) ||
+                                            {Addr, Length} <- MaskList].
+
+mkres(REList) ->
+    [tap_dns:mkre(RE) || RE <- REList].
 
 % inputs:
 %  [{Community, [Endpoint]}],

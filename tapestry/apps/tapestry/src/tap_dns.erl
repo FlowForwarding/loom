@@ -28,7 +28,8 @@
          allowquery/3,
          mkre/1,
          intaddr/1,
-         binaryaddr/1]).
+         binaryaddr/1,
+         inet_parse_address/1]).
 
 gethostbyaddr(_) ->
     <<"unknown">>.
@@ -56,6 +57,12 @@ binaryaddr({A,B,C,D}) ->
     <<A:8,B:8,C:8,D:8>>;
 binaryaddr({A,B,C,D,E,F,G,H}) ->
     <<A:16,B:16,C:16,D:16,E:16,F:16,G:16,H:16>>.
+
+inet_parse_address(B) when is_binary(B) ->
+    inet_parse_address(binary_to_list(B));
+inet_parse_address(L) when is_list(L) ->
+    {ok, IpAddr} = inet:parse_address(L),
+    IpAddr.
 
 mkmask(Addr = {_,_,_,_}, Length) ->
     <<M:Length,_/bits>> = <<16#ff:8,16#ff:8,16#ff:8,16#ff:8>>,
