@@ -26,7 +26,7 @@
 
 -export([start_link/0,
          num_endpoints/3,
-         nci/5,
+         nci/6,
          qps/4,
          new_client/1,
          more_nci_data/4,
@@ -58,10 +58,19 @@
                 last_qps_time,
                 nci,
                 collectors = [],
+                use_graphviz,
+                neato_bin,
                 community_data = no_communities}).
 
 -define(DOTFILENAME, "/tmp/tapestry.dot").
--define(NEATO, "/usr/local/bin/neato").
+-define(NEATO_OPTS, "-Tplain").
+
+-record(community_data, {
+    communities,
+    sizes,
+    cgraph,
+    vertexinfo          % dictionary[Vertex] = Label
+}).
 
 %------------------------------------------------------------------------------
 % API
@@ -73,9 +82,14 @@ start_link() ->
 num_endpoints(Endpoints, Edges, DateTime) ->
     gen_server:cast(?MODULE, {num_endpoints, Endpoints, Edges, DateTime}).
 
-nci(NCI, Communities, CommunitySizes, CommunityGraph, DateTime) ->
-    gen_server:cast(?MODULE,
-            {nci, NCI, Communities, CommunitySizes, CommunityGraph, DateTime}).
+nci(NCI, Communities, CommunitySizes, CommunityGraph, VertexInfo, DateTime) ->
+    CommunityData = #community_data{
+        communities = Communities,
+        sizes = CommunitySizes,
+        cgraph = CommunityGraph,
+        vertexinfo = VertexInfo
+    },
+    gen_server:cast(?MODULE, {nci, NCI, CommunityData, DateTime}).
 
 qps(Sender, QPS, Collectors, DateTime) ->
     gen_server:cast(?MODULE, {qps, Sender, QPS, Collectors, DateTime}).
@@ -106,14 +120,24 @@ init([]) ->
     gen_server:cast(?MODULE, start),
     Limits = [{Key, tap_config:getconfig(Key)} || Key <-
                 [max_vertices, max_edges, max_communities, comm_size_limit]],
-    {ok, #?STATE{collectors = dict:new(), limits = Limits}}.
+    UseGraphViz = tap_config:getconfig(use_graphviz),
+    NeatoBin = tap_config:getconfig(neato_bin),
+    {ok, #?STATE{neato_bin = NeatoBin,
+                 use_graphviz = UseGraphViz,
+                 collectors = dict:new(),
+                 limits = Limits}}.
 
 % for debugging
 handle_call(nci_details, _From, State = #?STATE{community_data = CommunityData,
                                                 nci = NCI,
                                                 last_nci_time = Time,
+                                                neato_bin = NeatoBin,
+                                                use_graphviz = UseGraphViz,
                                                 limits = Limits}) ->
-    {reply, json_nci_details(Time, NCI, CommunityData, Limits), State};
+    Neato = neato_cmd(NeatoBin),
+    {reply,
+        json_nci_details(Time, NCI, CommunityData, Limits, Neato, UseGraphViz),
+        State};
 handle_call(dot_community_details, _From,
                         State = #?STATE{community_data = CommunityData}) ->
     {reply, dot_community_details(CommunityData), State};
@@ -125,7 +149,7 @@ handle_call(Msg, From, State) ->
 
 handle_cast(start, State) ->
     StartTime = calendar:universal_time(),
-    Time = list_to_binary(tap_time:rfc3339(StartTime)),
+    Time = rfc3339bin(StartTime),
     COLS = encode_cols(Time, 0),
     LNCI = encode_nci(Time, 0),
     LNEP = encode_nep(Time, 0, 0),
@@ -142,28 +166,23 @@ handle_cast({num_endpoints, NEP, NE, UT},
                                                     clients = Clients}) ->
     NewState = case NEP =/= LIntNEP of
         true ->
-            Time = list_to_binary(tap_time:rfc3339(UT)),
+            Time = rfc3339bin(UT),
             JSON = encode_nep(Time, NEP, NE),
             broadcast_msg(Clients, JSON),
             State#?STATE{last_nep = JSON, last_int_nep = NEP};
         false -> State
     end,
     {noreply, NewState};
-handle_cast({nci, NCI, Communities, CommunitySizes, CommunityGraph, UT},
-                                        State = #?STATE{nci_log = NCILog,
+handle_cast({nci, NCI, CommunityData, UT}, State = #?STATE{nci_log = NCILog,
                                                         clients = Clients}) ->
     true = ets:insert(NCILog, {UT, NCI}),
-    Time = list_to_binary(tap_time:rfc3339(UT)),
+    Time = rfc3339bin(UT),
     JSON = encode_nci(Time, NCI),
     broadcast_msg(Clients, JSON),
     {noreply, State#?STATE{last_nci = JSON,
                            nci = NCI,
                            last_nci_time = Time,
-                           community_data =
-                                {Communities,
-                                 dict:from_list(CommunitySizes),
-                                 CommunityGraph
-                                }
+                           community_data = CommunityData
                           }};
 handle_cast({limits, Pid}, State = #?STATE{limits = Limits}) ->
     clientsock:send(Pid, json_limits(<<"getlimits">>, Limits)),
@@ -176,8 +195,12 @@ handle_cast({nci_details, Pid}, State = #?STATE{
                                             community_data = CommunityData,
                                             nci = NCI,
                                             last_nci_time = Time,
+                                            neato_bin = NeatoBin,
+                                            use_graphviz = UseGraphViz,
                                             limits = Limits}) ->
-    clientsock:send(Pid, json_nci_details(Time, NCI, CommunityData, Limits)),
+    Neato = neato_cmd(NeatoBin),
+    clientsock:send(Pid,
+        json_nci_details(Time, NCI, CommunityData, Limits, Neato, UseGraphViz)),
     {noreply, State};
 handle_cast({collectors, Pid}, State = #?STATE{collectors = CollectorDict,
                                                last_qps_time = Time}) ->
@@ -187,7 +210,7 @@ handle_cast({qps, Sender, QPS, Collectors, UT},
                                 State = #?STATE{clients = Clients,
                                                 collectors = CollectorDict}) ->
     NewCollectorDict = save_collector(Sender, QPS, Collectors, CollectorDict),
-    Time = list_to_binary(tap_time:rfc3339(UT)),
+    Time = rfc3339bin(UT),
     QPSMsg = encode_qps(Time, collector_qps(NewCollectorDict)),
     broadcast_msg(Clients, QPSMsg),
     COLMsg = encode_cols(Time, collector_count(NewCollectorDict)),
@@ -205,10 +228,9 @@ handle_cast({new_client, Pid}, State = #?STATE{clients = Clients,
     monitor(process, Pid),
     ?DEBUG("tap_client_data: new client ~p~n",[Pid]),
     HELLO = jiffy:encode({[{<<"action">>, <<"hello">>},
-                           {<<"start_time">>,
-                                list_to_binary(tap_time:rfc3339(StartTime))},
+                           {<<"start_time">>, rfc3339bin(StartTime)},
                            {<<"current_time">>,
-                                list_to_binary(tap_time:rfc3339(calendar:universal_time()))}]}),
+                                rfc3339bin(calendar:universal_time())}]}),
     clientsock:send(Pid, HELLO),
     clientsock:send(Pid, LNCI),
     clientsock:send(Pid, LNEP),
@@ -255,6 +277,9 @@ code_change(_OldVersion, State, _Extra) ->
 % local functions
 %------------------------------------------------------------------------------
 
+neato_cmd(NeatoBin) ->
+    [NeatoBin, " ", ?NEATO_OPTS].
+
 save_collector(Sender, QPS, Collectors, CollectorDict) ->
     dict:store(Sender, {QPS, Collectors}, CollectorDict).
 
@@ -272,7 +297,7 @@ send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
     ?DEBUG("tap_client_data: sending more data ~p to ~p~n",[Data,Pid]),
     JSONData = lists:foldl(
                     fun({Time, Value}, AccIn) ->
-                        [{[{<<"Time">>, list_to_binary(tap_time:rfc3339(Time))},
+                        [{[{<<"Time">>, rfc3339bin(Time)},
                          {<<"NCI">>, Value}]} | AccIn]
                     end, [], Data),
     JSON = jiffy:encode(JSONData),
@@ -281,9 +306,14 @@ send_more_data(Pid, Data) when is_pid(Pid), is_list(Data)->
 broadcast_msg(Clients, Msg) ->
     [clientsock:send(C, Msg) || C <- Clients].
 
-json_nci_details(Time, undefined, CommunityData, Limits) ->
-    json_nci_details(Time, 0, CommunityData, Limits);
-json_nci_details(Time, NCI, CommunityData = {_, Sizes, _}, Limits) ->
+json_nci_details(_Time, undefined, no_communities, _Limits, _Neato, _UseGraphViz) ->
+    <<>>;
+json_nci_details(Time, undefined, CommunityData, Limits, Neato, UseGraphViz) ->
+    json_nci_details(Time, 0, CommunityData, Limits, Neato, UseGraphViz);
+json_nci_details(Time, NCI,
+            CommunityData = #community_data{sizes = Sizes,
+                                            vertexinfo = VertexInfoD},
+            Limits, Neato, UseGraphViz) ->
     MaxCommunities = proplists:get_value(max_communities, Limits),
     % make a list of the largest communities and truncate the list after
     % MaxCommunities elements.
@@ -296,15 +326,36 @@ json_nci_details(Time, NCI, CommunityData = {_, Sizes, _}, Limits) ->
         {<<"NCI">>,NCI},
         {<<"Time">>, Time},
         {<<"Communities">>, community_details(CommunityData,
-                                                CommunityList, Limits)},
+                                    CommunityList, Limits, Neato, UseGraphViz)},
         {<<"CommunityGraph">>, community_graph(CommunityData,
-                                                CommunityList, Limits)}
+                                                CommunityList, Limits)},
+        {<<"Labels">>, labels(VertexInfoD)}
     ]}).
+
+labels(VertexInfoD) ->
+    {
+        [{endpoint(K), label(PL)} || {K,{_, PL}} <- dict:to_list(VertexInfoD)]
+    }.
+
+label(PL) ->
+    format_label(name_value(proplists:get_value(label, PL))).
+
+format_label(Name) ->
+    {[{<<"Name">>, Name}]}.
+
+name_value(undefined) ->
+    <<"undefined">>;
+name_value(L) when is_binary(L) ->
+    L;
+name_value(L) when is_list(L) ->
+    list_to_binary(L).
 
 community_graph(no_communities, _CommunityList, _Limits) ->
     [];
-community_graph({{_Endpoints, _Interactions}, Sizes,
-                    {_Cendpoints, Cinteractions}}, CommunityList, _Limits) ->
+community_graph(#community_data{sizes = Sizes,
+                                cgraph = {_Cendpoints, Cinteractions}
+                               },
+                               CommunityList, _Limits) ->
     {[
         {<<"Endpoints">>, cendpoints(CommunityList, Sizes)},
         {<<"Interactions">>, cinteractions(Cinteractions, CommunityList, Sizes)}
@@ -314,7 +365,7 @@ cendpointsize(C, Sizes) ->
     FormattedC = endpoint(C),
     SizeI = dict:fetch(C, Sizes),
     Size = integer_to_binary(SizeI),
-    <<FormattedC/binary, $:, Size/binary>>.
+    <<FormattedC/binary, $|, Size/binary>>.
 
 cendpoints(Endpoints, Sizes) ->
     lists:map(fun(E) -> cendpointsize(E, Sizes) end, Endpoints).
@@ -336,10 +387,12 @@ cinteractions(Interactions, CommunityList, Sizes) ->
 % dict_value_length(D) ->
 %     dict:fold(fun(_, List, Sum) -> Sum + length(List) end, 0, D).
 
-community_details(no_communities, _CommunityList, _Limits) ->
+community_details(no_communities, _CommunityList, _Limits, _Neato, _UseGraphViz) ->
     [];
-community_details({{EndpointsD, InteractionsD}, SizesD, _Comms},
-                                                    CommunityList, Limits) ->
+community_details(#community_data{communities = {EndpointsD, InteractionsD},
+                                  sizes = SizesD
+                                 },
+                                 CommunityList, Limits, Neato, UseGraphViz) ->
     MaxVertices = proplists:get_value(max_vertices, Limits),
     MaxEdges = proplists:get_value(max_edges, Limits),
     lists:foldl(
@@ -356,15 +409,28 @@ community_details({{EndpointsD, InteractionsD}, SizesD, _Comms},
                         {<<"Size">>, dict:fetch(C, SizesD)}
                     ]};
                 false ->
-                    {[
-                        {<<"Interactions">>, interactions(Interactions, Endpoints)},
+                    Body = [
+                        {<<"Interactions">>, interactions(Interactions)},
                         {<<"Endpoints">>, endpoints(Endpoints)},
                         {<<"Label">>, endpoint(C)},
                         {<<"Size">>, dict:fetch(C, SizesD)}
-                    ]}
+                    ] ++ gz_community_details(Neato, Endpoints, Interactions, UseGraphViz),
+                    {Body}
             end,
             [D | L]
         end, [], CommunityList).
+
+gz_community_details(Neato, Endpoints, Interactions, true) ->
+    {Width, Height, Nodes} = gz_endpoints(Neato, Endpoints, Interactions),
+    [
+        {<<"Sizes">>, {[
+            {<<"height">>, Height},
+            {<<"width">>, Width}
+        ]}},
+        {<<"GEndpoints">>, format_gz_nodes(Nodes)}
+    ];
+gz_community_details(_Neato, _Endpoints, _Interactions, false) ->
+    [].
 
 overlimit(_, 0) ->
     false;
@@ -379,25 +445,8 @@ dict_fetch(Key, Dict) ->
         error -> []
     end.
 
-interactions(L, Endpoints) ->
-    EndpointS = sets:from_list(Endpoints),
-    IsEndpoint = fun(E) -> sets:is_element(E, EndpointS) end,
-    Interactions = lists:foldl(
-        fun(I = {A, B}, S) ->
-            case IsEndpoint(A) andalso IsEndpoint(B) of
-                false ->
-                    S;
-                true ->
-                    NI = normalize_interaction(I),
-                    sets:add_element(NI, S)
-            end
-        end, sets:new(), L),
-    [[endpoint(A), endpoint(B)] || {A, B} <- sets:to_list(Interactions)].
-
-normalize_interaction({A, B}) when A > B ->
-    {A, B};
-normalize_interaction({A, B}) ->
-    {B, A}.
+interactions(Interactions) ->
+    [[endpoint(A), endpoint(B)] || {A, B} <- Interactions].
 
 endpoints(L) ->
     [endpoint(E) || E <- L].
@@ -412,6 +461,22 @@ endpoint(S) when is_list(S) ->
     list_to_binary(S);
 endpoint(_) ->
     <<"invalid">>.
+
+gz_endpoints(Neato, Endpoints, Edges) ->
+    DotFile = dot_community_graph(Endpoints, Edges),
+    graphviz(Neato, DotFile).
+
+
+% [[Vertex, X, Y]]
+format_gz_nodes(Nodes) ->
+    lists:map(
+        fun([Vertex, X, Y]) ->
+            {[
+                {<<"Id">>, Vertex},
+                {<<"x">>, binary_to_number(X)},
+                {<<"y">>, binary_to_number(Y)}
+            ]}
+        end, Nodes).
 
 json_collectors(Time, CollectorDict) ->
     jiffy:encode({[
@@ -433,18 +498,20 @@ format_collectors(CollectorDict) ->
         end, 0, Collectors),
     JSON.
 
-collector({ofswitch, DatapathId, IpAddr, QPS}) ->
+collector({ofswitch, DatapathId, IpAddr, LastUpdate, QPS}) ->
     [
         {<<"collector_type">>,<<"OF1.3 Switch">>},
         {<<"ip">>,endpoint(IpAddr)},
         {<<"datapath_id">>,list_to_binary(DatapathId)},
+        {<<"lastupdate">>,rfc3339bin(LastUpdate)},
         {<<"qps">>,format_qps(QPS)}
     ];
-collector({grid, IpAddr, QPS}) ->
+collector({grid, IpAddr, LastUpdate, QPS}) ->
     [
         {<<"collector_type">>,<<"IB Grid Member">>},
         {<<"ip">>,endpoint(IpAddr)},
         {<<"datapath_id">>,<<>>},
+        {<<"lastupdate">>,rfc3339bin(LastUpdate)},
         {<<"qps">>,format_qps(QPS)}
     ].
 
@@ -503,7 +570,7 @@ update_limit(Limits, Limit, Value) ->
 % output:
 % {Width, Height, [[Vertex, X, Y]]}
 % Values are binaries
-graphviz(DotFile) ->
+graphviz(Neato, DotFile) ->
     % delete old file
     file_delete(?DOTFILENAME),
 
@@ -511,7 +578,7 @@ graphviz(DotFile) ->
     ok = file:write_file(?DOTFILENAME, DotFile),
 
     % run neato and collect output
-    Plain = os:cmd([?NEATO, " ", ?DOTFILENAME]),
+    Plain = os:cmd([Neato, " ", ?DOTFILENAME]),
 
     % parse for output
     parse_plain(Plain).
@@ -531,8 +598,8 @@ graphviz(DotFile) ->
 % Values are binaries
 parse_plain(Plain) ->
     {match, [Width, Height]} = re:run(Plain, "^graph [0-9]+ ([.0-9]+) ([.0-9]+)", [{capture, all_but_first, binary}]),
-    {match, [Nodes]} = re:run(Plain, "^node \"([^\"]+)\" ([.0-9]+) ([.0-9]+)", [global, multiline, {capture, all_but_first, binary}]),
-    {Width, Height, Nodes}.
+    {match, Nodes} = re:run(Plain, "^node \"([^\"]+)\" ([.0-9]+) ([.0-9]+)", [global, multiline, {capture, all_but_first, binary}]),
+    {binary_to_number(Width), binary_to_number(Height), Nodes}.
 
 dot_community_details(no_communities) ->
     [];
@@ -607,3 +674,13 @@ format_list(FormatFn, List) ->
 file_delete(Filename) ->
     % XXX log it not enoent?
     file:delete(Filename).
+
+binary_to_number(B) when is_binary(B) ->
+    try binary_to_float(B)
+    catch
+        error:badarg ->
+            binary_to_integer(B)
+    end.
+
+rfc3339bin(T) ->
+    list_to_binary(tap_time:rfc3339(T)).

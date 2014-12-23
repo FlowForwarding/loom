@@ -12,8 +12,10 @@ if (typeof NCI.Admin === 'undefined')
 	
 NCI.Admin.fillLimits = function(limits){
 	NCI.limits = limits;
+    NCI.limits.max_ui_vertices = localStorage.getItem("maxVertices") || 3000;
 	$("#nciMaxEdges").text(limits.max_edges);
 	$("#nciMaxVertices").text(limits.max_vertices);
+	$("#nciMaxUIVertices").text(limits.max_ui_vertices);
 	$("#nciMaxCommunities").text(limits.max_communities);
 	$("#nciCommunitySizeLimit").text(limits.comm_size_limit);
 };  
@@ -26,6 +28,7 @@ NCI.processInputLimit = function(value, initial){
 $("#saveLimits").on("click", function(){
 	if ($("#newMaxEdges").data("invalid") !== undefined  ||
 	 $("#newMaxVertices").data("invalid") !== undefined  ||
+	 $("#newUIMaxVertices").data("invalid") !== undefined  ||
      $("#newMaxCommunities").data("invalid") !== undefined  ||
      $("#newCommunitySizeLimit").data("invalid") !== undefined ){
 		 return;
@@ -34,7 +37,8 @@ $("#saveLimits").on("click", function(){
 	 var newMaxVertices = NCI.processInputLimit($("#newMaxVertices").val(), NCI.limits.max_vertices);
 	 var newMaxCommunities = NCI.processInputLimit($("#newMaxCommunities").val(), NCI.limits.max_communities);
 	 var newCommunitySizeLimit = NCI.processInputLimit($("#newCommunitySizeLimit").val(), NCI.limits.comm_size_limit);
-	 NCI.Connection.setLimits(newMaxVertices, newMaxEdge, newCommunitySizeLimit, newMaxCommunities);
+    var newUIMaxVertices = NCI.processInputLimit($("#newUIMaxVertices").val(), NCI.limits.max_ui_vertices);
+	 NCI.Connection.setLimits(newMaxVertices, newMaxEdge, newCommunitySizeLimit, newMaxCommunities, newUIMaxVertices);
 });
    
 NCI.Connection.onmessage  = function (e) {

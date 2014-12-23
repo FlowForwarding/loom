@@ -122,10 +122,11 @@
 		</div>	
 		
 		<div id="nciDetails" class="details-view" style="overflow-y:scroll;">
-			<div class="hide-ncidetails"></div>
-			<div id="histogramGeneral" class="row">
+
+			<div id="histogramGeneral" class="row activities-header">
+                <div class="hide-ncidetails"></div>
 				<div class="large-1 small-1 columns">&nbsp;</div>
-				<div class="large-6 small-6 columns">
+				<div class="large-4 small-4 columns">
 				    <div class="indexValue qps-value">
 				        <name>NCI</name>
 				        <span data-tooltip class="has-tip" title="Network Complexity Index"> 
@@ -139,7 +140,7 @@
 				        <span><val> <i id="detailsTime"> &nbsp; </i> </val></span>
 				    </div>
 			    </div>
-				<div class="large-5 small-5 columns">
+				<div class="large-4 small-4 columns">
 				    <div class="indexValue qps-value">
 				        <name>Endpoints</name>
 				        <span data-tooltip class="has-tip" title="Number of Connected Network Elements"> 
@@ -153,49 +154,215 @@
 				        <span><val id="detailsFlows"> &nbsp; </val>  </span>
 				    </div>
 				</div>
+                <div class="large-3 small-3 columns">
+                    <div class="indexValue qps-value">
+                        <name>Activities</name>
+				        <span data-tooltip class="has-tip" title="Number of automatically identified activities">
+				           &nbsp; <i class="icon-question-sign"></i></span>
+                        <span><val id="detailsActivities"> &nbsp; </val> </span>
+                    </div>
+                    <div class="indexValue qps-value">
+                        <a class="settingsLabel" href="#" data-dropdown="settingsDropdown" data-options="is_hover:true">Settings</a>
+                        <ul id="settingsDropdown" class="f-dropdown" data-dropdown-content>
+                            <li>
+                                <a href="#">
+                                    <input type="checkbox" id="settingsDropdown-checkbox" />
+                                    <label for="settingsDropdown-checkbox">Show domain names</label>
+                                </a>
+                            </li>
+                        </ul>
+				        <!--<span data-tooltip class="has-tip" title="Number of automatically identified activities">-->
+				           <!--&nbsp; <i class="icon-question-sign"></i></span>-->
+                        <!--<span><val id="detailsPreferences"> &nbsp; </val> </span>-->
+                    </div>
+                </div>
 			</div>
-			<br/><br/>
-			<div>
-				<dl class="tabs vertical" data-tab id="nciDetailsTabs">
-					<dd class="active"><a href="#panelFlows">Flows</a></dd>
-					<dd><a href="#panelActivities">Activities</a></dd>
-					<dd><a href="#panelActivitySizes">Activity Sizes</a></dd>
-				</dl>
-				<div class="tabs-content vertical">
-					<div class="content" id="panelFlows">
-				        <label> <input type="checkbox" class="byactivities"> by Activities</label>
-				        <label> <input type="checkbox" class="pretty"> Pretty</label>
-				        <label> <input type="checkbox" class="internal"> External </label>
-				        <div class="socialGraph" style="">
-				        </div>
-					</div>
-					<div class="content" id="panelActivities">
-						<label> <input type="checkbox" class="pretty"> Pretty</label>
-						<label> <input type="checkbox" class="internal"> External</label>
-						<div class="legend"></div>
-				        <div class="socialGraph" style="">
-				        </div>
-					</div>
-					<div class="content" id="panelActivitySizes">
-						<div class="row">
-				            <div id="nciHistogram" class="centrate"> </div>
-   						    <h6 class="centrate"> <b>NCI(N) = Max j, X[j] ≥ j </b> </h6>						
-   						    <h4 class="centrate"><small> where <b>NCI(N)</b> is the Network Complexity Index of network N and 
-   							<b>X[j]</b> is the number of endpoints engaged in an activity </small></h4>
-							<div class="expand-historgam"></div>
-					    </div>
-						<div class="histogram-details-graph">
-							<div class="histogramDetailsHeader">
-						        <div class="histogramDetailsInternal">
- 							        <label><input type="checkbox" class="internal"> External</label>
-								    <div class="histogramDetailsClose"></div>
-							    </div>
-							</div>
-							<div class="legend"> </div>
-							<div class="socialGraph"> </div>
-						</div>		
-					</div>
-					</div>
+			<div class="activities-content">
+                <div class="activities-content-wrap">
+                    <dl class="tabs vertical" data-tab id="nciDetailsTabs">
+                        <dd><a href="#panelFlows">Flows</a></dd>
+                        <dd><a href="#panelEndpoints">Endpoints</a></dd>
+                        <dd><a href="#panelActivities">Activities</a></dd>
+                        <dd class="active"><a href="#panelActivitySizes">Activity Sizes</a></dd>
+                    </dl>
+                    <div class="tabs-content vertical">
+                        <div class="content" id="panelFlows">
+                            <nav class="top-bar top-bar-light" data-topbar role="navigation">
+                                <section class="top-bar-section">
+                                    <ul class="left">
+                                        <li>
+                                            <a class="show-list" href="#">Show endpoints</a>
+                                        </li>
+                                        <li class="hide">
+                                            <a class="show-graph" href="#">Show flows</a>
+                                        </li>
+                                        <li class="has-form">
+                                            <a class="button radius small export-list" href="#">Export to CSV</a>
+                                        </li>
+                                        <li class="has-form hide">
+                                            <input class="endpoint-filter" type="text" />
+                                        </li>
+                                        <li class="has-form">
+                                            <input id="panelFlows-byActivities" type="checkbox" class="byactivities" />
+                                            <label for="panelFlows-byActivities"> by Activities</label>
+                                        </li>
+                                        <li class="has-form">
+                                            <input id="panelFlows-pretty" type="checkbox" class="pretty" />
+                                            <label for="panelFlows-pretty"> Pretty</label>
+                                        </li>
+                                        <li class="has-form">
+                                            <input type="checkbox" id="panelFlows-experimental" class="experimental" />
+                                            <label for="panelFlows-experimental"> Experimental</label>
+                                        </li>
+                                        <li class="has-form">
+                                            <input id="panelFlows-internal" type="checkbox" class="internal" />
+                                            <label for="panelFlows-internal"> External Endpoints </label>
+                                        </li>
+                                    </ul>
+                                </section>
+                            </nav>
+                            <section class="details-content">
+                                <div class="socialGraph" style=""></div>
+                                <div class="activities-list row" style="display: none"></div>
+                            </section>
+                        </div>
+                        <div class="content" id="panelEndpoints">
+                            <nav class="top-bar top-bar-light" data-topbar role="navigation">
+                                <section class="top-bar-section">
+                                    <ul class="left">
+                                        <li>
+                                            <a class="show-histogram" href="#">Histogram</a>
+                                        </li>
+                                        <li>
+                                            <a class="show-table" href="#">Table</a>
+                                        </li>
+                                        <li>
+                                            <a class="show-graph" href="#">Graph</a>
+                                        </li>
+                                        <li class="has-dropdown endpoint-sort">
+                                            <a href="#">Sort by</a>
+                                            <ul class="dropdown">
+                                                <li data-sort-field="internalConnections" class="has-dropdown"><a href="#">Internal</a>
+                                                    <ul class="dropdown">
+                                                        <li data-sort-direction="asc"><a href="#">ASC</a></li>
+                                                        <li data-sort-direction="desc"><a href="#">DESC</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li data-sort-field="externalConnections" class="has-dropdown"><a href="#">External</a>
+                                                    <ul class="dropdown">
+                                                        <li data-sort-direction="asc"><a href="#">ASC</a></li>
+                                                        <li data-sort-direction="desc"><a href="#">DESC</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li data-sort-field="totalConnections" class="has-dropdown"><a href="#">Total</a>
+                                                    <ul class="dropdown">
+                                                        <li data-sort-direction="asc"><a href="#">ASC</a></li>
+                                                        <li data-sort-direction="desc"><a href="#">DESC</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <!--<li class="has-form">-->
+                                            <!--<a class="button radius small export-list" href="#">Export to CSV</a>-->
+                                        <!--</li>-->
+                                        <li class="has-form">
+                                            <input class="endpoint-filter" type="text" />
+                                        </li>
+                                        <li class="has-form">
+                                            <a class="button radius small export-list" href="#">Export to CSV</a>
+                                        </li>
+                                        <!--<li class="has-form">-->
+                                            <!--<input id="panelEndpoints-internal" type="checkbox" class="internal" />-->
+                                            <!--<label for="panelEndpoints-internal"> External Endpoints </label>-->
+                                        <!--</li>-->
+                                    </ul>
+                                </section>
+                            </nav>
+                            <section class="details-content">
+                                <div class="breadcrumbs-container row">
+                                    <ul class="breadcrumbs">
+                                    </ul>
+                                </div>
+                                <div class="endpoints-histogram" style="display: none"></div>
+                                <div class="endpoints-graph" style=""></div>
+                                <div class="activities-list row"></div>
+                            </section>
+                        </div>
+                        <div class="content" id="panelActivities">
+                            <nav class="top-bar top-bar-light" data-topbar role="navigation">
+                                <section class="top-bar-section">
+                                    <ul class="left">
+                                        <li class="has-form">
+                                            <input id="panelActivities-pretty" type="checkbox" class="pretty" />
+                                            <label for="panelActivities-pretty"> Pretty</label>
+                                        </li>
+                                        <li class="has-form">
+                                            <input id="panelActivities-internal" type="checkbox" class="internal" />
+                                            <label for="panelActivities-internal"> External Endpoints </label>
+                                        </li>
+                                    </ul>
+                                </section>
+                            </nav>
+                            <section class="details-content">
+                                <div class="legend"></div>
+                                <div class="socialGraph" style=""></div>
+                            </section>
+                        </div>
+                        <div class="content" id="panelActivitySizes">
+                            <div class="details-content">
+                                <div id="nciHistogram" class=""> </div>
+                                <div class="histogram-caption">
+                                    <h6 class="centrate"> <b>NCI(N) = Max j, X[j] ≥ j </b> </h6>
+                                    <h4 class="centrate"><small> where <b>NCI(N)</b> is the Network Complexity Index of network N and
+                                    <b>X[j]</b> is the number of endpoints engaged in an activity </small></h4>
+                                </div>
+                                <div class="expand-historgam"></div>
+                            </div>
+                            <div class="histogram-details-graph">
+                                <nav class="top-bar" data-topbar role="navigation">
+
+                                    <section class="top-bar-section">
+                                        <ul class="title-area">
+                                            <li class="name">
+                                                <h1><a>Activity #<span id="activity-index"></span></a></h1>
+                                            </li>
+                                        </ul>
+                                        <ul class="left">
+                                            <li>
+                                                <a class="show-list" href="#">Show endpoints</a>
+                                            </li>
+                                            <li class="hide">
+                                                <a class="show-graph" href="#">Show flows</a>
+                                            </li>
+                                            <li class="has-form">
+                                                <a class="button radius small export-list" href="#">Export to CSV</a>
+                                            </li>
+                                            <li class="has-form hide">
+                                                <input class="endpoint-filter" type="text" />
+                                            </li>
+                                            <li class="has-form">
+                                                <input id="panelActivitySizes-internal" type="checkbox" class="internal" />
+                                                <label class="" for="panelActivitySizes-internal">External Endpoints </label>
+                                            </li>
+                                            <li class="has-form">
+                                                <input id="panelActivitySizes-outside" type="checkbox" class="outside" />
+                                                <label class="" for="panelActivitySizes-outside">Outside Activity Endpoints </label>
+                                            </li>
+                                        </ul>
+                                        <ul class="right">
+                                            <li><div class="histogramDetailsClose"></div></li>
+                                        </ul>
+                                    </section>
+                                </nav>
+                                <section class="details-content">
+                                    <div class="legend"> </div>
+                                    <div class="socialGraph"> </div>
+                                    <div class="activities-list row" style="display: none;"></div>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 			</div>
 		</div>	
 		
@@ -234,7 +401,18 @@
 			};
             
 		</script>
-		<audio id="oops_sound" src="static/sounds/oops.mp3" preload="auto"></audio>	
-		<audio id="yes_sound" src="static/sounds/yes.mp3" preload="auto"></audio>		
+		
+		<audio id="MouseClickActivity" src="static/sounds/MouseClickActivity.mp3" preload="auto"></audio>	
+		<audio id="GraphAppears" src="static/sounds/GraphAppears.mp3" preload="auto"></audio>	
+		<audio id="MouseOverBlueDot" src="static/sounds/MouseOverBlueDot.mp3" preload="auto"></audio>	
+		<audio id="MouseOverBlueSquare" src="static/sounds/MouseOverBlueSquare.mp3" preload="auto"></audio>	
+		<audio id="MouseOverRedDot" src="static/sounds/MouseOverRedDot.mp3" preload="auto"></audio>	
+		<audio id="MouseOverWhiteDot" src="static/sounds/MouseOverWhiteDot.mp3" preload="auto"></audio>	
+		
+		<audio id="ExternalOn" src="static/sounds/ExternalOn-01.mp3" preload="auto"></audio>
+		<audio id="ExternalOff" src="static/sounds/ExternalOff-01.mp3" preload="auto"></audio>
+		<audio id="PrettyOn" src="static/sounds/PrettyOn-01.mp3" preload="auto"></audio>
+		<audio id="PrettyOff" src="static/sounds/PrettyOff-01.mp3" preload="auto"></audio>
+		<audio id="MouseOverBlackSquare" src="static/sounds/MouseOverBlackSquare-02.mp3" preload="auto"></audio>	
 	</body>
 </html>

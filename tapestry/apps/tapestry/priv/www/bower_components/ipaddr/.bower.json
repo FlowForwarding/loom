@@ -1,0 +1,15 @@
+{
+  "name": "ipaddr",
+  "homepage": "https://github.com/whitequark/ipaddr.js",
+  "version": "0.1.3",
+  "_release": "0.1.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.1.3",
+    "commit": "7e37f7a51b19d9904fa93ba691de5b949671e197"
+  },
+  "_source": "git://github.com/whitequark/ipaddr.js.git",
+  "_target": "~0.1.3",
+  "_originalSource": "ipaddr",
+  "_direct": true
+}

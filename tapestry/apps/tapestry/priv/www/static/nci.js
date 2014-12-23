@@ -9,6 +9,20 @@ NCI.collectorsLatestValue = $('#collectorsLatestValue');
 NCI.lastUpdateTime = $('#lastUpdateTime');
 NCI.flowsLatestIndex;
 NCI.is_uiwebview = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent);
+NCI.GraphAppearsSound = document.getElementById("GraphAppears");
+NCI.MouseClickActivitySound = document.getElementById("MouseClickActivity");
+NCI.MouseOverBlueDot = document.getElementById("MouseOverBlueDot");
+NCI.MouseOverBlueSquare = document.getElementById("MouseOverBlueSquare");
+NCI.MouseOverRedDot = document.getElementById("MouseOverRedDot");
+NCI.MouseOverExternalEndpoint = document.getElementById("MouseOverWhiteDot");
+
+NCI.ExternalOn = document.getElementById("ExternalOn");
+NCI.ExternalOff = document.getElementById("ExternalOff");
+NCI.PrettyOn = document.getElementById("PrettyOn");
+NCI.PrettyOff = document.getElementById("PrettyOff");
+NCI.MouseOverBlackSquare = document.getElementById("MouseOverBlackSquare");
+
+NCI.notNetworkColor = "#69456f";
 
 NCI.ifMobile = function(){
 	return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
@@ -196,12 +210,6 @@ $(".qps-value .collectorLabel").on('click', function(){
 $(".hide-collectorsdetails").on('click', function(){
 	$('#collectorsInfo').removeClass('details-view-show');
 });
-
-NCI.isExternal = function(endpoint){
-	return (!endpoint.indexOf("10.") == 0 && !endpoint.indexOf("192.168") == 0
-		     && !(endpoint.indexOf("172.") == 0 && parseInt(endpoint.substring(4, 6)) > 15 
-			 && parseInt(endpoint.substring(4, 6)) < 32));
-};
 
 NCI.initSocket = function(){
 	if (NCI.is_uiwebview && (NCI.connectionURL == ("ws://" + location.host + "/clientsock.yaws"))){

@@ -248,7 +248,7 @@ code_change(_OldVsn, State, _Extra) ->
 
 register_switch(IpAddr, DatapathId, Version, Connection,
                             State = #?STATE{switches_table = Switches,
-                                            next_switch_key = SwitchKey }) ->
+                                            next_switch_key = SwitchKey}) ->
     SwitchRecord = #switch_record{
         switch_key = SwitchKey,
         ipaddr = IpAddr,

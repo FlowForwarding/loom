@@ -17,7 +17,7 @@ in Web based interface.
 Tapestry requires:
 
 * Erlang/OTP distributed computing platform, available from
-    [Erlang.org](http://www.erlang.org/download.html)
+    [Erlang.org](http://www.erlang.org/download.html).  R16B03 or newer.
 * One or more servers running the Erlang to aggregate the data and 
     calculate the NCI.
 * One or more internal recursive DNS servers to provide the raw data feeds
@@ -28,6 +28,7 @@ Tapestry requires:
     the internal recursive DNS servers
 * Network connectivity between the taps and machine or cluster running 
     the Erlang/OTP
+* EXPERIMENTAL: graphviz is required if the config parameter use_graphviz is true: http://www.graphviz.org
 
 ## Installation
 
@@ -190,6 +191,7 @@ tapestry | web_id | "tapestry" | webserver identifier
 tapestry | ftpd_address | {0,0,0,0} | ftp server listener IP address
 tapestry | ftpd_port | 7777 | ftp server listener port
 tapestry | datasources | [packet_in] | identifies sources of DNS information
+tapestry | max_collector_idle_time | 600 | remove a collector from the report if no data received for this many seconds
 tapestry | nci_min_interval | {seconds, 15} | shortest time between nci calculations
 tapestry | max_vertices | 300 | maximum number of vertices before dropping a community's detail
 tapestry | max_edges | 1000 | maximum number of edges before dropping a community's detail
@@ -198,13 +200,27 @@ tapestry | comm_size_limit | 300 | when dropping community details, drop details
 tapestry | qps_max_interval | {seconds, 15} | longest time between Query/Sec ui updates
 tapestry | clean_interval | [{days,0},{hms,{1,0,0}}] | interval between purging old data from nci calculation
 tapestry | data_max_age | [{days,2},{hms,{0,0,0}}] | purge data older than data_max_age
-max_ | data_max_age | [{days,2},{hms,{0,0,0}}] | purge data older than data_max_age
+tapestry | use_graphviz | false | EXPERIMENTAL: use graphviz to calculate the location of the community dots in community graphs
+tapestry | neato_bin | "user/local/bin/neato" | path to neato from graphviz installation
+tapestry | community_detector | part_louvain | module to use for community detector (only set in sys.config)
+tapestry | requester_whitelist | [{"10.0.0.0",8}] | include these ip addresses as requesters
+tapestry | requester_blacklist | [{"192.168.0.0",16}] | exclude these ip addresses as requesters
+tapestry | resolved_whitelist | [{"::",0}] | include these ip addresses as resolved responses
+tapestry | resolved_blacklist | [{"10.13.11.24",32}] | exclude these ip addresses as reolved responses
+tapestry | query_whitelist | [".com$"] | list of regular expressions of dns queries to include
+tapestry | query_blacklist | ["google.com$"] | list of regular expressions of dns queries to exclude
+tapestry | save_files | false | save copies of the log files loaded via ftp
+tapestry | save_file_dir | false | directory to store copies of log files loaded via ftp (only applicable when save_files is true)
 of_driver | listen_ip | {0,0,0,0} | open flow controller listener IP address
 of_driver | listen_port | 6653 | open flow controller listener port
 
 You may specify one or more datasources, however some combinations are
 not allowed.  test_ui should not be used with any other datasource and
 anonymized and logfile may not be used together.
+
+neato_bin must be the path to the neato binary from the graphviz installation.  This is only used if use_graphviz is true.
+
+Only requester, resolved address pairs that are included int he requester_whitelist and resolved_whitelist and not excluded by the requester_blacklist and resolved_blacklist are included in the data considered by tapestry's community detection and NCI calculation.  An address in these lists is specified as with a ipv4 or ipv6 address (as a string) and the number of bits that much match exactly.  For example, to match all 10.x.x.x networks, use {"10.0.0.0",8}.  To match 10.12.22.44 exactly, use {"10.12.22.44",32}.
 
 datasource|Description
 ----------------|-----------

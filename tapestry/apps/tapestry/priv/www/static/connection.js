@@ -1,12 +1,20 @@
 if (typeof NCI === 'undefined')
    NCI = {};
-   
+
+var cachedMaxVertices = parseInt(localStorage.getItem("maxVertices"), 10);
+
+if (!cachedMaxVertices) {
+    cachedMaxVertices = 3000;
+    localStorage.setItem("maxVertices", cachedMaxVertices);
+}
+
 NCI.start_time; // no data exists on the server before
 NCI.time_adjustment = 0; //difference between client and server time in milliseconds
 NCI.numOfPoints = 200;
-NCI.max_vertices = 500; 
+NCI.max_vertices = cachedMaxVertices;
 //NCI.Connection = new WebSocket("ws://epamove.herokuapp.com");
 NCI.connectionURL = "ws://" + location.host + "/clientsock.yaws";
+//NCI.connectionURL = "ws://" + location.host + ":28080/clientsock.yaws";
 //NCI.connectionURL = "ws://10.48.2.81:28080/clientsock.yaws";
 NCI.Connection = [];
 NCI.lastUpdateTimeVal = new Date();
@@ -33,13 +41,13 @@ NCI.Connection.onmessage  = function (e) {
 	
 	switch(data.action) {
 	    case "getlimits":
-			NCI.max_vertices = data.limits.max_vertices;
+//			NCI.max_vertices = data.limits.max_vertices;
 			//limits.max_vertices;
 			//limits.max_communities;
 			//limits.comm_size_limit;
 			break;
 		case "collectors":
-			NCI.collectorsTable.fillData(data.Collectors);
+			NCI.collectorsTable.fillData(data.Collectors.sort(function(c1, c2) {return c2.qps - c1.qps}));
 			break;
 		case "QPS":
 			NCI.setQpsLatestValue(NCI.parceNumberForView(data.QPS, 1), NCI.parceDateForLastUpdate(data.Time));
@@ -83,9 +91,9 @@ NCI.Connection.onmessage  = function (e) {
 				};
 			} ;
 			break;	
-		case "NCIDetails":
+        case "NCIDetails":
 			NCI.setupCommunities(data);
-			$($('#nciDetailsTabs').find("a")[1]).click();
+			$('#nciDetailsTabs').find("a[href=#panelActivitySizes]").click();
 			break;	
 		case "getCommunityDetails":
 			break;				
@@ -177,13 +185,14 @@ NCI.Connection.getLimits = function(){
     NCI.Socket.send('{"action":"getlimits","Time": "' + new Date() + '"}');
 };
 
-NCI.Connection.setLimits = function(max_vertices, max_edges, comm_size_limit, max_communities){
+NCI.Connection.setLimits = function(max_vertices, max_edges, comm_size_limit, max_communities, max_ui_vertices){
 	NCI.loading.show();
-	//max_verticesconsole.log(max_vertices);
 	 NCI.Socket.send('{"action":"setlimits","limits": {"max_vertices": ' + max_vertices + ',' +
 	 '"max_edges":' + max_edges + ',' +
 	 '"comm_size_limit":' + comm_size_limit + ',' +
 	 '"max_communities":' + max_communities + '}}');
+
+    localStorage.setItem("maxVertices", max_ui_vertices);
 };
 
 $(".disconected img").on('click', function(){

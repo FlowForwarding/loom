@@ -120,11 +120,6 @@
 	font: 12px sans-serif;
 }
 
-.histogramDetailsInternal label{
-	color: white;
-	display: inline;
-}
-
 .collectorsGeneral{
 	font-weight: 500;
 }
@@ -138,6 +133,12 @@
 .activities_link {
   stroke-width: 1px;
   stroke: #999;
+  stroke-opacity: .6;
+}
+
+.activities_link_tmp {
+  stroke-width: 3px;
+  stroke: #0264A5;
   stroke-opacity: .6;
 }
 
@@ -172,16 +173,6 @@
 	height: 100%;
 	display: none;
 	background-color: rgba(0,0,0,0.85);
-}
-
-.histogramDetailsInternal {
-	padding: 15px;
-}
-
-.histogramDetailsHeader {
-	width: 100%;
-	height: 50px;
-	background: #000;
 }
 
 .histogramDetailsClose {
@@ -227,4 +218,392 @@
 .legend {
 	position: absolute;
 	right: 0px;
+    padding-top: 20px;
 }
+
+body {
+    overflow: hidden;
+}
+
+.details-content {
+    overflow: hidden;
+    height: 100%;
+}
+
+.histogram-details-graph .top-bar label {
+    top: 7px;
+    position: relative;
+    color: white;
+}
+
+.tabs-content.vertical>.content {
+    padding-left: 0;
+    border-left: 1px solid #f0f0f0;
+}
+
+#histogramGeneral {
+    margin-bottom: 20px;
+    margin-top: 5px;
+}
+
+
+.top-bar-light .top-bar-section .has-form {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.top-bar-light .top-bar-section ul {
+    background-color: #ffffff;
+}
+
+.top-bar-light.top-bar {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.top-bar-light.top-bar label {
+    top: 7px;
+    position: relative;
+}
+
+.top-bar-light .top-bar-section li:not(.has-form) a:not(.button) {
+    color: #4d4d4d;
+    background-color: #efefef;
+}
+
+.top-bar-light .top-bar-section li:not(.has-form) a:not(.button):hover {
+    background-color: #e1e1e1;
+}
+
+.top-bar-light .top-bar-section ul li:hover:not(.has-form)>a {
+    color: #4d4d4d;
+    /*background-color: #ffffff;*/
+}
+
+.details-view {
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    display: -webkit-flex;
+    display: flex;
+}
+
+.activities-content {
+    -webkit-flex-grow: 1;
+    flex-grow: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.activities-content-wrap {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+.activities-content .tabs-content.vertical {
+    height: 100%;
+}
+
+.activities-content .tabs-content .content {
+    height: 100%;
+}
+
+.histogram-details-graph svg text {
+    fill: white;
+}
+
+.tabs dd.active a {
+    font-weight: bold;
+}
+
+.activities-list {
+    padding-top: 20px;
+    padding-bottom: 60px;
+    height: 100%;
+}
+
+
+/* header height is 36px*/
+.fixed-table-container {
+    height: 100%;
+    background-color: white;
+    position: relative;
+    padding: 36px 0 0 0;
+    border: solid 1px #dddddd;
+}
+
+.fixed-table-container table {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    border: none;
+}
+
+.fixed-table-container thead th {
+    padding: 0;
+}
+
+.fixed-table-container-inner {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.header-background {
+    border-bottom: 1px solid #dddddd;
+    background-color: #f5f5f5;
+    height: 36px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+}
+
+.th-inner {
+    position: absolute;
+    top: 0;
+    line-height: 36px;
+    cursor: pointer;
+    -webkit-transform: translate3d(0, 0, 0);
+}
+
+.th-inner::before,
+.th-inner::after {
+    content: "";
+    padding: 5px;
+}
+
+.th-inner.sorted::after,
+.th-inner.sorted.desc::after {
+    width: 0;
+    height: 0;
+    content: "";
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    position: absolute;
+    top: 15px;
+    padding: 0;
+    margin-left: 10px;
+
+}
+
+.th-inner.sorted::after {
+    border-top: none;
+    border-bottom: 5px solid black;
+}
+
+
+.th-inner.sorted.desc::after {
+    border-bottom: none;
+    border-top: 5px solid black;
+}
+
+
+.th-container {
+    height: 0;
+    display: inline-block;
+    overflow: hidden;
+}
+
+.external-endpoint-row {
+    font-style: italic;
+}
+
+.external-endpoint-row td {
+    color: darkred;
+}
+
+.top-bar-light .dropdown>li.active:not(.has-form)>a:not(.button) {
+    background-color: #d7d7d7;
+}
+
+.top-bar-light .top-bar-section li.disabled:not(.has-form) a:not(.button),
+.top-bar-section li.disabled:not(.has-form) a:not(.button) {
+    color: #808080;
+    cursor: no-drop;
+}
+
+.top-bar-section li.disabled:not(.has-form) a:not(.button):hover {
+    background: #333333;
+}
+
+.top-bar-light .top-bar-section li.disabled:not(.has-form) a:not(.button):hover {
+    background: #efefef;
+}
+
+.top-bar-light .top-bar-section li.disabled:not(.has-form) a:not(.button):hover,
+.top-bar-section li.disabled:not(.has-form) a:not(.button):hover {
+    color: #808080;
+}
+
+.breadcrumbs {
+    margin-bottom: 3px;
+    margin-top: 5px;
+}
+
+
+.endpoints-histogram {
+    position: relative;
+}
+
+.endpoints-histogram a,
+.endpoints-histogram svg {
+    display: inline-block;
+}
+
+.endpoints-histogram a {
+    position: absolute;
+    height: 1em;
+    margin: auto 25px;
+    top: 0;
+    bottom: 0;
+}
+
+.histogram-tooltip {
+    position: absolute;
+    border: 1px solid #dcdcdc;
+    background-color: rgba(244, 244, 244, .7);
+    top: 20px;
+    right: 80px;
+    border-radius: 3px;
+    color: #000000;
+    padding: 5px;
+
+    font-size: 0.87rem;
+}
+
+#panelEndpoints .details-content,
+#panelActivitySizes .details-content {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding-bottom: 70px;
+}
+
+#panelEndpoints .endpoints-histogram,
+#panelEndpoints .endpoints-graph {
+    flex-grow: 1;
+}
+
+.page-indicator {
+    text-align: center;
+    margin-bottom: 80px;
+    padding-bottom: 80px;
+}
+
+.chart .internal-connections {
+    fill: #a1d99b;
+    background-color: #a1d99b;
+}
+
+.chart .external-connections {
+    fill: #ff9896;
+    background-color: #ff9896;
+}
+
+.chart .external .external-connections {
+    fill: #581A00;
+    background-color: #581A00;
+}
+
+.chart .external .internal-connections {
+    fill: darkgreen;
+    background-color: darkgreen;
+}
+
+.chart .mouse-over .external-connections {
+    fill: #1f77b4;
+    background-color: #1f77b4;
+}
+
+.chart .mouse-over .internal-connections {
+    fill: #1f77b4;
+    background-color: #1f77b4;
+}
+
+.chart .mouse-over.external rect {
+    fill: #1f77b4;
+    background-color: #1f77b4;
+}
+
+.chart .mouse-over.activity rect {
+    fill: #aec7e8;
+}
+
+#nciHistogram a,
+#nciHistogram svg {
+    display: inline-block;
+}
+
+#nciHistogram .page-indicator {
+    display: none;
+}
+
+#nciHistogram {
+    flex-grow: 1;
+}
+
+#panelActivitySizes .details-content {
+    height: 100%;
+    padding-bottom: 20px;
+}
+
+.axis line {
+    stroke-width: .5;
+    opacity: .7;
+}
+
+.y.axis path {
+    display: none;
+}
+
+.axis .axis-line {
+    stroke-width: 2px;
+}
+
+
+.node {
+    stroke: #fff;
+    stroke-width: 1.5px;
+}
+
+.link {
+    stroke: #999;
+    stroke-opacity: .6;
+}
+
+body>canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 900;
+}
+
+.settingsLabel {
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+    color: #000000;
+}
+
+#settingsDropdown-checkbox {
+    margin: 0;
+}
+
+.too-many-msg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+}
+
+.chart .activity.internal-flows-max rect {
+    fill: #2ca02c;
+}
+
+.chart .activity.mouse-over.internal-flows-max rect {
+    fill: #98df8a;
+}
+
+
