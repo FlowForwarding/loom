@@ -42,6 +42,10 @@
     tr/0,
     version/0,
     version/1,
+    get_features/0,
+    get_features/1,
+    get_description/0,
+    get_description/1,
     debug/1,
     send/1,
     send/2,
@@ -49,6 +53,9 @@
     ping/1,
     forward_mod/3,
     forward_mod/4,
+    oe_flow_tw/5,
+    oe_flow_ww/6,
+    oe_flow_wt/5,
     forward_mod_with_push_vlan/4,
     forward_mod_with_push_vlan/5,
     forward_mod_via_queue/4,
@@ -75,10 +82,19 @@
     disconnect/1,
     default/1,
     default/0,
+    ports/0,
+    ports/1,
+    oe_ports/0,
+    oe_ports/1,
     switches/0
 ]).
 
 -type switch_key() :: integer().
+
+-define(OCH_SIGTYPE, <<10>>).
+-define(FIXED_OCH_SIGID(ChannelNumber), ?OCH_SIGID(1, 2, ChannelNumber, 1)).
+-define(OCH_SIGID(GridType, ChannelSpacing, ChannelNumber, SpectralWidth),
+        <<GridType:8, ChannelSpacing:8, ChannelNumber:16, SpectralWidth:16>>).
 
 %% @hidden
 %% activate tracing for debugging
@@ -192,6 +208,72 @@ forward_mod_with_push_vlan(Key, Priority, InPort, OutPorts, VlanID)
     send(Key, Request);
 forward_mod_with_push_vlan(Key, Priority, InPort, OutPort, VlanID) ->
     forward_mod_with_push_vlan(Key, Priority, InPort, [OutPort], VlanID).
+
+%% @doc
+%% Forward all packets from a TPort InPort to a WPort OutPort
+%% on the switch associated
+%% with Key assigning ChannelNumber to the OutPort data.  Flows
+%% are installed in table 0 with priority Priority.
+%% If Key is ``default'', send forward mod to the default switch.
+%% @end
+oe_flow_tw(Key, Priority, InPort, OutPort, ChannelNumber) ->
+    Version = version(Key),
+    Matches = [{in_port, <<InPort:32>>}],
+    Actions = [{set_field, och_sigid, ?FIXED_OCH_SIGID(ChannelNumber)},
+               {output, OutPort, no_buffer}],
+    Instructions = [{apply_actions, Actions}],
+    Opts = [{table_id,0}, {priority, Priority},
+            {idle_timeout, 0}, {idle_timeout, 0},
+            {cookie, <<0,0,0,0,0,0,0,10>>},
+            {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
+    Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
+    send(Key, Request).
+
+%% @doc
+%% Forward all packets from a WPort InPort on InChannelNumber
+%% to a WPort OutPort
+%% on the switch associated
+%% with Key assigning ChannelNumber to the OutPort data.  Flows
+%% are installed in table 0 with priority Priority.
+%% If Key is ``default'', send forward mod to the default switch.
+%% @end
+oe_flow_ww(Key, Priority, InPort, InChannelNumber, OutPort, OutChannelNumber) ->
+    Version = version(Key),
+    Matches = [{in_port, <<InPort:32>>},
+               {och_sigtype, ?OCH_SIGTYPE},
+               {och_sigid, ?FIXED_OCH_SIGID(InChannelNumber)}],
+    Actions = [{set_field, och_sigid, ?FIXED_OCH_SIGID(OutChannelNumber)},
+               {output, OutPort, no_buffer}],
+    Instructions = [{apply_actions, Actions}],
+    Instructions = [{apply_actions, Actions}],
+    Opts = [{table_id,0}, {priority, Priority},
+            {idle_timeout, 0}, {idle_timeout, 0},
+            {cookie, <<0,0,0,0,0,0,0,10>>},
+            {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
+    Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
+    send(Key, Request).
+
+%% @doc
+%% Forward all packets from a WPort InPort on InChannelNumber
+%% to a WPort OutPort
+%% on the switch associated
+%% with Key.  Flows
+%% are installed in table 0 with priority Priority.
+%% If Key is ``default'', send forward mod to the default switch.
+%% @end
+oe_flow_wt(Key, Priority, InPort, InChannelNumber, OutPort) ->
+    Version = version(Key),
+    Matches = [{in_port, <<InPort:32>>},
+               {och_sigtype, ?OCH_SIGTYPE},
+               {och_sigid, ?FIXED_OCH_SIGID(InChannelNumber)}],
+    Actions = [{output, OutPort, no_buffer}],
+    Instructions = [{apply_actions, Actions}],
+    Opts = [{table_id,0}, {priority, Priority},
+            {idle_timeout, 0}, {idle_timeout, 0},
+            {cookie, <<0,0,0,0,0,0,0,10>>},
+            {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
+    Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
+    send(Key, Request).
 
 %% forward_mod_via_queue(default, Key, Priority, InPort, OutPort, QueueId)
 forward_mod_via_queue(Priority, InPort, OutPort, QueueID) ->
@@ -512,6 +594,41 @@ default() ->
     icontrol_logic:show_default().
 
 %% @doc
+%% show port descriptions
+%% @end
+-spec ports() -> term().
+ports() ->
+    ports(default).
+
+%% @doc
+%% show port descriptions on switch associated with Key.
+%% If Key is ``default'', shows port descriptions on the default switch.
+%% @end
+-spec ports(Key :: switch_key()) -> term().
+ports(Key) ->
+    Version = version(Key),
+    Request = of_msg_lib:get_port_descriptions(Version),
+    show(send(Key, Request)).
+
+%% @doc
+%% show optical emulation port descriptions
+%% @end
+-spec oe_ports() -> term().
+oe_ports() ->
+    oe_ports(default).
+
+%% @doc
+%% show optical port descriptions on switch associated with Key.
+%% If Key is ``default'', shows optical emulation port descriptions
+%% on the default switch.
+%% @end
+-spec oe_ports(Key :: switch_key()) -> term().
+oe_ports(Key) ->
+    Version = version(Key),
+    Request = of_msg_lib:oe_get_port_descriptions(Version),
+    show(send(Key, Request)).
+
+%% @doc
 %% show switches
 %% @end
 -spec switches() -> ok.
@@ -536,6 +653,30 @@ version() ->
 %% @end
 version(Key) ->
     check_version(icontrol_logic:ofs_version(Key)).
+
+%% @equiv get_features(default)
+get_features() ->
+    get_features(default).
+
+%% @doc
+%% show features of switch associated with Key.
+%% @end
+get_features(Key) ->
+    Version = version(Key),
+    Request = of_msg_lib:get_features(Version),
+    show(send(Key, Request)).
+
+%% @equiv get_description(default)
+get_description() ->
+    get_description(default).
+
+%% @doc
+%% show description of switch associated with Key.
+%% @end
+get_description(Key) ->
+    Version = version(Key),
+    Request = of_msg_lib:get_description(Version),
+    show(send(Key, Request)).
 
 format_default(Key, Key) ->
     "*";
