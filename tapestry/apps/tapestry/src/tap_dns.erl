@@ -29,20 +29,24 @@
          mkre/1,
          intaddr/1,
          binaryaddr/1,
-         inet_parse_address/1]).
+         inet_parse_address/1,
+         new_cache/0,
+         cache_get/2]).
 
-gethostbyaddr(_) ->
-    <<"unknown">>.
+-define(MAX_CACHE_AGE_SEC, (60*60)).
 
-% reverse lookups causing too much DNS traffic
-% gethostbyaddr(Addr) ->
-%     R = case inet:gethostbyaddr(Addr) of
-%         {ok, #hostent{h_name = Hostname}} ->
-%             Hostname;
-%         {error, Error} ->
-%             lists:flatten(io_lib:format("notfound_~p", [Error]))
-%     end,
-%     list_to_binary(R).
+% cached reverse lookup
+gethostbyaddr(Addr) ->
+    LookupFn = fun() ->
+        R = case inet:gethostbyaddr(Addr) of
+            {ok, #hostent{h_name = Hostname}} ->
+                Hostname;
+            {error, Error} ->
+                lists:flatten(io_lib:format("notfound_~p", [Error]))
+        end,
+        list_to_binary(R)
+    end,
+    cache_get(Addr, LookupFn).
 
 allow(IpAddr, WhiteList, BlackList) ->
     IpAddrI = intaddr(binaryaddr(IpAddr)),
@@ -101,3 +105,27 @@ re(Query, [RE | REList]) ->
 mkre(RE) ->
     {ok, MP} = re:compile(RE),
     MP.
+
+new_cache() ->
+    ets:new(?MODULE, [named_table, set, public]),
+    ok.
+
+cache_get(Key, LookupFn) ->
+    case ets:lookup(?MODULE, Key) of
+        [{Key, Value, TS}] ->
+            case timer:now_diff(tap_time:now(), TS) >
+                                            (?MAX_CACHE_AGE_SEC * 1000000) of
+                true ->
+                    cache_set(Key, LookupFn);
+                false ->
+                    ets:insert(?MODULE, {Key, Value, tap_time:now()}),
+                    Value
+            end;
+        [] ->
+            cache_set(Key, LookupFn)
+    end.
+
+cache_set(Key, LookupFn) ->
+    Value = LookupFn(),
+    ets:insert(?MODULE, {Key, Value, tap_time:now()}),
+    Value.

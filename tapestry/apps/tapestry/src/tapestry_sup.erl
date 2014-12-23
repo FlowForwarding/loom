@@ -50,6 +50,7 @@ init([]) ->
         tap_loom(Run(packet_in)),
         test_ui(Run(test_ui))
     ]),
+    ok = tap_dns:new_cache(),
     {ok, {{one_for_one, 5, 10}, Children}}.
 
 test_ui(true) ->
