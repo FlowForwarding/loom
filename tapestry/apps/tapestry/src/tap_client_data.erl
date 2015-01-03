@@ -580,9 +580,11 @@ encode_qps(Time, QPS) ->
                    {<<"QPS">>, QPS}]}).
 
 json_config() ->
-    jiffy:encode({[{<<"action">>, <<"getconfig">>} |
+    jiffy:encode({[{<<"action">>, <<"getconfig">>},
+                   {<<"config">>, {
                         [encode_config(get_config(C)) || C <- ?CONFIGVARS]
-    ]}).
+                                  }}
+                  ]}).
 
 get_config({Application, Key}) ->
     case application:get_env(Application, Key) of
