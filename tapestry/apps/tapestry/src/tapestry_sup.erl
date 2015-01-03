@@ -51,6 +51,7 @@ init([]) ->
         test_ui(Run(test_ui))
     ]),
     ok = tap_dns:new_cache(),
+    tap_config:refresh(),
     {ok, {{one_for_one, 5, 10}, Children}}.
 
 test_ui(true) ->

@@ -122,7 +122,7 @@ handle_call(Msg, From, State) ->
 
 handle_cast(start, State) ->
     of_driver:listen(),
-    Addrs = tap_config:getallconfig(connect_to),
+    Addrs = tap_config:getconfig(connect_to, []),
     connect_to_switches(Addrs),
     {noreply, State};
 handle_cast({connect, IpAddr, Port}, State) ->

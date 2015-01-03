@@ -102,6 +102,9 @@ process_request(Message) ->
         {_, <<"collectors">>} ->
             ?DEBUG("action collectors"),
             tap_client_data:collectors(self());
+        {_, <<"getconfig">>} ->
+            ?DEBUG("getconfig"),
+            tap_client_data:getconfig(self());
         {_, <<"getlimits">>} ->
             ?DEBUG("action getlimits"),
             tap_client_data:limits(self());
