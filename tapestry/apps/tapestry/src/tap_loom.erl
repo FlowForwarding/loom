@@ -122,7 +122,7 @@ handle_call(Msg, From, State) ->
 
 handle_cast(start, State) ->
     of_driver:listen(),
-    Addrs = tap_config:getallconfig(connect_to),
+    Addrs = tap_config:getconfig(connect_to, []),
     connect_to_switches(Addrs),
     {noreply, State};
 handle_cast({connect, IpAddr, Port}, State) ->
@@ -190,9 +190,10 @@ dns_reply(Data, DatapathId, CollectorIP) ->
 				R = list_to_tuple(
                                         binary_to_list(Header1#ipv4.daddr)),
 				Interaction = {
-                                   tap_ds:endpoint(R,
-                                        tap_dns:gethostbyaddr(R)),
-                                   tap_ds:endpoint(ID, Query)},
+                                   {R, [{who, requester}, 
+                                        {label, tap_dns:gethostbyaddr(R)}]},
+                                   {ID, [{who, resolved},
+                                         {label, binary:copy(Query)}]}},
 				?DEBUG("Sending: ~p~n",[Interaction]),
                                 tap_aggr:dns_reply(DatapathId, CollectorIP,
                                                                 Interaction)

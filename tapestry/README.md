@@ -181,6 +181,19 @@ The Tapestry sys.config (node configuration) file is in rel/files/sys.config.
 The runtime copy is in rel/tapestry/releases/1/sys.config.  The files copy
 overwrites the releases copy when you make Tapestry.  You may also override values in sys.config with values in tapestry.config.  The source copy of tapestry.config is in rel/files/tapestry.config.  The runtime copy is in rel/tapestry/tapestry.config.
 
+Some configuration values (marked in **bold**) may be changed at runtime.  Update theh value in tapestry.config and then use use the tapestry utility to tell tapestry to update its runtime configuration values.
+
+```erlang
+# cd tapestry
+# rel/tapestry/bin/tapestry config
+```
+
+Alternatively, from the tapestry shell you can run:
+
+```erlang
+> tap_config:refresh().
+```
+
 Section | Key | Example | Description
 ------- | --- | ------- | -----------
 tapestry | config_file | "tapestry.config" | Name of the tapestry config file.
@@ -199,18 +212,19 @@ tapestry | max_communities | 300 | maximum number communities in the communities
 tapestry | comm_size_limit | 300 | when dropping community details, drop details of communities larger than this limit
 tapestry | qps_max_interval | {seconds, 15} | longest time between Query/Sec ui updates
 tapestry | clean_interval | [{days,0},{hms,{1,0,0}}] | interval between purging old data from nci calculation
-tapestry | data_max_age | [{days,2},{hms,{0,0,0}}] | purge data older than data_max_age
+tapestry | **data_max_age** | [{days,2},{hms,{0,0,0}}] | purge data older than data_max_age
 tapestry | use_graphviz | false | EXPERIMENTAL: use graphviz to calculate the location of the community dots in community graphs
 tapestry | neato_bin | "user/local/bin/neato" | path to neato from graphviz installation
 tapestry | community_detector | part_louvain | module to use for community detector (only set in sys.config)
-tapestry | requester_whitelist | [{"10.0.0.0",8}] | include these ip addresses as requesters
-tapestry | requester_blacklist | [{"192.168.0.0",16}] | exclude these ip addresses as requesters
-tapestry | resolved_whitelist | [{"::",0}] | include these ip addresses as resolved responses
-tapestry | resolved_blacklist | [{"10.13.11.24",32}] | exclude these ip addresses as reolved responses
-tapestry | query_whitelist | [".com$"] | list of regular expressions of dns queries to include
-tapestry | query_blacklist | ["google.com$"] | list of regular expressions of dns queries to exclude
-tapestry | save_files | false | save copies of the log files loaded via ftp
-tapestry | save_file_dir | false | directory to store copies of log files loaded via ftp (only applicable when save_files is true)
+tapestry | **requester_whitelist** | [{"10.0.0.0",8}] | include these ip addresses as requesters
+tapestry | **requester_blacklist** | [{"192.168.0.0",16}] | exclude these ip addresses as requesters
+tapestry | **resolved_whitelist** | [{"::",0}] | include these ip addresses as resolved responses
+tapestry | **resolved_blacklist** | [{"10.13.11.24",32}] | exclude these ip addresses as reolved responses
+tapestry | **query_whitelist** | [".com$"] | list of regular expressions of dns queries to include
+tapestry | **query_blacklist** | ["google.com$"] | list of regular expressions of dns queries to exclude
+tapestry | **save_files** | false | save copies of the log files loaded via ftp
+tapestry | **save_file_dir** | false | directory to store copies of log files loaded via ftp (only applicable when save_files is true)
+tapestry | **reverselookup** | true | true - lookup hostname of dns requester IP addresses; false - do not lookup hostname of dns requesters
 of_driver | listen_ip | {0,0,0,0} | open flow controller listener IP address
 of_driver | listen_port | 6653 | open flow controller listener port
 

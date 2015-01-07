@@ -213,6 +213,15 @@ case "$1" in
         fi
         ;;
 
+    config)
+        ## Tell tapestry to load new config
+        $NODETOOL config
+        ES=$?
+        if [ "$ES" -ne 0 ]; then
+            exit $ES
+        fi
+        ;;
+
     ping)
         ## See if the VM is alive
         ping_node
@@ -340,7 +349,7 @@ case "$1" in
         echo $PID
         ;;
     *)
-        echo "Usage: $SCRIPT {start|start_boot <file>|foreground|stop|restart|reboot|ping|console|getpid|console_clean|console_boot <file>|attach|remote_console|upgrade}"
+        echo "Usage: $SCRIPT {start|start_boot <file>|foreground|stop|restart|reboot|ping|console|config|getpid|console_clean|console_boot <file>|attach|remote_console|upgrade}"
         exit 1
         ;;
 esac

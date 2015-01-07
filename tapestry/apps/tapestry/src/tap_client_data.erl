@@ -33,7 +33,8 @@
          nci_details/1,
          limits/1,
          setlimits/2,
-         collectors/1]).
+         collectors/1,
+         getconfig/1]).
 
 -export([init/1,
          handle_call/3,
@@ -64,6 +65,37 @@
 
 -define(DOTFILENAME, "/tmp/tapestry.dot").
 -define(NEATO_OPTS, "-Tplain").
+-define(CONFIGVARS, [
+    {tapestry, config_file},
+    {tapestry, web_address},
+    {tapestry, web_port},
+    {tapestry, web_log},
+    {tapestry, web_id},
+    {tapestry, ftpd_address},
+    {tapestry, ftpd_port},
+    {tapestry, datasources},
+    {tapestry, max_collector_idle_time},
+    {tapestry, nci_min_interval},
+    {tapestry, max_vertices},
+    {tapestry, max_edges},
+    {tapestry, max_communities},
+    {tapestry, comm_size_limit},
+    {tapestry, qps_max_interval},
+    {tapestry, clean_interval},
+    {tapestry, data_max_age},
+    {tapestry, use_graphviz},
+    {tapestry, neato_bin},
+    {tapestry, community_detector},
+    {tapestry, requester_whitelist},
+    {tapestry, requester_blacklist},
+    {tapestry, resolved_whitelist},
+    {tapestry, resolved_blacklist},
+    {tapestry, query_whitelist},
+    {tapestry, query_blacklist},
+    {tapestry, save_files},
+    {of_driver, listen_ip},
+    {of_driver, listen_port}
+]).
 
 -record(community_data, {
     communities,
@@ -112,6 +144,9 @@ setlimits(Pid, Limits) ->
 collectors(Pid) ->
     gen_server:cast(?MODULE, {collectors, Pid}).
 
+getconfig(Pid) ->
+    gen_server:cast(?MODULE, {getconfig, Pid}).
+
 %------------------------------------------------------------------------------
 % gen_server callbacks
 %------------------------------------------------------------------------------
@@ -144,6 +179,8 @@ handle_call(dot_community_details, _From,
 handle_call(collectors, _From, State = #?STATE{collectors = CollectorDict,
                                                last_qps_time = Time}) ->
     {reply, json_collectors(Time, CollectorDict), State};
+handle_call(getconfig, _From, State = #?STATE{}) ->
+    {reply, json_config(), State};
 handle_call(Msg, From, State) ->
     error({no_handle_call, ?MODULE}, [Msg, From, State]).
 
@@ -186,6 +223,9 @@ handle_cast({nci, NCI, CommunityData, UT}, State = #?STATE{nci_log = NCILog,
                           }};
 handle_cast({limits, Pid}, State = #?STATE{limits = Limits}) ->
     clientsock:send(Pid, json_limits(<<"getlimits">>, Limits)),
+    {noreply, State};
+handle_cast({getconfig, Pid}, State = #?STATE{}) ->
+    clientsock:send(Pid, json_config()),
     {noreply, State};
 handle_cast({setlimits, Pid, SetLimits}, State = #?STATE{limits = Limits}) ->
     NewLimits = do_setlimits(Limits, SetLimits),
@@ -538,6 +578,22 @@ encode_qps(Time, QPS) ->
     jiffy:encode({[{<<"action">>, <<"QPS">>},
                    {<<"Time">>, Time},
                    {<<"QPS">>, QPS}]}).
+
+json_config() ->
+    jiffy:encode({[{<<"action">>, <<"getconfig">>},
+                   {<<"config">>, {
+                        [encode_config(get_config(C)) || C <- ?CONFIGVARS]
+                                  }}
+                  ]}).
+
+get_config({Application, Key}) ->
+    case application:get_env(Application, Key) of
+        undefined -> {Key, undefined};
+        {ok, Value} -> {Key, Value}
+    end.
+
+encode_config({K, V}) ->
+    {atom_to_binary(K, utf8), iolist_to_binary(io_lib:format("~p",[V]))}.
 
 json_limits(Action, PList) ->
     jiffy:encode(

@@ -21,47 +21,59 @@
 -module(tap_config).
 
 -export([getenv/1,
+         getenv/2,
          getconfig/1,
-         getallconfig/1,
-         is_defined/2]).
+         getconfig/2,
+         is_defined/2,
+         refresh/0]).
+
+-include("tap_logger.hrl").
 
 getenv(Key) ->
-    case application:get_env(tapestry, Key) of
+    getenv(Key, undefined).
+
+getenv(Key, Default) ->
+    case application:get_env(tapestry, Key, Default) of
         undefined -> {error, not_found};
-        {ok, Value} -> Value
+        Value -> Value
     end.
 
-% return config value if present
-% return env value if config not present
-% return config value even if there is no env value
-% return error if no config or env value
 getconfig(Key) ->
-    case consult() of
-        {ok, Config} ->
-            case {proplists:get_value(Key, Config),
-                                        application:get_env(tapestry, Key)} of
-                {undefined, undefined} ->
-                    {error, not_found};
-                {undefined, {ok, Default}} ->
-                    Default;
-                {Value, _} ->
-                    Value
-            end;
-        {error, Reason} ->
-            {error, Reason}
-    end.
+    getenv(Key).
 
-getallconfig(Key) ->
-    case consult() of
-	{ok, Config}->
-	    proplists:get_all_values(Key, Config);
-	{error, Reason} ->
-            {error, Reason}
-    end.
+getconfig(Key, Default) ->
+    getenv(Key, Default).
 
 consult() ->
     ConfigFileName = getenv(config_file),
     file:consult(ConfigFileName).
 
 is_defined(Element, Key) ->
+    % XXX test is_defined!
     proplists:is_defined(Element, getconfig(Key)).
+
+% populate the tapestry application environment with values from the
+% tapestry.config file.  Called remotely by "tapestry config"
+% to refresh the config
+refresh() ->
+    case consult() of
+        {ok, Config} ->
+            [application:set_env(tapestry, Key, Value) ||
+                                        {Key, Value} <- flatten(Config)],
+            ?INFO("tap_config: refreshed configuration values"),
+            ok;
+        {error, Reason} ->
+            ?INFO("tap_config: config refresh error: ~p", [Reason]),
+            {error, Reason}
+    end.
+
+% combine duplicate keys into a single key,value pair.  Value becomes
+% a flattened list.
+flatten(Config) ->
+    lists:foldl(
+        fun(K, L) ->
+            [{K, flatten_value(proplists:get_all_values(K, Config))} | L]
+        end, [], proplists:get_keys(Config)).
+
+flatten_value([Value]) -> Value;
+flatten_value(Values) -> Values.

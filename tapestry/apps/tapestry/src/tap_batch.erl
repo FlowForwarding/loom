@@ -24,7 +24,7 @@
 -export([start_link/0,
          load/2,
          push_qps/0,
-         parse_logfile/2]).
+         parse_logfile/1]).
 
 -export([init/1,
          handle_call/3,
@@ -41,13 +41,7 @@
         collectors = dict:new(),
         max_collector_idle_time,
         last_qps_time,
-        qps_timer,
-        requester_whitelist = [],
-        requester_blacklist = [],
-        resolved_whitelist = [],
-        resolved_blacklist = [],
-        query_whitelist = [],
-        query_blacklist = []
+        qps_timer
     }).
 
 -define(MIN_UPDATE_TIME_MILLIS, 250).
@@ -73,16 +67,6 @@ push_qps() ->
 init([]) ->
     gen_server:cast(?MODULE, start),
     State = #?STATE{
-        requester_whitelist =
-                        mkmasks(tap_config:getconfig(requester_whitelist)),
-        requester_blacklist =
-                        mkmasks(tap_config:getconfig(requester_blacklist)),
-        resolved_whitelist =
-                        mkmasks(tap_config:getconfig(resolved_whitelist)),
-        resolved_blacklist =
-                        mkmasks(tap_config:getconfig(resolved_blacklist)),
-        query_whitelist = mkres(tap_config:getconfig(query_whitelist)),
-        query_blacklist = mkres(tap_config:getconfig(query_blacklist)),
         max_collector_idle_time = tap_config:getconfig(max_collector_idle_time)
     },
     case {tap_config:is_defined(anonymized, datasources),
@@ -185,18 +169,7 @@ load_tar(IpAddr, FtpFile, State) ->
     State1.
 
 load_logfile(IpAddr, FtpFile, State) ->
-    FilterFn = fun(RequesterIpAddr, ResolvedIpAddr, Query) ->
-                   tap_dns:allow(RequesterIpAddr,
-                       State#?STATE.requester_whitelist,
-                       State#?STATE.requester_blacklist) andalso
-                   tap_dns:allow(ResolvedIpAddr,
-                       State#?STATE.resolved_whitelist,
-                       State#?STATE.resolved_blacklist) andalso
-                   tap_dns:allowquery(Query,
-                       State#?STATE.query_whitelist,
-                       State#?STATE.query_blacklist)
-               end,
-    {QPS, Data} = parse_zlogfile(FtpFile, FilterFn),
+    {QPS, Data} = parse_zlogfile(FtpFile),
     ?DEBUG("ftp log data tar length from ~p: ~p~n",[IpAddr, length(Data)]),
     tap_ds:ordered_edges(edges(Data)),
     State1 = add_collector(IpAddr, QPS, State),
@@ -244,9 +217,9 @@ parse_file(_BinaryData, Atad) ->
     QPS = safe_div(length(Data), TimeDiff),
     {QPS, Data}.
 
-parse_zlogfile(ZBin, FilterFn) ->
+parse_zlogfile(ZBin) ->
     Bin = safe_gunzip(ZBin),
-    Data = parse_logfile(Bin, FilterFn),
+    Data = parse_logfile(Bin),
     case Data of
         [] ->
             % special case if there is no data
@@ -262,7 +235,7 @@ parse_zlogfile(ZBin, FilterFn) ->
             {QPS, Data}
     end.
 
-parse_logfile(Bin, FilterFn) ->
+parse_logfile(Bin) ->
     % match log records:
     % ipv4 example:
     %   15-May-2014 13:33:18.468 client 192.168.11.172#50276: view
@@ -302,17 +275,15 @@ parse_logfile(Bin, FilterFn) ->
     % processing.
     lists:reverse(lists:foldl(
         fun([Timestamp, Query, Requester, Resolved], L) ->
-            RequesterIpAddr = inet_parse_address(Requester),
-            ResolvedIpAddr = inet_parse_address(Resolved),
-            case FilterFn(RequesterIpAddr, ResolvedIpAddr, Query) of
-                false ->
-                    L;
-                true ->
-                    [{Timestamp,
-                      tap_ds:endpoint(RequesterIpAddr,
-                                            tap_dns:gethostbyaddr(Requester)),
-                      tap_ds:endpoint(ResolvedIpAddr, binary:copy(Query))} | L]
-            end
+            RequesterIpAddr = tap_dns:inet_parse_address(Requester),
+            ResolvedIpAddr = tap_dns:inet_parse_address(Resolved),
+            [{Timestamp,
+              {RequesterIpAddr,
+                    [{who, requester},
+                     {label, tap_dns:gethostbyaddr(Requester)}]},
+              {ResolvedIpAddr,
+                    [{who, resolved},
+                     {label, binary:copy(Query)}]}} | L]
         end, [], Matches)).
 
 parse_timestamp(TimestampB) ->
@@ -333,22 +304,9 @@ parse_month("Oct") -> 10;
 parse_month("Nov") -> 11;
 parse_month("Dec") -> 12.
 
-inet_parse_address(B) when is_binary(B) ->
-    inet_parse_address(binary_to_list(B));
-inet_parse_address(L) when is_list(L) ->
-    {ok, IpAddr} = inet:parse_address(L),
-    IpAddr.
-
 safe_gunzip(ZBin) ->
     try
         zlib:gunzip(ZBin)
     catch
         error:data_error -> <<>>
     end.
-
-mkmasks(MaskList) ->
-    [tap_dns:mkmask(inet_parse_address(Addr), Length) ||
-                                            {Addr, Length} <- MaskList].
-
-mkres(REList) ->
-    [tap_dns:mkre(RE) || RE <- REList].

@@ -67,12 +67,12 @@ getenv_nokey() ->
 
 getconfig() ->
     application:set_env(tapestry, config_file, ?CONFIGFILE),
+    ok = tap_config:refresh(),
     ?assertEqual(?CONFIGVALUE, tap_config:getconfig(?CONFIGKEY)).
 
 getconfig_nofile() ->
     application:set_env(tapestry, config_file, ?UNKNOWN_CONFIGFILE),
-    ?assertEqual({error, enoent},
-                                    tap_config:getconfig(?UNKNOWN_CONFIGKEY)).
+    ?assertEqual({error, enoent}, tap_config:refresh()).
 
 getconfig_nokey() ->
     application:set_env(tapestry, config_file, ?CONFIGFILE),
@@ -83,4 +83,6 @@ getconfig_noenv() ->
     ?assertEqual({error, not_found}, tap_config:getconfig(?UNKNOWN_ENVKEY)).
 
 getallconfig() ->
-    ?assertEqual([a,b,c], tap_config:getallconfig(?ALLENVKEY)).
+    application:set_env(tapestry, config_file, ?CONFIGFILE),
+    ok = tap_config:refresh(),
+    ?assertEqual([a,b,c], tap_config:getconfig(?ALLENVKEY)).

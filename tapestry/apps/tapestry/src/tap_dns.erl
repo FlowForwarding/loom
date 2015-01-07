@@ -28,20 +28,30 @@
          allowquery/3,
          mkre/1,
          intaddr/1,
-         binaryaddr/1]).
+         binaryaddr/1,
+         inet_parse_address/1,
+         new_cache/0,
+         cache_get/2]).
 
-gethostbyaddr(_) ->
-    <<"unknown">>.
+-define(MAX_CACHE_AGE_SEC, (60*60)).
 
-% reverse lookups causing too much DNS traffic
-% gethostbyaddr(Addr) ->
-%     R = case inet:gethostbyaddr(Addr) of
-%         {ok, #hostent{h_name = Hostname}} ->
-%             Hostname;
-%         {error, Error} ->
-%             lists:flatten(io_lib:format("notfound_~p", [Error]))
-%     end,
-%     list_to_binary(R).
+% cached reverse lookup
+gethostbyaddr(Addr) ->
+    gethostbyaddr(Addr, tap_config:getconfig(reverselookup)).
+
+gethostbyaddr(_Addr, false) ->
+    "unknown";
+gethostbyaddr(Addr, true) ->
+    LookupFn = fun() ->
+        R = case inet:gethostbyaddr(Addr) of
+            {ok, #hostent{h_name = Hostname}} ->
+                Hostname;
+            {error, Error} ->
+                lists:flatten(io_lib:format("notfound_~p", [Error]))
+        end,
+        list_to_binary(R)
+    end,
+    cache_get(Addr, LookupFn).
 
 allow(IpAddr, WhiteList, BlackList) ->
     IpAddrI = intaddr(binaryaddr(IpAddr)),
@@ -56,6 +66,12 @@ binaryaddr({A,B,C,D}) ->
     <<A:8,B:8,C:8,D:8>>;
 binaryaddr({A,B,C,D,E,F,G,H}) ->
     <<A:16,B:16,C:16,D:16,E:16,F:16,G:16,H:16>>.
+
+inet_parse_address(B) when is_binary(B) ->
+    inet_parse_address(binary_to_list(B));
+inet_parse_address(L) when is_list(L) ->
+    {ok, IpAddr} = inet:parse_address(L),
+    IpAddr.
 
 mkmask(Addr = {_,_,_,_}, Length) ->
     <<M:Length,_/bits>> = <<16#ff:8,16#ff:8,16#ff:8,16#ff:8>>,
@@ -94,3 +110,27 @@ re(Query, [RE | REList]) ->
 mkre(RE) ->
     {ok, MP} = re:compile(RE),
     MP.
+
+new_cache() ->
+    ets:new(?MODULE, [named_table, set, public]),
+    ok.
+
+cache_get(Key, LookupFn) ->
+    case ets:lookup(?MODULE, Key) of
+        [{Key, Value, TS}] ->
+            case timer:now_diff(tap_time:now(), TS) >
+                                            (?MAX_CACHE_AGE_SEC * 1000000) of
+                true ->
+                    cache_set(Key, LookupFn);
+                false ->
+                    ets:insert(?MODULE, {Key, Value, tap_time:now()}),
+                    Value
+            end;
+        [] ->
+            cache_set(Key, LookupFn)
+    end.
+
+cache_set(Key, LookupFn) ->
+    Value = LookupFn(),
+    ets:insert(?MODULE, {Key, Value, tap_time:now()}),
+    Value.

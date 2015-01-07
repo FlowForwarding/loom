@@ -58,6 +58,8 @@ main(Args) ->
             io:format("~p\n", [rpc:call(TargetNode, init, restart, [], 60000)]);
         ["reboot"] ->
             io:format("~p\n", [rpc:call(TargetNode, init, reboot, [], 60000)]);
+        ["config"] ->
+            io:format("~p\n", [rpc:call(TargetNode, tap_config, refresh, [], 60000)]);
         ["rpc", Module, Function | RpcArgs] ->
             case rpc:call(TargetNode,
                           list_to_atom(Module),
@@ -97,7 +99,7 @@ main(Args) ->
             end;
         Other ->
             io:format("Other: ~p\n", [Other]),
-            io:format("Usage: nodetool {chkconfig|getpid|ping|stop|restart|reboot|rpc|rpc_infinity|rpcterms}\n")
+            io:format("Usage: nodetool {chkconfig|getpid|ping|stop|restart|reboot|rpc|rpc_infinity|rpcterms|config}\n")
     end,
     net_kernel:stop().
 
