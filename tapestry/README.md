@@ -224,6 +224,7 @@ tapestry | **query_whitelist** | [".com$"] | list of regular expressions of dns 
 tapestry | **query_blacklist** | ["google.com$"] | list of regular expressions of dns queries to exclude
 tapestry | **save_files** | false | save copies of the log files loaded via ftp
 tapestry | **save_file_dir** | false | directory to store copies of log files loaded via ftp (only applicable when save_files is true)
+tapestry | **reverselookup** | true | true - lookup hostname of dns requester IP addresses; false - do not lookup hostname of dns requesters
 of_driver | listen_ip | {0,0,0,0} | open flow controller listener IP address
 of_driver | listen_port | 6653 | open flow controller listener port
 

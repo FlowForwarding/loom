@@ -37,6 +37,11 @@
 
 % cached reverse lookup
 gethostbyaddr(Addr) ->
+    gethostbyaddr(Addr, tap_config:getconfig(reverselookup)).
+
+gethostbyaddr(_Addr, false) ->
+    "unknown";
+gethostbyaddr(Addr, true) ->
     LookupFn = fun() ->
         R = case inet:gethostbyaddr(Addr) of
             {ok, #hostent{h_name = Hostname}} ->
