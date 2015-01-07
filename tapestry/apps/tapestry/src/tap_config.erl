@@ -27,6 +27,8 @@
          is_defined/2,
          refresh/0]).
 
+-include("tap_logger.hrl").
+
 getenv(Key) ->
     getenv(Key, undefined).
 
@@ -47,6 +49,7 @@ consult() ->
     file:consult(ConfigFileName).
 
 is_defined(Element, Key) ->
+    % XXX test is_defined!
     proplists:is_defined(Element, getconfig(Key)).
 
 % populate the tapestry application environment with values from the
@@ -57,8 +60,10 @@ refresh() ->
         {ok, Config} ->
             [application:set_env(tapestry, Key, Value) ||
                                         {Key, Value} <- flatten(Config)],
+            ?INFO("tap_config: refreshed configuration values"),
             ok;
         {error, Reason} ->
+            ?INFO("tap_config: config refresh error: ~p", [Reason]),
             {error, Reason}
     end.
 
