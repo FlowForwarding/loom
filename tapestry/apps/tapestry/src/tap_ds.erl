@@ -358,9 +358,15 @@ dict_append(K, V, D) ->
 interactions_for_endpoints(InteractionsD, Endpoints) ->
     Edges = lists:foldl(
         fun(Endpoint, L) ->
-            [dict:fetch(Endpoint, InteractionsD) | L]
+            [dict_fetch(Endpoint, InteractionsD, []) | L]
         end, [], Endpoints),
     lists:usort(lists:flatten(Edges)).
+
+dict_fetch(Key, Dict, Default) ->
+    case dict:find(Key, Dict) of
+        error -> Default;
+        {ok, Value} -> Value
+    end.
 
 update_edge(G, V1, V2, TimeMetadata) ->
     % XXX use add_edge(G, {V1,V2}, V1, V2, Time) instead?
