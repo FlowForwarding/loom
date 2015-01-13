@@ -406,8 +406,10 @@ save_graph(Filename, Digraph) ->
     ?INFO("Saving ~B edges to ~s~n", [digraph:no_edges(Digraph), Filename]),
     Data = lists:map(
         fun(E) ->
-            {_, V1, V2, _} = digraph:edge(Digraph, E),
-            {V1, V2}
+            {_, V1, V2, Meta} = digraph:edge(Digraph, E),
+            {_, V1Meta} = digraph:vertex(Digraph, V1),
+            {_, V2Meta} = digraph:vertex(Digraph, V2),
+            {{V1, V1Meta}, {V2, V2Meta}, Meta}
         end, digraph:edges(Digraph)),
     ?INFO("Writing file~n"),
     file:write_file(Filename, io_lib:format("~p.~n", [Data])),
@@ -418,12 +420,11 @@ load_graph(Filename) ->
     {ok, [Data]} = file:consult(Filename),
     ?INFO("Loading ~B edges~n", [length(Data)]),
     G = digraph:new(),
-    DateTime = calendar:universal_time(),
     lists:foreach(
-        fun({V1, V2}) ->
-            digraph:add_vertex(G, V1, {DateTime, []}),
-            digraph:add_vertex(G, V2, {DateTime, []}),
-            digraph:add_edge(G, V1, V2, {DateTime, []})
+        fun({{V1, V1Meta}, {V2, V2Meta}, Meta}) ->
+            digraph:add_vertex(G, V1, V1Meta),
+            digraph:add_vertex(G, V2, V2Meta),
+            digraph:add_edge(G, V1, V2, Meta)
         end, Data),
     ?INFO("Load Complete~n"),
     G.
