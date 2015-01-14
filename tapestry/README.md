@@ -181,7 +181,7 @@ The Tapestry sys.config (node configuration) file is in rel/files/sys.config.
 The runtime copy is in rel/tapestry/releases/1/sys.config.  The files copy
 overwrites the releases copy when you make Tapestry.  You may also override values in sys.config with values in tapestry.config.  The source copy of tapestry.config is in rel/files/tapestry.config.  The runtime copy is in rel/tapestry/tapestry.config.
 
-Some configuration values (marked in **bold**) may be changed at runtime.  Update theh value in tapestry.config and then use use the tapestry utility to tell tapestry to update its runtime configuration values.
+Some configuration values (marked in **bold**) may be changed at runtime.  Update the value in tapestry.config and then use the tapestry utility to tell tapestry to update its runtime configuration values.
 
 ```erlang
 # cd tapestry
