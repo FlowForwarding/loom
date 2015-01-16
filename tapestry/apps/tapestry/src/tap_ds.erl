@@ -24,6 +24,7 @@
 
 -export([start_link/0,
          push_nci/0,
+         update_label/2,
          clean_data/1,
          ordered_edge/1,
          ordered_edges/1,
@@ -60,6 +61,9 @@ start_link() ->
 
 push_nci() ->
     gen_server:cast(?MODULE, push_nci).
+
+update_label(Vertex, Data) ->
+    gen_server:cast(?MODULE, {update_label, Vertex, Data}).
 
 stop_nci(Pid) ->
     gen_server:cast(?MODULE, {stop_nci, Pid}).
@@ -117,6 +121,16 @@ handle_cast(start, State) ->
     {noreply, State#?STATE{digraph = digraph:new()}};
 handle_cast(dirty, State) ->
     {noreply, State#?STATE{dirty = true}};
+handle_cast({update_label, Vertex, Data = {Key, _}},
+                                    State = #?STATE{digraph = Digraph}) ->
+    case digraph:vertex(Digraph, Vertex) of
+        false ->
+            ok;
+        {_, {Timestamp, PL}} ->
+            NewPL = lists:keyreplace(Key, 1, PL, Data),
+            digraph:add_vertex(Digraph, Vertex, {Timestamp, NewPL})
+    end,
+    {noreply, State, hibernate};
 handle_cast({ordered_edges, Edges}, State = #?STATE{digraph = Digraph}) ->
     add_edges(Digraph, Edges),
     {noreply, State#?STATE{dirty = true}, hibernate};
