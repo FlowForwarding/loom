@@ -1,8 +1,8 @@
 (function() {
     var activitiesMap = {},
         endpointsMap = {},
-        hostsMap = {},
-        showHostNames = false;
+        hostsMap = {};
+
 
     function createActivity(activity) {
         var index = activity.NameIndex,
@@ -20,23 +20,42 @@
         this.size = 0;
         this.mainEndpoint = getOrCreateEndpoint(mainEndpointIP);
         this.endpoints = {};
+        this.internalFlows = 0;
+        this.externalFlows = 0;
 
-        endpoints.forEach(this.addEndpoint.bind(this));
+        endpoints.forEach(this.addEndpoint, this);
 
         interactions.forEach(function(interaction) {
             var ep1 = getOrCreateEndpoint(interaction[0]),
                 ep2 = getOrCreateEndpoint(interaction[1]);
 
+            if (!ep1.external && !ep2.external) {
+                this.internalFlows += 1;
+            } else {
+                this.externalFlows += 1;
+            }
+
             ep1.addConnection(ep2);
             ep2.addConnection(ep1);
-        });
+        }, this);
+
     }
+
+    Object.defineProperty(Activity.prototype, 'avgInternalFlows', {
+        get: function() {
+            return this.internalFlows / this.size;
+        }
+    });
 
     Activity.prototype.addEndpoint = function(ip) {
         var endpoint = getOrCreateEndpoint(ip);
         this.endpoints[ip] = endpoint;
         setActivityForEndpoint(this, endpoint);
         this.size += 1;
+    };
+
+    Activity.prototype.hasEndpoint = function(endpoint) {
+        return endpoint.ip in this.endpoints;
     };
 
     function isInOneActivity(ep1, ep2) {
@@ -66,11 +85,7 @@
 
     Object.defineProperty(Endpoint.prototype, 'host', {
         get: function() {
-            var name = "";
-            if (showHostNames) {
-                name = hostsMap[this.ip];
-            }
-            return name;
+            return hostsMap[this.ip];
         }
     });
 
@@ -99,10 +114,6 @@
         activitiesList = [];
 
 
-    $(NCI).on("showHostnames", function(e, show) {
-        showHostNames = show;
-    });
-
     NCI.model = {
         createActivity: createActivity,
         getActivityByMainEndpoint: function(endpoint) {
@@ -117,11 +128,7 @@
             });
         },
         hostNameForIp: function(ip) {
-            var result = "";
-            if (showHostNames) {
-                result = hostsMap[ip];
-            }
-            return result;
+            return this.getEndpointByIp(ip).host;
         },
         parseActivities: function(activities) {
             activitiesList = activities.map(createActivity);

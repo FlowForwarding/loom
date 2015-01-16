@@ -435,3 +435,40 @@ switch entry should have one or the other, but not both.
 |dns_port|1|Port connected to DNS servers|
 |client_port|2|Port connected to clients|
 |dns_ip|[{10,0,2,60}]|List of DNS Sever IP Addresses|
+
+## Optical extension support ##
+
+Optical extension is implemented in LINC-Switch by means of `linc_us4_oe`
+backend.
+It extends Open Flow 1.3.2 protocol by adding custom
+enhancements to enable emulating optical networks. `iof` provides several
+commands to configure emulated optical switches.
+
+#### iof:oe_ports(Key) ####
+Show optical ports' descriptions on switch associated with `Key`.
+If `Key` is `default`, show the descriptions on the default switch.
+
+#### iof:oe_ports() ####
+The same as `iof:oe_ports(default)`
+
+#### iof:oe_flow_tw(Key, Priority, InPort, OutPort, ChannelNumber) ####
+Create a flow in table 0 on the switch associated with `Key`, or the
+`default` switch if `Key` is not given, forwarding traffic from the
+`InPort` (TPort) to the `OutPort` (WPort) at the Priority. The `OutPort`
+is assumed to be an optical one and the `ChannelNumber` indicates
+the frequency (lambda).
+
+#### iof:oe_flow_ww(Key, Priority, InPort, InChannelNumber, OutPort, OutChannelNumber) ####
+Create a flow in table 0 on the switch associated with `Key`, or the
+`default` switch if `Key` is not given, forwarding traffic from the
+`InPort` (WPort) to the `OutPort` (WPort) at the Priority. Both ports
+are assumed to be optical ones and the `InChannelNumber` and `OutChannelNumber`
+indicate respectively the frequency (lambda) to match on the input port and
+to send with on the output port.
+
+#### iof:oe_flow_wt(Key, Priority, InPort, InChannelNumber, OutPort) ####
+Create a flow in table 0 on the switch associated with `Key`, or the
+`default` switch if `Key` is not given, forwarding traffic from the
+`InPort` (WPort) to the `OutPort` (TPort) at the Priority. The `InPort`
+is assumed to be an optical one and the `InChannelNumber` indicates
+the frequency (lambda) to match on.

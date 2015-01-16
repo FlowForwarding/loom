@@ -1,37 +1,9 @@
 (function() {
 
-    function downloadFile(fileType, fileContent, fileName) {
-        var blob = new Blob([fileContent], {type: fileType}),
-            url = URL.createObjectURL(blob),
-            $a = $("<a>")
-                    .attr("href", url)
-                    .attr("download", fileName)
-                    .attr("target", "_blank");
-
-        // This timeout is to fix issue with Safari download
-        setTimeout(function() {
-            $a
-                .get(0)
-                .click();
-            // need timeout to have time to open file before we revoke it from memory
-            setTimeout(URL.revokeObjectURL.bind(URL, url), 100);
-        }, 0);
-    }
-
-    function createCSV(columns, data) {
-        var csvRows = [columns.map(function(item) {
-                return ['"',
-                        item.text.replace('"', '""'),
-                        '"'].join("");
-            }).join(",")];
-
-        csvRows = csvRows.concat(data.map(function(item) {
-            return columns.map(function(column) {
-                return item[column.property];
-            }).join(",");
-        }));
-
-        return csvRows.join("\n");
+    function fixEndpointName(endpoint) {
+        var res = endpoint.split("|");
+        res.pop();
+        return res.length > 0 ? res[0] : endpoint;
     }
 
     function parseActivity(activity, index, activities) {
@@ -41,14 +13,16 @@
         }
 
         function createEndpoint(endpoint) {
+            endpoint = fixEndpointName(endpoint);
             return {
                 activity: activities.length - index,
                 endpoint: endpoint,
+                host: NCI.model.hostNameForIp(endpoint),
                 internalConnections: 0,
                 externalConnections: 0,
                 totalConnections: 0,
                 outsideConnections: 0,
-                external: NCI.isExternal(endpoint)
+                external: NCI.model.getEndpointByIp(endpoint).external
             }
         }
 
@@ -63,7 +37,7 @@
         function updateInteractionConnections(epA, epB) {
             var endpoint = getEndpoint(epA),
                 outside = isOutside(epB),
-                external = NCI.isExternal(epB);
+                external = NCI.model.getEndpointByIp(epB).external;
 
             if (endpoint) {
                 if (outside) {
@@ -76,8 +50,8 @@
 
         activity.Interactions.forEach(
             function(interaction) {
-                var endpointA = interaction[0],
-                    endpointB = interaction[1];
+                var endpointA = fixEndpointName(interaction[0]),
+                    endpointB = fixEndpointName(interaction[1]);
 
                 updateInteractionConnections(endpointA, endpointB);
                 updateInteractionConnections(endpointB, endpointA);
@@ -102,6 +76,7 @@
     function createActivityColumns() {
         return [
             {text: "Endpoint", property: "endpoint", sort: null, filter: null},
+            {text: "Host", property: "host", sort: null, filter: null, hidden: !NCI.showHostnames},
             {text: "Internal", property: "internalConnections"},
             {text: "External", property: "externalConnections"},
             {text: "Total", property: "totalConnections", sort: NCI.Table.DESC_DIRECTION, filter: null},
@@ -113,6 +88,7 @@
     function createActivitiesColumns() {
         return [
             {text: "Endpoint", property: "endpoint", sort: null, filter: null},
+            {text: "Host", property: "host", sort: null, filter: null, hidden: !NCI.showHostnames},
             {text: "Internal", property: "internalConnections"},
             {text: "External", property: "externalConnections"},
             {text: "Total", property: "totalConnections", sort: NCI.Table.DESC_DIRECTION, filter: null},
@@ -123,24 +99,35 @@
         ]
     }
 
+
+    function findHostColumn(columns) {
+        return columns.filter(function(col) {
+            return col.property == "host"
+        })[0];
+    }
+
     function ListBuilder(communities) {
         this.columns = getCommunitiesColumns(communities);
         this.activityName = getActivityName(communities);
         this.activities = parseActivities(communities);
 
+        this.hostnameListener = (function(e, show) {
+            findHostColumn(this.columns).hidden = !show;
+            this.table.setColumns(this.columns);
+        }).bind(this);
+
+        $(NCI).on("showHostnames", this.hostnameListener);
+
         this.table = null;
     }
-
-
-    var downloadCSV = downloadFile.bind(null, "text/csv");
 
     ListBuilder.prototype.downloadCSV = function() {
         var columns = this.columns,
             csvName = this.activityName + ".csv",
             activities = this.activities,
-            csvContent = createCSV(columns, activities);
+            csvContent = NCI.utils.csv.create(columns, activities);
 
-        return downloadCSV(csvContent, csvName);
+        return NCI.utils.csv.download(csvContent, csvName);
     };
 
     ListBuilder.prototype.createTable = function(d3Selection) {
@@ -154,6 +141,7 @@
         if (this.table) {
             this.table.remove();
         }
+        $(NCI).off("showHostnames", this.hostnameListener);
         this.table = null;
     };
 

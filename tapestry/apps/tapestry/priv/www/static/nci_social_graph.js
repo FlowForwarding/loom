@@ -38,6 +38,11 @@ NCI.socialGraph = function(socialGraphID, params){
     var $endpointFilter = me.find(".endpoint-filter");
 
 	var tmpLine = undefined;
+    var showHostname = NCI.showHostnames;
+
+    $(NCI).on("showHostnames", function(event, show) {
+        showHostname = show;
+    });
 	
 	byActivities.on('click', function(event){
 		isDevided = this.checked;
@@ -120,6 +125,7 @@ NCI.socialGraph = function(socialGraphID, params){
 		};
 		if (needDraw) {
 		    d3.select("#" + socialGraphID).remove();
+            $(".too-many-msg").remove();
 			if (numOfPoints > NCI.max_vertices) {
 				d3.select(socialGraphSelector).append('text')
 				.attr("id", socialGraphID)
@@ -131,7 +137,12 @@ NCI.socialGraph = function(socialGraphID, params){
                 $showGraph.parent().addClass("disabled");
                 $showGraph.off("click");
 
-			} else {
+			} else if (numOfPoints === 0) {
+                // this means that we haven't receive endpoints from BE, because of limits
+
+                $(socialGraphSelector).append('<div class="too-many-msg">Too many endpoints</div>');
+
+            } else {
 			    me.draw();
 				NCI.GraphAppearsSound.currentTime = 0;
 				NCI.GraphAppearsSound.play();	
@@ -259,6 +270,8 @@ NCI.socialGraph = function(socialGraphID, params){
 				};
 				var info = d.label ? d.label + "</br>" : "";
                 info += d.name;
+
+                info += (showHostname && !d.size) ? ("</br>" + NCI.model.hostNameForIp(d.name)) : "";
 
 				if (d.size){
 					info += "<br>size : " + d.size;

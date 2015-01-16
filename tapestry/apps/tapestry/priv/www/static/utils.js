@@ -13,39 +13,26 @@ NCI.utils = {};
  * External networks checker
  */
 (function(ns) {
-    function ip4ToNum(ip4) {
-        // use 3 since it's ip4
-        return ip4.split(".").reduce(function(res, bit, index) {
-            return res + bit*Math.pow(256, 3 - index);
-        }, 0);
-    }
-
-    function makeMask(n) {
-        return (maxBits<<(32 - n)) & maxBits;
-    }
-
-    function parseNetwork(network) {
-        var buf = network.split("/"),
-            mask = makeMask(buf[1]),
-            networkIPNum = ip4ToNum(buf[0]),
-            networkRes = networkIPNum & mask;
-        return {
-            mask: mask,
-            networkRes: networkRes
-        }
-    }
-
-    var maxBits = Math.pow(2, 32) - 1,
-        networks = ["10/8", "172.16/12", "192.168/16"].map(parseNetwork);
+    var IPv4RangeList = {
+            internalIPv4Network: [
+                [ipaddr.parse('10.0.0.0'), 8],
+                [ipaddr.parse('172.16.0.0'), 12],
+                [ipaddr.parse('192.168.0.0'), 16]
+            ]
+        },
+        IPv6RangeList = {
+            internalIPv6Network: [
+                [ipaddr.parse('fc00::'), 7]
+            ]
+        },
+        externalSubnet = "external";
 
     ns.isExternal = function(endpoint) {
-        var ip4NumAddress = ip4ToNum(endpoint),
-            result = networks.reduce(function(val, network) {
-                return val || ((ip4NumAddress & network.mask) == network.networkRes)
-            }, false);
-
-        return !result;
+        var addr = ipaddr.parse(endpoint),
+            rangeList = addr.kind() == "ipv4" ? IPv4RangeList : IPv6RangeList;
+        return ipaddr.subnetMatch(addr, rangeList, externalSubnet) == externalSubnet;
     };
+
 })(NCI);
 
 /**
@@ -66,3 +53,61 @@ NCI.utils = {};
 
 })(NCI.utils);
 
+
+/**
+ *
+ */
+
+(function(ns) {
+    function downloadFile(fileType, fileContent, fileName) {
+        var blob = new Blob([fileContent], {type: fileType}),
+            url = URL.createObjectURL(blob),
+            $a = $("<a>")
+                .attr("href", url)
+                .attr("download", fileName)
+                .attr("target", "_blank");
+
+        // This timeout is to fix issue with Safari download
+        setTimeout(function() {
+            $a
+                .get(0)
+                .click();
+            // need timeout to have time to open file before we revoke it from memory
+            setTimeout(URL.revokeObjectURL.bind(URL, url), 100);
+        }, 0);
+    }
+
+    ns.downloadFile = downloadFile;
+
+})(NCI.utils);
+
+/**
+ *
+ */
+(function(ns) {
+    ns.csv = {}
+    function createCSV(columns, data) {
+        var csvRows = [columns.map(function(item) {
+            return ['"',
+                item.text.replace('"', '""'),
+                '"'].join("");
+        }).join(",")];
+
+        csvRows = csvRows.concat(data.map(function(item) {
+            return columns.map(function(column) {
+                var res = item[column.property];
+                if (column.renderer) {
+                    res = column.renderer(res);
+                }
+                return res;
+            }).join(",");
+        }));
+
+        return csvRows.join("\n");
+    }
+
+    ns.csv.create = createCSV;
+    ns.csv.download = NCI.utils.downloadFile.bind(null, "text/csv");
+
+
+})(NCI.utils);

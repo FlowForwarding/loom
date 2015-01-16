@@ -78,8 +78,7 @@
     close_connection/1,
     set_default/1,
     show_default/0,
-    ofs_version/1
-]).
+    ofs_version/1]).
 
 start_link() ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).

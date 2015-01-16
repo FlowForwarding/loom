@@ -54,9 +54,11 @@ $(".hide-ncidetails").on('click', function(){
 	$($('#nciDetailsTabs').find("dd a")[2]).click();
 });
 
+NCI.showHostnames = false;
+
 $("#settingsDropdown-checkbox").on("click", function() {
     var checked = this.checked;
-
+    NCI.showHostnames = checked;
     $(NCI).trigger("showHostnames", checked);
 });
 
@@ -64,6 +66,7 @@ NCI.detailsTabs = function(){
 	var me = $('#nciDetailsTabs');
 	var flowsPanel;
 	var activitiesPanel;
+    var activitiesSize;
     var endpointsView;
 	var color = d3.scale.category10();
 	
@@ -76,6 +79,8 @@ NCI.detailsTabs = function(){
         if (endpointsView) {
             endpointsView.stop();
         }
+
+        $(window).trigger("resize");
 		switch(tab[0].id) {
             case "panelEndpoints":
                 if (!endpointsView) {
@@ -125,7 +130,10 @@ NCI.detailsTabs = function(){
                         activity = NCI.model.getActivityByMainEndpoint(mainEndpointId);
 
                     // TODO: get rid of hits hack;
-                    activity.size = parseInt(size, 10);
+                    if (activity) {
+                        activity.size = parseInt(size, 10);
+                    }
+
                 });
 
                 activities = activities.sort(function(a1, a2) {
@@ -136,10 +144,12 @@ NCI.detailsTabs = function(){
                     return result;
                 });
 
-				new NCI.NCIHistogram(d3.select("#nciHistogram"), activities, {
-                    itemsPerPage: activities.length
-//                    itemsPerPage: 20
-                });
+                if (!activitiesSize) {
+                    activitiesSize = new NCI.NCIHistogram(d3.select("#nciHistogram"), activities, {
+                        itemsPerPage: activities.length
+                        //                    itemsPerPage: 20
+                    });
+                }
 		};
 	});
 	

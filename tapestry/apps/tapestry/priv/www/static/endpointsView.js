@@ -1,6 +1,6 @@
 (function() {
 
-    var hostColumn = {text: "Host", property: "host", hidden: true},
+    var hostColumn = {text: "Host", property: "host", hidden: !NCI.showHostnames},
         columns = [
         {text: "Endpoint", property: "ip", sort: null, filter: null},
         hostColumn,
@@ -26,6 +26,8 @@
 
     function EndpointsView($container) {
 
+        hostColumn.hidden = !NCI.showHostnames;
+
         var container = $container.get(0),
             $histogramView = $container.find(".show-histogram"),
             $tableView = $container.find(".show-table"),
@@ -45,7 +47,8 @@
                 name: "All Endpoints",
                 endpoints: sortEndpoints(NCI.model.endpoints(), "totalConnections", "desc")
             },
-            breadcrumbsData;
+            breadcrumbsData,
+            $exportButton = $container.find(".export-list");
 
         this.stop = function() {
             graph.stop();
@@ -56,6 +59,12 @@
                 graph.resume();
             }
         };
+
+        $exportButton.click(function() {
+            var csvContent = NCI.utils.csv.create(columns, getCurrentData());
+
+            NCI.utils.csv.download(csvContent, "endpoints.csv");
+        });
 
         $endpointFilter.on("keyup", function() {
             var filterRe = NCI.utils.wildcardStringToRegExp($(this).val()),
@@ -83,12 +92,7 @@
             table.setColumns(columns);
             // TODO: think how to avoid this call here.
 
-            var currentBreadcrumb = breadcrumbsData[breadcrumbsData.length - 1],
-                endpoints = currentBreadcrumb.endpoints;
-
-            if (currentBreadcrumb !== topHundred) {
-                endpoints = currentBreadcrumb.endpoint.getConnections();
-            }
+            var endpoints = getCurrentData();
 
             var sortOptions = getSortOptions($endpointSortMenu.find("[data-sort-direction].active"));
             endpoints = sortEndpoints(endpoints, sortOptions.field, sortOptions.direction);
@@ -174,15 +178,19 @@
             }
         }
 
+        function getCurrentData() {
+            var endpoint = breadcrumbsData[breadcrumbsData.length - 1].endpoint;
+            return endpoint ?
+                endpoint.getConnections() :
+                topHundred.endpoints;
+        }
+
         $endpointSortMenu.on("click", "[data-sort-direction]", function() {
             var $el = $(this),
                 sortOptions = getSortOptions($el),
                 sortDirection = sortOptions.direction,
                 sortField = sortOptions.field,
-                endpoint = breadcrumbsData[breadcrumbsData.length - 1].endpoint,
-                currentData = endpoint ?
-                    endpoint.getConnections() :
-                    topHundred.endpoints;
+                currentData = getCurrentData();
 
             $endpointFilter.val("");
             currentData = sortEndpoints(currentData, sortField, sortDirection);

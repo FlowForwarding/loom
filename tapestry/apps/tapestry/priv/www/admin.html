@@ -22,6 +22,7 @@
 	    <div class="row">
 		   <h6>Max Edges <small id="nciMaxEdges"></small></h6>
 		   <h6>Max Vertices <small id="nciMaxVertices"></small></h6>
+		   <h6>Max UI Vertices <small id="nciMaxUIVertices"></small></h6>
 		   <h6>Max Communities <small id="nciMaxCommunities"></small></h6>
 		   <h6>Community Size Limit <small id="nciCommunitySizeLimit"></small></h6>
 		   <form data-abide>
@@ -37,6 +38,14 @@
 		           <div class="large-6 columns">
 		           <label>Max Vertices
 		               <input id="newMaxVertices" type="text" pattern="[0-9]+"/>
+		           </label>
+				   <small class="error">Should be an integer.</small>
+		           </div>
+		       </div>
+		       <div class="row">
+		           <div class="large-6 columns">
+		           <label>UI Max Vertices
+		               <input id="newUIMaxVertices" type="text" pattern="[0-9]+"/>
 		           </label>
 				   <small class="error">Should be an integer.</small>
 		           </div>

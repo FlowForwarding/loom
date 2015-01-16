@@ -18,18 +18,18 @@ NCI.NCIHistogram = (function(){
                 "<div>Activity: #",
                 item.index,
                 "</div>",
-                //                "<div>Activity: #",
-                //                item.activity ? item.activity.index : "Activity not loaded",
-                //                "</div>",
                 "<div>Size: ",
                 item.size,
                 "</div>",
-//                "<div>Connections: ",
-//                item.connections,
-//                "</div>",
-                //                "<div>Internal Connections: ",
-                //                item.internalConnections,
-                //                "</div>"
+                "<div>Internal Flows: ",
+                item.internalFlows,
+                "</div>",
+                "<div>External Flows: ",
+                item.externalFlows,
+                "</div>",
+                "<div>Average Internal Flows: ",
+                item.avgInternalFlows.toFixed(2),
+                "</div>"
             ].join(""));
         } else {
             tooltip.style("display", "none");
@@ -54,6 +54,14 @@ NCI.NCIHistogram = (function(){
             endpointsMin,
             endpointsScale,
             endpointsAxisTicksValues;
+
+        // TODO: move this to chart.datum()
+        var maxActivities = data.slice().sort(function(activity1, activity2) {
+            return activity2.internalFlows - activity1.internalFlows;
+        }).filter(function(d, i) {
+            return i < 5 && d.internalFlows > 0;
+        });
+
 
         if (endpointsMax > 100) {
             endpointsMin = 0.5;
@@ -128,7 +136,10 @@ NCI.NCIHistogram = (function(){
                 .data(data, function(d) {return d.index}),
             barEnter = bar.enter()
                 .append("g")
-                .classed("activity", true);
+                .classed("activity", true)
+                .classed("internal-flows-max", function(data) {
+                    return maxActivities.indexOf(data) >= 0;
+                });
 
         bar.attr("transform", function(d, i) {
             return "translate(" + activitiesScale(i) + ",0)";
@@ -221,6 +232,8 @@ NCI.NCIHistogram = (function(){
     };
 
     function showDetails(activity) {
+
+        $("#activity-index").text(activity.index);
 
         $('.histogramDetailsClose').on('click', function(){
             clean();
