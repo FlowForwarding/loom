@@ -34,6 +34,9 @@ init([]) ->
     TapCalc = {tap_calc,
                         {tap_calc, start_link, []},
                         permanent, 5000, worker, [tap_calc]},
+    TapDns = {tap_dns,
+                        {tap_dns, start_link, []},
+                        permanent, 5000, worker, [tap_dns]},
 %   CommsSup = {tap_comms_sup,
 %                       {tap_comms_sup, start_link, []},
 %                       permanent, infinity, supervisor, [tap_comms_sup]},
@@ -49,6 +52,7 @@ init([]) ->
         TapClientData,
         TapDS,
         TapCalc,
+        TapDns,
         tap_loom(Run(packet_in)),
         test_ui(Run(test_ui))
     ]),

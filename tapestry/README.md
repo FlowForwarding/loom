@@ -181,7 +181,7 @@ The Tapestry sys.config (node configuration) file is in rel/files/sys.config.
 The runtime copy is in rel/tapestry/releases/1/sys.config.  The files copy
 overwrites the releases copy when you make Tapestry.  You may also override values in sys.config with values in tapestry.config.  The source copy of tapestry.config is in rel/files/tapestry.config.  The runtime copy is in rel/tapestry/tapestry.config.
 
-Some configuration values (marked in **bold**) may be changed at runtime.  Update theh value in tapestry.config and then use use the tapestry utility to tell tapestry to update its runtime configuration values.
+Some configuration values (marked in **bold**) may be changed at runtime.  Update the value in tapestry.config and then use the tapestry utility to tell tapestry to update its runtime configuration values.
 
 ```erlang
 # cd tapestry
@@ -226,6 +226,7 @@ tapestry | **query_blacklist** | ["google.com$"] | list of regular expressions o
 tapestry | **save_files** | false | save copies of the log files loaded via ftp
 tapestry | **save_file_dir** | false | directory to store copies of log files loaded via ftp (only applicable when save_files is true)
 tapestry | **reverselookup** | true | true - lookup hostname of dns requester IP addresses; false - do not lookup hostname of dns requesters
+tapestry | **reverselookupinterval** | 100 | milliseconds between lookup of dns requester IP address
 of_driver | listen_ip | {0,0,0,0} | open flow controller listener IP address
 of_driver | listen_port | 6653 | open flow controller listener port
 

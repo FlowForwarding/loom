@@ -162,7 +162,7 @@ safe_div(N, D) -> N/D.
 load_tar(IpAddr, FtpFile, State) ->
     BinaryFile = extract_file(FtpFile),
     {QPS, Data} = parse_file(BinaryFile),
-    ?DEBUG("ftp tar data tar length from ~p: ~p~n",[IpAddr, length(Data)]),
+    ?DEBUG("ftp anonymized data tar length from ~p: ~p~n",[IpAddr, length(Data)]),
     tap_ds:ordered_edges(edges(Data)),
     State1 = add_collector(IpAddr, QPS, State),
     maybe_push_qps(State1),
@@ -170,8 +170,9 @@ load_tar(IpAddr, FtpFile, State) ->
 
 load_logfile(IpAddr, FtpFile, State) ->
     {QPS, Data} = parse_zlogfile(FtpFile),
-    ?DEBUG("ftp log data tar length from ~p: ~p~n",[IpAddr, length(Data)]),
+    ?DEBUG("ftp data tar length from ~p: ~p~n",[IpAddr, length(Data)]),
     tap_ds:ordered_edges(edges(Data)),
+    queue_requester_lookups(Data),
     State1 = add_collector(IpAddr, QPS, State),
     maybe_push_qps(State1),
     State1.
@@ -280,11 +281,20 @@ parse_logfile(Bin) ->
             [{Timestamp,
               {RequesterIpAddr,
                     [{who, requester},
-                     {label, tap_dns:gethostbyaddr(Requester)}]},
+                     {label, <<"pending">>}]},
               {ResolvedIpAddr,
                     [{who, resolved},
                      {label, binary:copy(Query)}]}} | L]
         end, [], Matches)).
+
+queue_requester_lookups(Data) ->
+    lists:foreach(
+        fun({_, {IpAddr, _}, _}) ->
+            UpdateFn =  fun(Name) ->
+                            tap_ds:update_label(IpAddr, {label, Name})
+                        end,
+            tap_dns:gethostbyaddr_async(IpAddr, UpdateFn)
+        end, Data).
 
 parse_timestamp(TimestampB) ->
     {ok,[Day, Month, Year, Hour, Min, Sec],_} =
