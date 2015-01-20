@@ -369,8 +369,21 @@ json_nci_details(Time, NCI,
                                     CommunityList, Limits, Neato, UseGraphViz)},
         {<<"CommunityGraph">>, community_graph(CommunityData,
                                                 CommunityList, Limits)},
-        {<<"Labels">>, labels(VertexInfoD)}
+        {<<"Labels">>, labels(VertexInfoD)},
+        {<<"Requesters">>, requesters(VertexInfoD)}
     ]}).
+
+requesters(VertexInfoD) ->
+    dict:fold(
+        fun(K, {_, PL}, L) ->
+            case is_requester(PL) of
+                true -> [endpoint(K) | L];
+                false -> L
+            end
+        end, [], VertexInfoD).
+
+is_requester(PL) ->
+    proplists:get_value(who, PL) == requester.
 
 labels(VertexInfoD) ->
     {
