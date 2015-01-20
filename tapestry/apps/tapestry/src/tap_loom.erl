@@ -193,7 +193,7 @@ dns_reply(Data, DatapathId, CollectorIP) ->
                                    {R, [{who, requester}, 
                                         {label, tap_dns:gethostbyaddr(R)}]},
                                    {ID, [{who, resolved},
-                                         {label, binary:copy(Query)}]}},
+                                         {label, list_to_binary(Query)}]}},
 				?DEBUG("Sending: ~p~n",[Interaction]),
                                 tap_aggr:dns_reply(DatapathId, CollectorIP,
                                                                 Interaction)
