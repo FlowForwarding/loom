@@ -32,6 +32,9 @@
 
 % XXX disconnect not closing TCP connection
 
+-define(DNS_TAP_PRIORITY, 200).
+-define(BRIDGE_PRIORITY, 100).
+
 -module(iof).
 
 -include_lib("ofs_handler/include/ofs_handler.hrl").
@@ -64,6 +67,8 @@
     get_queue_stats/3,
     bridge/3,
     bridge/4,
+    clear_flow_out/2,
+    clear_flow_out/3,
     clear_flows0/0,
     clear_flows/1,
     clear_flows/2,
@@ -77,6 +82,8 @@
     tapestry_config/4,
     tapestry_config_add/3,
     tapestry_config_add/4,
+    tapestry_delete_tap/0,
+    tapestry_delete_tap/1,
     connect/2,
     disconnect/0,
     disconnect/1,
@@ -336,6 +343,21 @@ bridge(Key, Priority, Port1, Port2) ->
     [forward_mod(Key, Priority, Port1, Port2),
      forward_mod(Key, Priority, Port2, Port1)].
 
+%% @equiv clear_flow(default, TableId, OutPort)
+-spec clear_flow_out(TableId :: integer(), OutPort :: integer()) -> {ok, ofp_message()} | {error, error_reason()}.
+clear_flow_out(TableId, OutPort) ->
+    clear_flow_out(default, TableId, OutPort).
+
+%% @doc
+%% Clear one flow on the switch associated with Key.
+%% If Key is ``default'', clear the flow on the default switch.
+%% @end
+-spec clear_flow_out(Key :: switch_key(), TableId :: integer(), OutPort :: integer()) -> {ok, ofp_message()} | {error, error_reason()}.
+clear_flow_out(Key, TableId, OutPort) ->
+    Version = version(Key),
+    Request = of_msg_lib:flow_delete(Version, [], [{out_port, OutPort}, {table_id, TableId}]),
+    send(Key, Request).
+
 %% @equiv clear_flows(default, 0)
 -spec clear_flows0() -> {ok, ofp_message()} | {error, error_reason()}.
 clear_flows0() ->
@@ -418,9 +440,25 @@ tapestry_config_add(Port1, Port2, DnsIps) ->
 %% @end
 -spec tapestry_config_add(switch_key(), integer(), integer(), [ipaddress()]) -> ok.
 tapestry_config_add(Key, Port1, Port2, DnsIps) ->
-    ?DEBUG("bridge: ~p~n", [bridge(Key, 100, Port1, Port2)]),
+    ?DEBUG("bridge: ~p~n", [bridge(Key, ?BRIDGE_PRIORITY, Port1, Port2)]),
     ?DEBUG("dns_tap: ~p~n",
-                [dns_tap(Key, 200, Port1, Port2, controller, DnsIps)]),
+                [dns_tap(Key, ?DNS_TAP_PRIORITY, Port1, Port2, controller, DnsIps)]),
+    ok.
+
+%% @equiv tapestry_delete_tap(default)
+-spec tapestry_delete_tap() -> ok.
+tapestry_delete_tap() ->
+    tapestry_delete_tap(default).
+
+%% @doc
+%% Delete the tap flow.
+%% If Key is ``default'', add tapestry flows to the default switch.
+%% Use tapestry_config_add to add additional tapestry flows to the switch.
+%% @end
+-spec tapestry_delete_tap(switch_key()) -> ok.
+tapestry_delete_tap(Key) ->
+    ?DEBUG("clear_flow_out: ~p~n",
+                [clear_flow_out(Key, 0, controller)]),
     ok.
 
 %% @equiv tapestry_config(default, Filename)
