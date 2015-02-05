@@ -23,6 +23,7 @@
 -export([getenv/1,
          getconfig/1,
          getallconfig/1,
+         configfile/0,
          is_defined/2]).
 
 getenv(Key) ->
@@ -59,9 +60,11 @@ getallconfig(Key) ->
             {error, Reason}
     end.
 
+configfile() ->
+    getenv(config_file).
+
 consult() ->
-    ConfigFileName = getenv(config_file),
-    file:consult(ConfigFileName).
+    file:consult(configfile()).
 
 is_defined(Element, Key) ->
     proplists:is_defined(Element, getconfig(Key)).
