@@ -39,6 +39,7 @@
 
 start_link() ->
     R = supervisor:start_link({local, ?MODULE}, ?MODULE, []),
+    ?INFO("config file name: ~s", [tap_install_config:configfile()]),
     make_connections(),
     R.
 
