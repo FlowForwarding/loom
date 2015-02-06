@@ -1,0 +1,207 @@
+@ngdoc overview
+@name Tutorial: 102 Sorting
+@description
+
+UI-Grid allows you to sort rows. The feature is on by default. You can set the `enableSorting` flag in your grid options to enable/disable it.
+
+<span class="col-xs-12 alert alert-warning">
+  <strong>Note:</strong> You can sort columns by accessing the column menu. You must include ngAnimate in your application if you want the menu to slide up/down, but it's not required.
+</span>
+
+Sorting can be disabled at the column level by setting `enableSorting: false` in the column def. See the last column below for an example.
+
+Multiple columns can be sorted by shift-clicking on the 2-n columns.  To see it in action, sort Gender then shift-click Name.
+
+When sorting using the menus, the sorts are additive.  So if you have one column sorted and you pick another sort
+from a column menu, it will add on to the existing sort rather than replacing it.  You need to use the 'remove sort' option
+on the existing column if you don't want to sort by it any more.  
+
+When sorting using the headers, clicking on a header removes all other sorts unless you shift-click.
+
+<example module="app">
+  <file name="app.js">
+    var app = angular.module('app', ['ngAnimate', 'ui.grid']);
+
+    app.controller('MainCtrl', ['$scope', '$http', 'uiGridConstants', function ($scope, $http, uiGridConstants) {
+      $scope.gridOptions1 = {
+        enableSorting: true,
+        columnDefs: [
+          { field: 'name' },
+          { field: 'gender' },
+          { field: 'company', enableSorting: false }
+        ]
+      };
+
+       $scope.gridOptions2 = {
+        enableSorting: true,
+        onRegisterApi: function( gridApi ) {
+          $scope.gridApi = gridApi;
+        },
+        columnDefs: [
+          {
+            field: 'name',
+            sort: {
+              direction: uiGridConstants.DESC,
+              priority: 1
+            }
+          },
+          {
+            field: 'gender',
+            sort: {
+              direction: uiGridConstants.ASC,
+              priority: 0,
+            },
+            
+            sortingAlgorithm: function(a, b) {
+              var nulls = $scope.gridApi.core.sortHandleNulls(a, b);
+              if( nulls !== null ) {
+                return nulls;
+              } else {
+                if( a === b ) {
+                  return 0;
+                }
+                if( a === 'male' ) {
+                  return 1;
+                }
+                if( b === 'male' ) {
+                  return -1;
+                }
+                if( a == 'female' ) {
+                  return 1;
+                }
+                if( b === 'female' ) {
+                  return -1;
+                }
+                return 0;
+              }
+            }
+          },
+          { field: 'company', enableSorting: false  }
+        ]
+      };
+
+     $http.get('/data/100.json')
+        .success(function(data) {
+          $scope.gridOptions1.data = data;
+          $scope.gridOptions2.data = data;
+        });
+    }]);
+  </file>
+  <file name="index.html">
+    <div ng-controller="MainCtrl">
+      Click on a column header to sort by that column. (The third column has sorting disabled.)
+      <br>
+      <br>
+      <div id="grid1" ui-grid="gridOptions1" class="grid"></div>
+
+      <br>
+      You can set an initial sort state for the grid by defining the `sort` property on your column definitions. 
+      The `direction` sub-property says which way to sort, and the `priority` says what order to sort the columns 
+      in (lower priority gets sorted first).
+      <br>
+      <br>
+
+      <div id="grid2" ui-grid="gridOptions2" class="grid"></div>
+    </div>
+  </file>
+  <file name="main.css">
+    .grid {
+      width: 500px;
+      height: 200px;
+    }
+  </file>
+  <file name="scenario.js">
+    var gridTestUtils = require('../../test/e2e/gridTestUtils.spec.js');
+    
+    describe('first grid on the page, no default sort', function() {
+      it('grid should have three visible columns', function () {
+        gridTestUtils.expectHeaderColumnCount( 'grid1', 3 );
+      });
+  
+      it('header values should be as expected', function () {
+        gridTestUtils.expectHeaderCellValueMatch( 'grid1', 0, 'Name' );
+        gridTestUtils.expectHeaderCellValueMatch( 'grid1', 1, 'Gender' );
+        gridTestUtils.expectHeaderCellValueMatch( 'grid1', 2, 'Company' );
+      });
+  
+      it('grid should be unsorted by default', function () {
+        gridTestUtils.expectCellValueMatch( 'grid1', 0, 0, 'Ethel Price' );
+        gridTestUtils.expectCellValueMatch( 'grid1', 1, 0, 'Claudine Neal' );
+      });
+
+      it('sort by name by clicking header', function () {
+        gridTestUtils.clickHeaderCell( 'grid1', 0 );
+        gridTestUtils.expectCellValueMatch( 'grid1', 0, 0, 'Alexander Foley' );
+        gridTestUtils.expectCellValueMatch( 'grid1', 1, 0, 'Alisha Myers' );
+      });
+
+      it('reverse sort by name by clicking header', function () {
+        gridTestUtils.clickHeaderCell( 'grid1', 0 );
+        gridTestUtils.clickHeaderCell( 'grid1', 0 );
+        gridTestUtils.expectCellValueMatch( 'grid1', 0, 0, 'Yvonne Parsons' );
+        gridTestUtils.expectCellValueMatch( 'grid1', 1, 0, 'Woods Key' );
+      });
+      
+      it('return to original sort by name by clicking header', function () {
+        gridTestUtils.clickHeaderCell( 'grid1', 0 );
+        gridTestUtils.clickHeaderCell( 'grid1', 0 );
+        gridTestUtils.clickHeaderCell( 'grid1', 0 );
+        gridTestUtils.expectCellValueMatch( 'grid1', 0, 0, 'Ethel Price' );
+        gridTestUtils.expectCellValueMatch( 'grid1', 1, 0, 'Claudine Neal' );
+      });
+      
+      it('sort asc by clicking menu', function() {
+        gridTestUtils.clickColumnMenuSortAsc( 'grid1', 0 );
+        gridTestUtils.expectCellValueMatch( 'grid1', 0, 0, 'Alexander Foley' );
+        gridTestUtils.expectCellValueMatch( 'grid1', 1, 0, 'Alisha Myers' );        
+      });
+
+      it('sort desc by clicking menu, then remove sort', function() {
+        gridTestUtils.clickColumnMenuSortDesc( 'grid1', 0 );
+        gridTestUtils.expectCellValueMatch( 'grid1', 0, 0, 'Yvonne Parsons' );
+        gridTestUtils.expectCellValueMatch( 'grid1', 1, 0, 'Woods Key' );
+
+        gridTestUtils.clickColumnMenuRemoveSort( 'grid1', 0 );
+        gridTestUtils.expectCellValueMatch( 'grid1', 0, 0, 'Ethel Price' );
+        gridTestUtils.expectCellValueMatch( 'grid1', 1, 0, 'Claudine Neal' );
+      });
+      
+      it('sort two columns, gender then name, by shift clicking', function() {
+        gridTestUtils.clickHeaderCell( 'grid1', 1 );
+        gridTestUtils.shiftClickHeaderCell( 'grid1', 0 );
+        gridTestUtils.expectCellValueMatch( 'grid1', 0, 0, 'Alisha Myers' );
+        gridTestUtils.expectCellValueMatch( 'grid1', 1, 0, 'Beryl Rice' );
+      });
+
+      it('sort disabled on last column', function() {
+        gridTestUtils.clickHeaderCell( 'grid1', 2 );
+        gridTestUtils.expectCellValueMatch( 'grid1', 0, 0, 'Ethel Price' );
+        gridTestUtils.expectCellValueMatch( 'grid1', 1, 0, 'Claudine Neal' );
+      });
+
+      it('click one menu, then click another menu, expect undisplay and redisplay on second click', function() {
+        gridTestUtils.expectVisibleColumnMenuItems( 'grid1', 0, 3 );
+        gridTestUtils.expectVisibleColumnMenuItems( 'grid1', 1, 3 );
+      });
+    });
+
+
+    describe('second grid on the page, has default sort', function() {
+      it('grid should have three visible columns', function () {
+        gridTestUtils.expectHeaderColumnCount( 'grid2', 3 );
+      });
+  
+      it('header values should be as expected', function () {
+        gridTestUtils.expectHeaderCellValueMatch( 'grid2', 0, 'Name' );
+        gridTestUtils.expectHeaderCellValueMatch( 'grid2', 1, 'Gender' );
+        gridTestUtils.expectHeaderCellValueMatch( 'grid2', 2, 'Company' );
+      });
+  
+      it('grid should be sorted by default', function () {
+        gridTestUtils.expectCellValueMatch( 'grid2', 0, 0, 'Yvonne Parsons' );
+        gridTestUtils.expectCellValueMatch( 'grid2', 1, 0, 'Velma Fry' );
+      });
+    });
+
+  </file>  
+</example>

@@ -1,0 +1,45 @@
+<md-tabs layout="column" flex selected="0">
+    <md-tab>
+        <md-tab-label>Histogram</md-tab-label>
+        <div layout-fill layout="column" ng-controller="HistogramController">
+            <md-content flex class="md-whiteframe-z1 chart-container-wrap" layout="column" layout-margin>
+                <div google-chart chart="chartObject" on-select="select(selectedItem)" style="overflow: hidden; height: 100%; width: 100%; position: absolute;"></div>
+            </md-content>
+        </div>
+    </md-tab>
+    <md-tab>
+        <md-tab-label>Graph</md-tab-label>
+        <div layout-fill layout="column" ng-controller="GraphController">
+            <nci-sigma-graph nodes="nodes" nci-graph-node-click="expandNode" edges="edges" flex class="md-whiteframe-z1" layout-margin style="position: relative">
+            </nci-sigma-graph>
+        </div>
+    </md-tab>
+    <md-tab>
+        <md-tab-label>List</md-tab-label>
+            <div layout-fill layout="column" ng-controller="TableController">
+                <div class="md-whiteframe-z1" flex layout-margin layout="column" style="position: relative;">
+                    <table st-fixed-header st-table="rowCollection" class="table table-striped header-fixed">
+                        <thead>
+                            <tr>
+                                <th st-sort="index">Index</th>
+                                <th st-sort="mainEndpoint.ip">IP</th>
+                                <th st-sort="internalFlows">Internal Flows</th>
+                                <th st-sort="externalFlows">External Flows</th>
+                                <th st-sort="size">Size</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="row in rowCollection">
+                                <td>Activity #{{row.index}}</td>
+                                <td>{{row.mainEndpoint.ip}}</td>
+                                <td>{{row.internalFlows}}</td>
+                                <td>{{row.externalFlows}}</td>
+                                <td>{{row.size}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </md-tab>
+</md-tabs>

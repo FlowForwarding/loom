@@ -1,0 +1,13 @@
+<div class="md-whiteframe-z1" layout-margin>
+    <md-toolbar class="md-accent md-hue-1">
+        <div class="md-toolbar-tools">
+            <span>Real time NCI: {{nci}}</span>
+        </div>
+    </md-toolbar>
+    <md-content class="md-padding">
+        <div>Flow Collectors: {{collectors}}</div>
+        <div>Endpoints: {{endpoints}}</div>
+        <div>Flows per Second: {{flowsPerSecond | number:1}}</div>
+        <div>Number of flows: {{flows}}</div>
+    </md-content>
+</div>

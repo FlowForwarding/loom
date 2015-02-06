@@ -1,0 +1,79 @@
+@ngdoc overview
+@name Tutorial: 206 Exporting Data With Native UI
+@description The exporter feature allows data to be exported from the grid in 
+csv or pdf format.  The exporter can export all data, visible data or selected data.
+
+To use the exporter you need to include the ui-grid-exporter directive on
+your grid.  If you want to export selected rows you must include the ui-grid-selection
+directive on your grid.  If you want to export as PDF you need to have installed pdfMake, 
+available through:
+<pre>  bower install pdfmake  </pre>
+
+The options and API for exporter can be found at {@link api/ui.grid.exporter ui.grid.exporter}.
+
+The exporter adds menu items to the grid menu, to use the native UI you need to enable
+the grid menu using the gridOption `enableGridMenu`
+
+@example
+In this example we use the native grid menu buttons, and we show both the pdf and csv export options.
+
+<example module="app">
+  <file name="app.js">
+    var app = angular.module('app', ['ngAnimate', 'ui.grid', 'ui.grid.selection', 'ui.grid.exporter']);
+
+    app.controller('MainCtrl', ['$scope', '$http', function ($scope, $http) {
+      $scope.gridOptions = {
+        columnDefs: [
+          { field: 'name' },
+          { field: 'gender', visible: false},
+          { field: 'company' }
+        ],
+        enableGridMenu: true,
+        exporterLinkLabel: 'get your csv here',
+        exporterPdfDefaultStyle: {fontSize: 9},
+        exporterPdfTableStyle: {margin: [30, 30, 30, 30]},
+        exporterPdfTableHeaderStyle: {fontSize: 10, bold: true, italics: true, color: 'red'},
+        exporterPdfHeader: { text: "My Header", style: 'headerStyle' },
+        exporterPdfFooter: function ( currentPage, pageCount ) {
+          return { text: currentPage.toString() + ' of ' + pageCount.toString(), style: 'footerStyle' };
+        },
+        exporterPdfCustomFormatter: function ( docDefinition ) {
+          docDefinition.styles.headerStyle = { fontSize: 22, bold: true }; 
+          docDefinition.styles.footerStyle = { fontSize: 10, bold: true }; 
+          return docDefinition;
+        },
+        exporterPdfOrientation: 'portrait',
+        exporterPdfPageSize: 'LETTER',
+        exporterPdfMaxGridWidth: 500,
+        exporterCsvLinkElement: angular.element(document.querySelectorAll(".custom-csv-link-location")),
+        onRegisterApi: function(gridApi){ 
+          $scope.gridApi = gridApi;
+        }
+      };
+      
+      $http.get('/data/100.json')
+      .success(function(data) {
+        $scope.gridOptions.data = data;
+      });
+        
+    }]);
+  </file>
+  
+  <file name="index.html">
+    <div ng-controller="MainCtrl">
+      <div class="custom-csv-link-location">
+        <label>Your CSV will show below:</label>
+        <span class="ui-grid-exporter-csv-link">&nbsp</span>
+      </div>
+      
+      <div ui-grid="gridOptions" ui-grid-selection ui-grid-exporter class="grid"></div>
+    </div>
+  </file>
+  
+  <file name="main.css">
+    .grid {
+      width: 500px;
+      height: 400px;
+    }
+  </file>
+</example>

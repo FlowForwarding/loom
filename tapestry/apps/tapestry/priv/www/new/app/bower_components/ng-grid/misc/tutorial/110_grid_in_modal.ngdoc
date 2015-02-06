@@ -1,0 +1,78 @@
+@ngdoc overview
+@name Tutorial: 110 Grid in a Modal
+@description
+
+Using a grid in a modal popup
+
+@example
+<example module="app">
+  <file name="app.js">
+    var app = angular.module('app', ['ui.grid']);
+
+    app.controller('MainCtrl', ['$rootScope', '$scope', '$http', 'modal', function ($rootScope, $scope, $http, modal) {
+      var myModal = new modal();
+
+      $scope.hideGrid = true;
+
+      $rootScope.gridOptions = {  };
+
+      $http.get('/data/100.json')
+        .success(function(data) {
+          $rootScope.gridOptions.data = data;
+        });
+
+      $scope.showModal = function() {
+        myModal.open();
+      };
+    }]);
+
+    app.factory('modal', ['$compile', '$rootScope', function ($compile, $rootScope) {
+      return function() {
+        var elm;
+        var modal = {
+          open: function() {
+
+            var html = '<div class="modal" ng-style="modalStyle">{{modalStyle}}<div class="modal-dialog"><div class="modal-content"><div class="modal-header"></div><div class="modal-body"><div id="grid1" ui-grid="gridOptions" class="grid"></div></div><div class="modal-footer"><button id="buttonClose" class="btn btn-primary" ng-click="close()">Close</button></div></div></div></div>';
+            elm = angular.element(html);
+            angular.element(document.body).prepend(elm);
+
+            $rootScope.close = function() {
+              modal.close();
+            };
+            
+            $rootScope.modalStyle = {"display": "block"};
+
+            $compile(elm)($rootScope);
+          },
+          close: function() {
+            if (elm) {
+              elm.remove();
+            }
+          }
+        };
+
+        return modal;
+      };
+    }]);
+  </file>
+  <file name="index.html">
+    <div ng-controller="MainCtrl">
+      <button id="showButton" class="btn btn-success" ng-click="showModal()">Show Modal</button>
+    </div>
+  </file>
+  <file name="main.css">
+    .grid {
+      width: 300px;
+      height: 250px;
+    }
+  </file>
+    <file name="scenario.js">
+    var gridTestUtils = require('../../test/e2e/gridTestUtils.spec.js');
+    it('click modal button, grid should show with three columns and some data', function () {
+      element( by.id ( 'showButton' ) ).click();
+      gridTestUtils.expectHeaderColumnCount( 'grid1', 3 );
+      gridTestUtils.expectRowValuesMatch( 'grid1', 0, [ 'Ethel Price', 'female', 'Enersol' ]);
+      element( by.id ( 'buttonClose' ) ).click();
+    });
+  </file>
+</example>
