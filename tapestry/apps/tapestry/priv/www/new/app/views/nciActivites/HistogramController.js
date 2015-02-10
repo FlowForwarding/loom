@@ -1,7 +1,7 @@
 (function (angular) {
     'use strict';
 
-    angular.module('nci.detailsView.HistogramController', [
+    angular.module('nci.activitiesView.HistogramController', [
         'googlechart',
         'nci.components.services.endpointsService',
     ])

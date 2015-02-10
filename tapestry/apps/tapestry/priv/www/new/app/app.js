@@ -5,7 +5,7 @@ angular.module('nci', [
         'ngMaterial',
         'nci.monitorView',
         'nci.collectorsView',
-        'nci.detailsView',
+        'nci.activitiesView',
         'nci.monitor',
         'nci.services.nciConnection'
     ])

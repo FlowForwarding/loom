@@ -1,7 +1,7 @@
 (function (angular) {
     'use strict';
 
-    angular.module('nci.detailsView.GraphController', [
+    angular.module('nci.activitiesView.GraphController', [
         'nci.services.colorForActivity',
         'nci.components.nciSigmaGraph'
     ])

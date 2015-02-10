@@ -1,15 +1,15 @@
 'use strict';
 
-angular.module('nci.detailsView', [
+angular.module('nci.activitiesView', [
         'ngRoute',
         'nci.services.nciActivityModel',
-        'nci.detailsView.HistogramController',
-        'nci.detailsView.GraphController'
+        'nci.activitiesView.HistogramController',
+        'nci.activitiesView.GraphController'
     ])
     .config(['$routeProvider', function($routeProvider) {
         $routeProvider    
-            .when('/details/:view', {
-                templateUrl: "/nciDetailsView.html"
+            .when('/details/activities', {
+                templateUrl: "./views/nciMonitor/nciActivitiesView.html"
             });
     }])
     .controller('TableController', ["$scope", "activitiesPromise", function($scope, activitiesPromise) {
