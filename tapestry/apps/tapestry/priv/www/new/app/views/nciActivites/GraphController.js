@@ -5,15 +5,55 @@
         'nci.services.colorForActivity',
         'nci.components.nciSigmaGraph'
     ])
-        .controller('GraphController', ["$scope", "activitiesPromise", "colorForActivity", function($scope, activitiesPromise, colorForActivity) {
+        .controller('GraphController', [
+            "$scope",
+            "activitiesPromise",
+            "colorForActivity",
+        function($scope, activitiesPromise, colorForActivity) {
             $scope.edges = [];
             $scope.nodes = [];
+
+            var rowsCount = 5;
+
+            function createActivityNode(activity) {
+                return {
+                    id: activity.mainEndpoint.ip,
+                    expanded: false,
+                    activity: true,
+                    size: Math.log(activity.size),
+                    label: "Activity #" + activity.index + "\n" + activity.mainEndpoint.ip,
+                    x: Math.random()*20 - 10,
+                    y: Math.random()*20 - 10,
+                    color: '#666',
+                    type: 'square'
+                };
+            }
+
+            function createEndpointNode(endpoint) {
+                return {
+                    id: endpoint.ip,
+                    size: 1,
+                    label: endpoint.ip,
+                    x: Math.random()*20 - 10,
+                    y: Math.random()*20 - 10,
+                    color: colorForActivity(endpoint.activity)
+                };
+            }
+
+            function updateNodePosition(rowsCount, index, node) {
+                index = index || 0;
+                node.x = ((index%rowsCount) * 50) + (Math.random()*2 - 1)*20;
+                node.y = ((Math.floor(index/rowsCount)) * 50) + (Math.random()*2 - 1)*20;
+
+                return node;
+            }
 
             activitiesPromise.then(function(activities) {
                 var details = activities.all(),
                     edgesSet = new Set(),
-                    nodesSet,
-                    rowsCount = Math.round(Math.sqrt(details.length));
+                    nodesSet;
+
+                rowsCount = Math.round(Math.sqrt(details.length));
 
                 $scope.expandNode = function(node) {
                     var activity = activities.byIp(node.id);
@@ -25,14 +65,7 @@
                         Object.keys(activity.endpoints).forEach(function(ip) {
                             var endpoint = activity.endpoints[ip];
                             if (!nodesSet.has(ip)) {
-                                $scope.nodes.push({
-                                    id: endpoint.ip,
-                                    size: 1,
-                                    label: endpoint.ip,
-                                    x: ((activity.index%rowsCount) * 50) + (Math.random()*2 - 1)*20, //,
-                                    y: ((Math.floor(activity.index/rowsCount)) * 50) + (Math.random()*2 - 1)*20, //activity.index * 100,
-                                    color: colorForActivity(endpoint.activity)
-                                });
+                                $scope.nodes.push(updateNodePosition(rowsCount, activity.index, createEndpointNode(endpoint)));
                                 nodesSet.add(ip);
                             }
 
@@ -90,7 +123,6 @@
 
                 $scope.nodes = details.map(function(activity) {
 
-
                     Object.keys(activity.activities).forEach(function(targetIp) {
                         var targetActivity = activity.activities[targetIp],
                             id = activity.mainEndpoint.ip + "_" + targetActivity.mainEndpoint.ip;
@@ -109,17 +141,7 @@
                         }
                     });
 
-                    return {
-                        id: activity.mainEndpoint.ip,
-                        expanded: false,
-                        activity: true,
-                        size: Math.log(activity.size),
-                        label: "Activity #" + activity.index + "\n" + activity.mainEndpoint.ip,
-                        x: Math.random()*20 - 10,
-                        y: Math.random()*20 - 10,
-                        color: '#666',
-                        type: 'square'
-                    };
+                    return createActivityNode(activity);
                 });
 
                 nodesSet = new Set($scope.nodes.map(function(n) {return n.id;}));

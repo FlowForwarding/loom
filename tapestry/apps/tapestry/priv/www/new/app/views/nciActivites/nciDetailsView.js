@@ -9,12 +9,7 @@ angular.module('nci.detailsView', [
     .config(['$routeProvider', function($routeProvider) {
         $routeProvider    
             .when('/details/:view', {
-                templateUrl: "./views/nciDetails/nciDetailsView.html",
-                resolve: {
-                    activities: function($q, $timeout, activitiesPromise) {
-                        return activitiesPromise;
-                    }
-                }
+                templateUrl: "/nciDetailsView.html"
             });
     }])
     .controller('TableController', ["$scope", "activitiesPromise", function($scope, activitiesPromise) {

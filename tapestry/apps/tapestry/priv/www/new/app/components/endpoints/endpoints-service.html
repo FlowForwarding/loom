@@ -1,0 +1,16 @@
+<md-dialog>
+    <md-content style="padding: 0;">
+        <!--<h2>Activity</h2>-->
+        <nci-sigma-graph
+                nodes="nodes"
+                nci-graph-node-click="expandNode"
+                edges="edges"
+                style="display: block;width: 500px;height: 300px"
+                flex>
+        </nci-sigma-graph>
+    </md-content>
+    <div class="md-actions">
+        <md-button ng-click="closeDialog()">Close</md-button>
+    </div>
+</md-dialog>
+

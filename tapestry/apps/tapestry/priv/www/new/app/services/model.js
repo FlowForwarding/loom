@@ -64,6 +64,11 @@
                 this.size += 1;
             };
 
+            Activity.prototype.getEndpoints = function() {
+                var endpoints = this.endpoints;
+                return Object.keys(endpoints).map(function(key) {return endpoints[key];});
+            };
+
             Activity.prototype.hasEndpoint = function(endpoint) {
                 return endpoint.ip in this.endpoints;
             };

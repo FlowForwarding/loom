@@ -41,7 +41,7 @@
                 $scope.select = function(selection) {
                     if (selection) {
                         var activity = activities.byIp(rows[selection.row].c[0].ip);
-                        nciEndpointsDialog.show("Activity #" + activity.index);
+                        nciEndpointsDialog.show(activity.getEndpoints());
                     }
 
                 };
@@ -60,6 +60,7 @@
                     //"isStacked": "true",
                     "legend": "none",
                     "vAxis": {
+                        "logScale": "true",
                         "title": "Number of Endpoints per Activity X[j]"
                     },
                     "hAxis": {
