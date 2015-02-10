@@ -45,6 +45,16 @@
             $scope.nodes = endpoints.map(createEndpointNode);
             $scope.edges = edges;
 
+            var anchor = {
+                id: "anchor",
+                size: 5,
+                weight: 0,
+                x: 0,
+                y: 0,
+                color: "transparent"
+            };
+            $scope.nodes.push(anchor);
+
 
             $scope.closeDialog = function() {
                 $mdDialog.hide();

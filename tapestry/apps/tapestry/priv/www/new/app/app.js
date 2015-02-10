@@ -6,6 +6,7 @@ angular.module('nci', [
         'nci.monitorView',
         'nci.collectorsView',
         'nci.activitiesView',
+        'nci.endpointsView',
         'nci.monitor',
         'nci.services.nciConnection'
     ])

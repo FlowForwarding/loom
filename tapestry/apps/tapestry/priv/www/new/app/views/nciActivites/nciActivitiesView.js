@@ -9,13 +9,17 @@ angular.module('nci.activitiesView', [
     .config(['$routeProvider', function($routeProvider) {
         $routeProvider    
             .when('/details/activities', {
-                templateUrl: "./views/nciMonitor/nciActivitiesView.html"
+                templateUrl: "./views/nciActivites/nciActivitiesView.html",
+                resolve: {
+                    activities: function(activitiesPromise) {
+                        return activitiesPromise;
+                    }
+                }
             });
     }])
-    .controller('TableController', ["$scope", "activitiesPromise", function($scope, activitiesPromise) {
+    .controller('ActivitiesTableController', ["$scope", "activitiesPromise", function($scope, activitiesPromise) {
         activitiesPromise
             .then(function(activities) {
                 $scope.rowCollection = activities.all();
-                //$scope.$apply();
             });
     }]);

@@ -1,10 +1,47 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
-
-</body>
-</html>
+<md-tabs layout="column" flex selected="0">
+    <md-tab>
+        <md-tab-label>Histogram</md-tab-label>
+        <div layout-fill layout="column" ng-controller="HistogramController">
+            <md-content flex class="md-whiteframe-z1 chart-container-wrap" layout="column" layout-margin>
+                <div google-chart chart="chartObject" on-select="select(selectedItem)" style="overflow: hidden; height: 100%; width: 100%; position: absolute;"></div>
+            </md-content>
+        </div>
+    </md-tab>
+    <md-tab>
+        <md-tab-label>Graph</md-tab-label>
+        <div layout-fill layout="column" ng-controller="EndpointsGraphController">
+            <nci-sigma-graph nodes="nodes" edges="edges" flex class="md-whiteframe-z1" layout-margin style="position: relative">
+            </nci-sigma-graph>
+        </div>
+    </md-tab>
+    <md-tab>
+        <md-tab-label>List</md-tab-label>
+        <div layout-fill layout="column" ng-controller="EndpointsTableController">
+            <div class="md-whiteframe-z1" flex layout-margin layout="column" style="position: relative;">
+                <table st-fixed-header st-table="rowCollection" class="table table-striped header-fixed">
+                    <thead>
+                    <tr>
+                        <th st-sort="ip">Endpoint</th>
+                        <th st-sort="internalConnections">Internal</th>
+                        <th st-sort="externalConnections">External</th>
+                        <th st-sort="totalConnections">Total</th>
+                        <th st-sort="activity.index">Activity</th>
+                        <th st-sort="external">isExternal</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="row in rowCollection">
+                        <td>{{row.ip}}</td>
+                        <td>{{row.internalConnections}}</td>
+                        <td>{{row.externalConnections}}</td>
+                        <td>{{row.totalConnections}}</td>
+                        <td>Activity #{{row.activity.index}}</td>
+                        <td>{{row.external}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </div>
+    </md-tab>
+</md-tabs>
