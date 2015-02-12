@@ -18,7 +18,7 @@
         <md-tab-label>List</md-tab-label>
         <div layout-fill layout="column" ng-controller="EndpointsTableController">
             <div class="md-whiteframe-z1" flex layout-margin layout="column" style="position: relative;">
-                <table st-fixed-header st-table="rowCollection" class="table table-striped header-fixed">
+                <table st-fixed-header st-safe-src="rowCollection" st-table="displayedCollection" class="table table-striped">
                     <thead>
                     <tr>
                         <th st-sort="ip">Endpoint</th>
@@ -30,7 +30,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="row in rowCollection">
+                    <tr ng-repeat="row in displayedCollection">
                         <td>{{row.ip}}</td>
                         <td>{{row.internalConnections}}</td>
                         <td>{{row.externalConnections}}</td>
@@ -39,6 +39,13 @@
                         <td>{{row.external}}</td>
                     </tr>
                     </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            <div st-pagination="" st-items-by-page="100" st-displayed-pages=""></div>
+                        </td>
+                    </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>

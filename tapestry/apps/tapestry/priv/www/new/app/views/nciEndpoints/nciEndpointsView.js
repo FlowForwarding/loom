@@ -19,10 +19,10 @@
                 });
         }])
         .controller('EndpointsTableController', ["$scope", "endpointsPromise", function($scope, endpointsPromise) {
+            $scope.rowCollection = [];
             endpointsPromise
                 .then(function(endpoints) {
                     $scope.rowCollection = endpoints.all();
-                    //$scope.$apply();
                 });
         }]);
 
