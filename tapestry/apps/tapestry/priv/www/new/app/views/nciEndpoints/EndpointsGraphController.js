@@ -7,10 +7,8 @@
     ])
         .controller('EndpointsGraphController', [
             "$scope",
-            "endpointsPromise",
-            "activitiesPromise",
             "colorForActivity",
-            function($scope, endpointsPromise, activitiesPromise, colorForActivity) {
+            function($scope, colorForActivity) {
                 $scope.edges = [];
                 $scope.nodes = [];
 
@@ -35,47 +33,46 @@
                     return node;
                 }
 
-                endpointsPromise.then(function(endpoints) {
-                    var details = endpoints.all(),
-                        edgesSet = new Set();
+                var endpoints = $scope.endpoints,
+                    details = endpoints.all(),
+                    edgesSet = new Set();
 
-                    rowsCount = Math.round(Math.sqrt((new Set(details.map(function(ep) {return ep.activity;}))).size));
+                rowsCount = Math.round(Math.sqrt((new Set(details.map(function(ep) {return ep.activity;}))).size));
 
-                    $scope.edges = [];
-                    $scope.nodes = details.map(function(endpoint, index) {
+                $scope.edges = [];
+                $scope.nodes = details.map(function(endpoint, index) {
 
-                        Object.keys(endpoint.connections).forEach(function(targetIp) {
-                            var targetEndpoint = endpoint.connections[targetIp],
-                                id = endpoint.ip + "_" + targetEndpoint.ip;
+                    Object.keys(endpoint.connections).forEach(function(targetIp) {
+                        var targetEndpoint = endpoint.connections[targetIp],
+                            id = endpoint.ip + "_" + targetEndpoint.ip;
 
-                            if (!edgesSet.has(id)) {
-                                $scope.edges.push({
-                                    id: id,
-                                    source: endpoint.ip,
-                                    target: targetEndpoint.ip,
-                                    weight: 0.2,
-                                    size: 0.1
-                                });
+                        if (!edgesSet.has(id)) {
+                            $scope.edges.push({
+                                id: id,
+                                source: endpoint.ip,
+                                target: targetEndpoint.ip,
+                                weight: 0.2,
+                                size: 0.1
+                            });
 
-                                edgesSet.add(id);
-                                edgesSet.add(targetEndpoint.ip + "_" + endpoint.ip);
-                            }
-                        });
-                        return updateNodePosition(rowsCount, endpoint.activity.index, createEndpointNode(endpoint));
+                            edgesSet.add(id);
+                            edgesSet.add(targetEndpoint.ip + "_" + endpoint.ip);
+                        }
                     });
-
-                    // this is fake node, to draw graph nodes smaller
-                    var anchor = {
-                        id: "anchor",
-                        size: 5,
-                        weight: 0,
-                        x: 0,
-                        y: 0,
-                        color: "transparent"
-                    };
-                    $scope.nodes.push(anchor);
-
+                    return updateNodePosition(rowsCount, endpoint.activity.index, createEndpointNode(endpoint));
                 });
+
+                // this is fake node, to draw graph nodes smaller
+                var anchor = {
+                    id: "anchor",
+                    size: 5,
+                    weight: 0,
+                    x: 0,
+                    y: 0,
+                    color: "transparent"
+                };
+                $scope.nodes.push(anchor);
+
             }]);
 
 })(angular);

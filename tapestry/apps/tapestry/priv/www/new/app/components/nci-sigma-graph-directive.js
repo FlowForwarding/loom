@@ -2,7 +2,7 @@
     'use strict';
 
     angular.module('nci.components.nciSigmaGraph', [])
-        .directive("nciSigmaGraph", function() {
+        .directive("nciSigmaGraph", function($log, $rootScope) {
             return {
                 restrict: "E",
                 scope: {
@@ -60,9 +60,29 @@
                             edges: edges
                         });
 
+                        $log.info("Endpoints On Screen:", nodes.length);
+                        $log.info("Flows On Screen:", edges.length);
                         s.refresh();
-                        s.startForceAtlas2(forceConfig);
+                        startLayout();
 
+                    });
+
+                    function startLayout() {
+                        if (isVisible()) {
+                            s.startForceAtlas2(forceConfig);
+                        }
+                    }
+
+                    function isVisible() {
+                        return el.is(":visible");
+                    }
+
+                    $rootScope.$watch(isVisible, function(visible) {
+                        if (!visible) {
+                            s.killForceAtlas2();
+                        } else {
+                            s.startForceAtlas2(forceConfig);
+                        }
                     });
 
                     CustomShapes.init(s);
@@ -72,7 +92,7 @@
                         }
                     });
 
-                    s.startForceAtlas2(forceConfig);
+                    startLayout();
 
                     el.on("$destroy", function() {
                         s.killForceAtlas2();
@@ -96,7 +116,7 @@
                     //    console.log(event);
                     //});
                     dragListener.bind('dragend', function(event) {
-                        s.startForceAtlas2(forceConfig);
+                        startLayout();
                     });
 
                 }

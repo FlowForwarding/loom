@@ -1,7 +1,7 @@
 <md-tabs layout="column" flex selected="0">
     <md-tab>
         <md-tab-label>Histogram</md-tab-label>
-        <div layout-fill layout="column" ng-controller="HistogramController">
+        <div layout-fill layout="column" ng-controller="EndpointsHistogramController">
             <md-content flex class="md-whiteframe-z1 chart-container-wrap" layout="column" layout-margin>
                 <div google-chart chart="chartObject" on-select="select(selectedItem)" style="overflow: hidden; height: 100%; width: 100%; position: absolute;"></div>
             </md-content>
@@ -16,9 +16,9 @@
     </md-tab>
     <md-tab>
         <md-tab-label>List</md-tab-label>
-        <div layout-fill layout="column" ng-controller="EndpointsTableController">
+        <div layout-fill layout="column">
             <div class="md-whiteframe-z1" flex layout-margin layout="column" style="position: relative;">
-                <table st-fixed-header st-safe-src="rowCollection" st-table="displayedCollection" class="table table-striped">
+                <table st-fixed-header st-table="rows" class="table table-striped">
                     <thead>
                     <tr>
                         <th st-sort="ip">Endpoint</th>
@@ -30,7 +30,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="row in displayedCollection">
+                    <tr ng-repeat="row in rows">
                         <td>{{row.ip}}</td>
                         <td>{{row.internalConnections}}</td>
                         <td>{{row.externalConnections}}</td>
@@ -42,7 +42,7 @@
                     <tfoot>
                     <tr>
                         <td colspan="6" class="text-center">
-                            <div st-pagination="" st-items-by-page="100" st-displayed-pages=""></div>
+                            <div st-pagination="" st-items-by-page="50" st-displayed-pages=""></div>
                         </td>
                     </tr>
                     </tfoot>

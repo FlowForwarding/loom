@@ -4,13 +4,14 @@
     angular.module('nci.endpointsView', [
         'ngRoute',
         'nci.services.nciEndpointModel',
-        'nci.activitiesView.HistogramController',
+        'nci.endpointsView.HistogramController',
         'nci.endpointsView.GraphController'
     ])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider
                 .when('/details/endpoints', {
                     templateUrl: "./views/nciEndpoints/nciEndpointsView.html",
+                    controller: "EndpointsViewController",
                     resolve: {
                         endpoints: function(endpointsPromise) {
                             return endpointsPromise;
@@ -18,12 +19,10 @@
                     }
                 });
         }])
-        .controller('EndpointsTableController', ["$scope", "endpointsPromise", function($scope, endpointsPromise) {
-            $scope.rowCollection = [];
-            endpointsPromise
-                .then(function(endpoints) {
-                    $scope.rowCollection = endpoints.all();
-                });
+        .controller('EndpointsViewController', ["$scope", "endpoints", "$rootScope", function($scope, endpoints, $rootScope) {
+            $scope.endpoints = endpoints;
+            $scope.rows = endpoints.all();
+
         }]);
 
 })(angular);

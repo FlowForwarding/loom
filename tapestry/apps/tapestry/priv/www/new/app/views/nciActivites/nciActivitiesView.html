@@ -16,9 +16,9 @@
     </md-tab>
     <md-tab>
         <md-tab-label>List</md-tab-label>
-            <div layout-fill layout="column" ng-controller="ActivitiesTableController">
+            <div layout-fill layout="column">
                 <div class="md-whiteframe-z1" flex layout-margin layout="column" style="position: relative;">
-                    <table st-fixed-header st-table="rowCollection" class="table table-striped header-fixed">
+                    <table st-fixed-header st-table="rows" class="table table-striped header-fixed">
                         <thead>
                             <tr>
                                 <th st-sort="index">Index</th>
@@ -29,7 +29,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="row in rowCollection">
+                            <tr ng-repeat="row in rows">
                                 <td>Activity #{{row.index}}</td>
                                 <td>{{row.mainEndpoint.ip}}</td>
                                 <td>{{row.internalFlows}}</td>

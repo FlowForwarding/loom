@@ -10,6 +10,7 @@ angular.module('nci.activitiesView', [
         $routeProvider    
             .when('/details/activities', {
                 templateUrl: "./views/nciActivites/nciActivitiesView.html",
+                controller: "ActivitiesViewController",
                 resolve: {
                     activities: function(activitiesPromise) {
                         return activitiesPromise;
@@ -17,9 +18,7 @@ angular.module('nci.activitiesView', [
                 }
             });
     }])
-    .controller('ActivitiesTableController', ["$scope", "activitiesPromise", function($scope, activitiesPromise) {
-        activitiesPromise
-            .then(function(activities) {
-                $scope.rowCollection = activities.all();
-            });
+    .controller('ActivitiesViewController', ["$scope", "activities", function($scope, activities) {
+        $scope.activities = activities;
+        $scope.rows = activities.all();
     }]);
