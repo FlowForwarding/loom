@@ -54,7 +54,7 @@
                 };
 
                 $scope.chartObject.data = {"cols": [
-                    {id: "t", label: "Label", type: "string"},
+                    {id: "t", label: "Endpoint", type: "string"},
                     {id: "s", label: "Internal Connections", type: "number"},
                     {id: "s", label: "External Connections", type: "number"},
                     //{role: "tooltip", type: "string"},
@@ -63,14 +63,17 @@
 
                 // $routeParams.chartType == BarChart or PieChart or ColumnChart...
                 $scope.chartObject.type = "ColumnChart";
+                //$scope.chartObject.type = "google.charts.Bar";
                 $scope.chartObject.options = {
                     //'title': 'Activities distribution',
+                    "stacked": "true",
                     "isStacked": "true",
+                    "focusTarget": "category",
                     "legend": "none",
                     "vAxis": {
                         "labels": "false",
                         //"logScale": "true",
-                        //"title": "Number of Endpoints per Activity X[j]"
+                        "title": "Number of Connections"
                     },
                     "hAxis": {
                         "labels": "false",
@@ -80,6 +83,13 @@
                     }
                 };
             }])
+        //.value('googleChartApiConfig', {
+        //    version: '1.1',
+        //    optionalSettings: {
+        //        packages: ['bar'],
+        //        language: 'en'
+        //    }
+        //})
         .directive("chartPaging", function() {
             return {
                 link: function($scope, $el, attributes) {

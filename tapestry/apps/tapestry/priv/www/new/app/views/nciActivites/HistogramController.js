@@ -40,7 +40,7 @@
             $scope.select = function(selection) {
                 if (selection) {
                     var activity = activities.byIp(rows[selection.row].c[0].ip);
-                    nciEndpointsDialog.show(activity.getEndpoints());
+                    nciEndpointsDialog.show(activity);
                 }
 
             };
@@ -53,7 +53,9 @@
             ], "rows": rows};
 
             // $routeParams.chartType == BarChart or PieChart or ColumnChart...
+            //$scope.chartObject.type = "google.charts.Bar";
             $scope.chartObject.type = "ColumnChart";
+
             $scope.chartObject.options = {
                 //'title': 'Activities distribution',
                 //"isStacked": "true",

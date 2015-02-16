@@ -3,13 +3,16 @@
         <!--<h2>Activity</h2>-->
         <nci-sigma-graph
                 nodes="nodes"
-                nci-graph-node-click="expandNode"
+                nci-graph-node-click=""
                 edges="edges"
-                style="display: block;width: 500px;height: 300px"
+                style="display: block;width: 2000px;height: 1000px"
                 flex>
         </nci-sigma-graph>
     </md-content>
     <div class="md-actions">
+        <md-switch ng-change="updateDisplay()" ng-model="showExternal">External</md-switch>
+        <md-switch ng-change="updateDisplay()" ng-model="showOutside">Outside activities</md-switch>
+        <span flex></span>
         <md-button ng-click="closeDialog()">Close</md-button>
     </div>
 </md-dialog>

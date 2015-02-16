@@ -8,7 +8,7 @@
                 scope: {
                     nodes: "=",
                     edges: "=",
-                    nodeClick: "=nciGraphNodeClick"
+                    nodeClick: "=nciGraphNodeClick",
                 },
                 template: '<div class="nci-graph-container"></div>',
                 link: function($scope, el) {
