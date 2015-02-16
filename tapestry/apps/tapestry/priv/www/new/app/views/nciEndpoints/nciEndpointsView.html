@@ -2,8 +2,21 @@
     <md-tab>
         <md-tab-label>Histogram</md-tab-label>
         <div layout-fill layout="column" ng-controller="EndpointsHistogramController">
-            <md-content flex class="md-whiteframe-z1 chart-container-wrap" layout="column" layout-margin>
-                <div google-chart chart="chartObject" on-select="select(selectedItem)" style="overflow: hidden; height: 100%; width: 100%; position: absolute;"></div>
+            <md-content flex layout- class="md-whiteframe-z1" layout="row" layout-margin>
+                <md-button ng-disabled="prevDisabled" ng-click="goToPage(page - 1)">&lt;-</md-button>
+                <div class="chart-container-wrap" flex>
+                    <div
+                            chart-paging="rows"
+                            layout-fill
+                            chart-items-per-page="itemsPerPage"
+                            chart-cureent-page="page"
+                            google-chart
+                            chart="chartObject"
+                            on-select="select(selectedItem)"
+                            flex
+                            style="overflow: hidden; height: 100%; width: 100%; position: absolute;"></div>
+                </div>
+                <md-button ng-disabled="nextDisabled" ng-click="goToPage(page + 1)">-&gt;</md-button>
             </md-content>
         </div>
     </md-tab>
