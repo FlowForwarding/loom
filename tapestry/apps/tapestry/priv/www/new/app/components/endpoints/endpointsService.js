@@ -3,9 +3,10 @@
 
     angular.module('nci.components.services.endpointsService', [
         'ngMaterial',
+        'nci.services.export',
         'nci.components.nciSigmaGraph'
     ])
-        .controller("endpointsDialogController", function($scope, $mdDialog, activity, colorForActivity) {
+        .controller("endpointsDialogController", function($scope, $mdDialog, activity, colorForActivity, exportToCSV) {
             var edgesSet = new Set(),
                 edges = [],
                 nodes = [],
@@ -141,6 +142,15 @@
             addAnchor();
             updateOutsideDisplay();
 
+            $scope.exportActivity = function() {
+                var endpoints = [];
+
+                endpointsToDisplay.forEach(function(ep) {
+                    endpoints.push(ep);
+                });
+
+                exportToCSV(endpoints, activity.mainEndpoint.ip);
+            };
 
         })
         .factory("nciEndpointsDialog", [

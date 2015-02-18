@@ -14,6 +14,7 @@
         <md-switch ng-change="updateDisplay()" ng-model="showExternal">External</md-switch>
         <md-switch ng-change="updateDisplay()" ng-model="showOutside">Outside activities</md-switch>
         <span flex></span>
+        <md-button class="md-primary" ng-click="exportActivity()">Export to CSV</md-button>
         <md-button ng-click="closeDialog()">Close</md-button>
     </div>
 </md-dialog>
