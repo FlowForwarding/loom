@@ -268,3 +268,9 @@ tfoot td {
     text-align: center;
 }
 
+.activity-caption {
+    margin-top: 0;
+    text-align: center;
+    font-size: 1.1em;
+}
+
