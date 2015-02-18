@@ -8,6 +8,7 @@
                 scope: {
                     nodes: "=",
                     edges: "=",
+                    config: "=",
                     nodeClick: "=nciGraphNodeClick",
                 },
                 template: '<div class="nci-graph-container"></div>',
@@ -36,7 +37,14 @@
                             outboundAttractionDistribution: true
                         };
 
-                    $scope.$watchCollection("nodes", function() {
+                    // dirty hack to delegate graph redraw
+                    if ($scope.config) {
+                        $scope.$watch(function() {
+                            return $scope.config.redraw;
+                        }, updateGraph);
+                    }
+
+                    function updateGraph() {
                         s.killForceAtlas2();
 
                         var nodesMap = new Map(s.graph.nodes().map(function(n) {return [n.id, n];})),
@@ -44,7 +52,9 @@
 
 
                         var nodes = $scope.nodes.map(function(node) {
-                            return nodesMap.get(node.id) || node;
+                            var newNode = nodesMap.get(node.id) || node;
+                            newNode.color = node.color;
+                            return newNode;
                         });
                         nodesMap = new Map($scope.nodes.map(function(n) {return [n.id, n];}));
 
@@ -64,8 +74,9 @@
                         $log.info("Flows On Screen:", edges.length);
                         s.refresh();
                         startLayout();
+                    }
 
-                    });
+                    $scope.$watchCollection("nodes", updateGraph);
 
                     function startLayout() {
                         if (isVisible()) {
@@ -88,7 +99,10 @@
                     CustomShapes.init(s);
                     s.bind('clickNode', function(event) {
                         if ($scope.nodeClick) {
-                            $scope.nodeClick(event.data.node);
+                            // since sigma clones nodes internally, need to find our own node
+                            $scope.nodeClick($scope.nodes.filter(function(node) {
+                                return node.id == event.data.node.id;
+                            })[0]);
                         }
                     });
 

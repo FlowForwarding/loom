@@ -8,21 +8,29 @@
         .controller("endpointsDialogController", function($scope, $mdDialog, activity, colorForActivity) {
             var edgesSet = new Set(),
                 edges = [],
+                nodes = [],
+                insideNodes = [],
+                insideEdges = [],
                 endpointsSet = new Set(),
-                endpoints = activity.getEndpoints(),
                 externalColor = "#69456f",
                 outsideColor = "red";
 
-            function createEdge(target, source, weight, size) {
+            function createEdge(target, source, weight, size, isOutside) {
                 var id = target + "_" + source;
+                isOutside = isOutside || false;
+
                 if (!edgesSet.has(id) && endpointsSet.has(target) && endpointsSet.has(source)) {
-                    edges.push({
+                    var edge = {
                         id: id,
                         source: source,
                         target: target,
                         weight: weight,
                         size: size
-                    });
+                    };
+                    edges.push(edge);
+                    if (!isOutside) {
+                        insideEdges.push(edge);
+                    }
                     edgesSet.add(id);
                     edgesSet.add(source + "_" + target);
                 }
@@ -42,23 +50,45 @@
                 return node;
             }
 
-            $scope.updateDisplay = function() {
-                var anchor = $scope.nodes.pop();
-                $scope.nodes = $scope.nodes.map(updateNodeColor);
-                $scope.nodes.push(anchor);
-                $scope.updateGraph();
+            $scope.config = {
+                redraw: 0
             };
+
+            function updateGraph() {
+                $scope.config.redraw++;
+            }
+
+            function updateOutsideDisplay() {
+                var showOutside = $scope.showOutside;
+                $scope.nodes = showOutside ? nodes : insideNodes;
+                $scope.edges = showOutside ? edges : insideEdges;
+
+            }
+
+            function updateExternalDisplay() {
+                $scope.nodes = nodes.map(updateNodeColor);
+            }
+
+            $scope.updateDisplay = function() {
+                removeAnchor();
+                updateExternalDisplay();
+                updateOutsideDisplay();
+                addAnchor();
+
+                updateGraph();
+            };
+
 
             function createEndpointNode(endpoint) {
                 endpointsSet.add(endpoint.ip);
+                var outside = isOutside(endpoint);
                 endpoint.getConnections().forEach(function(ep) {
-                    createEdge(endpoint.ip, ep.ip, 0.2, 0.1);
+                    createEdge(endpoint.ip, ep.ip, 0.2, 0.1, isOutside(ep) || outside);
                 });
 
                 return {
                     id: endpoint.ip,
                     endpoint: endpoint,
-                    //outside:
                     size: 1,
                     label: endpoint.ip,
                     x: Math.random()*20 - 10,
@@ -80,24 +110,36 @@
                 });
             });
 
-            $scope.nodes = [];
-
             endpointsToDisplay.forEach(function(endpoint) {
-                $scope.nodes.push(updateNodeColor(createEndpointNode(endpoint)));
+                var node = updateNodeColor(createEndpointNode(endpoint));
+                nodes.push(node);
+                if (!isOutside(endpoint)) {
+                    insideNodes.push(node);
+                }
             });
 
-            $scope.edges = edges;
 
             var anchor = {
                 id: "anchor",
-                size: 5,
+                size: 2,
                 weight: 0,
                 x: 0,
                 y: 0,
                 color: "transparent"
             };
-            $scope.nodes.push(anchor);
 
+            function removeAnchor() {
+                nodes.pop();
+                insideNodes.pop();
+            }
+
+            function addAnchor() {
+                nodes.push(anchor);
+                insideNodes.push(anchor);
+            }
+
+            addAnchor();
+            updateOutsideDisplay();
 
 
         })
