@@ -62,6 +62,8 @@
                 "legend": "none",
                 "vAxis": {
                     "logScale": "true",
+                    // scale type is used to start scale with ~0
+                    "scaleType": "mirrorLog",
                     "title": "Number of Endpoints per Activity X[j]"
                 },
                 "hAxis": {
