@@ -10,11 +10,21 @@
                     details = endpoints.all().sort(function(e2, e1) {return e1.totalConnections - e2.totalConnections;}),
                     rows = prepareRows();
 
+                function createTooltip(endpoint) {
+                    return [
+                        "<md-card>",
+                            "<md-card-content>",
+                                endpointTooltip(endpoint),
+                            "</md-card-content>",
+                        "</md-card>"
+                    ].join("");
+                }
+
                 function prepareRows() {
                     return details.map(function(endpoint) {
                         return {c: [
                             {v: endpoint.ip},
-                            {v: endpointTooltip(endpoint)},
+                            {v: createTooltip(endpoint)},
                             {v: endpoint.internalConnections},
                             {v: endpoint.externalConnections}
                             //{v: maxActivities.has(activity) ? "#2ca02c" : null}
