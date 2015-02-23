@@ -1,9 +1,15 @@
 <md-dialog>
+    <md-toolbar class="md-hue-1">
+        <div class="md-toolbar-tools">
+            {{activity}}
+        </div>
+    </md-toolbar>
     <md-content style="padding: 0;">
         <!--<h2>Activity</h2>-->
         <nci-sigma-graph
                 nodes="nodes"
                 nci-graph-node-click=""
+                tooltip="tooltip"
                 edges="edges"
                 config="config"
                 style="display: block;width: 2000px;height: 1000px"

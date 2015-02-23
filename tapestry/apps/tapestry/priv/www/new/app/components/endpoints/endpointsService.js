@@ -6,7 +6,7 @@
         'nci.services.export',
         'nci.components.nciSigmaGraph'
     ])
-        .controller("endpointsDialogController", function($scope, $mdDialog, activity, colorForActivity, exportToCSV) {
+        .controller("endpointsDialogController", function($scope, $mdDialog, activity, colorForActivity, exportToCSV, endpointTooltip) {
             var edgesSet = new Set(),
                 edges = [],
                 nodes = [],
@@ -50,6 +50,8 @@
                 node.color = showExternal && endpoint.external ? externalColor : color;
                 return node;
             }
+
+            $scope.activity = "Activity #" + activity.index;
 
             $scope.config = {
                 redraw: 0
@@ -152,6 +154,26 @@
                 exportToCSV(endpoints, activity.mainEndpoint.ip);
             };
 
+            $scope.tooltip = endpointTooltip;
+
+        })
+        .factory("endpointTooltip", function() {
+            return function(node) {
+                var endpoint = node.endpoint;
+                return [
+                    "<div>",
+                        "Endpoint",
+                    "</div>",
+                    "<div>",
+                        endpoint.ip,
+                    "</div>",
+                    "<div>",
+                        "Connections: ",
+                    endpoint.totalConnections,
+                    "</div>"
+
+                ].join("");
+            };
         })
         .factory("nciEndpointsDialog", [
             "$mdDialog",

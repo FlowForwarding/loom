@@ -23,7 +23,14 @@
     <md-tab>
         <md-tab-label>Graph</md-tab-label>
         <div layout-fill layout="column" ng-controller="EndpointsGraphController">
-            <nci-sigma-graph nodes="nodes" edges="edges" flex class="md-whiteframe-z1" layout-margin style="position: relative">
+            <nci-sigma-graph
+                    nodes="nodes"
+                    edges="edges"
+                    flex
+                    class="md-whiteframe-z1"
+                    layout-margin
+                    tooltip="tooltip"
+                    style="position: relative">
             </nci-sigma-graph>
         </div>
     </md-tab>

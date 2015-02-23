@@ -14,7 +14,14 @@
     <md-tab>
         <md-tab-label>Graph</md-tab-label>
         <div layout-fill layout="column" ng-controller="GraphController">
-            <nci-sigma-graph nodes="nodes" nci-graph-node-click="expandNode" edges="edges" flex class="md-whiteframe-z1" layout-margin style="position: relative">
+            <nci-sigma-graph
+                    nodes="nodes"
+                    nci-graph-node-click="expandNode"
+                    edges="edges"
+                    flex
+                    class="md-whiteframe-z1"
+                    tooltip="tooltip"
+                    layout-margin style="position: relative">
             </nci-sigma-graph>
         </div>
     </md-tab>

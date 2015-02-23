@@ -8,7 +8,8 @@
         .controller('EndpointsGraphController', [
             "$scope",
             "colorForActivity",
-            function($scope, colorForActivity) {
+            "endpointTooltip",
+            function($scope, colorForActivity, endpointTooltip) {
                 $scope.edges = [];
                 $scope.nodes = [];
 
@@ -17,6 +18,7 @@
                 function createEndpointNode(endpoint) {
                     return {
                         id: endpoint.ip,
+                        endpoint: endpoint,
                         size: 1,
                         label: endpoint.ip,
                         x: Math.random()*20 - 10,
@@ -72,6 +74,8 @@
                     color: "transparent"
                 };
                 $scope.nodes.push(anchor);
+
+                $scope.tooltip = endpointTooltip;
 
             }]);
 

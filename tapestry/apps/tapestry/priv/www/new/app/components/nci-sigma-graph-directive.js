@@ -118,8 +118,8 @@
                     var $tooltip = $('<md-card style="position: fixed;background:white;z-index:81"><md-card-content>tooltip</md-card-content></md-card>');
                     $("body").append($tooltip);
 
-                    $scope.tooltip = $scope.tooltip || function(nodeId) {
-                        return nodeId;
+                    $scope.tooltip = $scope.tooltip || function(node) {
+                        return node.id;
                     };
 
                     function fixY(y) {
@@ -134,11 +134,11 @@
                     }
 
                     s.bind("overNode", function(event) {
-                        var x = fixX(event.data.captor.clientX),
-                            y = fixY(event.data.captor.clientY);
+                        var x = fixX(event.data.captor.clientX + 10),
+                            y = fixY(event.data.captor.clientY + 10);
 
 
-                        $tooltip.children().text($scope.tooltip(event.data.node.id));
+                        $tooltip.children().html($scope.tooltip(event.data.node));
                         $tooltip.offset({
                             top: y,
                             left: x

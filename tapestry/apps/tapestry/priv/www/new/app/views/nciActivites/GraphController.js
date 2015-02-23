@@ -8,7 +8,8 @@
         .controller('GraphController', [
             "$scope",
             "colorForActivity",
-        function($scope, colorForActivity) {
+            "endpointTooltip",
+        function($scope, colorForActivity, endpointTooltip) {
             $scope.edges = [];
             $scope.nodes = [];
 
@@ -18,7 +19,7 @@
                 return {
                     id: activity.mainEndpoint.ip,
                     expanded: false,
-                    activity: true,
+                    activity: activity,
                     size: Math.log(activity.size),
                     label: "Activity #" + activity.index + "\n" + activity.mainEndpoint.ip,
                     x: Math.random()*20 - 10,
@@ -32,6 +33,7 @@
                 return {
                     id: endpoint.ip,
                     size: 1,
+                    endpoint: endpoint,
                     label: endpoint.ip,
                     x: Math.random()*20 - 10,
                     y: Math.random()*20 - 10,
@@ -144,6 +146,31 @@
             });
 
             nodesSet = new Set($scope.nodes.map(function(n) {return n.id;}));
+
+            $scope.tooltip = function(node) {
+                if (node.activity) {
+                    var activity = node.activity;
+                    return [
+                        "<div>",
+                            "Activity #", activity.index,
+                        "</div>",
+                        "<div>",
+                            activity.mainEndpoint.ip,
+                        "</div>",
+                        "<div>",
+                            "Size: ",
+                            activity.size,
+                        "</div>",
+                        "<div>",
+                            "Connections: ",
+                            Object.keys(activity.activities).length - 1,
+                        "</div>"
+
+                    ].join("");
+                } else {
+                    return endpointTooltip(node);
+                }
+            };
 
         }]);
 
