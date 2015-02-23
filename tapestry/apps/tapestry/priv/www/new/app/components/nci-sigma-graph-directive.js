@@ -10,6 +10,7 @@
                     edges: "=",
                     config: "=",
                     nodeClick: "=nciGraphNodeClick",
+                    tooltip: "=?"
                 },
                 template: '<div class="nci-graph-container"></div>',
                 link: function($scope, el) {
@@ -27,6 +28,13 @@
                             batchEdgesDrawing: true
                             //container:
                         }),
+                        graphConfig = {
+                            defaultEdgeColor: "#DDD",
+                            edgeColor: "default",
+                            enableHovering: false,
+                            drawLabels: false
+                            //batchEdgesDrawing: true
+                        },
                         forceConfig = {
                             barnesHutTheta: 0.5,
                             gravity: 1,
@@ -80,6 +88,7 @@
 
                     function startLayout() {
                         if (isVisible()) {
+                            s.settings(graphConfig);
                             s.startForceAtlas2(forceConfig);
                         }
                     }
@@ -106,17 +115,55 @@
                         }
                     });
 
+                    var $tooltip = $('<md-card style="position: fixed;background:white;z-index:81"><md-card-content>tooltip</md-card-content></md-card>');
+                    $("body").append($tooltip);
+
+                    $scope.tooltip = $scope.tooltip || function(nodeId) {
+                        return nodeId;
+                    };
+
+                    function fixY(y) {
+                        var vHeight = $(window).height(),
+                            tHeight = $tooltip.height();
+                        return (y + tHeight) > vHeight ? vHeight - tHeight : y;
+                    }
+                    function fixX(x) {
+                        var vWidth = $(window).width(),
+                            tWidth = $tooltip.width();
+                        return (x + tWidth) > vWidth ? vWidth - tWidth : x;
+                    }
+
+                    s.bind("overNode", function(event) {
+                        var x = fixX(event.data.captor.clientX),
+                            y = fixY(event.data.captor.clientY);
+
+
+                        $tooltip.children().text($scope.tooltip(event.data.node.id));
+                        $tooltip.offset({
+                            top: y,
+                            left: x
+                        });
+
+                        //console.log(arguments);
+                    });
+
+                    s.bind("outNode", function() {
+                        console.log("out");
+                        if (!$tooltip.is(":hover")) {
+                            $tooltip.offset({
+                                top: -2000,
+                                left: -2000
+                            });
+                        }
+                    });
+
                     startLayout();
 
                     el.on("$destroy", function() {
                         s.killForceAtlas2();
                     });
 
-                    s.settings({
-                        defaultEdgeColor: "#DDD",
-                        edgeColor: "default"
-                        //batchEdgesDrawing: true
-                    });
+                    s.settings(graphConfig);
 
                     var dragListener = new sigma.plugins.dragNodes(s, s.renderers[0]);
 
