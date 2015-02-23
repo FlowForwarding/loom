@@ -41,6 +41,7 @@
                 <table st-fixed-header st-table="rows" class="table table-striped">
                     <thead>
                     <tr>
+                        <th st-sort="host" ng-if="showDomainNames">Host</th>
                         <th st-sort="ip">Endpoint</th>
                         <th st-sort="internalConnections">Internal</th>
                         <th st-sort="externalConnections">External</th>
@@ -51,7 +52,8 @@
                     </thead>
                     <tbody>
                     <tr ng-repeat="row in rows">
-                        <td>{{row.ip}}</td>
+                        <td ng-if="showDomainNames" title="{{row.host}}">{{row.host}}</td>
+                        <td title="{{row.ip}}">{{row.ip}}</td>
                         <td>{{row.internalConnections}}</td>
                         <td>{{row.externalConnections}}</td>
                         <td>{{row.totalConnections}}</td>

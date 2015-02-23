@@ -249,6 +249,7 @@ th, tbody td {
     overflow-x: hidden;
     text-overflow: ellipsis;
     display: inline-block;
+    white-space: nowrap;
 }
 
 tfoot {

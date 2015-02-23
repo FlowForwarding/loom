@@ -23,6 +23,10 @@
             $scope.endpoints = endpoints;
             $scope.rows = endpoints.all();
 
+            $scope.$on("app:preferencesChanged", function(event, prefs) {
+                $scope.showDomainNames = prefs.showDomainNames;
+            });
+
         }]);
 
 })(angular);
