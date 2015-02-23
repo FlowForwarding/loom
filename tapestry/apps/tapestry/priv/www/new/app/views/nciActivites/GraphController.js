@@ -168,7 +168,7 @@
 
                     ].join("");
                 } else {
-                    return endpointTooltip(node);
+                    return endpointTooltip(node.endpoint);
                 }
             };
 

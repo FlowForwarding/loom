@@ -75,7 +75,9 @@
                 };
                 $scope.nodes.push(anchor);
 
-                $scope.tooltip = endpointTooltip;
+                $scope.tooltip = function(node) {
+                    return endpointTooltip(node.endpoint);
+                };
 
             }]);
 

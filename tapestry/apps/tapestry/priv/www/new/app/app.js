@@ -121,8 +121,12 @@ angular.module('nci', [
             $scope.options = function() {
                 $mdBottomSheet.show({
                     template: ['<md-bottom-sheet>',
-                            '<form ng-submit="reconnect()">',
-                                '<md-input-container>',
+                            '<md-switch ng-model="showDomainNames" ng-change="updatePreferences()" aria-label="Finished?">',
+                            'Show domain names',
+                            '</md-switch>',
+                            '<md-divider></md-divider>',
+                            '<form ng-submit="reconnect()" layout="row" layout-align="center center">',
+                                '<md-input-container flex>',
                                     '<label>Tapestry server URL</label>',
                                     '<input type="text" ng-submit="reconnect()" ng-model="serverUrl" required md-maxlength="50">',
                                 '</md-input-container>',
@@ -134,17 +138,31 @@ angular.module('nci', [
             };
         }
     ])
+    .value("preferences", {
+        showDomainNames: false
+    })
     .controller("optionsSheetController", [
         '$scope',
+        '$rootScope',
         "connection",
         "$route",
-        function($scope, connection, $route) {
+        "preferences",
+        function($scope, $rootScope, connection, $route, preferences) {
             $scope.serverUrl = connection.getUrl();
             $scope.reconnect = function() {
                 connection.setUrl($scope.serverUrl);
                 connection().then(function() {
                     $route.reload();
                 });
+            };
+
+            console.log(preferences, preferences.showDomainNames, $scope.showDomainNames);
+            $scope.showDomainNames = preferences.showDomainNames;
+
+            $scope.updatePreferences = function() {
+                preferences.showDomainNames = $scope.showDomainNames;
+                console.log(preferences, $scope.showDomainNames);
+                $rootScope.$broadcast("app:preferencesChanged", preferences);
             };
         }
     ])

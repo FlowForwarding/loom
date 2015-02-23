@@ -4,29 +4,27 @@
     angular.module('nci.endpointsView.HistogramController', [])
         .controller('EndpointsHistogramController', [
             "$scope",
-            function($scope) {
-                function createTooltip(activity) {
-                    return [
-                        'Activity #' + activity.index,
-                        'Size: ' + activity.size,
-                        'Internal Flows: ' + activity.internalFlows,
-                        'External Flows: ' + activity.externalFlows,
-                        'Average Internal Flows: ' + activity.avgInternalFlows.toFixed(2)
-                    ].join("\n");
-                }
-
+            "endpointTooltip",
+            function($scope, endpointTooltip) {
                 var endpoints = $scope.endpoints,
                     details = endpoints.all().sort(function(e2, e1) {return e1.totalConnections - e2.totalConnections;}),
-                    rows = details.map(function(endpoint) {
+                    rows = prepareRows();
+
+                function prepareRows() {
+                    return details.map(function(endpoint) {
                         return {c: [
                             {v: endpoint.ip},
+                            {v: endpointTooltip(endpoint)},
                             {v: endpoint.internalConnections},
                             {v: endpoint.externalConnections}
-                            //{v: createTooltip(activity)},
                             //{v: maxActivities.has(activity) ? "#2ca02c" : null}
                         ]};
                     });
+                }
 
+                $scope.$on("app:preferencesChanged", function() {
+                    $scope.rows = prepareRows();
+                });
 
                 $scope.chartObject = {};
 
@@ -55,9 +53,9 @@
 
                 $scope.chartObject.data = {"cols": [
                     {id: "t", label: "Endpoint", type: "string"},
+                    {role: "tooltip", type: "string", 'p': {'html': true}},
                     {id: "s", label: "Internal Connections", type: "number"},
-                    {id: "s", label: "External Connections", type: "number"},
-                    //{role: "tooltip", type: "string"},
+                    {id: "s", label: "External Connections", type: "number"}
                     //{role: "style", type: "string"}
                 ], "rows": []};
 
@@ -68,6 +66,9 @@
                     //'title': 'Activities distribution',
                     "stacked": "true",
                     "isStacked": "true",
+                    "tooltip": {
+                        "isHtml": "true"
+                    },
                     "focusTarget": "category",
                     "legend": "none",
                     "vAxis": {
@@ -100,6 +101,7 @@
                             itemsPerPage = $scope.$eval(attributes.chartItemsPerPage),
                             rows = $scope.$eval(attributes.chartPaging);
 
+
                         // TODO: throw?
                         if (currentPage < 0) {return;}
                         if (currentPage*itemsPerPage > rows.length) {return;}
@@ -107,9 +109,8 @@
                         $scope.chartObject.data.rows = rows.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
                     }
 
-                    $scope.$watch(attributes.chartCureentPage, function(page) {
-                        updateChartData();
-                    });
+                    $scope.$watch(attributes.chartPaging, updateChartData);
+                    $scope.$watch(attributes.chartCureentPage, updateChartData);
                 }
             };
         });

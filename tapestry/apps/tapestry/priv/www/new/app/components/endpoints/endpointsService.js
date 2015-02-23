@@ -154,18 +154,22 @@
                 exportToCSV(endpoints, activity.mainEndpoint.ip);
             };
 
-            $scope.tooltip = endpointTooltip;
+            $scope.tooltip = function(node) {
+                return endpointTooltip(node.endpoint);
+            };
 
         })
-        .factory("endpointTooltip", function() {
-            return function(node) {
-                var endpoint = node.endpoint;
+        .factory("endpointTooltip", function(preferences) {
+            return function(endpoint) {
                 return [
                     "<div>",
                         "Endpoint",
                     "</div>",
                     "<div>",
                         endpoint.ip,
+                    "</div>",
+                    "<div>",
+                        preferences.showDomainNames ? endpoint.host : "",
                     "</div>",
                     "<div>",
                         "Connections: ",
