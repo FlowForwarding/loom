@@ -148,7 +148,6 @@
                     });
 
                     s.bind("outNode", function() {
-                        console.log("out");
                         if (!$tooltip.is(":hover")) {
                             $tooltip.offset({
                                 top: -2000,
