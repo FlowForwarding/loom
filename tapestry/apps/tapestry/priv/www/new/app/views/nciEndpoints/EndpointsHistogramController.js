@@ -26,10 +26,19 @@
                             {v: endpoint.ip},
                             {v: createTooltip(endpoint)},
                             {v: endpoint.internalConnections},
-                            {v: endpoint.externalConnections}
-                            //{v: maxActivities.has(activity) ? "#2ca02c" : null}
+                            {v: colorForInternalConnectionsBar(endpoint)},
+                            {v: endpoint.externalConnections},
+                            {v: colorForExternalConnectionsBar(endpoint)}
                         ]};
                     });
+                }
+
+                function colorForExternalConnectionsBar(endpoint) {
+                    return endpoint.external ? "#581A00" : "#ff9896";
+                }
+
+                function colorForInternalConnectionsBar(endpoint) {
+                    return endpoint.external ? "darkgreen" : "#a1d99b";
                 }
 
                 $scope.$on("app:preferencesChanged", function() {
@@ -47,7 +56,7 @@
 
                 $scope.page = 0;
                 $scope.prevDisabled = true;
-                $scope.itemsPerPage = 20;
+                $scope.itemsPerPage = 50;
                 $scope.goToPage = function(page) {
                     $scope.prevDisabled = false;
                     $scope.nextDisabled = false;
@@ -65,8 +74,9 @@
                     {id: "t", label: "Endpoint", type: "string"},
                     {role: "tooltip", type: "string", 'p': {'html': true}},
                     {id: "s", label: "Internal Connections", type: "number"},
-                    {id: "s", label: "External Connections", type: "number"}
-                    //{role: "style", type: "string"}
+                    {role: "style", type: "string"},
+                    {id: "s", label: "External Connections", type: "number"},
+                    {role: "style", type: "string"}
                 ], "rows": []};
 
                 // $routeParams.chartType == BarChart or PieChart or ColumnChart...
