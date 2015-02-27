@@ -18,6 +18,7 @@
                     'Average Internal Flows: ' + activity.avgInternalFlows.toFixed(2)
                 ].join("\n");
             }
+
             var activities = $scope.activities,
                 details = activities.all(),
                 maxActivities = new Set(details.slice().sort(function(activity1, activity2) {
@@ -30,9 +31,17 @@
                         {v: "Activity #" + activity.index, f: "", ip: activity.mainEndpoint.ip},
                         {v: activity.size},
                         {v: createTooltip(activity)},
-                        {v: maxActivities.has(activity) ? "#2ca02c" : null}
+                        {v: colorForActivityBar(activity)}
                     ]};
                 });
+
+            function colorForActivityBar(activity) {
+                var color = maxActivities.has(activity) ? "#2ca02c" : "#1f77b4",
+                    externalEndpointsSize = activity.getExternalEndpoints().length,
+                    internalEndpointsSize = activity.size - externalEndpointsSize;
+
+                return internalEndpointsSize >= externalEndpointsSize ? "#69456f" : color;
+            }
 
 
             $scope.chartObject = {};

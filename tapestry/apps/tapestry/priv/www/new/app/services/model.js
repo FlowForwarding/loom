@@ -73,6 +73,12 @@
                 return endpoint.ip in this.endpoints;
             };
 
+            Activity.prototype.getExternalEndpoints = function() {
+                return this.getEndpoints().filter(function(ep) {
+                    return ep.external;
+                });
+            };
+
             function isInOneActivity(ep1, ep2) {
                 return ep1.activity === ep2.activity;
             }
