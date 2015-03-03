@@ -34,14 +34,17 @@ angular.module('nci.monitorView', [
             gridLineWidth: 0.1,
             axisLabelFontSize: 10,
             xAxisLabelWidth: 70,
-            logscale: true,
+            //logscale: true,
             axes: {
                 x: {
                     axisLabelFormatter: formatDate,
                     valueFormatter: formatDate,
                     ticker : Dygraph.dateTicker,
                     pixelsPerLabel: 100
-                } 
+                },
+                y: {
+                    valueRange: [1, null]
+                }
             },
             ylabel: 'NCI',
             labelsDivStyles: {
