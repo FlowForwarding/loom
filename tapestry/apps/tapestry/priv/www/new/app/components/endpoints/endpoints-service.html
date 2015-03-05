@@ -15,6 +15,11 @@
                 style="display: block;width: 2000px;height: 1000px"
                 flex>
         </nci-sigma-graph>
+        <div class="legend-section md-whiteframe-z1">
+            <div class="legend-key" ng-repeat="key in legendKeys">
+                <span ng-class="key.shape" ng-style="{'background-color': key.color}"></span><span> - {{key.text}}</span>
+            </div>
+        </div>
     </md-content>
     <div class="md-actions">
         <md-switch ng-change="updateDisplay()" ng-model="showExternal">External</md-switch>

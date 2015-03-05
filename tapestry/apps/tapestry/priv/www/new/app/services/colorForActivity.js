@@ -46,8 +46,8 @@
                 INTERNAL_EXTERNAL_CONNECTIONS: "#ff9896",
                 EXTERNAL_INTERNAL_CONNECTIONS: "darkgreen",
                 INTERNAL_INTERNAL_CONNECTIONS: "#a1d99b",
-                OUTSIDE_ACTIVITY: "",
-                EXTERNAL: ""
+                OUTSIDE_ACTIVITY: "red",
+                EXTERNAL: "#69456f"
             }
         });
 })(angular);

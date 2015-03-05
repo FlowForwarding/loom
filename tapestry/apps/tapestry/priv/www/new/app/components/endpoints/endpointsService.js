@@ -6,15 +6,13 @@
         'nci.services.export',
         'nci.components.nciSigmaGraph'
     ])
-        .controller("endpointsDialogController", function($scope, $mdDialog, activity, colorForActivity, exportToCSV, endpointTooltip) {
+        .controller("endpointsDialogController", function($scope, $mdDialog, activity, colorForActivity, exportToCSV, endpointTooltip, colors) {
             var edgesSet = new Set(),
                 edges = [],
                 nodes = [],
                 insideNodes = [],
                 insideEdges = [],
-                endpointsSet = new Set(),
-                externalColor = "#69456f",
-                outsideColor = "red";
+                endpointsSet = new Set();
 
             function createEdge(target, source, weight, size, isOutside) {
                 var id = target + "_" + source;
@@ -44,10 +42,10 @@
             function updateNodeColor(node) {
                 var endpoint = node.endpoint,
                     showExternal = $scope.showExternal,
-                    color = isOutside(endpoint) ? outsideColor : colorForActivity(endpoint.activity);
+                    color = isOutside(endpoint) ? colors.endpoints.OUTSIDE_ACTIVITY : colorForActivity(endpoint.activity);
 
 
-                node.color = showExternal && endpoint.external ? externalColor : color;
+                node.color = showExternal && endpoint.external ? colors.endpoints.EXTERNAL : color;
                 return node;
             }
 
@@ -157,6 +155,20 @@
             $scope.tooltip = function(node) {
                 return endpointTooltip(node.endpoint);
             };
+
+            $scope.legendKeys = [{
+                shape: "circle",
+                text: "endpoint in activity",
+                color: colorForActivity(activity)
+            }, {
+                shape: "circle",
+                text: "endpoint in a different activity",
+                color: colors.endpoints.OUTSIDE_ACTIVITY
+            }, {
+                shape: "circle",
+                text: "external endpoint",
+                color: colors.endpoints.EXTERNAL
+            }];
 
         })
         .factory("endpointTooltip", function(preferences) {

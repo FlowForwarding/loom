@@ -8,8 +8,10 @@
         .controller('GraphController', [
             "$scope",
             "colorForActivity",
+            "colors",
             "endpointTooltip",
-        function($scope, colorForActivity, endpointTooltip) {
+            "$interval",
+        function($scope, colorForActivity, colors, endpointTooltip, $interval) {
             $scope.edges = [];
             $scope.nodes = [];
 
@@ -24,7 +26,7 @@
                     label: "Activity #" + activity.index + "\n" + activity.mainEndpoint.ip,
                     x: Math.random()*20 - 10,
                     y: Math.random()*20 - 10,
-                    color: '#666',
+                    color: colors.activities.default,
                     type: 'square'
                 };
             }
@@ -92,7 +94,7 @@
 
                     nodesToRemove.delete(node.id);
 
-                    node.color = '#666';
+                    node.color = colors.activities.default;
                     node.expanded = false;
 
                     $scope.nodes = $scope.nodes.filter(function(node) {
@@ -171,6 +173,26 @@
                     return endpointTooltip(node.endpoint);
                 }
             };
+
+            var endpointItem = {
+                shape: "circle",
+                text: "endpoint",
+                color: colorForActivity({index: 0})
+            };
+
+            $interval(function() {
+                endpointItem.color = colorForActivity({index: Math.floor(Math.random()*10)});
+            }, 3000);
+
+            $scope.legendKeys = [{
+                shape: "square",
+                text: "activity",
+                color: colors.activities.default
+            }, endpointItem, {
+                shape: "circle",
+                text: "external endpoint",
+                color: colors.endpoints.EXTERNAL
+            }];
 
         }]);
 
