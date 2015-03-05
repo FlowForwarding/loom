@@ -8,7 +8,8 @@
         .controller('HistogramController', [
             "$scope",
             "nciEndpointsDialog",
-        function($scope, nciEndpointsDialog) {
+            "colors",
+        function($scope, nciEndpointsDialog, colors) {
             function createTooltip(activity) {
                 return [
                     'Activity #' + activity.index,
@@ -36,11 +37,14 @@
                 });
 
             function colorForActivityBar(activity) {
-                var color = maxActivities.has(activity) ? "#2ca02c" : "#1f77b4",
+                var color = maxActivities.has(activity) ?
+                        colors.activities.INTERNAL_OVER_EXTERNAL :
+                        colors.activities.default,
+
                     externalEndpointsSize = activity.getExternalEndpoints().length,
                     internalEndpointsSize = activity.size - externalEndpointsSize;
 
-                return internalEndpointsSize >= externalEndpointsSize ? "#69456f" : color;
+                return internalEndpointsSize >= externalEndpointsSize ? colors.activities.MAX_INTERNAL_FLOWS : color;
             }
 
 

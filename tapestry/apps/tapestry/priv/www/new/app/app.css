@@ -286,3 +286,17 @@ tfoot td {
 .endpoints-view .google-visualization-tooltip md-card {
     background-color: white;
 }
+
+.square {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin: 0 0 -5px 0;
+}
+
+.legend-section {
+    margin: 0 10px;
+}
+.legend-key {
+    margin: 5px 0;
+}

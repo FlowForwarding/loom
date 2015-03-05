@@ -5,7 +5,8 @@
         .controller('EndpointsHistogramController', [
             "$scope",
             "endpointTooltip",
-            function($scope, endpointTooltip) {
+            "colors",
+            function($scope, endpointTooltip, colors) {
                 var endpoints = $scope.endpoints,
                     details = endpoints.all().sort(function(e2, e1) {return e1.totalConnections - e2.totalConnections;}),
                     rows = prepareRows();
@@ -34,12 +35,33 @@
                 }
 
                 function colorForExternalConnectionsBar(endpoint) {
-                    return endpoint.external ? "#581A00" : "#ff9896";
+                    return endpoint.external ?
+                        colors.endpoints.EXTERNAL_EXTERNAL_CONNECTIONS :
+                        colors.endpoints.INTERNAL_EXTERNAL_CONNECTIONS;
                 }
 
                 function colorForInternalConnectionsBar(endpoint) {
-                    return endpoint.external ? "darkgreen" : "#a1d99b";
+                    return endpoint.external ?
+                        colors.endpoints.EXTERNAL_INTERNAL_CONNECTIONS :
+                        colors.endpoints.INTERNAL_INTERNAL_CONNECTIONS;
                 }
+
+                $scope.legendKeys = {
+                    internal: [{
+                        text: "Number of External connections",
+                        color: colors.endpoints.INTERNAL_EXTERNAL_CONNECTIONS
+                    }, {
+                        text: "Number of Internal connections",
+                        color: colors.endpoints.INTERNAL_INTERNAL_CONNECTIONS
+                    }],
+                    external: [{
+                        text: "Number of External connections",
+                        color: colors.endpoints.EXTERNAL_EXTERNAL_CONNECTIONS
+                    }, {
+                        text: "Number of Internal connections",
+                        color: colors.endpoints.EXTERNAL_INTERNAL_CONNECTIONS
+                    }]
+                };
 
                 $scope.$on("app:preferencesChanged", function() {
                     $scope.rows = prepareRows();
