@@ -8,7 +8,8 @@ angular.module('nci', [
         'nci.activitiesView',
         'nci.endpointsView',
         'nci.monitor',
-        'nci.services.nciConnection'
+        'nci.services.nciConnection',
+        'sigmaGraphOptions'
     ])
     .config(['$mdThemingProvider', function($mdThemingProvider) {}])
     .config(['$routeProvider', function($routeProvider) {
@@ -121,6 +122,7 @@ angular.module('nci', [
             $scope.options = function() {
                 $mdBottomSheet.show({
                     template: ['<md-bottom-sheet>',
+                            //'<md-button ng-click="configureLayout()">Graph Force layout config</md-button>',
                             '<md-switch ng-model="showDomainNames" ng-change="updatePreferences()" aria-label="Finished?">',
                             'Show domain names',
                             '</md-switch>',
@@ -147,7 +149,8 @@ angular.module('nci', [
         "connection",
         "$route",
         "preferences",
-        function($scope, $rootScope, connection, $route, preferences) {
+        "$mdBottomSheet",
+        function($scope, $rootScope, connection, $route, preferences, $mdBottomSheet) {
             $scope.serverUrl = connection.getUrl();
             $scope.reconnect = function() {
                 connection.setUrl($scope.serverUrl);
@@ -163,6 +166,18 @@ angular.module('nci', [
                 preferences.showDomainNames = $scope.showDomainNames;
                 console.log(preferences, $scope.showDomainNames);
                 $rootScope.$broadcast("app:preferencesChanged", preferences);
+            };
+
+            $scope.configureLayout = function() {
+                $mdBottomSheet.hide().then(function() {
+                    $mdBottomSheet.show({
+                        template:
+                        '<md-bottom-sheet>' +
+                            '<ng-include src="\'./components/sigma-graph/nci-sigma-graph-options.html\'"></ng-include>' +
+                        '</md-bottom-sheet>',
+                        controller: "ForceLayoutConfigController"
+                    });
+                });
             };
         }
     ])

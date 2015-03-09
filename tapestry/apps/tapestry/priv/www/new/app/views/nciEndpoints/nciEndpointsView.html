@@ -18,13 +18,13 @@
                                 style="overflow: hidden; height: 100%; width: 100%; position: absolute;"></div>
                     </div>
                     <div layout="row" layout-align="center center">
-                        <div class="legend-section">
+                        <div class="histogram-legend-section">
                             <div>Internal endpoints:</div>
                             <div class="legend-key" ng-repeat="key in legendKeys.internal">
                                 <span class="square" ng-style="{'background-color': key.color}"></span><span> - {{key.text}}</span>
                             </div>
                         </div>
-                        <div class="legend-section">
+                        <div class="histogram-legend-section">
                             <div>External endpoints:</div>
                             <div class="legend-key" ng-repeat="key in legendKeys.external">
                                 <span class="square" ng-style="{'background-color': key.color}"></span><span> - {{key.text}}</span>

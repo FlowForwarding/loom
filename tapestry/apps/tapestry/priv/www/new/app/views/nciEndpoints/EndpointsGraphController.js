@@ -53,7 +53,7 @@
                                 id: id,
                                 source: endpoint.ip,
                                 target: targetEndpoint.ip,
-                                weight: 0.2,
+                                weight: 1,
                                 size: 0.1
                             });
 
@@ -67,7 +67,7 @@
                 // this is fake node, to draw graph nodes smaller
                 var anchor = {
                     id: "anchor",
-                    size: 5,
+                    size: 2,
                     weight: 0,
                     x: 0,
                     y: 0,

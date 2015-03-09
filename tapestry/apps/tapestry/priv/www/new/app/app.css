@@ -303,7 +303,7 @@ tfoot td {
     transition: background-color ease-in-out 2s;
 }
 
-.legend-section {
+.histogram-legend-section {
     margin: 0 10px;
 }
 .legend-key {

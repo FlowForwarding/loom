@@ -1,8 +1,10 @@
 (function (angular) {
     'use strict';
 
-    angular.module('nci.components.nciSigmaGraph', [])
-        .directive("nciSigmaGraph", function($log, $rootScope) {
+    angular.module('nci.components.nciSigmaGraph', [
+        "sigmaGraphOptions"
+    ])
+        .directive("nciSigmaGraph", function($log, $rootScope, forceLayoutConfig) {
             return {
                 restrict: "E",
                 scope: {
@@ -35,15 +37,7 @@
                             drawLabels: false
                             //batchEdgesDrawing: true
                         },
-                        forceConfig = {
-                            barnesHutTheta: 0.5,
-                            gravity: 1,
-                            strongGravityMode: true,
-                            //adjustSizes: true,
-                            edgeWeightInfluence: 0.2,
-                            slowDown: 100,
-                            outboundAttractionDistribution: true
-                        };
+                        forceConfig = forceLayoutConfig;
 
                     // dirty hack to delegate graph redraw
                     if ($scope.config) {
@@ -113,6 +107,11 @@
                                 return node.id == event.data.node.id;
                             })[0]);
                         }
+                    });
+
+                    $rootScope.$on("graph:layout-update", function() {
+                        s.killForceAtlas2();
+                        startLayout();
                     });
 
                     var $tooltip = $('<md-card style="position: fixed;background:white;z-index:81"><md-card-content>tooltip</md-card-content></md-card>');

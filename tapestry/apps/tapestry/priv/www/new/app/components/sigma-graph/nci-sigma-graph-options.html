@@ -1,0 +1,46 @@
+<!--linLogMode: boolean false-->
+<!--scalingRatio number 1-->
+<!--barnesHutOptimize boolean true: should we use the algorithm's Barnes-Hut to improve repulsion's scalability (O(n²) to O(nlog(n)))? This is useful for large graph but harmful to small ones.-->
+<!--startingIterations integer 1: number of iterations to be run before the first render.-->
+<!--iterationsPerRender integer 1: number of iterations to be run before each render.-->
+
+<!--barnesHutTheta number 0.5-->
+<!--gravity number 1-->
+<!--strongGravityMode boolean false-->
+<!--adjustSizes boolean false-->
+<!--edgeWeightInfluence number 0-->
+<!--slowDown number 1-->
+<!--outboundAttractionDistribution boolean false-->
+<div layout="row">
+    <md-input-container>
+        <label>Barnes-Hut Theta</label>
+        <input type="number" ng-model="config.barnesHutTheta"/>
+    </md-input-container>
+    <md-input-container>
+        <label>Gravity</label>
+        <input type="number" ng-model="config.gravity"/>
+    </md-input-container>
+    <md-input-container>
+        <md-switch ng-model="config.strongGravityMode">
+            Strong Gravity mode
+        </md-switch>
+    </md-input-container>
+    <md-input-container>
+        <md-switch ng-model="config.adjustSizes">
+            Adjust Sizes
+        </md-switch>
+    </md-input-container>
+    <md-input-container>
+        <label>Edge weight influence</label>
+        <input type="number" ng-model="config.edgeWeightInfluence"/>
+    </md-input-container>
+    <md-input-container>
+        <label>Slow down</label>
+        <input type="number" ng-model="config.slowDown"/>
+    </md-input-container>
+    <md-input-container>
+        <md-switch ng-model="config.outboundAttractionDistribution">
+            Outbound attraction distribution
+        </md-switch>
+    </md-input-container>
+</div>
