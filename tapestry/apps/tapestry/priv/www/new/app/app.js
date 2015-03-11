@@ -122,7 +122,7 @@ angular.module('nci', [
             $scope.options = function() {
                 $mdBottomSheet.show({
                     template: ['<md-bottom-sheet>',
-                            //'<md-button ng-click="configureLayout()">Graph Force layout config</md-button>',
+                            '<md-button ng-click="configureLayout()">Graph Force layout config</md-button>',
                             '<md-switch ng-model="showDomainNames" ng-change="updatePreferences()" aria-label="Finished?">',
                             'Show domain names',
                             '</md-switch>',
