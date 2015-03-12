@@ -1,6 +1,6 @@
 {
   "name": "angular-dygraphs",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "homepage": "https://github.com/cdjackson/angular-dygraphs",
   "authors": [
     "Chris Jackson <chris@cd-jackson.com>"
@@ -25,14 +25,13 @@
     "jquery": "~2.1.1",
     "moment": "~2.8.2"
   },
-  "_release": "1.1.5",
+  "_release": "1.1.6",
   "_resolution": {
     "type": "version",
-    "tag": "1.1.5",
-    "commit": "936a296f375da31c54a083283c133063fd2d69ef"
+    "tag": "1.1.6",
+    "commit": "1170ddc627dcc80bc9a0075b3f09326466064830"
   },
   "_source": "git://github.com/cdjackson/angular-dygraphs.git",
   "_target": "~1.1.5",
-  "_originalSource": "angular-dygraphs",
-  "_direct": true
+  "_originalSource": "angular-dygraphs"
 }

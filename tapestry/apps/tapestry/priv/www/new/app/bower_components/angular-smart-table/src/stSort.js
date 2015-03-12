@@ -1,5 +1,5 @@
 ng.module('smart-table')
-  .directive('stSort', ['$parse', function ($parse) {
+  .directive('stSort', ['stConfig', '$parse', function (stConfig, $parse) {
     return {
       restrict: 'A',
       require: '^stTable',
@@ -8,17 +8,17 @@ ng.module('smart-table')
         var predicate = attr.stSort;
         var getter = $parse(predicate);
         var index = 0;
-        var classAscent = attr.stClassAscent || 'st-sort-ascent';
-        var classDescent = attr.stClassDescent || 'st-sort-descent';
+        var classAscent = attr.stClassAscent || stConfig.sort.ascentClass;
+        var classDescent = attr.stClassDescent || stConfig.sort.descentClass;
         var stateClasses = [classAscent, classDescent];
         var sortDefault;
 
         if (attr.stSortDefault) {
-          sortDefault = scope.$eval(attr.stSortDefault) !== undefined ?  scope.$eval(attr.stSortDefault) : attr.stSortDefault;
+          sortDefault = scope.$eval(attr.stSortDefault) !== undefined ? scope.$eval(attr.stSortDefault) : attr.stSortDefault;
         }
 
         //view --> table state
-        function sort() {
+        function sort () {
           index++;
           predicate = ng.isFunction(getter(scope)) ? getter(scope) : attr.stSort;
           if (index % 3 === 0 && attr.stSkipNatural === undefined) {
@@ -32,14 +32,14 @@ ng.module('smart-table')
           }
         }
 
-        element.bind('click', function sortClick() {
+        element.bind('click', function sortClick () {
           if (predicate) {
             scope.$apply(sort);
           }
         });
 
         if (sortDefault) {
-          index = attr.stSortDefault === 'reverse' ? 1 : 0;
+          index = sortDefault === 'reverse' ? 1 : 0;
           sort();
         }
 

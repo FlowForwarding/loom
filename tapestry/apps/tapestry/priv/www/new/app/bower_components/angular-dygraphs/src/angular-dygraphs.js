@@ -104,7 +104,7 @@ angular.module("angular-dygraphs", [
                         return;
                     console.log(event, x, points, row);
                     var html = "<table><tr><th colspan='2'>";
-                    if (typeof moment === "function") {
+                    if (typeof moment === "function" && scope.legend !== undefined) {
                         html += moment(x).format(scope.legend.dateFormat);
                     }
                     else {

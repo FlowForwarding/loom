@@ -1,21 +1,169 @@
 'use strict';
 
 angular.module('nci', [
-        'ngRoute',
+        'ui.router',
         'ngMaterial',
-        'nci.monitorView',
-        'nci.collectorsView',
-        'nci.activitiesView',
-        'nci.endpointsView',
+        'nci.views',
         'nci.monitor',
         'nci.services.nciConnection',
+        'nci.services.nciEndpointModel',
         'sigmaGraphOptions'
     ])
+    .value('googleChartApiConfig', {
+        version: '1.1',
+        optionalSettings: {
+            packages: ['line', 'bar'],
+            language: 'en'
+        }
+    })
     .config(['$mdThemingProvider', function($mdThemingProvider) {}])
-    .config(['$routeProvider', function($routeProvider) {
-        $routeProvider
-            .otherwise('/monitor');
-    }])
+    .config(function($stateProvider, $urlRouterProvider) {
+        $stateProvider
+            .state("monitor", {
+                url: "/monitor",
+                templateUrl: "views/monitor/MonitorViewTemplate.html",
+                controller: 'MonitorViewController',
+                resolve: {
+                    con: ["connection", function(connection) {
+                        return connection();
+                    }]
+                }
+
+            })
+            .state("collectors", {
+                url: "/collectors",
+                templateUrl: "views/collectors/CollectorsViewTemplate.html",
+                resolve: {
+                    collectors: function($q, $timeout, connection) {
+                        return connection().then(function(con) {
+                            return con.getCollectors();
+                        });
+                    }
+                },
+                controller: 'CollectorsViewController'
+            })
+            .state("details", {
+                url: "/details",
+                abstract: true
+            })
+
+
+            .state("details.activities", {
+                url: "/activities",
+                abstract: true,
+                views: {
+                    "toolbar@": {
+                        templateUrl: "views/details/TabViewTemplate.html",
+                        controller: "TabViewController"
+                    },
+                    "@": {
+                        template: '<ui-view flex layout="column"></ui-view>'
+                    }
+                },
+                resolve: {
+                    activities: function(activitiesPromise) {
+                        return activitiesPromise;
+                    }
+                }
+            })
+            .state("details.activities.histogram", {
+                url: "/histogram",
+                data: {
+                    index: 0
+                },
+                views: {
+                    "": {
+                        templateUrl: "views/details/activities/HistogramViewTemplate.html",
+                        controller: "ActivitiesHistogramController"
+                    }
+                }
+            })
+            .state("details.activities.graph", {
+                url: "/graph",
+                data: {
+                    index: 1
+                },
+                views: {
+                    "": {
+                        templateUrl: "views/details/activities/GraphViewTemplate.html",
+                        controller: "ActivitiesGraphController"
+                    }
+                }
+            })
+            .state("details.activities.table", {
+                url: "/table",
+                data: {
+                    index: 2
+                },
+                views: {
+                    "": {
+                        templateUrl: "views/details/activities/TableViewTemplate.html",
+                        controller: "ActivitiesTableController"
+                    }
+                }
+            })
+
+
+            .state("details.endpoints", {
+                url: "/endpoints",
+                abstract: true,
+                views: {
+                    "toolbar@": {
+                        templateUrl: "views/details/TabViewTemplate.html",
+                        controller: "TabViewController"
+                    },
+                    "@": {
+                        template: '<ui-view flex layout="column"></ui-view>'
+                    }
+                },
+                resolve: {
+                    endpoints: function(endpointsPromise) {
+                        return endpointsPromise;
+                    }
+                }
+            })
+            .state("details.endpoints.histogram", {
+                url: "/histogram",
+                data: {
+                    index: 0
+                },
+                views: {
+                    "": {
+                        templateUrl: "views/details/endpoints/HistogramViewTemplate.html",
+                        controller: "EndpointsHistogramController"
+                    }
+                }
+            })
+            .state("details.endpoints.graph", {
+                url: "/graph",
+                data: {
+                    index: 1
+                },
+                views: {
+                    "": {
+                        templateUrl: "views/details/endpoints/GraphViewTemplate.html",
+                        controller: "EndpointsGraphController"
+                    }
+                }
+            })
+            .state("details.endpoints.table", {
+                url: "/table",
+                data: {
+                    index: 2
+                },
+                views: {
+                    "": {
+                        templateUrl: "views/details/endpoints/TableViewTemplate.html",
+                        controller: "EndpointsTableController"
+                    }
+                }
+            });
+
+        $urlRouterProvider
+            .when("/details/endpoints", "/details/endpoints/histogram")
+            .when("/details/activities", "/details/activities/histogram")
+            .otherwise("/monitor");
+    })
     .controller("connectionController", [
         "$mdToast",
         "$scope",

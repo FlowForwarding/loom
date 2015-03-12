@@ -1,0 +1,33 @@
+<div class="md-whiteframe-z1" flex layout-margin layout="column" style="position: relative;">
+    <table st-fixed-header st-table="rows" class="table table-striped">
+        <thead>
+        <tr>
+            <th st-sort="host" ng-if="showDomainNames">Host</th>
+            <th st-sort="ip">Endpoint</th>
+            <th st-sort="internalConnections">Internal</th>
+            <th st-sort="externalConnections">External</th>
+            <th st-sort="totalConnections">Total</th>
+            <th st-sort="activity.index">Activity</th>
+            <th st-sort="external">isExternal</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="row in rows">
+            <td ng-if="showDomainNames" title="{{row.host}}">{{row.host}}</td>
+            <td title="{{row.ip}}">{{row.ip}}</td>
+            <td>{{row.internalConnections}}</td>
+            <td>{{row.externalConnections}}</td>
+            <td>{{row.totalConnections}}</td>
+            <td>Activity #{{row.activity.index}}</td>
+            <td>{{row.external}}</td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td class="text-center">
+                <div st-pagination="" st-items-by-page="50" st-displayed-pages=""></div>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
