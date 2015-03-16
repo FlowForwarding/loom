@@ -10,7 +10,8 @@
             "colorForActivity",
             "endpointTooltip",
             "endpoints",
-            function($scope, colorForActivity, endpointTooltip, endpoints) {
+            "$state",
+            function($scope, colorForActivity, endpointTooltip, endpoints, $state) {
                 $scope.edges = [];
                 $scope.nodes = [];
 
@@ -36,7 +37,8 @@
                     return node;
                 }
 
-                var details = endpoints.all(),
+                var details = endpoints,
+                    endpointsSet = new Set(details.map(function(endpoint) {return endpoint.ip})),
                     edgesSet = new Set();
 
                 rowsCount = Math.round(Math.sqrt((new Set(details.map(function(ep) {return ep.activity;}))).size));
@@ -48,7 +50,7 @@
                         var targetEndpoint = endpoint.connections[targetIp],
                             id = endpoint.ip + "_" + targetEndpoint.ip;
 
-                        if (!edgesSet.has(id)) {
+                        if (!edgesSet.has(id) && endpointsSet.has(targetIp)) {
                             $scope.edges.push({
                                 id: id,
                                 source: endpoint.ip,
@@ -60,6 +62,7 @@
                             edgesSet.add(id);
                             edgesSet.add(targetEndpoint.ip + "_" + endpoint.ip);
                         }
+
                     });
                     return updateNodePosition(rowsCount, endpoint.activity.index, createEndpointNode(endpoint));
                 });
@@ -77,6 +80,16 @@
 
                 $scope.tooltip = function(node) {
                     return endpointTooltip(node.endpoint);
+                };
+
+                $scope.clickNode = function(node) {
+                    //var endpoint = endpoints.filter(function(ep) {return ep.ip==node.id;})[0];
+
+                    //if (endpoint) {
+                        $state.go($state.current, {
+                            endpoint: node.id
+                        });
+                    //}
                 };
 
             }]);

@@ -9,13 +9,6 @@ angular.module('nci', [
         'nci.services.nciEndpointModel',
         'sigmaGraphOptions'
     ])
-    .value('googleChartApiConfig', {
-        version: '1.1',
-        optionalSettings: {
-            packages: ['line', 'bar'],
-            language: 'en'
-        }
-    })
     .config(['$mdThemingProvider', function($mdThemingProvider) {}])
     .config(function($stateProvider, $urlRouterProvider) {
         $stateProvider
@@ -105,10 +98,11 @@ angular.module('nci', [
 
 
             .state("details.endpoints", {
-                url: "/endpoints",
+                url: "/endpoints/{endpoint}",
                 abstract: true,
                 views: {
                     "toolbar@": {
+                        //template: '<div class="md-toolbar-tools">Test</div><ng-include src="\'./views/details/TabViewTemplate.html\'"></ng-include>',
                         templateUrl: "views/details/TabViewTemplate.html",
                         controller: "TabViewController"
                     },
@@ -117,8 +111,17 @@ angular.module('nci', [
                     }
                 },
                 resolve: {
-                    endpoints: function(endpointsPromise) {
-                        return endpointsPromise;
+                    endpoints: function(endpointsPromise, $stateParams) {
+                        var ip = $stateParams.endpoint;
+                        return endpointsPromise.then(function(ep) {
+                            if (ip) {
+                                var endpoint = ep.byIp(ip),
+                                    connections = endpoint.getConnections();
+                                //connections.push(endpoint);
+                                return connections;
+                            }
+                            return ep.all();
+                        });
                     }
                 }
             })
@@ -138,6 +141,20 @@ angular.module('nci', [
                 url: "/graph",
                 data: {
                     index: 1
+                },
+                resolve: {
+                    endpoints: function(endpoints, $stateParams, endpointsPromise) {
+                        var ip = $stateParams.endpoint;
+                        return endpointsPromise.then(function(ep) {
+                            if (ip) {
+                                var endpoint = ep.byIp(ip);
+                                // Make a copy of endpoints array
+                                endpoints = endpoints.slice();
+                                endpoints.push(endpoint);
+                            }
+                            return endpoints;
+                        });
+                    }
                 },
                 views: {
                     "": {
@@ -160,7 +177,7 @@ angular.module('nci', [
             });
 
         $urlRouterProvider
-            .when("/details/endpoints", "/details/endpoints/histogram")
+            .when("/details/endpoints", "/details/endpoints//histogram")
             .when("/details/activities", "/details/activities/histogram")
             .otherwise("/monitor");
     })
@@ -202,12 +219,14 @@ angular.module('nci', [
         "connection",
         "$scope",
         "$mdToast",
-        "$route",
-        function(connection, $scope, $mdToast, $route) {
+        "$state",
+        function(connection, $scope, $mdToast, $state) {
             $scope.retry = function() {
                 $mdToast.hide();
                 connection()
-                    .then($route.reload);
+                    .then(function() {
+                        $state.go($state.current, {}, {reload: true});
+                    });
             };
             $scope.changeServer = function() {
                 $mdToast.hide();
@@ -295,15 +314,15 @@ angular.module('nci', [
         '$scope',
         '$rootScope',
         "connection",
-        "$route",
+        "$state",
         "preferences",
         "$mdBottomSheet",
-        function($scope, $rootScope, connection, $route, preferences, $mdBottomSheet) {
+        function($scope, $rootScope, connection, $state, preferences, $mdBottomSheet) {
             $scope.serverUrl = connection.getUrl();
             $scope.reconnect = function() {
                 connection.setUrl($scope.serverUrl);
                 connection().then(function() {
-                    $route.reload();
+                    $state.go($state.current, {}, {reload: true});
                 });
             };
 
@@ -329,14 +348,14 @@ angular.module('nci', [
             };
         }
     ])
-    .controller("tapestryNavigation", ["$scope", "$location", function($scope, $location) {
+    .controller("tapestryNavigation", function($scope, $state) {
         $scope.showMonitor = function() {
-            $location.path("/monitor");
+            $state.go("monitor");
         };
         $scope.showCollectors = function() {
-            $location.path("/collectors");
+            $state.go("collectors");
         };
         $scope.showDetails = function() {
-            $location.path("/details/activities");
+            $state.go("details.endpoints.histogram");
         };
-    }]);
+    });

@@ -12,7 +12,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="row in rows">
+        <tr ng-click="rowClick(row)" ng-repeat="row in rows">
             <td ng-if="showDomainNames" title="{{row.host}}">{{row.host}}</td>
             <td title="{{row.ip}}">{{row.ip}}</td>
             <td>{{row.internalConnections}}</td>

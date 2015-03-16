@@ -9,8 +9,9 @@
             "endpointTooltip",
             "colors",
             "endpoints",
-            function($scope, endpointTooltip, colors, endpoints) {
-                var details = endpoints.all().sort(function(e2, e1) {return e1.totalConnections - e2.totalConnections;}),
+            "$state",
+            function($scope, endpointTooltip, colors, endpoints, $state) {
+                var details = endpoints.sort(function(e2, e1) {return e1.totalConnections - e2.totalConnections;}),
                     rows = prepareRows();
 
                 function createTooltip(endpoint) {
@@ -72,8 +73,11 @@
                 $scope.chartObject = {};
 
                 $scope.select = function(selection) {
-
-                    console.log(selection);
+                    $state.go($state.current, {
+                        endpoint: rows[selection.row].c[0].v
+                    }, {
+                        reload: true
+                    });
                 };
 
                 $scope.rows = rows;
