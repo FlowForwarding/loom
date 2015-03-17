@@ -184,6 +184,9 @@
                         preferences.showDomainNames ? endpoint.host : "",
                     "</div>",
                     "<div>",
+                        "Activity #" + endpoint.activity.index,
+                    "</div>",
+                    "<div>",
                         "Connections: ",
                     endpoint.totalConnections,
                     "</div>"
