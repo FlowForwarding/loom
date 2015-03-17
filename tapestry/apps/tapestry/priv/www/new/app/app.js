@@ -16,6 +16,9 @@ angular.module('nci', [
                 url: "/monitor",
                 templateUrl: "views/monitor/MonitorViewTemplate.html",
                 controller: 'MonitorViewController',
+                data: {
+                    name: "NCI Monitor"
+                },
                 resolve: {
                     con: ["connection", function(connection) {
                         return connection();
@@ -26,6 +29,9 @@ angular.module('nci', [
             .state("collectors", {
                 url: "/collectors",
                 templateUrl: "views/collectors/CollectorsViewTemplate.html",
+                data: {
+                    name: "Collectors"
+                },
                 resolve: {
                     collectors: function($q, $timeout, connection) {
                         return connection().then(function(con) {
@@ -44,6 +50,10 @@ angular.module('nci', [
             .state("details.activities", {
                 url: "/activities",
                 abstract: true,
+                data: {
+                    name: "Activities"
+                },
+
                 views: {
                     "toolbar@": {
                         templateUrl: "views/details/TabViewTemplate.html",
@@ -100,6 +110,9 @@ angular.module('nci', [
             .state("details.endpoints", {
                 url: "/endpoints/{endpoint}",
                 abstract: true,
+                data: {
+                    name: "All Endpoints"
+                },
                 views: {
                     "toolbar@": {
                         //template: '<div class="md-toolbar-tools">Test</div><ng-include src="\'./views/details/TabViewTemplate.html\'"></ng-include>',
@@ -113,6 +126,7 @@ angular.module('nci', [
                 resolve: {
                     endpoints: function(endpointsPromise, $stateParams) {
                         var ip = $stateParams.endpoint;
+
                         return endpointsPromise.then(function(ep) {
                             if (ip) {
                                 var endpoint = ep.byIp(ip),
@@ -238,7 +252,9 @@ angular.module('nci', [
         "$q",
         "$scope",
         "$mdSidenav",
-        function($mdDialog, $q, $scope, $mdSidenav) {
+        "$state",
+        "$stateParams",
+        function($mdDialog, $q, $scope, $mdSidenav, $state, $stateParams) {
             var alert = null,
                 showDefer = null;
 
@@ -279,6 +295,19 @@ angular.module('nci', [
             $scope.toggleSideNav = function() {
                 $mdSidenav('left').toggle();
             };
+
+            function getViewName() {
+                return $stateParams.endpoint ? $stateParams.endpoint : $state.current.data.name;
+            }
+
+            $scope.allEndpoints = function() {
+                $state.go($state.current, {endpoint: null}, {reload: true});
+            };
+
+            $scope.$on("$stateChangeSuccess", function(event, current) {
+                $scope.viewName = getViewName();
+                $scope.showAllEndpoints = !!$stateParams.endpoint;
+            });
 
         }
     ])

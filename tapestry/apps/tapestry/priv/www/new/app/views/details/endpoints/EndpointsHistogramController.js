@@ -84,6 +84,7 @@
 
                 $scope.page = 0;
                 $scope.prevDisabled = true;
+                //$scope.nextDisabled = Math.floor(rows.length/$scope.itemsPerPage) <= 0;
                 $scope.itemsPerPage = 50;
                 $scope.goToPage = function(page) {
                     $scope.prevDisabled = false;
