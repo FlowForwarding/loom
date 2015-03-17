@@ -338,6 +338,7 @@ angular.module('nci', [
                 $mdBottomSheet.show({
                     template: ['<md-bottom-sheet>',
                             '<md-button ng-click="configureLayout()">Graph Force layout config</md-button>',
+                            '<md-button ng-click="downloadServerInput()">Download server input</md-button>',
                             '<md-switch ng-model="showDomainNames" ng-change="updatePreferences()" aria-label="Finished?">',
                             'Show domain names',
                             '</md-switch>',
@@ -365,7 +366,8 @@ angular.module('nci', [
         "$state",
         "preferences",
         "$mdBottomSheet",
-        function($scope, $rootScope, connection, $state, preferences, $mdBottomSheet) {
+        "downloadFile",
+        function($scope, $rootScope, connection, $state, preferences, $mdBottomSheet, downloadFile) {
             $scope.serverUrl = connection.getUrl();
             $scope.reconnect = function() {
                 connection.setUrl($scope.serverUrl);
@@ -393,6 +395,18 @@ angular.module('nci', [
                         controller: "ForceLayoutConfigController"
                     });
                 });
+            };
+
+            $scope.downloadServerInput = function() {
+                connection().
+                    then(function(nci) {
+                        return nci.getDetails();
+                    })
+                    .then(function(details) {
+                        var fileContent = JSON.stringify(details);
+
+                        downloadFile("application/json", fileContent, "dump.json");
+                    });
             };
         }
     ])
