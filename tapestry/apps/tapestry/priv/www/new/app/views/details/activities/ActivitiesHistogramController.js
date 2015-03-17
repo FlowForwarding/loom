@@ -29,7 +29,7 @@
                 })),
                 rows = details.map(function(activity) {
                     return {c: [
-                        {v: "Activity #" + activity.index, f: "", ip: activity.mainEndpoint.ip},
+                        {v: "Activity #" + activity.index, f: "" + activity.index, ip: activity.mainEndpoint.ip},
                         {v: activity.size},
                         {v: createTooltip(activity)},
                         {v: colorForActivityBar(activity)}
@@ -80,7 +80,7 @@
                     "title": "Number of Endpoints per Activity X[j]"
                 },
                 "hAxis": {
-                    "labels": "false",
+                    "labels": "true",
                     "title": 'Activities Sorted by Size'
                 }
             };
