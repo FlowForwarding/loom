@@ -309,6 +309,25 @@ angular.module('nci', [
                 $scope.showAllEndpoints = !!$stateParams.endpoint;
             });
 
+            $scope.search = function(event) {
+                $mdDialog.show({
+                    templateUrl: "./views/search/SearchViewTemplate.html",
+                    clickOutsideToClose: true,
+                    escapeToClose: true,
+                    targetEvent: event,
+                    onComplete: function() {
+                        console.log("done!!");
+                    },
+                    controller: function($scope, modelPromise) {
+                        $scope.search = function(query) {
+                            modelPromise.then(function(model) {
+                                $scope.results = model.findEndpoint(query);
+                            });
+                        };
+                    }
+                });
+            };
+
         }
     ])
     .controller("optionsController", [

@@ -183,6 +183,18 @@
                 endpointsList = Object.keys(endpointsMap).map(function(key) {return endpointsMap[key];});
 
 
+                function wildcardStringToRegExp(str) {
+                    // converts string with wildcards to regex
+                    // * - zero or more
+                    // ? - exact one
+
+                    str = str.replace(/\./g, "\\.");
+                    str = str.replace(/\?/g, ".");
+                    str = str.replace(/\*/g, ".*");
+
+                    return new RegExp(str);
+                }
+
                 return {
                     getActivityByMainEndpoint: function(endpoint) {
                         return activitiesMap[endpoint.ip];
@@ -192,6 +204,35 @@
                     },
                     hostNameForIp: function(ip) {
                         return this.getEndpointByIp(ip).host;
+                    },
+                    findEndpoint: function(query) {
+                        var filterRe = wildcardStringToRegExp(query),
+                            result = [],
+                            BreakException= {},
+                            limit = 20;
+
+                        // if query length >= 3 don't limit results, else limit by
+                        limit = query.lenght >= 3 ? endpointsList.length : limit;
+
+                        try {
+                            endpointsList.forEach(function(endpoint) {
+                                if (filterRe.test(endpoint.ip) || filterRe.test(endpoint.host)) {
+                                    result.push(endpoint);
+                                    limit--;
+                                }
+                                if (limit<=0) {
+                                    throw BreakException;
+                                }
+                                return false;
+                            });
+                        } catch(e) {
+                            if (e!==BreakException) {
+                                console.log("limit reached");
+                                throw e;
+                            }
+                        }
+
+                        return result;
                     },
                     endpoints: function() {
                         return endpointsList;

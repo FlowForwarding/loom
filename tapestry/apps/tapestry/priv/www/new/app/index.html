@@ -49,6 +49,7 @@
                         <span ng-show="showAllEndpoints" style="text-transform: uppercase;font-size: 14px; margin: 0 10px">&gt;</span>
                         <span style="text-transform: uppercase;font-size: 14px; margin: 0 0 0 8px">{{viewName}}</span>
                         <span flex></span>
+                        <md-button ng-click="search($event)" class="md-raised" style="margin: 0 10px;">Search</md-button>
                         <md-button ng-controller="optionsController" ng-click="options()" class="md-raised">Options</md-button>
                     </div>
                     <ui-view name="toolbar"></ui-view>
