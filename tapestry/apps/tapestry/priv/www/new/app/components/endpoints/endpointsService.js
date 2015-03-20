@@ -21,6 +21,7 @@
                 if (!edgesSet.has(id) && endpointsSet.has(target) && endpointsSet.has(source)) {
                     var edge = {
                         id: id,
+                        color: "#999",
                         source: source,
                         target: target,
                         weight: weight,

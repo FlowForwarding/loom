@@ -1,10 +1,10 @@
-<md-dialog>
-    <md-toolbar class="md-hue-1">
-        <div class="md-toolbar-tools">
-            {{activity}}
-        </div>
-    </md-toolbar>
-    <md-content style="padding: 0;">
+<md-dialog></md-dialog>
+    <md-content layout="column" class="endpoints-pane">
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                {{activity}}
+            </div>
+        </md-toolbar>
         <!--<h2>Activity</h2>-->
         <nci-sigma-graph
                 nodes="nodes"
@@ -12,7 +12,7 @@
                 tooltip="tooltip"
                 edges="edges"
                 config="config"
-                style="display: block;width: 2000px;height: 1000px"
+                style="display: block;position: relative;"
                 flex>
         </nci-sigma-graph>
         <div class="legend-section md-whiteframe-z1">
@@ -20,13 +20,12 @@
                 <span ng-class="key.shape" ng-style="{'background-color': key.color}"></span><span> - {{key.text}}</span>
             </div>
         </div>
+        <div class="md-actions" layout="row">
+            <md-switch ng-change="updateDisplay()" ng-model="showExternal">External</md-switch>
+            <md-switch ng-change="updateDisplay()" ng-model="showOutside">Outside activities</md-switch>
+            <span flex></span>
+            <md-button class="md-primary" ng-click="exportActivity()">Export to CSV</md-button>
+            <md-button ng-click="closeDialog()">Close</md-button>
+        </div>
     </md-content>
-    <div class="md-actions">
-        <md-switch ng-change="updateDisplay()" ng-model="showExternal">External</md-switch>
-        <md-switch ng-change="updateDisplay()" ng-model="showOutside">Outside activities</md-switch>
-        <span flex></span>
-        <md-button class="md-primary" ng-click="exportActivity()">Export to CSV</md-button>
-        <md-button ng-click="closeDialog()">Close</md-button>
-    </div>
-</md-dialog>
 
