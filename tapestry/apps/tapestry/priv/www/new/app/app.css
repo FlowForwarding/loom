@@ -289,6 +289,8 @@ tfoot td {
 
 .square {
     display: inline-block;
+    border-radius: 2px;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);;
     width: 20px;
     height: 20px;
     margin: 0 0 -5px 0;
@@ -300,6 +302,7 @@ tfoot td {
     height: 20px;
     margin: 0 0 -5px 0;
     border-radius: 100%;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);;
     transition: background-color ease-in-out 2s;
 }
 

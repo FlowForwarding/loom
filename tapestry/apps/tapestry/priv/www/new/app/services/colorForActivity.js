@@ -37,15 +37,22 @@
             ],
             activities: {
                 'default': "#1f77b4",
-                INTERNAL_OVER_EXTERNAL: "#2ca02c",
-                MAX_INTERNAL_FLOWS: "#69456f"
+                MAX_INTERNAL_FLOWS: "#2ca02c",
+                INTERNAL_OVER_EXTERNAL_ENDPOINTS: "#69456f"
             },
             endpoints: {
                 'default': "",
-                EXTERNAL_EXTERNAL_CONNECTIONS: "#581A00",
-                INTERNAL_EXTERNAL_CONNECTIONS: "#ff9896",
-                EXTERNAL_INTERNAL_CONNECTIONS: "darkgreen",
-                INTERNAL_INTERNAL_CONNECTIONS: "#a1d99b",
+                // ENDPOINT_CONNECTIONS
+                //EXTERNAL_EXTERNAL_CONNECTIONS: "#333399",
+                //EXTERNAL_INTERNAL_CONNECTIONS: "#999933",
+                EXTERNAL_EXTERNAL_CONNECTIONS: "#512DA8",
+                EXTERNAL_INTERNAL_CONNECTIONS: "#FFEB3B",
+                //EXTERNAL_EXTERNAL_CONNECTIONS: "#581A00",
+                //EXTERNAL_INTERNAL_CONNECTIONS: "darkgreen",
+                INTERNAL_EXTERNAL_CONNECTIONS: "#FF5722",
+                INTERNAL_INTERNAL_CONNECTIONS: "#689F38",
+                //INTERNAL_EXTERNAL_CONNECTIONS: "#ff9896",
+                //INTERNAL_INTERNAL_CONNECTIONS: "#a1d99b",
                 OUTSIDE_ACTIVITY: "red",
                 EXTERNAL: "#69456f"
             }
