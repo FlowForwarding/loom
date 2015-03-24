@@ -86,14 +86,14 @@
             };
 
             $scope.legendKeys = [{
-                text: "Activity",
-                color: colors.activities.default
-            }, {
-                text: "Activity with number of internal endpoints gather than number of external endpoints",
+                text: "Activity with number of internal endpoints greater than number of external endpoints",
                 color: colors.activities.INTERNAL_OVER_EXTERNAL_ENDPOINTS
             }, {
-                text: "Top 5 activities, where number of internal flows is maximum and greater than zero",
+                text: "In top 5 activities, based on number of internal flows",
                 color: colors.activities.MAX_INTERNAL_FLOWS
+            }, {
+                text: "Activity",
+                color: colors.activities.default
             }];
 
 

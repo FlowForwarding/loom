@@ -21,8 +21,9 @@
             </div>
         </div>
         <div class="md-actions" layout="row">
-            <md-switch ng-change="updateDisplay()" ng-model="showExternal">External</md-switch>
-            <md-switch ng-change="updateDisplay()" ng-model="showOutside">Outside activities</md-switch>
+            <md-switch ng-change="updateDisplay()" ng-model="showInternalOnly">Internal endpoints only</md-switch>
+            <md-switch ng-change="updateDisplay()" ng-model="showOutside">Connected endpoints in other activities</md-switch>
+            <md-switch ng-change="updateDisplay()" ng-show="!showInternalOnly" ng-model="showExternal">External</md-switch>
             <span flex></span>
             <md-button class="md-primary" ng-click="exportActivity()">Export to CSV</md-button>
             <md-button ng-click="closeDialog()">Close</md-button>

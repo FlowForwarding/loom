@@ -10,11 +10,9 @@
             var edgesSet = new Set(),
                 edges = [],
                 nodes = [],
-                insideNodes = [],
-                insideEdges = [],
                 endpointsSet = new Set();
 
-            function createEdge(target, source, weight, size, isOutside) {
+            function createEdge(target, source, weight, size, isOutside, isExternal) {
                 var id = target + "_" + source;
                 isOutside = isOutside || false;
 
@@ -25,12 +23,11 @@
                         source: source,
                         target: target,
                         weight: weight,
+                        isOutside: isOutside,
+                        external: isExternal,
                         size: size
                     };
                     edges.push(edge);
-                    if (!isOutside) {
-                        insideEdges.push(edge);
-                    }
                     edgesSet.add(id);
                     edgesSet.add(source + "_" + target);
                 }
@@ -62,19 +59,29 @@
 
             function updateOutsideDisplay() {
                 var showOutside = $scope.showOutside;
-                $scope.nodes = showOutside ? nodes : insideNodes;
-                $scope.edges = showOutside ? edges : insideEdges;
+                $scope.nodes = showOutside ? nodes.slice() : nodes.slice().filter(function(n) {return !n.isOutside});
+                $scope.edges = showOutside ? edges.slice() : edges.slice().filter(function(n) {return !n.isOutside});
+            }
 
+            function updateShowInternalDisplay() {
+                var showInternalOnly = $scope.showInternalOnly;
+                $scope.nodes = !showInternalOnly ? $scope.nodes : $scope.nodes.filter(function(n) {return !n.external});
+                $scope.edges = !showInternalOnly ? $scope.edges : $scope.edges.filter(function(n) {return !n.external});
             }
 
             function updateExternalDisplay() {
                 $scope.nodes = nodes.map(updateNodeColor);
             }
 
+            $scope.showOutside = true;
+            $scope.showExternal = false;
+            $scope.showInternalOnly = false;
+
             $scope.updateDisplay = function() {
                 removeAnchor();
                 updateExternalDisplay();
                 updateOutsideDisplay();
+                updateShowInternalDisplay();
                 addAnchor();
 
                 updateGraph();
@@ -84,13 +91,16 @@
             function createEndpointNode(endpoint) {
                 endpointsSet.add(endpoint.ip);
                 var outside = isOutside(endpoint);
+
                 endpoint.getConnections().forEach(function(ep) {
-                    createEdge(endpoint.ip, ep.ip, 0.2, 0.1, isOutside(ep) || outside);
+                    createEdge(endpoint.ip, ep.ip, 0.2, 0.1, isOutside(ep) || outside, endpoint.external || ep.external);
                 });
 
                 return {
                     id: endpoint.ip,
                     endpoint: endpoint,
+                    external: endpoint.external,
+                    isOutside: outside,
                     size: 1,
                     label: endpoint.ip,
                     x: Math.random()*20 - 10,
@@ -115,9 +125,6 @@
             endpointsToDisplay.forEach(function(endpoint) {
                 var node = updateNodeColor(createEndpointNode(endpoint));
                 nodes.push(node);
-                if (!isOutside(endpoint)) {
-                    insideNodes.push(node);
-                }
             });
 
 
@@ -131,17 +138,17 @@
             };
 
             function removeAnchor() {
-                nodes.pop();
-                insideNodes.pop();
+                $scope.nodes.pop();
+                //insideNodes.pop();
             }
 
             function addAnchor() {
-                nodes.push(anchor);
-                insideNodes.push(anchor);
+                $scope.nodes.push(anchor);
+                //insideNodes.push(anchor);
             }
 
-            addAnchor();
             updateOutsideDisplay();
+            addAnchor();
 
             $scope.exportActivity = function() {
                 var endpoints = [];
