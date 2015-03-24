@@ -92,7 +92,7 @@
                 text: "Activity with number of internal endpoints gather than number of external endpoints",
                 color: colors.activities.INTERNAL_OVER_EXTERNAL_ENDPOINTS
             }, {
-                text: "Top 5 activities, where number of internal flows is maximum and gather than zero",
+                text: "Top 5 activities, where number of internal flows is maximum and greater than zero",
                 color: colors.activities.MAX_INTERNAL_FLOWS
             }];
 
