@@ -73,7 +73,7 @@
                 $scope.nodes = nodes.map(updateNodeColor);
             }
 
-            $scope.showOutside = true;
+            $scope.showOutside = false;
             $scope.showExternal = false;
             $scope.showInternalOnly = false;
 
