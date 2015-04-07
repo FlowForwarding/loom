@@ -1,0 +1,6 @@
+<ul class="breadcrumbs md-whiteframe-z1">
+    <li class="breadcrumb" ng-repeat="breadcrumb in breadcrumbs">
+        <a ng-click="goTo(breadcrumb.ip)">{{breadcrumb.text}}</a><span class="separator" ng-if="!$last">&nbsp;>&nbsp;</span>
+    </li>
+</ul>
+<ui-view flex layout="column"></ui-view>

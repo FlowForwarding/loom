@@ -7,6 +7,8 @@
 
         "nci.views.details.TabViewController",
 
+        "nci.views.details.endpoints.BreadcrumbController",
+
         "nci.views.details.endpoints.EndpointsGraphController",
         "nci.views.details.endpoints.EndpointsHistogramController",
         "nci.views.details.endpoints.EndpointsTableController",

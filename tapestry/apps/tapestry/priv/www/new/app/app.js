@@ -120,7 +120,8 @@ angular.module('nci', [
                         controller: "TabViewController"
                     },
                     "@": {
-                        template: '<ui-view flex layout="column"></ui-view>'
+                        templateUrl: 'views/details/endpoints/EndpointsViewTemplate.html',
+                        controller: 'BreadcrumbController'
                     }
                 },
                 resolve: {

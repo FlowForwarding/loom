@@ -341,3 +341,18 @@ md-content.endpoints-pane .md-actions {
     background-color: #ffffff;
 }
 
+.breadcrumbs {
+    padding: 16px;
+    margin: 8px;
+    list-style: none;
+}
+
+.breadcrumb {
+    display: inline-block;
+}
+
+.breadcrumb > a {
+    cursor: pointer;
+    outline: none;
+}
+
