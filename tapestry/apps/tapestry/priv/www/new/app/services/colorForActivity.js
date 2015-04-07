@@ -41,7 +41,7 @@
                 INTERNAL_OVER_EXTERNAL_ENDPOINTS: "#69456f"
             },
             endpoints: {
-                'default': "",
+                'default': "#1f77b4",
                 // ENDPOINT_CONNECTIONS
                 //EXTERNAL_EXTERNAL_CONNECTIONS: "#333399",
                 //EXTERNAL_INTERNAL_CONNECTIONS: "#999933",

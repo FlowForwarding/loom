@@ -6,8 +6,9 @@
         'nci.services.export',
         'nci.components.nciSigmaGraph'
     ])
-        .controller("endpointsDialogController", function($scope, $mdDialog, activity, colorForActivity, exportToCSV, endpointTooltip, colors) {
-            var edgesSet = new Set(),
+        .controller("endpointsDialogController", function($scope, $mdDialog, activity, exportToCSV, endpointTooltip, colors) {
+            var defaultEndpointColor = colors.endpoints.default,
+                edgesSet = new Set(),
                 edges = [],
                 nodes = [],
                 endpointsSet = new Set();
@@ -40,7 +41,7 @@
             function updateNodeColor(node) {
                 var endpoint = node.endpoint,
                     showExternal = $scope.showExternal,
-                    color = isOutside(endpoint) ? colors.endpoints.OUTSIDE_ACTIVITY : colorForActivity(endpoint.activity);
+                    color = isOutside(endpoint) ? colors.endpoints.OUTSIDE_ACTIVITY : defaultEndpointColor;
 
 
                 node.color = showExternal && endpoint.external ? colors.endpoints.EXTERNAL : color;
@@ -105,7 +106,7 @@
                     label: endpoint.ip,
                     x: Math.random()*20 - 10,
                     y: Math.random()*20 - 10,
-                    color: colorForActivity(endpoint.activity)
+                    color: defaultEndpointColor
                 };
             }
 
@@ -167,7 +168,7 @@
             $scope.legendKeys = [{
                 shape: "circle",
                 text: "endpoint in activity",
-                color: colorForActivity(activity)
+                color: defaultEndpointColor
             }, {
                 shape: "circle",
                 text: "endpoint in a different activity",
