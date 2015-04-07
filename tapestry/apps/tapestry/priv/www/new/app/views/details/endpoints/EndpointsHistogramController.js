@@ -125,6 +125,9 @@
                         //"logScale": "true",
                         "title": "Number of Connections"
                     },
+                    "bar": {
+                        "groupWidth": "8"
+                    },
                     "hAxis": {
                         "labels": "false",
                         //"title": ['Activities Sorted by Size ',

@@ -69,6 +69,8 @@
             //$scope.chartObject.type = "google.charts.Bar";
             $scope.chartObject.type = "ColumnChart";
 
+            var groupWidth = rows.length > 60 ? "65%": "10";
+
             $scope.chartObject.options = {
                 //'title': 'Activities distribution',
                 //"isStacked": "true",
@@ -78,6 +80,9 @@
                     // scale type is used to start scale with ~0
                     "scaleType": "mirrorLog",
                     "title": "Number of Endpoints per Activity X[j]"
+                },
+                "bar": {
+                    "groupWidth": groupWidth
                 },
                 "hAxis": {
                     "labels": "true",
