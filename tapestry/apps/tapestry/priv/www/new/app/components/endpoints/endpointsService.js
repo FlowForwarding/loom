@@ -6,7 +6,7 @@
         'nci.services.export',
         'nci.components.nciSigmaGraph'
     ])
-        .controller("endpointsDialogController", function($scope, $mdDialog, activity, exportToCSV, endpointTooltip, colors) {
+        .controller("endpointsDialogController", function($scope, $mdDialog, activity, exportToCSV, endpointTooltip, colors, preferences) {
             var defaultEndpointColor = colors.endpoints.default,
                 edgesSet = new Set(),
                 edges = [],
@@ -58,6 +58,12 @@
                 $scope.config.redraw++;
             }
 
+            function updateTable() {
+                $scope.rows = $scope.nodes.map(function(node) {
+                    return node.endpoint;
+                });
+            }
+
             function updateOutsideDisplay() {
                 var showOutside = $scope.showOutside;
                 $scope.nodes = showOutside ? nodes.slice() : nodes.slice().filter(function(n) {return !n.isOutside});
@@ -83,6 +89,9 @@
                 updateExternalDisplay();
                 updateOutsideDisplay();
                 updateShowInternalDisplay();
+
+                updateTable();
+
                 addAnchor();
 
                 updateGraph();
@@ -149,6 +158,10 @@
             }
 
             updateOutsideDisplay();
+
+            $scope.display = [];
+
+            updateTable();
             addAnchor();
 
             $scope.exportActivity = function() {
@@ -178,6 +191,13 @@
                 text: "external endpoint",
                 color: colors.endpoints.EXTERNAL
             }];
+
+            $scope.displayTableView = false;
+            $scope.showDomainNames = preferences.showDomainNames;
+
+            $scope.$on("app:preferencesChanged", function(event, prefs) {
+                $scope.showDomainNames = prefs.showDomainNames;
+            });
 
         })
         .factory("endpointTooltip", function(preferences) {

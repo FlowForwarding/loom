@@ -13,17 +13,55 @@
                 edges="edges"
                 config="config"
                 style="display: block;position: relative;"
+                ng-if="!displayTableView"
                 flex>
         </nci-sigma-graph>
-        <div class="legend-section md-whiteframe-z1">
+        <div ng-if="!displayTableView" class="legend-section md-whiteframe-z1">
             <div class="legend-key" ng-repeat="key in legendKeys">
                 <span ng-class="key.shape" ng-style="{'background-color': key.color}"></span><span> - {{key.text}}</span>
             </div>
         </div>
+
+        <div ng-if="displayTableView" class="md-whiteframe-z1" flex layout-margin layout="column" style="position: relative; background-color: white;">
+
+            <table st-fixed-header st-table="display" st-safe-src="rows" class="table table-striped">
+                <thead>
+                <tr>
+                    <th st-sort="host" ng-if="showDomainNames">Host</th>
+                    <th st-sort="ip">Endpoint</th>
+                    <th st-sort="internalConnections">Internal</th>
+                    <th st-sort="externalConnections">External</th>
+                    <th st-sort="totalConnections">Total</th>
+                    <th st-sort="activity.index">Activity</th>
+                    <th st-sort="external">isExternal</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-click="rowClick(row)" ng-repeat="row in display">
+                    <td ng-if="showDomainNames" title="{{row.host}}">{{row.host}}</td>
+                    <td title="{{row.ip}}">{{row.ip}}</td>
+                    <td>{{row.internalConnections}}</td>
+                    <td>{{row.externalConnections}}</td>
+                    <td>{{row.totalConnections}}</td>
+                    <td>Activity #{{row.activity.index}}</td>
+                    <td>{{row.external}}</td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td class="text-center">
+                        <div st-pagination="" st-items-by-page="50" st-displayed-pages=""></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+
         <div class="md-actions" layout="row">
+            <md-switch ng-model="displayTableView">List view</md-switch>
             <md-switch ng-change="updateDisplay()" ng-model="showInternalOnly">Internal endpoints only</md-switch>
             <md-switch ng-change="updateDisplay()" ng-model="showOutside">Connected endpoints in other activities</md-switch>
-            <md-switch ng-change="updateDisplay()" ng-show="!showInternalOnly" ng-model="showExternal">External</md-switch>
+            <md-switch ng-change="updateDisplay()" ng-show="!showInternalOnly && !displayTableView" ng-model="showExternal">External</md-switch>
             <span flex></span>
             <md-button class="md-primary" ng-click="exportActivity()">Export to CSV</md-button>
             <md-button ng-click="closeDialog()">Close</md-button>
