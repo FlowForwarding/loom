@@ -16,6 +16,7 @@ angular.module("nci.services.nciConnection", [
                 nep: 0,
                 qps: 0,
                 nci: 0,
+                lastUpdatedNCI: new Date(),
                 nciData: [],
                 collectors: 0,
                 startTime: null,
@@ -83,6 +84,7 @@ angular.module("nci.services.nciConnection", [
                         Date.parse(data.Time),
                         data.NCI
                     ]);
+                    connection.lastUpdatedNCI = Date.parse(data.Time);
                     // TODO: check if we really need sort here
                     connection.nciData = connection.nciData.sort(function(d1, d2) {
                         return d1[0] - d2[0];
@@ -105,7 +107,7 @@ angular.module("nci.services.nciConnection", [
                     $rootScope.$digest();
                 }
             },
-            
+
             url = "ws://" + location.host + "/clientsock.yaws";
             // url = "ws://localhost:28080/clientsock.yaws";
             // url = "ws://10.48.11.64:28080/clientsock.yaws";
