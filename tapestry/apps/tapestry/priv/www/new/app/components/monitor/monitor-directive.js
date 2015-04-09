@@ -13,6 +13,9 @@ angular.module('nci.monitor.monitor-directive', [])
             $scope.$watch(createWatcher(con, 'nci'), function(nci) {
                 $scope.nci = nci;
             });
+            $scope.$watch(createWatcher(con, 'lastUpdatedNCI'), function(updatedAt) {
+                $scope.updatedAt = updatedAt;
+            });
             $scope.$watch(createWatcher(con, 'collectors'), function(collectors) {
                 $scope.collectors = collectors;
             });

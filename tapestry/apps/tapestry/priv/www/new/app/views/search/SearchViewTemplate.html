@@ -7,7 +7,10 @@
         <md-list flex style="overflow: auto">
             <md-item ng-repeat="result in results">
                 <md-item-content>
-                    <a ui-sref="details.endpoints.histogram({endpoint: result.ip})">{{result.ip}} / {{result.host}}</a>
+                    <a ui-sref="details.endpoints.histogram({endpoint: result.ip})">
+                        {{result.ip}} / {{result.host}}
+                        <!--/ {{result.totalConnections}}-->
+                    </a>
                 </md-item-content>
                 <md-divider ng-if="!$last"></md-divider>
             </md-item>

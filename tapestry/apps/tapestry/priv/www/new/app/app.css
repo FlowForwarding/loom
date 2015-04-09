@@ -365,3 +365,13 @@ md-content.endpoints-pane .md-actions {
     outline: none;
 }
 
+
+.updatedTime {
+    font-style: italic;
+    color: #808080;
+    font-size: 12px;
+}
+
+.nci-header {
+    padding-left: 20px;
+}

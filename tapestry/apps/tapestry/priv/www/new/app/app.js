@@ -110,7 +110,7 @@ angular.module('nci', [
                 templateUrl: "views/monitor/MonitorViewTemplate.html",
                 controller: 'MonitorViewController',
                 data: {
-                    name: "NCI Monitor"
+                    name: "Dashboard"
                 },
                 resolve: {
                     con: ["connection", function(connection) {
@@ -348,7 +348,8 @@ angular.module('nci', [
         "$mdSidenav",
         "$state",
         "$stateParams",
-        function($mdDialog, $q, $scope, $mdSidenav, $state, $stateParams) {
+        "connection",
+        function($mdDialog, $q, $scope, $mdSidenav, $state, $stateParams, connection) {
             var alert = null,
                 showDefer = null;
 
@@ -398,9 +399,24 @@ angular.module('nci', [
                 $state.go($state.current, {endpoint: null}, {reload: true});
             };
 
+            $scope.currentNCI = "";
+            $scope.updatedAt = "";
+
+
+            connection()
+                .then(function(connection) {
+                    $scope.$watch(function() {
+                        return connection.nci;
+                    }, function(nci) {
+                        $scope.currentNCI = connection.nci;
+                        $scope.updatedAt = connection.lastUpdatedNCI;
+                    });
+                });
+
             $scope.$on("$stateChangeSuccess", function(event, current) {
                 $scope.viewName = getViewName();
                 $scope.showAllEndpoints = !!$stateParams.endpoint;
+                $scope.showNCI = current.name == "monitor";
             });
 
             $scope.search = function(event) {

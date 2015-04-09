@@ -31,7 +31,7 @@
                     </div>
                 </md-toolbar>
                 <md-content ng-controller="tapestryNavigation" flex layout="column">
-                    <md-button class="menu-item" ng-click="showMonitor()">NCI Monitor</md-button>
+                    <md-button class="menu-item" ng-click="showMonitor()">NCI Dashboard</md-button>
                     <md-button class="menu-item" ng-click="showCollectors()">Collectors</md-button>
                     <md-button class="menu-item" ng-click="showDetails()">NCI Details</md-button>
                     <!--<md-button href="#/details/flows" class="menu-item">Flows</md-button>-->
@@ -47,7 +47,11 @@
                         <md-button hide-gt-lg ng-click="toggleSideNav()"> &#9776; </md-button>
                         <md-button class="md-accent md-hue-1" ng-click="allEndpoints()" ng-show="showAllEndpoints"> All Endpoints </md-button>
                         <span ng-show="showAllEndpoints" style="text-transform: uppercase;font-size: 14px; margin: 0 10px">&gt;</span>
-                        <span style="text-transform: uppercase;font-size: 14px; margin: 0 0 0 8px">{{viewName}}</span>
+                        <span ng-show="true" style="text-transform: uppercase; margin: 0 0 0 8px">{{viewName}}</span>
+                        <div ng-show="showNCI" class="nci-header">
+                            <div >NCI: {{currentNCI}}</div>
+                            <div class="updatedTime">updated: {{updatedAt | date : 'medium'}}</div>
+                        </div>
                         <span flex></span>
                         <md-button ng-click="search($event)" class="md-raised" style="margin: 0 10px;">Search</md-button>
                         <md-button ng-controller="optionsController" ng-click="options()" class="md-raised">Options</md-button>
