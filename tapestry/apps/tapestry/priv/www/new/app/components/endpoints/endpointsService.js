@@ -66,8 +66,8 @@
 
             function updateOutsideDisplay() {
                 var showOutside = $scope.showOutside;
-                $scope.nodes = showOutside ? nodes.slice() : nodes.slice().filter(function(n) {return !n.isOutside});
-                $scope.edges = showOutside ? edges.slice() : edges.slice().filter(function(n) {return !n.isOutside});
+                $scope.nodes = showOutside ? $scope.nodes : $scope.nodes.filter(function(n) {return !n.isOutside});
+                $scope.edges = showOutside ? $scope.edges : $scope.edges.filter(function(n) {return !n.isOutside});
             }
 
             function updateShowInternalDisplay() {
@@ -77,7 +77,7 @@
             }
 
             function updateExternalDisplay() {
-                $scope.nodes = nodes.map(updateNodeColor);
+                $scope.nodes = $scope.nodes.map(updateNodeColor);
             }
 
             $scope.showOutside = false;
@@ -85,7 +85,11 @@
             $scope.showInternalOnly = false;
 
             $scope.updateDisplay = function() {
-                removeAnchor();
+                $scope.nodes = nodes.slice();
+                $scope.edges = edges.slice();
+
+                filterEndpoints($scope.query);
+
                 updateExternalDisplay();
                 updateOutsideDisplay();
                 updateShowInternalDisplay();
@@ -97,6 +101,32 @@
                 updateGraph();
             };
 
+            function wildcardStringToRegExp(str) {
+                // converts string with wildcards to regex
+                // * - zero or more
+                // ? - exact one
+
+                str = str.replace(/\./g, "\\.");
+                str = str.replace(/\?/g, ".");
+                str = str.replace(/\*/g, ".*");
+
+                return new RegExp(str);
+            }
+
+
+            function filterEndpoints(query) {
+
+                //if (query.length > 2) {
+                    var filterRe = wildcardStringToRegExp(query);
+
+                    $scope.nodes = $scope.nodes.filter(function(node) {
+                        return filterRe.test(node.endpoint.ip);
+                    });
+                    $scope.edges = $scope.edges.filter(function(edge) {
+                        return filterRe.test(edge.source) && filterRe.test(edge.target);
+                    });
+                //}
+            }
 
             function createEndpointNode(endpoint) {
                 endpointsSet.add(endpoint.ip);
@@ -149,13 +179,14 @@
 
             function removeAnchor() {
                 $scope.nodes.pop();
-                //insideNodes.pop();
             }
 
             function addAnchor() {
                 $scope.nodes.push(anchor);
-                //insideNodes.push(anchor);
             }
+
+            $scope.nodes = nodes.slice();
+            $scope.edges = edges.slice();
 
             updateOutsideDisplay();
 
@@ -198,6 +229,9 @@
             $scope.$on("app:preferencesChanged", function(event, prefs) {
                 $scope.showDomainNames = prefs.showDomainNames;
             });
+
+            $scope.query = "";
+            $scope.$watch("query", $scope.updateDisplay);
 
         })
         .factory("endpointTooltip", function(preferences) {

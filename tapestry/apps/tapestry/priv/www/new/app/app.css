@@ -316,7 +316,7 @@ tfoot td {
 .legend-section {
     position: absolute;
     border-radius: 2px;
-    top: 60px;
+    top: 150px;
     right: 0;
     margin: 20px;
     padding: 10px;
@@ -334,7 +334,16 @@ md-content.endpoints-pane {
 }
 
 md-content.endpoints-pane md-toolbar {
-    background-color: black;
+    /*background-color: black;*/
+    /*color: white;*/
+}
+
+.endpoints-pane md-input-container.md-dark-theme label {
+    color: rgba(255,255,255,0.26);
+}
+
+.endpoints-pane md-input-container.md-dark-theme .md-input {
+    color: rgba(255,255,255,0.87);
 }
 
 md-content.endpoints-pane .md-actions {

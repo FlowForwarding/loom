@@ -9,7 +9,100 @@ angular.module('nci', [
         'nci.services.nciEndpointModel',
         'sigmaGraphOptions'
     ])
-    .config(['$mdThemingProvider', function($mdThemingProvider) {}])
+    .config(['$mdThemingProvider', function($mdThemingProvider) {
+        var tapestryPrimaryPalette = $mdThemingProvider.extendPalette('indigo', {
+            //'50': '#e8eaf6',
+            //'100': '#c5cae9',
+            '200': '#9fa8da',
+            '300': '#7986cb',
+            '400': '#5c6bc0',
+            //'500': '#3f51b5',
+            '600': '#3949ab',
+            '700': '#303f9f',
+            '800': '#283593',
+            '900': '#1a237e',
+            'A100': '#8c9eff',
+            'A200': '#536dfe',
+            'A400': '#3d5afe',
+            'A700': '#304ffe',
+            'contrastDefaultColor': 'dark',
+            'contrastDarkColors': '50 100 200 A100',
+            'contrastStrongLightColors': '300 400 A200 A400',
+
+            '500': 'C4E8F6',
+            '50': "FFFFFF",
+            '100': "6E6E6E"
+        });
+
+        var tapestryDarkPalette = $mdThemingProvider.extendPalette('indigo', {
+            //'50': '#e8eaf6',
+            //'100': '#c5cae9',
+            '200': '#9fa8da',
+            '300': '#7986cb',
+            '400': '#5c6bc0',
+            //'500': '#3f51b5',
+            '600': '#3949ab',
+            '700': '#303f9f',
+            '800': '#283593',
+            '900': '#1a237e',
+            'A100': '#8c9eff',
+            'A200': '#536dfe',
+            'A400': '#3d5afe',
+            'A700': '#304ffe',
+            'contrastDefaultColor': 'light',
+            'contrastDarkColors': '50 100 200 A100',
+            'contrastStrongLightColors': '300 400 A200 A400',
+
+            '500': '343434',
+            '50': "FFFFFF",
+            '100': "6E6E6E"
+        });
+        var tapestryWhitePalette = $mdThemingProvider.extendPalette('indigo', {
+            //'50': '#e8eaf6',
+            //'100': '#c5cae9',
+            '200': '#9fa8da',
+            '300': '#7986cb',
+            '400': '#5c6bc0',
+            //'500': '#3f51b5',
+            '600': '#3949ab',
+            '700': '#303f9f',
+            '800': '#283593',
+            '900': '#1a237e',
+            'A100': '#8c9eff',
+            'A200': '#536dfe',
+            'A400': '#3d5afe',
+            'A700': '#304ffe',
+            'contrastDefaultColor': 'dark',
+            'contrastDarkColors': '50 100 200 A100',
+            'contrastStrongLightColors': '300 400 A200 A400',
+
+            '500': 'FFFFFF',
+            //'50': "",
+            //'100': "6E6E6E"
+        });
+
+        // Register the new color palette map with the name <code>neonRed</code>
+        $mdThemingProvider.definePalette('tapestryPrimaryPalette', tapestryPrimaryPalette);
+        $mdThemingProvider.definePalette('tapestryDarkPalette', tapestryDarkPalette);
+        $mdThemingProvider.definePalette('tapestryWhitePalette', tapestryWhitePalette);
+        // Use that theme for the primary intentions
+
+        $mdThemingProvider.theme('dark')
+            .primaryPalette('tapestryDarkPalette', {
+                'default': '500',
+                'hue-1': '50'
+            })
+            .accentPalette('tapestryWhitePalette', {
+
+            });
+            //.dark();
+
+        $mdThemingProvider.theme('default')
+            .primaryPalette('tapestryPrimaryPalette', {
+                'default': '500',
+                'hue-1': '50'
+            });
+    }])
     .config(function($stateProvider, $urlRouterProvider) {
         $stateProvider
             .state("monitor", {
@@ -343,14 +436,14 @@ angular.module('nci', [
                             '<md-switch ng-model="showDomainNames" ng-change="updatePreferences()" aria-label="Finished?">',
                             'Show domain names',
                             '</md-switch>',
-                            '<md-divider></md-divider>',
-                            '<form ng-submit="reconnect()" layout="row" layout-align="center center">',
-                                '<md-input-container flex>',
-                                    '<label>Tapestry server URL</label>',
-                                    '<input type="text" ng-submit="reconnect()" ng-model="serverUrl" required md-maxlength="50">',
-                                '</md-input-container>',
-                                '<md-button >Connect</md-button>',
-                            '</form>',
+                            //'<md-divider></md-divider>',
+                            //'<form ng-submit="reconnect()" layout="row" layout-align="center center">',
+                            //    '<md-input-container flex>',
+                            //        '<label>Tapestry server URL</label>',
+                            //        '<input type="text" ng-submit="reconnect()" ng-model="serverUrl" required md-maxlength="50">',
+                            //    '</md-input-container>',
+                            //    '<md-button >Connect</md-button>',
+                            //'</form>',
                         '</md-bottom-sheet>'].join(""),
                     controller: "optionsSheetController"
                 });
