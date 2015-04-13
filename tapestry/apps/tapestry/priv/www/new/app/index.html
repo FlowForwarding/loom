@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="nci" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="nci" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="nci" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" ng-app="nci" class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Tapestry</title>
+  
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel="stylesheet" href="bower_components/angular-material/angular-material.css">
+
+<!-- angular-smart-table -->
+  <link rel="stylesheet" href="./bootstrap/css/bootstrap.css">
+<!-- angular-smart-table -->
+    
+  <link rel="stylesheet" href="app.css">
+</head>
+<body ng-controller="main">
+  <div ng-controller="connectionController" layout="column" layout-fill>
+        <div flex layout="row">
+
+            <md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$media('gt-lg')">
+                <md-toolbar class="md-hue-1">
+                    <div class="md-toolbar-tools">
+                        <img src="resources/Tapestry-AppIcon152x152.png" style="height: 2em" alt=""/>
+                        <h1 flex>&nbsp;Tapestry</h1>
+                    </div>
+                </md-toolbar>
+                <md-content ng-controller="tapestryNavigation" flex layout="column">
+                    <md-button class="menu-item" ng-click="showMonitor()">Dashboard</md-button>
+                    <md-button class="menu-item" ng-click="showCollectors()">Collectors</md-button>
+                    <md-button class="menu-item" ng-click="showDetails()">Details</md-button>
+                    <!--<md-button href="#/details/flows" class="menu-item">Flows</md-button>-->
+                    <md-button ng-href="#/details/endpoints" class="menu-item">Endpoints</md-button>
+                    <md-button ng-href="#/details/activities" class="menu-item">Activities</md-button>
+                    <div flex> </div>
+                    <nci-monitor></nci-monitor>
+                </md-content>
+            </md-sidenav>
+            <div flex layout="column">
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <md-button hide-gt-lg ng-click="toggleSideNav()"> &#9776; </md-button>
+                        <md-button class="md-accent md-hue-1" ng-click="allEndpoints()" ng-show="showAllEndpoints"> All Endpoints </md-button>
+                        <span ng-show="showAllEndpoints" style="text-transform: uppercase;font-size: 14px; margin: 0 10px">&gt;</span>
+                        <span ng-show="true" style="text-transform: uppercase; margin: 0 0 0 8px">{{viewName}}</span>
+                        <div ng-show="showNCI" class="nci-header">
+                            <div >NCI: {{currentNCI}}</div>
+                            <div class="updatedTime">updated: {{updatedAt | date : 'medium'}}</div>
+                        </div>
+                        <span flex></span>
+                        <md-button ng-click="search($event)" class="md-raised" style="margin: 0 10px;">Search</md-button>
+                        <md-button ng-controller="optionsController" ng-click="options()" class="md-raised">Options</md-button>
+                    </div>
+                    <ui-view name="toolbar"></ui-view>
+                </md-toolbar>
+                <div class="view-container" flex layout="row">
+                    <md-content class="view-frame" ui-view layout-fill flex layout="column" style="overflow: hidden;">
+                    </md-content>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+  <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+  <![endif]-->
+
+
+  <script src="bower_components/jquery/dist/jquery.js"></script>
+  <script src="bower_components/angular/angular.js"></script>
+  <script src="bower_components/angular-animate/angular-animate.js"></script>
+  <script src="bower_components/angular-aria/angular-aria.js"></script>
+  <script src="bower_components/angular-route/angular-route.js"></script>
+  <script src="bower_components/angular-material/angular-material.js"></script>
+  <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+
+    <script src="./bower_components/dygraphs/dygraph-combined-dev.js"></script>
+
+<!-- angular-smart-table -->
+    <script src="./bower_components/angular-smart-table/dist/smart-table.js"></script>
+<!-- angular-smart-table -->
+
+<!-- sigma.js -->
+    <script src="./bower_components/sigma.js/sigma.min.js"></script>
+    <script src="./bower_components/sigma.js/plugins/sigma.layout.forceAtlas2.min.js"></script>
+    <script src="./bower_components/sigma.js/plugins/sigma.renderers.customShapes.min.js"></script>
+    <script src="./bower_components/sigma.js/plugins/sigma.plugins.dragNodes.min.js"></script>
+
+    <script src="components/sigma-graph/nci-sigma-graph-directive.js"></script>
+
+
+    <script src="./bower_components/ipaddr/ipaddr.min.js"></script>
+
+
+    <script src="bower_components/angular-google-chart/ng-google-chart.js"></script>
+
+    <script src="app.js"></script>
+
+
+    <script src="views/views.js"></script>
+
+    <script src="views/monitor/MonitorViewController.js"></script>
+    <script src="views/collectors/CollectorsViewController.js"></script>
+
+    <script src="views/details/TabViewController.js"></script>
+
+    <script src="views/details/activities/ActivitiesTableController.js"></script>
+    <script src="views/details/activities/ActivitiesHistogramController.js"></script>
+    <script src="views/details/activities/ActivitiesGraphController.js"></script>
+
+    <script src="views/details/endpoints/BreadcrumbController.js"></script>
+    <script src="views/details/endpoints/EndpointsTableController.js"></script>
+    <script src="views/details/endpoints/EndpointsGraphController.js"></script>
+    <script src="views/details/endpoints/EndpointsHistogramController.js"></script>
+
+
+
+
+    
+
+    <script src="components/monitor/monitor.js"></script>
+    <script src="components/monitor/monitor-directive.js"></script>
+
+    <script src="components/endpoints/endpointsService.js"></script>
+
+    <script src="components/sigma-graph/sigmaGraphOptions.js"></script>
+
+
+    <script src="services/nciConnection.js"></script>
+    <script src="services/socket.js"></script>
+    <script src="services/colorForActivity.js"></script>
+    <script src="services/model.js"></script>
+    <script src="services/nciActivityModel.js"></script>
+    <script src="services/nciEndpointModel.js"></script>
+    <script src="services/nciIsExternal.js"></script>
+    <script src="services/exportToCSV.js"></script>
+
+
+</body>
+</html>

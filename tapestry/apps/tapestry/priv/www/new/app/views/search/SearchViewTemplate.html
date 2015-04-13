@@ -1,0 +1,19 @@
+<md-dialog>
+    <md-content layout="column" style="overflow: hidden;">
+        <md-input-container md-no-float style="padding-bottom: 0;">
+            <label>Search for Endpoints by IP or Hostname</label>
+            <input type="search" ng-change="search(query)" ng-model="query" />
+        </md-input-container>
+        <md-list flex style="overflow: auto">
+            <md-item ng-repeat="result in results">
+                <md-item-content>
+                    <a ui-sref="details.endpoints.histogram({endpoint: result.ip})">
+                        {{result.ip}} / {{result.host}}
+                        <!--/ {{result.totalConnections}}-->
+                    </a>
+                </md-item-content>
+                <md-divider ng-if="!$last"></md-divider>
+            </md-item>
+        </md-list>
+    </md-content>
+</md-dialog>

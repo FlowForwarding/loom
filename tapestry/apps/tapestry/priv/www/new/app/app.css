@@ -1,0 +1,377 @@
+
+button.menu-item{
+    text-align: left;
+}
+
+a.menu-item  {
+    padding-left: 20px;
+    text-align: left;
+    text-transform: none;
+}
+
+.footer {
+    text-align: right;
+    background-color: #ffffff;
+    border-top: solid 1px rgba(0, 0, 0, .12);
+/*    z-index: 60;*/
+    padding: 0 26px;
+}
+
+md-toolbar md-input-group.md-blue-grey-theme.md-input-focused label {
+    color: #ffffff;
+    opacity: .54;
+}
+
+md-toolbar md-input-group.md-blue-grey-theme input, md-input-group.md-blue-grey-theme textarea {
+    color: rgba(255, 255, 255, .87);
+}
+
+md-toolbar md-input-group.md-blue-grey-theme.md-input-focused input, md-input-group.md-blue-grey-theme.md-input-focused textarea {
+    border-color: rgba(255, 255, 255, .54);
+}
+
+md-dialog[no-background-dialog] {
+    background: none;
+    box-shadow: none;
+}
+
+md-dialog[no-background-dialog] md-content {
+    background: none;
+}
+
+.md-tabs-content {
+    -webkit-flex: 1 1 0%;
+    -ms-flex: 1 1 0%;
+    flex: 1 1 0%;
+    position: relative;
+}
+
+.md-tabs-content .md-tab-content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+
+.nci-graph-container {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+.chart-container-wrap {
+    position: relative;
+}
+
+.chart-container {
+    -webkit-flex: 1 1 0%;
+    -ms-flex: 1 1 0%;
+    flex: 1 1 0%;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+
+.st-sort-ascent:before{
+    content: '\25B2';
+}
+
+.st-sort-descent:before{
+    content: '\25BC';
+}
+
+/*fixed header*/
+/*.header-fixed {*/
+    /*display: block;*/
+    /*height: 100%;*/
+    /*width: 100%;*/
+    /*position: absolute;*/
+    /*margin: 0;*/
+    /*padding: 0;*/
+/*}*/
+
+/*.header-fixed > thead {*/
+    /*width: 100%;*/
+    /*display: block;*/
+/*}*/
+
+/*.header-fixed > tbody {*/
+    /*display: block;*/
+    /*position: absolute;*/
+    /*width: 100%;*/
+    /*height: calc(100% - 38px);*/
+    /*overflow-y: auto;*/
+/*}*/
+
+
+/*.header-fixed > thead,*/
+/*.header-fixed > tbody,*/
+/*.header-fixed > thead > tr,*/
+/*.header-fixed > tbody > tr,*/
+/*.header-fixed > thead > tr > th,*/
+/*.header-fixed > tbody > tr > td {*/
+    /*display: block;*/
+/*}*/
+
+/*.header-fixed > tbody > tr:after,*/
+/*.header-fixed > thead > tr:after {*/
+    /*content: ' ';*/
+    /*display: block;*/
+    /*visibility: hidden;*/
+    /*clear: both;*/
+/*}*/
+
+/*.header-fixed > thead > tr,*/
+/*.header-fixed > tbody > tr {*/
+    /*display: -webkit-flex;*/
+    /*display: -ms-flex;*/
+    /*display: flex;*/
+/*}*/
+
+/*.header-fixed > tbody > tr > td,*/
+/*.header-fixed > thead > tr > th {*/
+    /*text-overflow: ellipsis;*/
+    /*white-space: nowrap;*/
+    /*overflow: hidden;*/
+    /*-webkit-flex: 1 1 0%;*/
+    /*-ms-flex: 1 1 0%;*/
+    /*flex: 1 1 0%;*/
+/*}*/
+
+
+
+.view-container {
+    position: relative;
+}
+
+.view-frame.ng-enter, .view-frame.ng-leave {
+    /*background: white;*/
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.view-frame.ng-enter {
+    -webkit-animation: 0.5s fade-in;
+    -moz-animation: 0.5s fade-in;
+    -o-animation: 0.5s fade-in;
+    animation: 0.5s fade-in;
+    z-index: 2;
+}
+
+.view-frame.ng-leave {
+    -webkit-animation: 0.5s fade-out;
+    -moz-animation: 0.5s fade-out;
+    -o-animation: 0.5s fade-out;
+    animation: 0.5s fade-out;
+    z-index:1;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@-moz-keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@-webkit-keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+@-moz-keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+@-webkit-keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* don't forget about the vendor-prefixes! */
+
+
+/*smart-table with fix headers and responsive layout, pure css solutionPreview Edit Code*/
+/*index.html*/
+/*script.js*/
+/*style.css*/
+/*README.md*/
+/*smart-table.debug.js*/
+/*style.css*/
+table {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    height: 100%;
+    position: absolute;
+}
+
+table * {
+    box-sizing: inherit;
+    -moz-box-sizing: inherit;
+}
+
+thead {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+tbody {
+    overflow-y: scroll;
+    display: inline-block;
+}
+
+thead > tr, tbody > tr, tfoot > tr {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+thead, tfoot {
+    flex-shrink: 0;
+}
+
+th, tbody td {
+    width: 20%; /* this can vary */
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+tfoot {
+    display: inline-block;
+}
+
+tfoot td {
+    width: 100%;
+    display: inline-block;
+}
+
+.pagination {
+    margin: 0;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.activity-caption {
+    margin-top: 0;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+.endpoints-view .google-visualization-tooltip {
+    border: none;
+    box-shadow: none;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    background: none;
+}
+
+.endpoints-view .google-visualization-tooltip md-card {
+    background-color: white;
+}
+
+.square {
+    display: inline-block;
+    border-radius: 2px;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);;
+    width: 20px;
+    height: 20px;
+    margin: 0 0 -5px 0;
+}
+
+.circle {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin: 0 0 -5px 0;
+    border-radius: 100%;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);;
+    transition: background-color ease-in-out 2s;
+}
+
+.histogram-legend-section {
+    margin: 0 10px;
+}
+.legend-key {
+    margin: 5px 0;
+}
+
+.legend-section {
+    position: absolute;
+    border-radius: 2px;
+    top: 150px;
+    right: 0;
+    margin: 20px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+md-content.endpoints-pane {
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+    position: fixed;
+    left: 0;
+    right: 0;
+}
+
+md-content.endpoints-pane md-toolbar {
+    /*background-color: black;*/
+    /*color: white;*/
+}
+
+.endpoints-pane md-input-container.md-dark-theme label {
+    color: rgba(255,255,255,0.26);
+}
+
+.endpoints-pane md-input-container.md-dark-theme .md-input {
+    color: rgba(255,255,255,0.87);
+}
+
+md-content.endpoints-pane .md-actions {
+    background-color: #ffffff;
+}
+
+.breadcrumbs {
+    padding: 16px;
+    margin: 8px;
+    list-style: none;
+}
+
+.breadcrumb {
+    display: inline-block;
+}
+
+.breadcrumb > a {
+    cursor: pointer;
+    outline: none;
+}
+
+
+.updatedTime {
+    font-style: italic;
+    color: #808080;
+    font-size: 12px;
+}
+
+.nci-header {
+    padding-left: 20px;
+}

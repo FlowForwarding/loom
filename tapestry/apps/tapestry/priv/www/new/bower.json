@@ -1,0 +1,32 @@
+{
+  "name": "tapestry",
+  "description": "POC project of tapestry",
+  "version": "0.0.0",
+  "homepage": "http://flowforwarding.org",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.3.x",
+    "angular-route": "~1.3.x",
+    "angular-material": "~0.7.x",
+    "angular-mocks": "~1.3.x",
+    "dygraphs": "~1.1.0",
+    "angular-smart-table": "~1.4.8",
+    "sigma.js": "*",
+    "ipaddr": "~0.1.3",
+    "angular-google-chart": "~0.0.11",
+    "angular-ui-router": "~0.2.13"
+  },
+  "authors": [
+    "Aliaksandr Kazarez <kozorezal@gmail.com>"
+  ],
+  "main": "app/app.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/bower_components",
+    "test",
+    "tests"
+  ]
+}

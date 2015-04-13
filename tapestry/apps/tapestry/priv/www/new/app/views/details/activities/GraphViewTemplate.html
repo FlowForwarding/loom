@@ -1,0 +1,14 @@
+<nci-sigma-graph
+        nodes="nodes"
+        nci-graph-node-click="expandNode"
+        edges="edges"
+        flex
+        class="md-whiteframe-z1"
+        tooltip="tooltip"
+        layout-margin style="position: relative">
+</nci-sigma-graph>
+<div class="legend-section md-whiteframe-z1">
+    <div class="legend-key" ng-repeat="key in legendKeys">
+        <span ng-class="key.shape" ng-style="{'background-color': key.color}"></span><span> - {{key.text}}</span>
+    </div>
+</div>

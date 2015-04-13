@@ -1,0 +1,23 @@
+<div class="md-whiteframe-z1" flex layout-margin layout="row" style="position: relative;">
+    <table st-fixed-header st-table="rowCollection" class="table table-striped header-fixed">
+        <thead>
+        <tr>
+            <th st-sort="name">Collector</th>
+            <th st-sort="collector_type">Type</th>
+            <th st-sort="ip">IP Address</th>
+            <th st-sort="datapath_id">Datapath ID</th>
+            <th st-sort="qps">QPS</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="row in rowCollection">
+            <td>{{row.name}}</td>
+            <td>{{row.collector_type}}</td>
+            <td>{{row.ip}}</td>
+            <td>{{row.datapath_id}}</td>
+            <td>{{row.qps}}</td>
+        </tr>
+        </tbody>
+    </table>
+<!--    <div draw-on-visible class="md-whiteframe-z1" flex layout-fill ng-grid="gridOptions"></div>-->
+</div>

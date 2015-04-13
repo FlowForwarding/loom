@@ -1,0 +1,23 @@
+{
+  "name": "ipaddr.js",
+  "description": "A library for manipulating IPv4 and IPv6 addresses in JavaScript.",
+  "version": "0.1.8",
+  "author": "Peter Zotov <whitequark@whitequark.org>",
+  "directories": {
+    "lib": "./lib"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "coffee-script": "~1.6",
+    "nodeunit": "~0.5.3",
+    "uglify-js": "latest"
+  },
+  "scripts": {
+    "test": "cake build test"
+  },
+  "keywords": ["ip", "ipv4", "ipv6"],
+  "repository": "git://github.com/whitequark/ipaddr.js",
+  "main": "./lib/ipaddr",
+  "engines": { "node": ">= 0.2.5" },
+  "license": "MIT"
+}

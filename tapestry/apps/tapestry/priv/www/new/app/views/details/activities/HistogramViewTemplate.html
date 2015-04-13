@@ -1,0 +1,16 @@
+<md-content flex class="md-whiteframe-z1 chart-container-wrap" layout="column" layout-margin>
+    <div flex google-chart chart="chartObject" on-select="select(selectedItem)" style="overflow: hidden;"></div>
+    <p class="activity-caption">
+        <strong>NCI(N) = Max j, X[j] ≥ j</strong><br/>
+        <em>where NCI(N) is the Network Complexity Index of network N and X[j] is the number of endpoints engaged in an activity</em>
+    </p>
+    <div layout="row" layout-align="center center">
+        <md-card layout="row" layout-align="center center" layout-padding>
+            <div class="histogram-legend-section">
+                <div class="legend-key" ng-repeat="key in legendKeys">
+                    <span class="square" ng-style="{'background-color': key.color}"></span><span> - {{key.text}}</span>
+                </div>
+            </div>
+        </md-card>
+    </div>
+</md-content>

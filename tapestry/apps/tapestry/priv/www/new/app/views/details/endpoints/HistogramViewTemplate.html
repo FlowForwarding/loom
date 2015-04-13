@@ -1,0 +1,37 @@
+<md-content flex class="md-whiteframe-z1" layout="row" layout-margin>
+    <md-button ng-disabled="prevDisabled" ng-click="goToPage(page - 1)">&lt;-</md-button>
+    <div flex layout="column">
+        <div class="chart-container-wrap" flex>
+            <div
+                    chart-paging="rows"
+                    layout-fill
+                    chart-items-per-page="itemsPerPage"
+                    chart-cureent-page="page"
+                    google-chart
+                    chart="chartObject"
+                    on-select="select(selectedItem)"
+                    flex
+                    style="overflow: hidden; height: 100%; width: 100%; position: absolute;"></div>
+        </div>
+        <div layout="row" layout-align="center center">
+            <md-card layout="row" layout-align="center center" layout-padding>
+                <div class="histogram-legend-section">
+                    <div>Internal endpoints:</div>
+                    <div class="legend-key" ng-repeat="key in legendKeys.internal">
+                        <span class="square" ng-style="{'background-color': key.color}"></span><span> - {{key.text}}</span>
+                    </div>
+                </div>
+                <div class="histogram-legend-section">
+                    <div>External endpoints:</div>
+                    <div class="legend-key" ng-repeat="key in legendKeys.external">
+                        <span class="square" ng-style="{'background-color': key.color}"></span><span> - {{key.text}}</span>
+                    </div>
+                </div>
+            </md-card>
+        </div>
+        <div style="text-align: center;">
+            Endpoint {{page*itemsPerPage + 1}} - {{(page + 1)*itemsPerPage > rows.length ? rows.length :(page + 1)*itemsPerPage}}. Out of {{rows.length}}
+        </div>
+    </div>
+    <md-button ng-disabled="nextDisabled" ng-click="goToPage(page + 1)">-&gt;</md-button>
+</md-content>
