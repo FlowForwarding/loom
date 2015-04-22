@@ -1,17 +1,17 @@
 {
   "name": "angular-loader",
-  "version": "1.3.14",
+  "version": "1.3.15",
   "main": "./angular-loader.js",
   "ignore": [],
   "dependencies": {
-    "angular": "1.3.14"
+    "angular": "1.3.15"
   },
   "homepage": "https://github.com/angular/bower-angular-loader",
-  "_release": "1.3.14",
+  "_release": "1.3.15",
   "_resolution": {
     "type": "version",
-    "tag": "v1.3.14",
-    "commit": "b3053f581b82d40cdc9227cf428eef0438546206"
+    "tag": "v1.3.15",
+    "commit": "b1466f8b4a6c6436000edc16f22a393e7c14be67"
   },
   "_source": "git://github.com/angular/bower-angular-loader.git",
   "_target": "~1.3.13",
