@@ -309,8 +309,25 @@ tfoot td {
 .histogram-legend-section {
     margin: 0 10px;
 }
+
+.histogram-legend-wrap {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.histogram-legend {
+    /*opacity: .8;*/
+    background-color: rgba(255,255,255,.8);
+    width: 300px;
+}
+
 .legend-key {
     margin: 5px 0;
+}
+
+.activity-graph.legend-section {
+    top: 0;
 }
 
 .legend-section {
