@@ -392,3 +392,16 @@ md-content.endpoints-pane .md-actions {
 .nci-header {
     padding-left: 20px;
 }
+
+
+.drag-file {
+    padding: 6px;
+    border-radius: 3px;
+    border: 1px dashed darkgrey;
+    text-transform: uppercase;
+}
+.file-over .drag-file {
+    background-color: darkseagreen;
+    border-style: solid;
+}
+

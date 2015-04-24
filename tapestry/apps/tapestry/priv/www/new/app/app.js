@@ -7,7 +7,8 @@ angular.module('nci', [
         'nci.monitor',
         'nci.services.nciConnection',
         'nci.services.nciEndpointModel',
-        'sigmaGraphOptions'
+        'sigmaGraphOptions',
+        'nci.services.jsonUpload'
     ])
     .config(['$mdThemingProvider', function($mdThemingProvider) {
         var tapestryPrimaryPalette = $mdThemingProvider.extendPalette('indigo', {
@@ -449,6 +450,7 @@ angular.module('nci', [
                     template: ['<md-bottom-sheet>',
                             '<md-button ng-click="configureLayout()">Graph Force layout config</md-button>',
                             '<md-button ng-click="downloadServerInput()">Download server input</md-button>',
+                            '<nci-file-upload></nci-file-upload>',
                             '<md-switch ng-model="showDomainNames" ng-change="updatePreferences()" aria-label="Finished?">',
                             'Show domain names',
                             '</md-switch>',

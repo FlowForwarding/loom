@@ -5,7 +5,10 @@
         "nci.services.nciConnection",
         "nci.services.nciIsExternal"
     ])
-        .factory("modelPromise", ["connection", "checkExternal", function(connection, isExternal) {
+        .factory("modelPromise", [
+            "connection",
+            "checkExternal",
+        function(connection, isExternal) {
             var activitiesMap,
                 endpointsMap,
                 hostsMap,
@@ -244,11 +247,15 @@
 
             }
 
-            return connection().
+            var modelPromise = connection().
                 then(function(nci) {
                     return nci.getDetails();
                 })
                 .then(processDetailsResult);
+
+            modelPromise.updateData = processDetailsResult;
+
+            return modelPromise;
         }]);
 
 })(angular);
