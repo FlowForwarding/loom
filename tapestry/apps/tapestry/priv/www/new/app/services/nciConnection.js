@@ -108,10 +108,14 @@ angular.module("nci.services.nciConnection", [
                 }
             },
 
-            url = "ws://" + location.host + "/clientsock.yaws";
-            // url = "ws://localhost:28080/clientsock.yaws";
-            // url = "ws://10.48.11.64:28080/clientsock.yaws";
-            // url = "ws://10.48.2.81:28080/clientsock.yaws";
+
+            url = "ws://localhost:28080/clientsock.yaws";
+
+
+        //url = "ws://10.48.2.81:28080/clientsock.yaws";
+        //url = "ws://10.48.11.64:28080/clientsock.yaws";
+        //url = "ws://" + location.host + ":28080/clientsock.yaws";
+
 
 
         function convertDateForServer (date){

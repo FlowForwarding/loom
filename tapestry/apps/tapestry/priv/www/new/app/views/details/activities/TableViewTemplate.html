@@ -3,7 +3,6 @@
         <thead>
         <tr>
             <th st-sort="index">Index</th>
-            <th st-sort="mainEndpoint.ip">IP</th>
             <th st-sort="internalFlows">Internal Flows</th>
             <th st-sort="externalFlows">External Flows</th>
             <th st-sort="size">Size</th>
@@ -12,7 +11,6 @@
         <tbody>
         <tr ng-repeat="row in rows">
             <td>Activity #{{row.index}}</td>
-            <td>{{row.mainEndpoint.ip}}</td>
             <td>{{row.internalFlows}}</td>
             <td>{{row.externalFlows}}</td>
             <td>{{row.size}}</td>
