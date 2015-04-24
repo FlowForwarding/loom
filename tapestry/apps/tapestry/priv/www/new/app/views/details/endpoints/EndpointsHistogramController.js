@@ -130,6 +130,7 @@
                     },
                     "hAxis": {
                         "labels": "false",
+                        "title": "Endpoints sorted by number of flows"
                         //"title": ['Activities Sorted by Size ',
                         //    'NCI(N) = Max j, X[j] ≥ j ',
                         //    'where NCI(N) is the Network Complexity Index of network N and X[j] is the number of endpoints engaged in an activity'].join("\n")
