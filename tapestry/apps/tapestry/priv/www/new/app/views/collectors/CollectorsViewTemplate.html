@@ -6,7 +6,12 @@
             <th st-sort="collector_type">Type</th>
             <th st-sort="ip">IP Address</th>
             <th st-sort="datapath_id">Datapath ID</th>
-            <th st-sort="qps">QPS</th>
+            <th st-sort="qps">
+                CRPS
+                <md-tooltip>
+                    Collected responses per second
+                </md-tooltip>
+            </th>
         </tr>
         </thead>
         <tbody>
@@ -15,7 +20,7 @@
             <td>{{row.collector_type}}</td>
             <td>{{row.ip}}</td>
             <td>{{row.datapath_id}}</td>
-            <td>{{row.qps}}</td>
+            <td>{{row.qps}} | number : 2</td>
         </tr>
         </tbody>
     </table>
