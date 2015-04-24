@@ -64,7 +64,7 @@
                         }
 
                     });
-                    return updateNodePosition(rowsCount, endpoint.activity.index, createEndpointNode(endpoint));
+                    return updateNodePosition(rowsCount, endpoint.activity ? endpoint.activity.index : 0, createEndpointNode(endpoint));
                 });
 
                 // this is fake node, to draw graph nodes smaller

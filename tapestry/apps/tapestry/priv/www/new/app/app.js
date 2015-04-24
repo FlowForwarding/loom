@@ -448,12 +448,13 @@ angular.module('nci', [
             $scope.options = function() {
                 $mdBottomSheet.show({
                     template: ['<md-bottom-sheet>',
-                            '<md-button ng-click="configureLayout()">Graph Force layout config</md-button>',
-                            '<md-button ng-click="downloadServerInput()">Download server input</md-button>',
-                            '<nci-file-upload></nci-file-upload>',
                             '<md-switch ng-model="showDomainNames" ng-change="updatePreferences()" aria-label="Finished?">',
                             'Show domain names',
                             '</md-switch>',
+                            '<md-divider></md-divider>',
+                            '<md-button ng-click="configureLayout()">Graph Force layout config</md-button>',
+                            '<md-button ng-click="downloadServerInput()">Download server input</md-button>',
+                            '<nci-file-upload></nci-file-upload>',
                             //'<md-divider></md-divider>',
                             //'<form ng-submit="reconnect()" layout="row" layout-align="center center">',
                             //    '<md-input-container flex>',

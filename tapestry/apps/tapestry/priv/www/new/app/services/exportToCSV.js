@@ -10,7 +10,7 @@
             {text: "Total", property: "totalConnections"},
             {text: "Activity", property: "activity", renderer:
                 function(activity) {
-                    return activity ? "Activity #" + activity.index : "Activity not loaded";
+                    return activity ? "Activity #" + activity.index : "NOT FOUND";
                 }
             },
             {text: "OutsideConnections", property: "outsideConnections"},

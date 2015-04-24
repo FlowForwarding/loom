@@ -9,7 +9,7 @@
                 return index % colors.length;
             }
             return function(activity) {
-                return colors[normalizeIndex(activity.index)];
+                return activity ? colors[normalizeIndex(activity.index)] : "#000000";
             };
         }])
         .value("colors", {

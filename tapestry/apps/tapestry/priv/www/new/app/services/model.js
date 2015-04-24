@@ -113,6 +113,12 @@
                 }
             });
 
+            Object.defineProperty(Endpoint.prototype, 'activityIndex', {
+                get: function() {
+                    return this.activity ? this.activity.index : "NOT FOUND";
+                }
+            });
+
             Endpoint.prototype.addConnection = function(endpoint) {
                 if (!(endpoint.ip in this.connections)) {
                     this.connections[endpoint.ip] = endpoint;
