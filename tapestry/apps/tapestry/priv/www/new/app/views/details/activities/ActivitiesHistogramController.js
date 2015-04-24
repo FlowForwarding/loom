@@ -44,7 +44,7 @@
                     externalEndpointsSize = activity.getExternalEndpoints().length,
                     internalEndpointsSize = activity.size - externalEndpointsSize;
 
-                return internalEndpointsSize >= externalEndpointsSize ? colors.activities.INTERNAL_OVER_EXTERNAL_ENDPOINTS : color;
+                return internalEndpointsSize > externalEndpointsSize ? colors.activities.INTERNAL_OVER_EXTERNAL_ENDPOINTS : color;
             }
 
 
