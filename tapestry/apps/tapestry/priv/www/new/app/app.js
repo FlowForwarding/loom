@@ -360,14 +360,14 @@ angular.module('nci', [
                 });
             }
 
-            $scope.$on("$routeChangeStart", function() {
+            $scope.$on("$stateChangeStart", function() {
                 showDefer = $q.defer();
                 alert = $mdDialog
                     .show({
                         template: ['<md-dialog no-background-dialog>',
                                 '<md-content layout="row">',
                                     '<span flex></span>',
-                                    '<md-progress-circular md-mode="indeterminate"></md-progress-circular>',
+                                    '<md-progress-circular class="md-accent" md-mode="indeterminate"></md-progress-circular>',
                                     '<span flex></span>',
                                 '</md-content>',
                             '</md-dialog>'].join(""),
@@ -381,8 +381,8 @@ angular.module('nci', [
                         alert = null;
                     });
             });
-            $scope.$on("$routeChangeSuccess", hideDialog);
-            $scope.$on("$routeChangeError", function() {
+            $scope.$on("$stateChangeSuccess", hideDialog);
+            $scope.$on("$stateChangeError", function() {
                 hideDialog();
                 console.log("Issue");
             });
