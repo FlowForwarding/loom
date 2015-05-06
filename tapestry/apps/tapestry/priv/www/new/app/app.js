@@ -448,8 +448,11 @@ angular.module('nci', [
             $scope.options = function() {
                 $mdBottomSheet.show({
                     template: ['<md-bottom-sheet>',
-                            '<md-switch ng-model="showDomainNames" ng-change="updatePreferences()" aria-label="Finished?">',
-                            'Show domain names',
+                            '<md-switch ng-model="showDomainNames" ng-change="updatePreferences()">',
+                                'Show domain names',
+                            '</md-switch>',
+                            '<md-switch ng-model="useWhiteBackground" ng-change="updatePreferences()">',
+                                'Use white background',
                             '</md-switch>',
                             '<md-divider></md-divider>',
                             '<md-button ng-click="configureLayout()">Graph Force layout config</md-button>',
@@ -470,7 +473,8 @@ angular.module('nci', [
         }
     ])
     .value("preferences", {
-        showDomainNames: false
+        showDomainNames: false,
+        useWhiteBackground: false
     })
     .controller("optionsSheetController", [
         '$scope',
@@ -491,9 +495,11 @@ angular.module('nci', [
 
             console.log(preferences, preferences.showDomainNames, $scope.showDomainNames);
             $scope.showDomainNames = preferences.showDomainNames;
+            $scope.useWhiteBackground = preferences.useWhiteBackground;
 
             $scope.updatePreferences = function() {
                 preferences.showDomainNames = $scope.showDomainNames;
+                preferences.useWhiteBackground = $scope.useWhiteBackground;
                 console.log(preferences, $scope.showDomainNames);
                 $rootScope.$broadcast("app:preferencesChanged", preferences);
             };

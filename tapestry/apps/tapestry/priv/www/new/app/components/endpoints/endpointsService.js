@@ -11,7 +11,8 @@
                 edgesSet = new Set(),
                 edges = [],
                 nodes = [],
-                endpointsSet = new Set();
+                endpointsSet = new Set(),
+                COLOR_EXTERNAL = preferences.useWhiteBackground ? colors.endpoints.EXTERNAL_WHITE : colors.endpoints.EXTERNAL;
 
             function createEdge(target, source, weight, size, isOutside, isExternal) {
                 var id = target + "_" + source;
@@ -44,7 +45,7 @@
                     color = isOutside(endpoint) ? colors.endpoints.OUTSIDE_ACTIVITY : defaultEndpointColor;
 
 
-                node.color = showExternal && endpoint.external ? colors.endpoints.EXTERNAL : color;
+                node.color = showExternal && endpoint.external ? COLOR_EXTERNAL : color;
                 return node;
             }
 
@@ -220,14 +221,16 @@
             }, {
                 shape: "circle",
                 text: "external endpoint",
-                color: colors.endpoints.EXTERNAL
+                color: COLOR_EXTERNAL
             }];
 
             $scope.displayTableView = false;
             $scope.showDomainNames = preferences.showDomainNames;
+            $scope.useWhiteBackground = preferences.useWhiteBackground;
 
             $scope.$on("app:preferencesChanged", function(event, prefs) {
                 $scope.showDomainNames = prefs.showDomainNames;
+                $scope.useWhiteBackground = prefs.useWhiteBackground;
             });
 
             $scope.query = "";

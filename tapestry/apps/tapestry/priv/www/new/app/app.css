@@ -350,6 +350,10 @@ md-content.endpoints-pane {
     right: 0;
 }
 
+md-content.endpoints-pane.light {
+    background-color: #ffffff;
+}
+
 md-content.endpoints-pane md-toolbar {
     /*background-color: black;*/
     /*color: white;*/

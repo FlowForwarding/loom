@@ -1,13 +1,13 @@
 <md-dialog></md-dialog>
-    <md-content layout="column" class="endpoints-pane">
+    <md-content layout="column" class="endpoints-pane" ng-class="{light: useWhiteBackground}">
         <md-toolbar md-theme="dark">
             <div class="md-toolbar-tools">
                 {{activity}}
+                <md-input-container class="md-accent" flex>
+                    <label>Filter Endpoints by IP</label>
+                    <input type="text" ng-model="query">
+                </md-input-container>
             </div>
-            <md-input-container class="md-accent" flex>
-                <label>Filter Endpoints by IP</label>
-                <input type="text" ng-model="query">
-            </md-input-container>
         </md-toolbar>
         <!--<h2>Activity</h2>-->
         <nci-sigma-graph
