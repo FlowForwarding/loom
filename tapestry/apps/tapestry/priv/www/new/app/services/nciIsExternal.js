@@ -12,7 +12,8 @@
                 },
                 IPv6RangeList = {
                     internalIPv6Network: [
-                        [ipaddr.parse('fc00::'), 7]
+                        [ipaddr.parse('fc00::'), 7],
+                        [ipaddr.parse('2620:10a:6000::'), 44]
                     ]
                 },
                 externalSubnet = "external";
