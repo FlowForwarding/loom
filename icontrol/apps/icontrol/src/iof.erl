@@ -93,7 +93,8 @@
     ports/1,
     oe_ports/0,
     oe_ports/1,
-    switches/0
+    switches/0,
+    openflow_hub/4
 ]).
 
 -type switch_key() :: integer().
@@ -735,3 +736,8 @@ show({ok, {ofp_message, _Version, _HdrType, _Xid, Body}}) ->
     io:format("~P~n", [Body, 10000]);
 show(Msg) ->
     io:format("~P~n", [Msg, 10000]).
+    
+%SN
+openflow_hub(Key, Priority, InPort, PiPorts) ->
+    forward_mod (Key, Priority, InPort, PiPorts),
+    [forward_mod(Key, Priority, PiPort, [InPort]) || PiPort <- PiPorts].
