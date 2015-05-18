@@ -168,18 +168,21 @@ forward_mod(Priority, InPort, OutPort) ->
 %% @end
 -spec forward_mod(Key :: switch_key(), Priority :: integer(), InPort :: integer(), OutPort :: integer() | [integer()]) -> {ok, ofp_message()} | {error, error_reason()}.
 forward_mod(Key, Priority, InPort, OutPorts) when is_list(OutPorts) ->
+    forward_mod(Key, 0, Priority, InPort, OutPorts);
+forward_mod(Key, Priority, InPort, OutPort) ->
+    forward_mod(Key, Priority, InPort, [OutPort]).
+
+forward_mod(Key, TableId, Priority, InPort, OutPorts) when is_list(OutPorts) ->
     Version = version(Key),
     Matches = [{in_port, <<InPort:32>>}],
     Instructions = [{apply_actions, [{output, OutPort, no_buffer} ||
                                                         OutPort <- OutPorts]}],
-    Opts = [{table_id,0}, {priority, Priority},
+    Opts = [{table_id, TableId}, {priority, Priority},
             {idle_timeout, 0}, {idle_timeout, 0},
             {cookie, <<0,0,0,0,0,0,0,10>>},
             {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
     Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
-    send(Key, Request);
-forward_mod(Key, Priority, InPort, OutPort) ->
-    forward_mod(Key, Priority, InPort, [OutPort]).
+    send(Key, Request).
 
 %% @equiv
 %% forward_mod_with_push_vlan(default, Priority, InPort, OutPort, VlanID)
@@ -341,8 +344,11 @@ bridge(Priority, Port1, Port2) ->
 %% @end
 -spec bridge(Key :: switch_key(), Priority :: integer(), Port1 :: integer(), Port2 :: integer()) -> [{ok, ofp_message()} | {error, error_reason()}].
 bridge(Key, Priority, Port1, Port2) ->
-    [forward_mod(Key, Priority, Port1, Port2),
-     forward_mod(Key, Priority, Port2, Port1)].
+    bridge(Key, 0, Priority, Port1, Port2).
+
+bridge(Key, TableId, Priority, Port1, Port2) ->
+    [forward_mod(Key, TableId, Priority, Port1, Port2),
+     forward_mod(Key, TableId, Priority, Port2, Port1)].
 
 %% @equiv clear_flow(default, TableId, OutPort)
 -spec clear_flow_out(TableId :: integer(), OutPort :: integer()) -> {ok, ofp_message()} | {error, error_reason()}.
@@ -392,6 +398,9 @@ dns_tap(Priority, Port1, Port2, Port3, DnsIps) ->
 dns_tap(Key, Priority, Port1, Port2, Port3, DnsIps) when is_list(DnsIps) ->
     [dns_tap(Key, Priority, Port1, Port2, Port3, DnsIp) || DnsIp <- DnsIps];
 dns_tap(Key, Priority, Port1, Port2, Port3, DnsIp = {_,_,_,_}) ->
+    dns_tap(Key, 0, Priority, Port1, Port2, Port3, DnsIp).
+
+dns_tap(Key, TableId, Priority, Port1, Port2, Port3, DnsIp = {_,_,_,_}) ->
     Version = version(Key),
     IPv4Src = list_to_binary(tuple_to_list(DnsIp)),
     % Matches must be in a specific order, otherwise of_msg_lib will
@@ -403,7 +412,7 @@ dns_tap(Key, Priority, Port1, Port2, Port3, DnsIp = {_,_,_,_}) ->
                {ipv4_src, IPv4Src}],
     Instructions = [{apply_actions, [{output, Port2, no_buffer},
                                      {output, Port3, no_buffer}]}],
-    Opts = [{table_id,0}, {priority, Priority},
+    Opts = [{table_id, TableId}, {priority, Priority},
             {idle_timeout, 0}, {idle_timeout, 0},
             {cookie, <<0,0,0,0,0,0,0,10>>},
             {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
@@ -441,10 +450,13 @@ tapestry_config_add(Port1, Port2, DnsIps) ->
 %% @end
 -spec tapestry_config_add(switch_key(), integer(), integer(), [ipaddress()]) -> ok.
 tapestry_config_add(Key, Port1, Port2, DnsIps) ->
-    ?DEBUG("bridge: ~p~n", [bridge(Key, ?BRIDGE_PRIORITY, Port1, Port2)]),
+    tapestry_config_add(Key, 0, Port1, Port2, DnsIps).
+
+tapestry_config_add(Key, TableId, Port1, Port2, DnsIps) ->
+    ?DEBUG("bridge: ~p~n", [bridge(Key, ?BRIDGE_PRIORITY, TableId, Port1, Port2)]),
     ?DEBUG("dns_tap: ~p~n",
-                [dns_tap(Key, ?DNS_TAP_PRIORITY, Port1, Port2, controller, DnsIps)]),
-    ok.
+                [dns_tap(Key, ?DNS_TAP_PRIORITY, TableId, Port1, Port2, controller, DnsIps)]).
+
 
 %% @equiv tapestry_delete_tap(default)
 -spec tapestry_delete_tap() -> ok.
