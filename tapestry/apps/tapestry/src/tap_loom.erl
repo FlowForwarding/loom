@@ -185,7 +185,8 @@ dns_reply(Data, DatapathId, CollectorIP) ->
 			Match = match_reply(DnsRec),
 			case Match of
 			    {error, _} ->
-                                ?DEBUG("No match dropped: ~p~n",[Match]);
+                                ?DEBUG("No match dropped: ~p, ~p~n",
+				       [Match, DnsRec]);
 			    {ok, ID, Query} ->
 				R = list_to_tuple(
                                         binary_to_list(Header1#ipv4.daddr)),
