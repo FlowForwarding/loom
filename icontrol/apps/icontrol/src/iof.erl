@@ -67,6 +67,7 @@
     get_queue_stats/3,
     bridge/3,
     bridge/4,
+    bridge/5,
     clear_flow_out/2,
     clear_flow_out/3,
     clear_flows0/0,
@@ -347,8 +348,8 @@ bridge(Key, Priority, Port1, Port2) ->
     bridge(Key, 0, Priority, Port1, Port2).
 
 bridge(Key, TableId, Priority, Port1, Port2) ->
-    [forward_mod(Key, TableId, Priority, Port1, Port2),
-     forward_mod(Key, TableId, Priority, Port2, Port1)].
+    [forward_mod(Key, TableId, Priority, Port1, [Port2]),
+     forward_mod(Key, TableId, Priority, Port2, [Port1])].
 
 %% @equiv clear_flow(default, TableId, OutPort)
 -spec clear_flow_out(TableId :: integer(), OutPort :: integer()) -> {ok, ofp_message()} | {error, error_reason()}.
@@ -453,9 +454,10 @@ tapestry_config_add(Key, Port1, Port2, DnsIps) ->
     tapestry_config_add(Key, 0, Port1, Port2, DnsIps).
 
 tapestry_config_add(Key, TableId, Port1, Port2, DnsIps) ->
-    ?DEBUG("bridge: ~p~n", [bridge(Key, ?BRIDGE_PRIORITY, TableId, Port1, Port2)]),
+    ?DEBUG("bridge: ~p~n", [bridge(Key, TableId, ?BRIDGE_PRIORITY, Port1, Port2)]),
     ?DEBUG("dns_tap: ~p~n",
-                [dns_tap(Key, ?DNS_TAP_PRIORITY, TableId, Port1, Port2, controller, DnsIps)]).
+                [dns_tap(Key, TableId, ?DNS_TAP_PRIORITY, Port1, Port2, controller, DnsIp)
+		 || DnsIp <- DnsIps]).
 
 
 %% @equiv tapestry_delete_tap(default)
