@@ -77,6 +77,8 @@
     flows/1,
     dns_tap/5,
     dns_tap/6,
+    tap/5,
+    tap/6,
     tapestry_config/1,
     tapestry_config/2,
     tapestry_config/3,
@@ -95,7 +97,8 @@
     oe_ports/0,
     oe_ports/1,
     switches/0,
-    openflow_hub/4
+    openflow_hub/4,
+    forward_pip/7
 ]).
 
 -type switch_key() :: integer().
@@ -385,6 +388,30 @@ clear_flows(Key, TableId) ->
     Version = version(Key),
     Request = of_msg_lib:flow_delete(Version, [], [{table_id, TableId}]),
     send(Key, Request).
+
+%% @equiv tap(default, Cookie, Priority, Port1, OutPort1, OutPort2)
+tap(Cookie, Priority, Port1, OutPort1, OutPort2) ->
+    tap(default, Cookie, Priority, Port1, OutPort1, OutPort2).
+
+%% @doc
+%% Forward packets from Port1 to OutPort1 and OutPort2.  Flows
+%% are installed in table 0 with priority Priority.
+%% If Key is ``default'', adds flow on the default switch.
+%% @end
+-spec tap(switch_key(), binary(), integer(), integer(), integer(), integer()) -> {ok, ofp_message()} | {error, error_reason()}.
+tap(Key, Cookie, Priority, Port1, OutPort1, OutPort2) ->
+    Version = version(Key),
+    % Matches must be in a specific order, otherwise of_msg_lib will
+    % complain about missing or bad required fields.
+    Matches = [{in_port, <<Port1:32>>}],
+    Instructions = [{apply_actions, [{output, OutPort1, no_buffer},
+                                     {output, OutPort2, no_buffer}]}],
+    Opts = [{table_id,0}, {priority, Priority},
+            {idle_timeout, 0}, {idle_timeout, 0},
+            {cookie, Cookie},
+            {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
+    Msg = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
+    send(Key, Msg).
 
 %% @equiv dns_tap(default, Priority, Port1, Port2, Port3, DnsIps)
 dns_tap(Priority, Port1, Port2, Port3, DnsIps) ->
@@ -755,3 +782,28 @@ show(Msg) ->
 openflow_hub(Key, Priority, InPort, PiPorts) ->
     forward_mod (Key, Priority, InPort, PiPorts),
     [forward_mod(Key, Priority, PiPort, [InPort]) || PiPort <- PiPorts].
+
+% set up a tap
+% Key - switch key
+% Cookie - flow rule cookie (8 byte binary)
+% Priority - flow rule priority
+% SrcIP - source IP address to match
+% DstIP - destination IP address to match
+% InPort - In port to match
+% OutPorts - ports to output to (use controller for packetins)
+forward_pip(Key, Cookie, Priority, SrcIP, DstIP, InPort, OutPorts) when is_list(OutPorts) ->
+    Version = version(Key),
+    Matches = [ {in_port, <<InPort:32>>},
+                {eth_type, <<8,0>>},
+                {ipv4_src, list_to_binary(tuple_to_list(SrcIP))},
+                {ipv4_dst, list_to_binary(tuple_to_list(DstIP))}  ],
+    TableId = 0,
+    
+    Instructions = [{apply_actions, [{output, OutPort, no_buffer} ||
+                                                        OutPort <- OutPorts]}],
+    Opts = [{table_id, TableId}, {priority, Priority},
+            {idle_timeout, 0}, {idle_timeout, 0},
+            {cookie, Cookie},
+            {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
+    Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
+    send(Key, Request).
