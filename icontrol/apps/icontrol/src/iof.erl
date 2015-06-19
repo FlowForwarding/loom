@@ -98,7 +98,8 @@
     oe_ports/1,
     switches/0,
     openflow_hub/4,
-    forward_pip/7
+    forward_pip/7,
+    tap_destIP/5
 ]).
 
 -type switch_key() :: integer().
@@ -807,3 +808,24 @@ forward_pip(Key, Cookie, Priority, SrcIP, DstIP, InPort, OutPorts) when is_list(
             {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
     Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
     send(Key, Request).
+
+% set up a tap so packet with matching destination IP address is sent to controller also, in addition to being sent to OutPort
+% Key - switch key
+% Cookie - flow rule cookie (8 byte binary)
+% Priority - flow rule priority
+% DstIP - destination IP address to match
+% OutPort - port to output 
+tap_destIP(Key, Cookie, Priority, DstIP,OutPort) ->
+    Version = version(Key),
+    Matches = [ {eth_type, <<8,0>>},
+                {ipv4_dst, list_to_binary(tuple_to_list(DstIP))}  ],
+    TableId = 0,
+    
+    Instructions = [{apply_actions, [{output, OutPort, no_buffer},{output, controller, no_buffer}] }],
+    Opts = [{table_id, TableId}, {priority, Priority},
+            {idle_timeout, 0}, {idle_timeout, 0},
+            {cookie, Cookie},
+            {cookie_mask, <<0,0,0,0,0,0,0,0>>}],
+    Request = of_msg_lib:flow_add(Version, Matches, Instructions, Opts),
+    send(Key, Request).
+
