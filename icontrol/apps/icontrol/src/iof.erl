@@ -746,8 +746,8 @@ show(List) when is_list(List) ->
     ok;
 show({error, Reason}) ->
     io:format("error: ~p~n", [Reason]);
-show({ok, {ofp_message, _Version, _HdrType, _Xid, Body}}) ->
-    io:format("~P~n", [Body, 10000]);
+show({ok, {ofp_message, _Version, _HdrType, _Xid, _Body} = Message}) ->
+    show(of_msg_lib:decode(Message));
 show(Msg) ->
     io:format("~P~n", [Msg, 10000]).
     
