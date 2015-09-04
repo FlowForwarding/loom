@@ -160,7 +160,7 @@ switches() ->
 sync_send(SwitchKey, Msg) ->
     gen_server:call(?SERVER, {sync_send, SwitchKey, Msg}).
 
--spec connect(ipaddress(), port()) -> ok | {error, error_reason()}.
+-spec connect(ipaddress(), inet:port_number()) -> ok | {error, error_reason()}.
 connect(IpAddr, Port) ->
     case of_driver:connect(IpAddr, Port) of
         {ok, _} -> ok;

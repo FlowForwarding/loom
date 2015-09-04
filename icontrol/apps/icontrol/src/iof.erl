@@ -102,7 +102,7 @@
     tap_destIP/5
 ]).
 
--type switch_key() :: integer().
+-type switch_key() :: 'default' | integer().
 
 -define(OCH_SIGTYPE, <<10>>).
 -define(FIXED_OCH_SIGID(ChannelNumber), ?OCH_SIGID(1, 2, ChannelNumber, 1)).
@@ -364,7 +364,7 @@ clear_flow_out(TableId, OutPort) ->
 %% Clear one flow on the switch associated with Key.
 %% If Key is ``default'', clear the flow on the default switch.
 %% @end
--spec clear_flow_out(Key :: switch_key(), TableId :: integer(), OutPort :: integer()) -> {ok, ofp_message()} | {error, error_reason()}.
+-spec clear_flow_out(Key :: switch_key(), TableId :: integer(), OutPort :: integer() | 'controller') -> {ok, ofp_message()} | {error, error_reason()}.
 clear_flow_out(Key, TableId, OutPort) ->
     Version = version(Key),
     Request = of_msg_lib:flow_delete(Version, [], [{out_port, OutPort}, {table_id, TableId}]),

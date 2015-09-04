@@ -71,7 +71,7 @@ disconnect(State) ->
     } = State,
     ok = icontrol_logic:ofsh_disconnect(AuxId, DatapathId).
 
--spec failover(ofs_state()) -> ok.
+-spec failover(ofs_state()) -> {ok, ofs_state()}.
 failover(State) ->
     % State of new active
     % TODO: not failover not implement in ofs_handler
