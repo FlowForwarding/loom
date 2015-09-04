@@ -36,6 +36,8 @@
     terminate/1
 ]).
 
+-behaviour(ofs_handler).
+
 % State held by ofs_handler.
 % This state holds onto the datapath id and aux connection id.
 % There is one state for each connection.  
