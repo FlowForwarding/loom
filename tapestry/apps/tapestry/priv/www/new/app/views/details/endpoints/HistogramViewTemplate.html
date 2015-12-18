@@ -1,5 +1,5 @@
 <md-content flex class="md-whiteframe-z1" layout="row" layout-margin>
-    <md-button ng-disabled="prevDisabled" ng-click="goToPage(page - 1)">&lt;-</md-button>
+    <md-button ng-disabled="prevDisabled" class="" ng-click="goToPage(page - 1)">&lt;&lt;</md-button>
     <div flex layout="column">
         <div class="chart-container-wrap" flex>
             <div
@@ -33,5 +33,5 @@
             Endpoint {{page*itemsPerPage + 1}} - {{(page + 1)*itemsPerPage > rows.length ? rows.length :(page + 1)*itemsPerPage}}. Out of {{rows.length}}
         </div>
     </div>
-    <md-button ng-disabled="nextDisabled" ng-click="goToPage(page + 1)">-&gt;</md-button>
+    <md-button ng-disabled="nextDisabled" ng-click="goToPage(page + 1)">&gt;&gt;</md-button>
 </md-content>

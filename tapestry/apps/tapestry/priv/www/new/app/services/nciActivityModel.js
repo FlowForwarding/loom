@@ -8,11 +8,14 @@
             return modelPromise
                 .then(function(model) {
                     return {
-                        byIndex: function (index) {
-                            return model.activities()[index - 1];
-                        },
+                        //byIndex: function (index) {
+                        //    return model.activities()[index - 1];
+                        //},
                         byIp: function (ip) {
                             return model.getActivityByMainEndpoint(model.getEndpointByIp(ip));
+                        },
+                        filter: function(filterFn) {
+                            return model.activities().filter(filterFn);
                         },
                         all: function () {
                             return model.activities();

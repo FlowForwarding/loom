@@ -21,7 +21,7 @@
                 ].join("\n");
             }
 
-            var details = activities.all(),
+            var details = activities,
                 maxActivities = new Set(details.slice().sort(function(activity1, activity2) {
                      return activity2.internalFlows - activity1.internalFlows;
                 }).filter(function(d, i) {
@@ -52,7 +52,7 @@
 
             $scope.select = function(selection) {
                 if (selection) {
-                    var activity = activities.byIp(rows[selection.row].c[0].ip);
+                    var activity = details.filter(function(activity) { return activity.mainEndpoint.ip == rows[selection.row].c[0].ip; })[0];
                     nciEndpointsDialog.show(activity);
                 }
 

@@ -159,7 +159,14 @@ angular.module('nci', [
                 },
                 resolve: {
                     activities: function(activitiesPromise) {
-                        return activitiesPromise;
+                        var ACTIVITY_MIN_SIZE = 1;
+                        return activitiesPromise
+                            .then(function(activities) {
+                                var filteredActivities = activities.filter(function(activity) {return activity.size >= ACTIVITY_MIN_SIZE;});
+                                // FIXME: dirty hack to pass constant to controllers
+                                filteredActivities.ACTIVITY_MIN_SIZE = ACTIVITY_MIN_SIZE;
+                                return filteredActivities;
+                            });
                     }
                 }
             })

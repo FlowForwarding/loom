@@ -52,14 +52,14 @@
                 return node;
             }
 
-            var details = activities.all(),
+            var details = activities,
                 edgesSet = new Set(),
                 nodesSet;
 
             rowsCount = Math.round(Math.sqrt(details.length));
 
             $scope.expandNode = function(node) {
-                var activity = activities.byIp(node.id);
+                var activity = details.filter(function(activity) { return activity.mainEndpoint.ip == node.id; })[0];
 
                 if (!node.activity) {return;}
                 if (!node.expanded) {
@@ -129,6 +129,11 @@
                 Object.keys(activity.activities).forEach(function(targetIp) {
                     var targetActivity = activity.activities[targetIp],
                         id = activity.mainEndpoint.ip + "_" + targetActivity.mainEndpoint.ip;
+
+                    // FIXME: ACTIVITY_MIN_SIZE is passed from router
+                    if (targetActivity.size < activities.ACTIVITY_MIN_SIZE) {
+                        return;
+                    }
 
                     if (!edgesSet.has(id)) {
                         $scope.edges.push({
