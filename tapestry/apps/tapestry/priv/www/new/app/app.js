@@ -159,7 +159,7 @@ angular.module('nci', [
                 },
                 resolve: {
                     activities: function(activitiesPromise) {
-                        var ACTIVITY_MIN_SIZE = 1;
+                        var ACTIVITY_MIN_SIZE = 2;
                         return activitiesPromise
                             .then(function(activities) {
                                 var filteredActivities = activities.filter(function(activity) {return activity.size >= ACTIVITY_MIN_SIZE;});
