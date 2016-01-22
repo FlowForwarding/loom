@@ -209,7 +209,7 @@ angular.module('nci', [
 
 
             .state("details.endpoints", {
-                url: "/endpoints/{endpoint}",
+                url: "/endpoints/{endpoint}?filter",
                 abstract: true,
                 data: {
                     name: "All Endpoints"
@@ -226,17 +226,37 @@ angular.module('nci', [
                     }
                 },
                 resolve: {
-                    endpoints: function(endpointsPromise, $stateParams) {
+                    endpoints: function(endpointsPromise, $stateParams, preferences, wildcardStringToRegExp) {
                         var ip = $stateParams.endpoint;
 
+                        var filter = $stateParams.filter || "";
+
                         return endpointsPromise.then(function(ep) {
+                            var result;
                             if (ip) {
                                 var endpoint = ep.byIp(ip),
                                     connections = endpoint.getConnections();
                                 //connections.push(endpoint);
-                                return connections;
+                                result = connections;
+                            } else {
+                                result = ep.all();
                             }
-                            return ep.all();
+
+
+                            if (filter.length > 0) {
+                                result = filterEndpoints(result, filter);
+                            }
+
+                            function filterEndpoints(endpoints, term) {
+                                var filterRe = wildcardStringToRegExp(term);
+
+                                return endpoints.filter(function(ep) {
+                                    return filterRe.test(ep.ip) ||
+                                        (preferences.showDomainNames && filterRe.test(ep.host));
+                                });
+                            }
+
+                            return result;
                         });
                     }
                 }
@@ -259,6 +279,7 @@ angular.module('nci', [
                     index: 1
                 },
                 resolve: {
+                    // override resolve to push current endpoint to endpoints array
                     endpoints: function(endpoints, $stateParams, endpointsPromise) {
                         var ip = $stateParams.endpoint;
                         return endpointsPromise.then(function(ep) {
@@ -425,7 +446,19 @@ angular.module('nci', [
                 $scope.viewName = getViewName();
                 $scope.showAllEndpoints = !!$stateParams.endpoint;
                 $scope.showNCI = current.name == "monitor";
+                $scope.showEndpointsFiltering = current.name.indexOf("details.endpoints") >= 0;
+
+                console.log($stateParams);
+                $scope.filterTerm = $stateParams.filter || "";
             });
+
+            $scope.filter = function(term) {
+                $state.go($state.current, {endpoint: $stateParams.endpoint, filter: term}, {reload: true});
+            };
+
+            $scope.clearFilter = function() {
+                $state.go($state.current, {endpoint: $stateParams.endpoint, filter: ''}, {reload: true});
+            };
 
             $scope.search = function(event) {
                 $mdDialog.show({

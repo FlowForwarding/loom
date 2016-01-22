@@ -20,7 +20,8 @@
   <link rel="stylesheet" href="app.css">
 </head>
 <body ng-controller="main">
-  <div ng-controller="connectionController" layout="column" layout-fill>
+    <div ng-hide="true" ng-controller="connectionController"></div>
+  <div layout="column" layout-fill>
         <div flex layout="row">
 
             <md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$media('gt-lg')">
@@ -53,6 +54,11 @@
                             <div class="updatedTime">updated: {{updatedAt | date : 'medium'}}</div>
                         </div>
                         <span flex></span>
+                        <md-input-container ng-show="showEndpointsFiltering">
+                            <label>filter endpoints</label>
+                            <input ng-model="filterTerm" ng-change="filter(filterTerm)" type="text">
+                        </md-input-container>
+                        <md-button ng-click="clearFilter()" ng-show="filterTerm.length > 0">Clear</md-button>
                         <md-button ng-click="search($event)" class="md-raised" style="margin: 0 10px;">Search</md-button>
                         <md-button ng-controller="optionsController" ng-click="options()" class="md-raised">Options</md-button>
                     </div>
@@ -143,6 +149,7 @@
     <script src="services/nciIsExternal.js"></script>
     <script src="services/exportToCSV.js"></script>
     <script src="services/jsonUpload.js"></script>
+    <script src="services/utils.js"></script>
 
 
 </body>

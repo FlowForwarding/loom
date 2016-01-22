@@ -4,9 +4,19 @@
     angular.module('nci.components.services.endpointsService', [
         'ngMaterial',
         'nci.services.export',
-        'nci.components.nciSigmaGraph'
+        'nci.components.nciSigmaGraph',
+        'nci.services.utils'
     ])
-        .controller("endpointsDialogController", function($scope, $mdDialog, activity, exportToCSV, endpointTooltip, colors, preferences) {
+        .controller("endpointsDialogController",
+            function($scope,
+                     $mdDialog,
+                     activity,
+                     exportToCSV,
+                     endpointTooltip,
+                     colors,
+                     preferences,
+                     wildcardStringToRegExp
+            ) {
             var defaultEndpointColor = colors.endpoints.default,
                 edgesSet = new Set(),
                 edges = [],
@@ -101,18 +111,6 @@
 
                 updateGraph();
             };
-
-            function wildcardStringToRegExp(str) {
-                // converts string with wildcards to regex
-                // * - zero or more
-                // ? - exact one
-
-                str = str.replace(/\./g, "\\.");
-                str = str.replace(/\?/g, ".");
-                str = str.replace(/\*/g, ".*");
-
-                return new RegExp(str);
-            }
 
 
             function filterEndpoints(query) {
