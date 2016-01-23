@@ -49,6 +49,8 @@
     get_features/1,
     get_description/0,
     get_description/1,
+    get_table_features/0,
+    get_table_features/1,
     debug/1,
     send/1,
     send/2,
@@ -758,6 +760,99 @@ get_description(Key) ->
     Version = version(Key),
     Request = of_msg_lib:get_description(Version),
     show(send(Key, Request)).
+
+%% @equiv get_table_features(default)
+get_table_features() ->
+    get_table_features(default).
+
+%% @doc
+%% Show table features for all tables of the switch
+%% associated with `Key'.
+%% @end
+get_table_features(Key) ->
+    Version = version(Key),
+    Request = of_msg_lib:get_table_features(Version),
+    show_table_features(send(Key, Request)).
+
+show_table_features({error, _} = Error) ->
+    show(Error);
+show_table_features({ok, {ofp_message, _Version, _HdrType, _Xid, _Body} = Response}) ->
+    {table_features_reply, _, Data} = of_msg_lib:decode(Response),
+    {tables, Tables} = lists:keyfind(tables, 1, Data),
+    ValueCombinations = aggregate_table_feature_properties(Tables),
+    NumberedValueCombinations =
+        lists:zip(lists:seq(1, length(ValueCombinations)), ValueCombinations),
+    io:format("~-3s ~-32s ~-11s ~-5s ~-7s ~-5s ~-5s ~-5s ~-5s ~-5s ~-5s~n",
+              ["Id", "Table name", "Max entries", "Instr", "NextTab", "WrAct",
+               "ApAct", "Match", "Wild", "WrSet", "ApSet"]),
+    lists:foreach(
+      fun(Table) -> show_one_table_features(Table, NumberedValueCombinations) end,
+      Tables),
+    io:format("~n"),
+    lists:foreach(
+      fun({N, Value}) ->
+              io:format("{~b}: ~p~n", [N, Value])
+      end,
+      NumberedValueCombinations).
+
+aggregate_table_feature_properties(Tables) ->
+    lists:foldl(fun aggregate_table_feature_properties/2, [], Tables).
+
+aggregate_table_feature_properties(Table, Acc) ->
+    {properties, Properties} = lists:keyfind(properties, 1, Table),
+    %% Use property values that are lists of atoms, to avoid
+    %% e.g. next_tables.
+    Values = [Value || {_Name, Value} <- Properties, is_atom(hd(Value))],
+    %% Save each combination of atoms in a sorted list without duplicates.
+    lists:foldl(
+      fun(Value, Acc1) -> lists:umerge([Value], Acc1) end,
+      Acc,
+      Values).
+
+show_one_table_features(Table, Footnotes) ->
+    {table_id, TableId} = lists:keyfind(table_id, 1, Table),
+    {name, Name} = lists:keyfind(name, 1, Table),
+    {max_entries, MaxEntries} = lists:keyfind(max_entries, 1, Table),
+    {properties, Properties} = lists:keyfind(properties, 1, Table),
+    {instructions, Instructions} = lists:keyfind(instructions, 1, Properties),
+    {next_tables, NextTables} = lists:keyfind(next_tables, 1, Properties),
+    {write_actions, WriteActions} = lists:keyfind(write_actions, 1, Properties),
+    {apply_actions, ApplyActions} = lists:keyfind(apply_actions, 1, Properties),
+    {match, Match} = lists:keyfind(match, 1, Properties),
+    {wildcards, Wildcards} = lists:keyfind(wildcards, 1, Properties),
+    {write_setfield, WriteSetfield} = lists:keyfind(write_setfield, 1, Properties),
+    {apply_setfield, ApplySetfield} = lists:keyfind(apply_setfield, 1, Properties),
+    io:format("~3b ~-32s ~-11b ~-5s ~-7s ~-5s ~-5s ~-5s ~-5s ~-5s ~-5s~n",
+              [TableId, Name, MaxEntries,
+               find_footnote(Instructions, Footnotes),
+               compact_next_tables(NextTables),
+               find_footnote(WriteActions, Footnotes),
+               find_footnote(ApplyActions, Footnotes),
+               find_footnote(Match, Footnotes),
+               find_footnote(Wildcards, Footnotes),
+               find_footnote(WriteSetfield, Footnotes),
+               find_footnote(ApplySetfield, Footnotes)]).
+
+find_footnote([], _Footnotes) ->
+    %% Empty list?  That's simple.
+    "nil";
+find_footnote(Item, Footnotes) ->
+    {N, Item} = lists:keyfind(Item, 2, Footnotes),
+    "{" ++ integer_to_list(N) ++ "}".
+
+compact_next_tables([]) ->
+    "none";
+compact_next_tables([N]) ->
+    integer_to_list(N);
+compact_next_tables(NextTables = [_|_]) ->
+    Min = lists:min(NextTables),
+    Max = lists:max(NextTables),
+    case NextTables =:= lists:seq(Min, Max) of
+        true ->
+            integer_to_list(Min) ++ "-" ++ integer_to_list(Max);
+        false ->
+            "???"
+    end.
 
 format_default(Key, Key) ->
     "*";
