@@ -24,8 +24,7 @@ rel/icontrol/bin/icontrol console
 ## Using icontrol
 
 icontrol is a open flow controller with an basic interactive interface.
-The iof module has functions to send commands to the switch and
-and interrogate the switch.
+The iof module has functions to send commands to the switch and interrogate the switch.
 
 ### Configure switch
 
